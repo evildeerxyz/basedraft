@@ -36,12 +36,12 @@ export function Roles() {
           {shown.length} open {shown.length === 1 ? "role" : "roles"}
         </p>
       </div>
-      <ul className="mt-8 grid gap-3">
+      <ul className="mt-8 border-t border-ink">
         <AnimatePresence initial={false} mode="popLayout">
           {shown.map((r) => (
-            <motion.li key={r.id} layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ type: "spring", stiffness: 400, damping: 34 }} className="pl-card overflow-hidden rounded-[14px]">
-              <button type="button" onClick={() => setOpen(open === r.id ? null : r.id)} aria-expanded={open === r.id} className="flex w-full flex-col gap-2 px-6 py-5 text-left sm:flex-row sm:items-center sm:gap-6">
-                <span className="flex-1 text-[18px] font-semibold text-ink">{r.title}</span>
+            <motion.li key={r.id} layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ type: "spring", stiffness: 400, damping: 34 }} className="overflow-hidden border-b border-line">
+              <button type="button" onClick={() => setOpen(open === r.id ? null : r.id)} aria-expanded={open === r.id} className="flex w-full flex-col gap-2 rounded-[8px] py-5 text-left transition-colors hover:text-ink-2 sm:flex-row sm:items-center sm:gap-6">
+                <span className="flex-1 text-[20px] font-semibold tracking-[-0.03em] text-ink">{r.title}</span>
                 <span className="text-[15px] text-ink-2">{r.team}</span>
                 <span className="text-[15px] text-mute sm:w-[180px]">{r.office}</span>
                 <motion.span animate={{ rotate: open === r.id ? 180 : 0 }} className="hidden text-mute sm:block">
@@ -51,9 +51,9 @@ export function Roles() {
               <AnimatePresence initial={false}>
                 {open === r.id && (
                   <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} transition={{ type: "spring", stiffness: 380, damping: 36 }} className="overflow-hidden">
-                    <div className="flex flex-col items-start gap-5 px-6 pb-6 sm:flex-row sm:items-end sm:justify-between">
+                    <div className="flex flex-col items-start gap-5 pb-7 sm:flex-row sm:items-end sm:justify-between">
                       <p className="max-w-[640px] text-[16px] leading-[1.6] text-mute">{r.about}</p>
-                      <Link href="/contact" className={cn("pl-btn-dark inline-flex h-10 shrink-0 items-center gap-1.5 rounded-[12px] px-3.5 text-[15px] font-medium")}>
+                      <Link href="/contact" className={cn("pl-btn-dark inline-flex h-10 shrink-0 items-center gap-1.5 rounded-[10px] px-3.5 text-[15px] font-medium")}>
                         Apply
                         <ArrowUpRightIcon size={17} />
                       </Link>
@@ -64,7 +64,7 @@ export function Roles() {
             </motion.li>
           ))}
         </AnimatePresence>
-        {shown.length === 0 && <li className="pl-card rounded-[14px] px-6 py-10 text-center text-[16px] text-mute">Nothing open there right now. Write to us anyway at jobs@pello.example.</li>}
+        {shown.length === 0 && <li className="border-b border-line py-10 text-[16px] text-mute">Nothing open there right now. Write to us anyway at jobs@pello.example.</li>}
       </ul>
     </div>
   );

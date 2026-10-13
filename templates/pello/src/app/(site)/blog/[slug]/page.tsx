@@ -32,14 +32,12 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
           <ArrowLeftIcon size={16} />
           All notes
         </Link>
-        <h1 className="mt-6 max-w-[860px] text-balance font-display text-[clamp(2.6rem,5vw,4.2rem)] font-semibold leading-[1.05] tracking-[-0.03em] text-ink">{post.title}</h1>
-        <p className="mt-5 max-w-[640px] text-[18px] leading-[1.55] text-mute">{post.excerpt}</p>
+        <h1 className="mt-6 max-w-[880px] text-balance text-[clamp(2.6rem,5vw,4.4rem)] font-semibold leading-[1] tracking-[-0.055em] text-ink">{post.title}</h1>
+        <p className="mt-6 max-w-[640px] text-[19px] leading-[1.5] text-mute">{post.excerpt}</p>
         <p className="mt-6 text-[15px] text-mute">
-          {post.author}, {post.role} · {post.date} · <span className="tabular font-mono">{post.minutes}</span> min read
+          {post.author}, {post.role}. {post.date}, <span className="tabular font-mono">{post.minutes}</span> min read
         </p>
-        <div className="pl-card mt-10 overflow-hidden rounded-[16px]">
-          <Dithered src={post.cover} alt="" cell={3} focus={[0.5, 0.45]} className="aspect-[21/9]" />
-        </div>
+        <Dithered src={post.cover} alt="" cell={3} focus={[0.5, 0.45]} className="mt-10 aspect-[21/9] w-full rounded-[14px]" />
         <Prose className="mt-12">
           {post.body.map((b, i) =>
             "h2" in b ? (
@@ -53,21 +51,21 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
                 ))}
               </ul>
             ) : (
-              <figure key={i} className="pl-card my-10 rounded-[16px] p-7">
-                <blockquote className="font-display text-[24px] font-semibold leading-[1.3] tracking-[-0.015em] text-ink">&ldquo;{b.quote}&rdquo;</blockquote>
+              <figure key={i} className="my-10 border-l-2 border-accent pl-6">
+                <blockquote className="text-[26px] font-medium leading-[1.3] tracking-[-0.03em] text-ink">&ldquo;{b.quote}&rdquo;</blockquote>
                 <figcaption className="mt-3 text-[15px] text-mute">{b.by}</figcaption>
               </figure>
             ),
           )}
         </Prose>
       </Band>
-      <Band rule inner="py-16">
-        <p className="font-display text-[24px] font-semibold tracking-[-0.015em] text-ink">Read next</p>
-        <ul className="mt-5 grid gap-3 md:grid-cols-2">
+      <Band inner="pb-20">
+        <p className="border-t border-ink pt-6 text-[15px] font-medium text-mute">Read next</p>
+        <ul className="mt-6 grid gap-x-10 gap-y-8 md:grid-cols-2">
           {more.map((p) => (
             <li key={p.slug}>
-              <Link href={`/blog/${p.slug}`} className="pl-card block rounded-[16px] p-6">
-                <span className="block font-display text-[20px] font-semibold tracking-[-0.01em] text-ink">{p.title}</span>
+              <Link href={`/blog/${p.slug}`} className="group block rounded-[8px]">
+                <span className="block text-[24px] font-semibold leading-[1.15] tracking-[-0.035em] text-ink decoration-2 underline-offset-[5px] group-hover:underline">{p.title}</span>
                 <span className="mt-1.5 block text-[15px] leading-[1.55] text-mute">{p.excerpt}</span>
               </Link>
             </li>

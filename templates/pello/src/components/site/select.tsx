@@ -8,7 +8,7 @@ import { cn } from "@/lib/cn";
 /*
  * pello's own dropdown, not the browser's: it opens with Enter, Space or the arrow keys, moves
  * with the arrows, jumps to an option by its first letter, and closes with Escape, Tab or a click
- * anywhere else. The focus ring is the accent, as on every field.
+ * anywhere else. The focus ring is the accent, as everywhere on the page.
  */
 
 export interface Option {
@@ -70,9 +70,9 @@ export function Select({ value, onChange, options, label, className, dark }: { v
         onClick={() => (open ? setOpen(false) : show())}
         onKeyDown={onKey}
         className={cn(
-          "flex h-11 w-full items-center justify-between gap-3 rounded-[10px] px-3.5 text-left text-[15px] font-medium outline-none transition-shadow focus-visible:shadow-[0_0_0_1px_var(--pl-ink),0_0_0_4px_var(--pl-line)]",
-          dark ? "bg-night-2 text-night-ink shadow-[0_0_0_1px_var(--pl-night-line)]" : "bg-surface text-ink shadow-[0_0_0_1px_var(--pl-line-strong),0_1px_2px_rgb(0_0_0/0.04)]",
-          open && "shadow-[0_0_0_1px_var(--pl-ink),0_0_0_4px_var(--pl-line)]",
+          "flex h-11 w-full items-center justify-between gap-3 rounded-[10px] px-3.5 text-left text-[15px] font-medium transition-shadow",
+          dark ? "bg-night-2 text-night-ink shadow-[inset_0_0_0_1px_var(--pl-night-line)]" : "bg-page text-ink shadow-[inset_0_0_0_1px_var(--pl-line-strong)] hover:shadow-[inset_0_0_0_1px_var(--pl-ink-2)]",
+          open && (dark ? "shadow-[inset_0_0_0_1.5px_var(--pl-night-ink)]" : "shadow-[inset_0_0_0_1.5px_var(--pl-ink)]"),
         )}
       >
         <span className="truncate">{current?.label}</span>
@@ -90,7 +90,7 @@ export function Select({ value, onChange, options, label, className, dark }: { v
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -4, scale: 0.98 }}
             transition={{ duration: 0.16, ease: [0.22, 1, 0.36, 1] }}
-            className={cn("absolute inset-x-0 top-full z-40 mt-1.5 max-h-[320px] origin-top overflow-y-auto rounded-[12px] p-1", dark ? "bg-night-2 text-night-ink shadow-[0_0_0_1px_var(--pl-night-line)]" : "pl-pop text-ink")}
+            className={cn("absolute inset-x-0 top-full z-40 mt-1.5 max-h-[320px] origin-top overflow-y-auto rounded-[10px] p-1", dark ? "bg-night-2 text-night-ink shadow-[0_0_0_1px_var(--pl-night-line)]" : "pl-pop text-ink")}
           >
             {options.map((o, i) => (
               <li

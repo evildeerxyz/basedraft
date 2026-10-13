@@ -22,25 +22,23 @@ const PERKS = [
 export default function CareersPage() {
   return (
     <>
-      <PageHead title="Help People teams get their week back" lead="We're 68 people in Berlin and New York, building the HR system we wished we'd had. Here's what's open." />
+      <PageHead title="Help People teams get their week back." lead="We're 68 people in Berlin and New York, building the HR system we wished we'd had. Here's what's open." />
       <Band inner="pb-20">
-        <div className="pl-card -mx-2 overflow-hidden rounded-[16px] sm:-mx-6 lg:-mx-[64px]">
-          <Dithered src={SCENES.allHands} alt="The pello team at a Friday all hands" cell={3} focus={[0.5, 0.45]} className="aspect-[21/9]" />
-        </div>
+        <Dithered src={SCENES.allHands} alt="The pello team at a Friday all hands" cell={3} focus={[0.5, 0.45]} className="aspect-[21/9] w-full rounded-[14px]" />
       </Band>
-      <Band rule inner="py-20 lg:py-24">
+      <Band inner="pb-24 lg:pb-28">
         <Roles />
       </Band>
-      <Band rule inner="py-24 lg:py-32">
+      <Band tint inner="py-24 lg:py-32">
         <SectionHead title="What working here is like" lead="We hold ourselves to the policies we help customers write." />
-        <ul className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <dl className="mt-14 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
           {PERKS.map((p) => (
-            <li key={p.title} className="pl-card rounded-[16px] p-6">
-              <p className="font-display text-[22px] font-semibold tracking-[-0.015em] text-ink">{p.title}</p>
-              <p className="mt-2 text-[16px] leading-[1.55] text-mute">{p.body}</p>
-            </li>
+            <div key={p.title} className="border-t border-ink pt-4">
+              <dt className="text-[22px] font-semibold tracking-[-0.035em] text-ink">{p.title}</dt>
+              <dd className="mt-2 text-[16px] leading-[1.6] text-mute">{p.body}</dd>
+            </div>
           ))}
-        </ul>
+        </dl>
       </Band>
     </>
   );

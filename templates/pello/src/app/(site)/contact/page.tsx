@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { DemoForm } from "@/components/home/cta";
 import { Dithered } from "@/components/site/dither";
-import { Band, Chip } from "@/components/site/ui";
+import { Band } from "@/components/site/ui";
 import { STORIES } from "@/lib/customers";
 import { customerPhoto } from "@/lib/photos";
 
@@ -11,9 +11,9 @@ export const metadata: Metadata = {
 };
 
 const NEXT = [
-  { title: "We write back today", body: "Someone from our team suggests a time that works for you." },
-  { title: "A demo on a handbook like yours", body: "Send us your handbook, or we'll use one from a company your size. You'll see pello answer your own questions." },
-  { title: "30 days with your team", body: "Free, with your own data, and we do the import with you." },
+  { when: "Today", title: "We write back today", body: "Someone from our team suggests a time that works for you." },
+  { when: "This week", title: "A demo on a handbook like yours", body: "Send us your handbook, or we'll use one from a company your size. You'll see pello answer your own questions." },
+  { when: "30 days", title: "30 days with your team", body: "Free, with your own data, and we do the import with you." },
 ];
 
 export default function ContactPage() {
@@ -22,32 +22,30 @@ export default function ContactPage() {
     <Band inner="pb-24 pt-14 lg:pb-32 lg:pt-20">
       <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
         <div>
-          <h1 className="font-display text-[clamp(2.8rem,5.6vw,4.6rem)] font-semibold leading-[1.04] tracking-[-0.03em] text-ink">Book a demo</h1>
-          <p className="mt-5 max-w-[520px] text-[18px] leading-[1.55] text-mute">Tell us where to write, and how big your team is. We&apos;ll take it from there.</p>
-          <div className="pl-card mt-8 rounded-[16px] p-5 sm:p-6">
-            <DemoForm stacked />
-          </div>
-          <ol className="mt-10 grid gap-6">
-            {NEXT.map((n, i) => (
-              <li key={n.title} className="flex gap-4">
-                <Chip className="shrink-0">0{i + 1}</Chip>
+          <h1 className="text-[clamp(2.8rem,5.8vw,4.8rem)] font-semibold leading-[0.98] tracking-[-0.055em] text-ink">Book a demo.</h1>
+          <p className="mt-6 max-w-[520px] text-[19px] leading-[1.5] text-mute">Tell us where to write, and how big your team is. We&apos;ll take it from there.</p>
+          <DemoForm stacked className="mt-10 max-w-[560px]" />
+          <ol className="mt-14 border-t border-ink">
+            {NEXT.map((n) => (
+              <li key={n.title} className="grid gap-1 border-b border-line py-5 sm:grid-cols-[110px_minmax(0,1fr)] sm:gap-6">
+                <span className="tabular font-mono text-[15px] text-accent">{n.when}</span>
                 <div>
-                  <p className="text-[17px] font-semibold text-ink">{n.title}</p>
+                  <p className="text-[17px] font-semibold tracking-[-0.02em] text-ink">{n.title}</p>
                   <p className="mt-1 text-[16px] leading-[1.55] text-mute">{n.body}</p>
                 </div>
               </li>
             ))}
           </ol>
         </div>
-        <figure className="pl-card self-start overflow-hidden rounded-[16px] lg:sticky lg:top-28">
-          <Dithered src={customerPhoto(s.name)} alt={s.name} cell={3} focus={[0.5, 0.3]} className="aspect-[4/3]" />
-          <div className="p-6 sm:p-8">
-            <blockquote className="font-display text-[22px] font-semibold leading-[1.3] tracking-[-0.015em] text-ink">&ldquo;{s.quote}&rdquo;</blockquote>
+        <figure className="self-start lg:sticky lg:top-28">
+          <Dithered src={customerPhoto(s.name)} alt={s.name} cell={3} focus={[0.5, 0.3]} className="aspect-[4/3] w-full rounded-[14px]" />
+          <div className="pt-6">
+            <blockquote className="text-[24px] font-medium leading-[1.3] tracking-[-0.03em] text-ink">&ldquo;{s.quote}&rdquo;</blockquote>
             <figcaption className="mt-5 flex items-end justify-between gap-4">
               <span className="text-[15px] text-mute">
                 {s.name}, {s.role} at {s.company}
               </span>
-              <span className="shrink-0 whitespace-nowrap font-display text-[26px] font-semibold leading-none tracking-[-0.02em] text-accent">{s.result}</span>
+              <span className="tabular shrink-0 whitespace-nowrap font-mono text-[28px] font-medium leading-none tracking-[-0.05em] text-ink">{s.result}</span>
             </figcaption>
           </div>
         </figure>

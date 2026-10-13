@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { FileAs } from "@/components/home/features";
+import { FileAs } from "@/components/home/privacy";
 import { PageHead } from "@/components/site/page";
-import { Band, SectionHead } from "@/components/site/ui";
+import { Band, ButtonLink, SectionHead } from "@/components/site/ui";
 
 export const metadata: Metadata = {
   title: "Security",
@@ -20,34 +20,30 @@ const PRACTICES = [
 export default function SecurityPage() {
   return (
     <>
-      <PageHead title="Private stays private" lead="HR data is the most personal data a company keeps. Here's how pello looks after it, and how you can check that it does." />
+      <PageHead title="Private stays private." lead="HR data is the most personal data a company keeps. Here's how pello looks after it, and how you can check that it does." />
       <Band inner="pb-24">
-        <div className="pl-card mx-auto grid max-w-[980px] items-center gap-10 rounded-[16px] p-6 sm:p-10 lg:grid-cols-[1fr_1.1fr]">
-          <div>
-            <h2 className="font-display text-[28px] font-semibold leading-[1.15] tracking-[-0.02em] text-ink">One file, seen by four people</h2>
-            <p className="mt-3 text-[16px] leading-[1.6] text-mute">Pick who&apos;s looking at Grace&apos;s file. What they can&apos;t see is blacked out, and pello won&apos;t tell them either.</p>
-          </div>
-          <FileAs />
-        </div>
+        <h2 className="text-[26px] font-semibold tracking-[-0.04em] text-ink">One file, seen by four people</h2>
+        <p className="mt-2 max-w-[560px] text-[17px] leading-[1.55] text-mute">Pick who&apos;s asking about Grace. What they can&apos;t see is blacked out, and pello won&apos;t tell them either.</p>
+        <FileAs className="mt-10" />
       </Band>
-      <Band rule inner="py-24 lg:py-32">
+      <Band tint inner="py-24 lg:py-32">
         <SectionHead title="How it's kept safe" />
-        <ul className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <dl className="mt-14 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
           {PRACTICES.map((p) => (
-            <li key={p.title} className="pl-card rounded-[16px] p-6">
-              <p className="font-display text-[20px] font-semibold tracking-[-0.01em] text-ink">{p.title}</p>
-              <p className="mt-2 text-[15px] leading-[1.6] text-mute">{p.body}</p>
-            </li>
+            <div key={p.title} className="border-t border-ink pt-4">
+              <dt className="text-[19px] font-semibold tracking-[-0.025em] text-ink">{p.title}</dt>
+              <dd className="mt-2 text-[16px] leading-[1.6] text-mute">{p.body}</dd>
+            </div>
           ))}
-        </ul>
-        <div className="pl-card mt-3 flex flex-col gap-5 rounded-[16px] p-6 sm:flex-row sm:items-center sm:justify-between sm:p-7">
+        </dl>
+      </Band>
+      <Band inner="py-20">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="font-display text-[22px] font-semibold tracking-[-0.015em] text-ink">Found a problem?</p>
-            <p className="mt-1 max-w-[560px] text-[15px] leading-[1.55] text-mute">Write to security@pello.example. A person on our security team replies within a day, and we credit everyone who reports something real.</p>
+            <p className="text-[26px] font-semibold tracking-[-0.04em] text-ink">Found a problem?</p>
+            <p className="mt-2 max-w-[560px] text-[17px] leading-[1.55] text-mute">Write to security@pello.example. A person on our security team replies within a day, and we credit everyone who reports something real.</p>
           </div>
-          <a href="mailto:security@pello.example" className="pl-btn-dark inline-flex h-10 shrink-0 items-center justify-center rounded-[12px] px-4 text-[15px] font-medium">
-            Report a problem
-          </a>
+          <ButtonLink href="mailto:security@pello.example">Report a problem</ButtonLink>
         </div>
       </Band>
     </>

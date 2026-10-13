@@ -47,8 +47,8 @@ const ROWS: Array<{ group: string; rows: Array<[string, Cell, Cell, Cell]> }> = 
 function Value({ v }: { v: Cell }) {
   if (typeof v === "string") return <span className="text-[15px] text-ink">{v}</span>;
   return v ? (
-    <span className="inline-grid size-6 place-items-center rounded-full bg-ink text-surface">
-      <CheckIcon size={12} weight="bold" />
+    <span className="inline-flex text-ink">
+      <CheckIcon size={17} weight="bold" />
       <span className="sr-only">Included</span>
     </span>
   ) : (
@@ -58,17 +58,17 @@ function Value({ v }: { v: Cell }) {
 
 export function Compare() {
   return (
-    <Band rule inner="py-24 lg:py-32">
+    <Band tint inner="py-24 lg:py-32">
       <SectionHead title="Every plan, side by side" />
-      <div className="pl-card mt-12 overflow-x-auto rounded-[16px]">
+      <div className="mt-12 overflow-x-auto">
         <table className="w-full min-w-[720px] border-collapse text-left">
           <thead>
             <tr>
-              <th className="w-[40%] p-5">
+              <th className="w-[40%] py-5 pr-5">
                 <span className="sr-only">Feature</span>
               </th>
               {["Starter", "Growth", "Enterprise"].map((p) => (
-                <th key={p} className="p-5 font-display text-[20px] font-semibold tracking-[-0.01em] text-ink">
+                <th key={p} className="p-5 text-[22px] font-semibold tracking-[-0.035em] text-ink">
                   {p}
                 </th>
               ))}
@@ -78,13 +78,13 @@ export function Compare() {
             {ROWS.map((g) => (
               <Fragment key={g.group}>
                 <tr>
-                  <th colSpan={4} className="bg-sunken px-5 py-2.5 text-[15px] font-semibold text-ink">
+                  <th colSpan={4} className="border-b border-ink pb-3 pt-10 text-[15px] font-semibold text-ink">
                     {g.group}
                   </th>
                 </tr>
                 {g.rows.map(([label, ...cells]) => (
-                  <tr key={label} className="shadow-[0_1px_0_var(--pl-line)]">
-                    <th scope="row" className="px-5 py-3.5 text-[15px] font-normal text-ink-2">
+                  <tr key={label} className="border-b border-line-strong">
+                    <th scope="row" className="py-3.5 pr-5 text-[15px] font-normal text-ink-2">
                       {label}
                     </th>
                     {cells.map((c, i) => (

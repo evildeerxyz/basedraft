@@ -1,14 +1,15 @@
 "use client";
 
-import { CheckIcon } from "@phosphor-icons/react/ssr";
+import { CaretDownIcon } from "@phosphor-icons/react/ssr";
 import { AnimatePresence, motion } from "motion/react";
 import { useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
-import { Band, ButtonLink, SectionHead, Segmented } from "@/components/site/ui";
+import { Band, ButtonLink, SectionHead, Segmented, Tag } from "@/components/site/ui";
 import { cn } from "@/lib/cn";
 
 /*
- * What pello costs for your team. Drag the slider to your size and the plans show their monthly
- * price for it; the one that fits is marked. Paying yearly takes 20% off.
+ * What pello costs, worked out for your team. Drag to your size and every plan shows its monthly
+ * price for it, as rows of a list; the one that fits is marked and opened. Paying yearly takes 20%
+ * off. Open any plan to see what's in it.
  */
 
 export const PLANS = [
@@ -17,14 +18,14 @@ export const PLANS = [
     name: "Starter",
     price: 6,
     for: "For teams that want questions and time off handled.",
-    features: ["Ask pello in Slack, Teams and email", "Time off with your own rules", "Documents and e-signing", "Up to 2 admins"],
+    features: ["Ask pello in Slack, Teams and email", "Time off with your own rules", "Expenses within budgets", "Documents and e-signing", "Up to 2 admins"],
   },
   {
     id: "growth",
     name: "Growth",
     price: 11,
     for: "For companies with payroll to run and new people every month.",
-    features: ["Everything in Starter", "Payroll in the US, UK, Germany and Canada", "Onboarding and offboarding", "Insights and a note every morning", "As many admins as you need"],
+    features: ["Everything in Starter", "Payroll in the US, UK, Germany and Canada", "Onboarding and offboarding", "Overtime and staffing flags", "Insights and a note every morning", "As many admins as you need"],
   },
   {
     id: "enterprise",
@@ -69,7 +70,7 @@ function Slider({ value, onChange }: { value: number; onChange: (v: number) => v
   return (
     <div
       ref={track}
-      className="relative h-12 cursor-pointer touch-none"
+      className="relative h-10 cursor-pointer touch-none"
       onPointerDown={(e) => {
         e.currentTarget.setPointerCapture(e.pointerId);
         set(e);
@@ -77,10 +78,10 @@ function Slider({ value, onChange }: { value: number; onChange: (v: number) => v
       onPointerMove={(e) => e.buttons && set(e)}
     >
       {/* The track, inked up to your size, with a tick at each power of ten. */}
-      <div aria-hidden className="absolute inset-x-0 top-1/2 h-2 -translate-y-1/2 rounded-full bg-sunken shadow-[inset_0_1px_2px_rgb(0_0_0/0.08)]">
+      <div aria-hidden className="absolute inset-x-0 top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-line-strong">
         <div className="h-full rounded-full bg-ink" style={{ width: `${t * 100}%` }} />
         {[100, 1000].map((n) => (
-          <span key={n} className="absolute top-1/2 h-3 w-px -translate-y-1/2 bg-line-strong" style={{ left: `${tOf(n) * 100}%` }} />
+          <span key={n} className="absolute top-1/2 h-3 w-px -translate-y-1/2 bg-ink-2" style={{ left: `${tOf(n) * 100}%` }} />
         ))}
       </div>
       <div
@@ -92,7 +93,7 @@ function Slider({ value, onChange }: { value: number; onChange: (v: number) => v
         aria-valuenow={value}
         aria-valuetext={`${value} people`}
         onKeyDown={key}
-        className="absolute top-1/2 size-7 -translate-x-1/2 -translate-y-1/2 rounded-full bg-surface shadow-[0_0_0_1px_var(--pl-line-strong),0_2px_6px_rgb(0_0_0/0.18)] transition-transform hover:scale-110 active:scale-95"
+        className="absolute top-1/2 size-6 -translate-x-1/2 -translate-y-1/2 rounded-full bg-page shadow-[inset_0_0_0_2px_var(--pl-ink)] transition-transform hover:scale-110 active:scale-95"
         style={{ left: `${t * 100}%` }}
       />
     </div>
@@ -101,93 +102,117 @@ function Slider({ value, onChange }: { value: number; onChange: (v: number) => v
 
 export function Pricing({ heading = "h2" }: { heading?: "h1" | "h2" }) {
   const [size, setSize] = useState(120);
-  const [yearly, setYearly] = useState<"yearly" | "monthly">("yearly");
+  const [billing, setBilling] = useState<"yearly" | "monthly">("yearly");
+  // Which plan is opened: the one that fits, until you open another yourself.
+  const [chosen, setChosen] = useState<string | null>(null);
   const best = fits(size);
-  const k = yearly === "yearly" ? 0.8 : 1;
+  const shown = chosen ?? best;
+  const k = billing === "yearly" ? 0.8 : 1;
 
   return (
-    <Band rule id="pricing" inner="py-20 lg:py-28">
-      <SectionHead as={heading} title="Priced per person, so it grows with you" lead="Every plan has the Slack and Teams apps, unlimited questions and a 30 day free trial. No setup fee." />
-
-      <div className="pl-card mx-auto mt-12 max-w-[760px] rounded-[16px] p-6 sm:p-7">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <p>
-            <span className="tabular block font-display text-[44px] font-semibold leading-none tracking-[-0.03em] text-ink">{size.toLocaleString("en-US")}</span>
-            <span className="mt-1 block text-[15px] text-mute">people at your company</span>
-          </p>
-          <Segmented
-            label="Billing"
-            value={yearly}
-            onChange={setYearly}
-            options={[
-              { value: "monthly", label: "Monthly" },
-              { value: "yearly", label: "Yearly, save 20%" },
-            ]}
-          />
-        </div>
-        <div className="mt-5">
-          <Slider value={size} onChange={setSize} />
-          <div className="tabular relative mt-1 h-6 font-mono text-[15px] text-mute">
-            {[10, 100, 1000, 2000].map((n, i) => (
-              <span key={n} className={cn("absolute", i === 0 ? "" : i === 3 ? "-translate-x-full max-sm:hidden" : "-translate-x-1/2")} style={{ left: `${tOf(n) * 100}%` }}>
-                {n.toLocaleString("en-US")}
-              </span>
-            ))}
+    <Band id="pricing" inner="py-24 lg:py-32">
+      <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-end lg:gap-16">
+        <SectionHead as={heading} title="Per person, per month. Work out yours." lead="Every plan has the Slack and Teams apps, unlimited questions and 30 days free. There's no setup fee." />
+        <div>
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <p>
+              <span className="tabular block font-mono text-[56px] font-medium leading-none tracking-[-0.06em] text-ink">{size.toLocaleString("en-US")}</span>
+              <span className="mt-2 block text-[15px] text-mute">people at your company</span>
+            </p>
+            <Segmented
+              label="Billing"
+              value={billing}
+              onChange={setBilling}
+              options={[
+                { value: "monthly", label: "Monthly" },
+                { value: "yearly", label: "Yearly, 20% off" },
+              ]}
+            />
+          </div>
+          <div className="mt-4">
+            <Slider
+              value={size}
+              onChange={(v) => {
+                setSize(v);
+                setChosen(null);
+              }}
+            />
+            <div className="tabular relative h-6 font-mono text-[15px] text-mute">
+              {[10, 100, 1000].map((n, i) => (
+                <span key={n} className={cn("absolute", i === 0 ? "" : "-translate-x-1/2")} style={{ left: `${tOf(n) * 100}%` }}>
+                  {n.toLocaleString("en-US")}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="mt-3 grid gap-3 lg:grid-cols-3">
+      <ul className="mt-16 border-t border-ink">
         {PLANS.map((p) => {
-          const on = p.id === best;
+          const fit = p.id === best;
+          const open = p.id === shown;
           return (
-            <motion.div key={p.id} layout className={cn("pl-card relative flex flex-col rounded-[16px] p-6 transition-shadow duration-300 sm:p-7", on && "shadow-[0_0_0_2px_var(--pl-ink),var(--pl-shadow)]")}>
-              <div className="flex items-center justify-between gap-3">
-                <p className="font-display text-[22px] font-semibold tracking-[-0.015em] text-ink">{p.name}</p>
-                <AnimatePresence>
-                  {on && (
-                    <motion.span initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.85 }} className="rounded-[7px] bg-ink px-2 py-1 text-[15px] font-medium text-surface">
-                      Fits {size.toLocaleString("en-US")} people
-                    </motion.span>
+            <li key={p.id} className="border-b border-line">
+              <div className="grid gap-x-8 gap-y-4 py-7 lg:grid-cols-[230px_minmax(0,1fr)_250px_auto] lg:items-center">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                  <p className="text-[26px] font-semibold tracking-[-0.04em] text-ink">{p.name}</p>
+                  <AnimatePresence>
+                    {fit && (
+                      <motion.span initial={{ opacity: 0, x: -4 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}>
+                        <Tag tone="done">Fits {size.toLocaleString("en-US")}</Tag>
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </div>
+                <p className="max-w-[380px] text-[16px] leading-[1.5] text-mute">{p.for}</p>
+                <div>
+                  {p.price ? (
+                    <>
+                      <p className="flex items-baseline gap-2">
+                        <span className={cn("tabular font-mono text-[34px] font-medium leading-none tracking-[-0.05em] transition-colors", fit ? "text-ink" : "text-ink-2")}>{money(p.price * k * size)}</span>
+                        <span className="text-[15px] text-mute">a month</span>
+                      </p>
+                      <p className="mt-1.5 text-[15px] text-mute">
+                        <span className="tabular font-mono">${(p.price * k).toFixed(2).replace(/\.00$/, "")}</span> a person{billing === "yearly" ? ", billed yearly" : ""}
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-[34px] font-semibold leading-none tracking-[-0.045em] text-ink-2">Let&apos;s talk</p>
+                      <p className="mt-1.5 text-[15px] text-mute">A price for your size and setup</p>
+                    </>
                   )}
-                </AnimatePresence>
+                </div>
+                <div className="flex items-center gap-2">
+                  <ButtonLink href="/contact" kind={fit ? "dark" : "light"}>
+                    {p.price ? "Start free" : "Talk to us"}
+                  </ButtonLink>
+                  <button type="button" onClick={() => setChosen(open ? "none" : p.id)} aria-expanded={open} aria-controls={`plan-${p.id}`} aria-label={`What's in ${p.name}`} className="pl-btn-light grid size-11 place-items-center rounded-[10px]">
+                    <motion.span animate={{ rotate: open ? 180 : 0 }} transition={{ type: "spring", stiffness: 420, damping: 28 }}>
+                      <CaretDownIcon size={16} weight="bold" />
+                    </motion.span>
+                  </button>
+                </div>
               </div>
-              <p className="mt-2 text-[15px] leading-[1.5] text-mute">{p.for}</p>
-              <div className="mt-7">
-                {p.price ? (
-                  <>
-                    <p className="flex items-baseline gap-1.5">
-                      <span className="tabular font-display text-[44px] font-semibold leading-none tracking-[-0.03em] text-ink">{money(p.price * k * size)}</span>
-                      <span className="text-[15px] text-mute">a month</span>
-                    </p>
-                    <p className="mt-2 text-[15px] text-mute">
-                      <span className="tabular font-mono">${(p.price * k).toFixed(2).replace(/\.00$/, "")}</span> per person{yearly === "yearly" ? ", billed yearly" : ""}
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <p className="font-display text-[44px] font-semibold leading-none tracking-[-0.03em] text-ink">Let&apos;s talk</p>
-                    <p className="mt-2 text-[15px] text-mute">A price for your size and setup</p>
-                  </>
+              <AnimatePresence initial={false}>
+                {open && (
+                  <motion.div id={`plan-${p.id}`} initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ type: "spring", stiffness: 340, damping: 36 }} className="overflow-hidden">
+                    <ul className="grid gap-x-8 gap-y-2 pb-8 sm:grid-cols-2 lg:grid-cols-3 lg:pl-[262px]">
+                      {p.features.map((f) => (
+                        <li key={f} className="text-[16px] leading-[1.5] text-ink-2">
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
+                  </motion.div>
                 )}
-              </div>
-              <ButtonLink href="/contact" kind={on ? "dark" : "light"} className="mt-7 w-full">
-                {p.price ? "Start free for 30 days" : "Talk to us"}
-              </ButtonLink>
-              <ul className="mt-7 grid gap-2.5">
-                {p.features.map((f) => (
-                  <li key={f} className="flex gap-2.5 text-[15px] leading-[1.45] text-ink-2">
-                    <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-sunken">
-                      <CheckIcon size={11} weight="bold" className="text-ink" />
-                    </span>
-                    {f}
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
+              </AnimatePresence>
+            </li>
           );
         })}
-      </div>
+      </ul>
+      <p className="mt-6 text-[15px] text-mute">Prices are in US dollars, before tax.</p>
     </Band>
   );
 }

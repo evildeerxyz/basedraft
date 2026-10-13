@@ -8,11 +8,14 @@ export default function NotFound() {
     <>
       <Nav />
       <main id="main">
-        <Band inner="py-28 text-center lg:py-40">
-          <Tag tone="done">Approved, 1 day off</Tag>
-          <h1 className="mx-auto mt-6 max-w-[760px] text-balance font-display text-[clamp(2.8rem,6vw,4.8rem)] font-semibold leading-[1.04] tracking-[-0.03em] text-ink">This page took the day off</h1>
-          <p className="mx-auto mt-5 max-w-[480px] text-[18px] leading-[1.55] text-mute">It may have moved, or it was never here. Everything else is where you left it.</p>
-          <div className="mt-8 flex flex-wrap justify-center gap-2">
+        <Band inner="py-24 lg:py-36">
+          <p className="tabular font-mono text-[48px] font-medium leading-none tracking-[-0.05em] text-accent">404</p>
+          <h1 className="mt-8 max-w-[760px] text-balance text-[clamp(2.8rem,6vw,4.8rem)] font-semibold leading-[0.98] tracking-[-0.055em] text-ink">This page took the day off.</h1>
+          <p className="mt-6 max-w-[480px] text-[19px] leading-[1.5] text-mute">It may have moved, or it was never here. Everything else is where you left it.</p>
+          <p className="mt-6">
+            <Tag tone="done">Approved by pello, 1 day</Tag>
+          </p>
+          <div className="mt-10 flex flex-wrap gap-3">
             <ButtonLink href="/">Back home</ButtonLink>
             <ButtonLink href="/contact" kind="light">
               Book a demo

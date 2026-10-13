@@ -1,40 +1,35 @@
 @import "tailwindcss";
 
 /*
- * pello's colors: a cool grey page, white cards on it, ink, and one vermilion kept for what pello
- * does (its mark, what it's working on, what it flags). Every other shade is mixed from those four,
- * so a new palette still reads as pello. Photos are printed in the same inks by the dither in
- * src/components/site/dither.tsx, which reads them from here.
+ * pello's colors: white paper, a pale grey for fills, ink, and one vermilion kept for what pello is
+ * doing right now. Every other shade is mixed from those four, so a new palette still reads as
+ * pello. Photos are printed in the same inks by the dither in src/components/site/dither.tsx.
  */
 :root {
-  --pl-page: #f4f4f5;
-  --pl-surface: #ffffff;
-  --pl-ink: #242426;
+  --pl-page: #ffffff;
+  --pl-surface: #f5f5f6;
+  --pl-ink: #0b0b0c;
   --pl-accent: #ff4b1f;
 
-  --pl-sunken: color-mix(in oklab, var(--pl-surface) 94%, var(--pl-ink));
-  --pl-line: color-mix(in oklab, var(--pl-surface) 90%, var(--pl-ink));
-  --pl-line-strong: color-mix(in oklab, var(--pl-surface) 80%, var(--pl-ink));
-  --pl-ink-2: color-mix(in oklab, var(--pl-ink) 84%, var(--pl-surface));
-  --pl-mute: color-mix(in oklab, var(--pl-ink) 62%, var(--pl-surface));
+  --pl-sunken: color-mix(in oklab, var(--pl-surface) 92%, var(--pl-ink));
+  --pl-line: color-mix(in oklab, var(--pl-page) 90%, var(--pl-ink));
+  --pl-line-strong: color-mix(in oklab, var(--pl-page) 78%, var(--pl-ink));
+  --pl-ink-2: color-mix(in oklab, var(--pl-ink) 80%, var(--pl-page));
+  --pl-mute: color-mix(in oklab, var(--pl-ink) 58%, var(--pl-page));
   --pl-accent-ink: #ffffff;
-  --pl-accent-soft: color-mix(in oklab, var(--pl-accent) 12%, var(--pl-surface));
+  --pl-accent-soft: color-mix(in oklab, var(--pl-accent) 10%, var(--pl-page));
 
-  /* Lift: a card sits on the page with a crisp edge under it and a soft spread; a pop floats above. */
-  --pl-shadow: 0 1px 5px -4px color-mix(in oklab, var(--pl-ink) 70%, transparent), 0 4px 8px color-mix(in oklab, var(--pl-ink) 5%, transparent);
-  --pl-shadow-pop: 0 0 0 1px var(--pl-line), 0 2px 4px -1px color-mix(in oklab, var(--pl-ink) 8%, transparent), 0 16px 36px -14px color-mix(in oklab, var(--pl-ink) 22%, transparent);
-
-  /* The dark card: ink as the page. */
+  /* The dark band: ink as the page. */
   --pl-night: var(--pl-ink);
-  --pl-night-2: color-mix(in oklab, var(--pl-ink) 90%, var(--pl-surface));
-  --pl-night-line: color-mix(in oklab, var(--pl-ink) 80%, var(--pl-surface));
-  --pl-night-ink: var(--pl-surface);
-  --pl-night-mute: color-mix(in oklab, var(--pl-surface) 62%, var(--pl-ink));
+  --pl-night-2: color-mix(in oklab, var(--pl-ink) 90%, var(--pl-page));
+  --pl-night-line: color-mix(in oklab, var(--pl-ink) 78%, var(--pl-page));
+  --pl-night-ink: var(--pl-page);
+  --pl-night-mute: color-mix(in oklab, var(--pl-page) 60%, var(--pl-ink));
 }
 
 @theme inline {
-  --font-sans: var(--font-funnel-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-funnel-display), var(--font-funnel-sans), ui-sans-serif, sans-serif;
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
 
   --color-page: var(--pl-page);
@@ -70,8 +65,8 @@
   }
 
   ::selection {
-    background: var(--pl-ink);
-    color: var(--pl-surface);
+    background: var(--pl-accent);
+    color: var(--pl-accent-ink);
   }
 
   :focus-visible {
@@ -90,80 +85,37 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* A card on the page, and something floating above one. */
+/*
+ * A piece of the product on the page: paper with a hairline round it. A floating one (a menu, a
+ * notice) lifts off with a soft shadow.
+ */
 .pl-card {
-  background: var(--pl-surface);
-  box-shadow: var(--pl-shadow);
+  background: var(--pl-page);
+  box-shadow: 0 0 0 1px var(--pl-line);
 }
 .pl-pop {
-  background: var(--pl-surface);
-  box-shadow: var(--pl-shadow-pop);
+  background: var(--pl-page);
+  box-shadow: 0 0 0 1px var(--pl-line), 0 18px 40px -18px color-mix(in oklab, var(--pl-ink) 28%, transparent);
 }
 
-/*
- * Buttons are a little raised: a gradient a shade lighter at the top, and a highlight along the top
- * edge, like a key. The dark one is ink; the light one is the card color with a hairline round it.
- */
+/* Buttons are flat: ink, or a hairline that fills on hover. */
 .pl-btn-dark {
-  background-image: linear-gradient(color-mix(in oklab, var(--pl-ink) 90%, var(--pl-surface)), var(--pl-ink));
-  box-shadow: inset 0 2px 0 rgb(255 255 255 / 0.15), 0 1px 2px color-mix(in oklab, var(--pl-ink) 30%, transparent);
-  color: var(--pl-surface);
+  background: var(--pl-ink);
+  color: var(--pl-page);
 }
 .pl-btn-dark:hover {
-  background-image: linear-gradient(color-mix(in oklab, var(--pl-ink) 80%, var(--pl-surface)), color-mix(in oklab, var(--pl-ink) 94%, var(--pl-surface)));
+  background: var(--pl-ink-2);
 }
 .pl-btn-light {
-  background-image: linear-gradient(color-mix(in oklab, var(--pl-surface) 98%, var(--pl-ink)), var(--pl-surface));
-  box-shadow: inset 0 2px 0 var(--pl-surface), 0 0 0 1px var(--pl-line), 0 1px 2px color-mix(in oklab, var(--pl-ink) 8%, transparent);
+  background: var(--pl-page);
   color: var(--pl-ink);
+  box-shadow: inset 0 0 0 1px var(--pl-line-strong);
 }
 .pl-btn-light:hover {
-  background-image: linear-gradient(color-mix(in oklab, var(--pl-surface) 95%, var(--pl-ink)), color-mix(in oklab, var(--pl-surface) 98%, var(--pl-ink)));
+  background: var(--pl-surface);
 }
 
-/* Something about to scroll out of a card fades rather than cuts. */
+/* Something about to run out of its box fades rather than cuts. */
 .pl-fade-b {
   mask-image: linear-gradient(to bottom, black 70%, transparent);
-}
-.pl-fade-x {
-  mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
-}
-
-/* The customers' names, sliding past. The second copy is what lets the loop run on without a break. */
-@keyframes pl-marquee {
-  to {
-    transform: translateX(-50%);
-  }
-}
-.pl-marquee {
-  animation: pl-marquee 46s linear infinite;
-}
-.pl-marquee-wrap:hover .pl-marquee {
-  animation-play-state: paused;
-}
-
-/* Things that go round: the tools orbiting pello in the first step. */
-@keyframes pl-orbit {
-  to {
-    transform: rotate(360deg);
-  }
-}
-@keyframes pl-orbit-back {
-  to {
-    transform: rotate(-360deg);
-  }
-}
-.pl-orbit {
-  animation: pl-orbit 40s linear infinite;
-}
-.pl-orbit-back {
-  animation: pl-orbit-back 40s linear infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .pl-marquee,
-  .pl-orbit,
-  .pl-orbit-back {
-    animation: none;
-  }
 }

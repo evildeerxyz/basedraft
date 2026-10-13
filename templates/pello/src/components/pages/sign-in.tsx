@@ -20,12 +20,12 @@ export function SignIn() {
   };
 
   return (
-    <div className="pl-card w-full max-w-[440px] rounded-[16px] p-7 sm:p-9">
+    <div className="w-full max-w-[420px]">
       <Mark size={40} />
       <AnimatePresence mode="wait" initial={false}>
         {sent ? (
           <motion.div key="sent" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
-            <h1 className="mt-6 font-display text-[32px] font-semibold tracking-[-0.025em] text-ink">Check your inbox</h1>
+            <h1 className="mt-6 text-[36px] font-semibold tracking-[-0.05em] text-ink">Check your inbox</h1>
             <p className="mt-3 text-[16px] leading-[1.55] text-mute">
               We sent a link to <span className="font-medium text-ink">{email.trim()}</span>. It works for the next 15 minutes.
             </p>
@@ -36,13 +36,13 @@ export function SignIn() {
           </motion.div>
         ) : (
           <motion.div key="form" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
-            <h1 className="mt-6 font-display text-[32px] font-semibold tracking-[-0.025em] text-ink">Sign in to pello</h1>
+            <h1 className="mt-6 text-[36px] font-semibold tracking-[-0.05em] text-ink">Sign in to pello</h1>
             <div className="mt-8 grid gap-3">
               {[
                 { label: "Continue with Google", icon: GoogleLogoIcon },
                 { label: "Continue with Microsoft", icon: WindowsLogoIcon },
               ].map((p) => (
-                <button key={p.label} type="button" className="pl-btn-light flex h-11 items-center justify-center gap-2.5 rounded-[12px] text-[15px] font-medium">
+                <button key={p.label} type="button" className="pl-btn-light flex h-12 items-center justify-center gap-2.5 rounded-[10px] text-[15px] font-medium">
                   <p.icon size={18} weight="bold" />
                   {p.label}
                 </button>
@@ -65,14 +65,14 @@ export function SignIn() {
                 autoComplete="email"
                 aria-invalid={!!error}
                 aria-describedby={error ? "signin-error" : undefined}
-                className={cn("h-11 rounded-[10px] bg-surface px-3.5 text-[15px] text-ink outline-none transition-shadow placeholder:text-mute focus-visible:shadow-[0_0_0_1px_var(--pl-ink),0_0_0_4px_var(--pl-line)] focus-visible:outline-none", error ? "shadow-[0_0_0_1px_var(--pl-accent),0_0_0_4px_var(--pl-accent-soft)]" : "shadow-[0_0_0_1px_var(--pl-line-strong)]")}
+                className={cn("h-12 rounded-[10px] bg-page px-4 text-[16px] text-ink outline-none transition-shadow placeholder:text-mute focus-visible:shadow-[inset_0_0_0_1.5px_var(--pl-ink)] focus-visible:outline-none", error ? "shadow-[inset_0_0_0_1.5px_var(--pl-accent)]" : "shadow-[inset_0_0_0_1px_var(--pl-line-strong)]")}
               />
               {error && (
                 <p id="signin-error" role="alert" className="text-[15px] font-semibold text-accent">
                   {error}
                 </p>
               )}
-              <button type="submit" className="pl-btn-dark mt-1 flex h-11 items-center justify-center gap-2 rounded-[12px] text-[15px] font-medium">
+              <button type="submit" className="pl-btn-dark mt-1 flex h-12 items-center justify-center gap-2 rounded-[10px] text-[15px] font-medium">
                 <EnvelopeSimpleIcon size={19} />
                 Email me a link
               </button>

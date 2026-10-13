@@ -1,7 +1,7 @@
 "use client";
 
-import { CaretRightIcon } from "@phosphor-icons/react/ssr";
-import { motion, useMotionValue, useReducedMotion, useSpring } from "motion/react";
+import { ArrowRightIcon, CheckIcon, WarningIcon } from "@phosphor-icons/react/ssr";
+import { motion, useInView, useMotionValue, useReducedMotion, useSpring } from "motion/react";
 import Link from "next/link";
 import { useId, useRef, type ComponentProps, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
@@ -10,41 +10,19 @@ import { personPhoto } from "@/lib/photos";
 import { Dithered, type Ink } from "./dither";
 
 /*
- * The pieces every section is built from. The page is drawn on a frame: two hairlines run its whole
- * length either side of the content, a rule crosses between sections, and a small cross marks where
- * they meet. Cards sit on the grey with a crisp lift; buttons are raised like keys.
+ * The pieces every section is built from. The home page tells one working day at Fieldwork, so its
+ * sections are moments on a timeline: the time in the margin, what happened, and pello doing it.
  */
 
-/** The frame's width, and how far content sits inside its lines. */
-const FRAME = "w-[min(calc(100%-24px),1200px)]";
-
 export function Container({ className, children }: { className?: string; children: ReactNode }) {
-  return <div className={cn("mx-auto w-full max-w-[1200px] px-5 sm:px-10 lg:px-[76px]", className)}>{children}</div>;
+  return <div className={cn("mx-auto w-full max-w-[1240px] px-5 sm:px-8 lg:px-10", className)}>{children}</div>;
 }
 
-function Cross({ side }: { side: "left" | "right" }) {
+/** A plain section of the page: its width, its spacing, and a pale band behind it with `tint`. */
+export function Band({ children, id, className, inner, tint }: { children: ReactNode; id?: string; className?: string; inner?: string; tint?: boolean }) {
   return (
-    <span aria-hidden className={cn("absolute top-0 size-[15px] -translate-y-1/2", side === "left" ? "left-0 -translate-x-1/2" : "right-0 translate-x-1/2")}>
-      <span className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-line-strong" />
-      <span className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 bg-line-strong" />
-    </span>
-  );
-}
-
-/** A section on the frame: its lines run its full height, and with `rule` a hairline crosses its top. */
-export function Band({ children, rule = false, id, className, inner }: { children: ReactNode; rule?: boolean; id?: string; className?: string; inner?: string }) {
-  return (
-    <section id={id} className={cn("relative scroll-mt-24", className)}>
-      <div aria-hidden className={cn("pointer-events-none absolute inset-y-0 left-1/2 -translate-x-1/2 border-x border-line", FRAME)}>
-        {rule && (
-          <>
-            <Cross side="left" />
-            <Cross side="right" />
-          </>
-        )}
-      </div>
-      {rule && <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-line" />}
-      <Container className={cn("relative", inner)}>{children}</Container>
+    <section id={id} className={cn("scroll-mt-24", tint && "bg-surface", className)}>
+      <Container className={inner}>{children}</Container>
     </section>
   );
 }
@@ -53,19 +31,19 @@ type Kind = "dark" | "light" | "accent";
 const KIND: Record<Kind, string> = {
   dark: "pl-btn-dark",
   light: "pl-btn-light",
-  accent: "bg-accent text-accent-ink shadow-[inset_0_2px_0_rgb(255_255_255/0.2)] hover:brightness-105",
+  accent: "bg-accent text-accent-ink hover:brightness-105",
 };
-const SIZE = { sm: "h-9 px-3 text-[15px] rounded-[10px]", md: "h-10 px-3.5 text-[15px] rounded-[12px]", lg: "h-12 px-5 text-[16px] rounded-[12px]" };
-const button = (kind: Kind, size: keyof typeof SIZE) => cn("group/btn inline-flex shrink-0 select-none items-center justify-center gap-1.5 whitespace-nowrap font-medium transition-[background-image,filter] duration-150", SIZE[size], KIND[kind]);
+const SIZE = { sm: "h-9 px-3.5 text-[15px]", md: "h-11 px-4 text-[15px]", lg: "h-12 px-5 text-[16px]" };
+const button = (kind: Kind, size: keyof typeof SIZE) => cn("group/btn inline-flex shrink-0 select-none items-center justify-center gap-2 whitespace-nowrap rounded-[10px] font-medium transition-colors duration-150", SIZE[size], KIND[kind]);
 
-/** The chevron a button carries: it nudges forward when the button is pointed at. */
-const Chevron = () => <CaretRightIcon size={14} weight="bold" className="opacity-70 transition-transform duration-200 group-hover/btn:translate-x-0.5" />;
+/** The arrow a main action carries: it steps forward when the button is pointed at. */
+const Arrow = () => <ArrowRightIcon size={16} weight="bold" className="transition-transform duration-200 group-hover/btn:translate-x-0.5" />;
 
-export function ButtonLink({ href, kind = "dark", size = "md", chevron = true, className, children }: { href: string; kind?: Kind; size?: keyof typeof SIZE; chevron?: boolean; className?: string; children: ReactNode }) {
+export function ButtonLink({ href, kind = "dark", size = "md", chevron = false, className, children }: { href: string; kind?: Kind; size?: keyof typeof SIZE; chevron?: boolean; className?: string; children: ReactNode }) {
   return (
     <Link href={href} className={cn(button(kind, size), className)}>
       {children}
-      {chevron && <Chevron />}
+      {chevron && <Arrow />}
     </Link>
   );
 }
@@ -74,13 +52,13 @@ export function Button({ kind = "dark", size = "md", chevron = false, className,
   return (
     <button type="button" className={cn(button(kind, size), "disabled:pointer-events-none disabled:opacity-40", className)} {...rest}>
       {children}
-      {chevron && <Chevron />}
+      {chevron && <Arrow />}
     </button>
   );
 }
 
 /** Leans a little toward the pointer while it's near, and springs back when it leaves. */
-export function Magnetic({ children, strength = 0.22 }: { children: ReactNode; strength?: number }) {
+export function Magnetic({ children, strength = 0.18 }: { children: ReactNode; strength?: number }) {
   const ref = useRef<HTMLSpanElement>(null);
   const still = useReducedMotion();
   const x = useSpring(useMotionValue(0), { stiffness: 260, damping: 18 });
@@ -108,7 +86,7 @@ export function Magnetic({ children, strength = 0.22 }: { children: ReactNode; s
 
 /** A face, printed: the person's photo in the page's greys, or in vermilion while pello's on it. */
 export function Face({ person, size = 36, hot, square, className }: { person: Pick<Person, "id" | "name">; size?: number; hot?: boolean; square?: boolean; className?: string }) {
-  const inks: Ink[] = hot ? ["ink", "accent", "surface"] : ["ink", "mute", "surface"];
+  const inks: Ink[] = hot ? ["ink", "accent", "page"] : ["ink", "mute", "page"];
   return (
     <Dithered
       key={person.id}
@@ -118,35 +96,35 @@ export function Face({ person, size = 36, hot, square, className }: { person: Pi
       cell={size < 48 ? 1 : 2}
       develop={false}
       focus={[0.5, 0.3]}
-      className={cn("shrink-0 shadow-[0_0_0_1px_var(--pl-line)]", square ? "rounded-[8px]" : "rounded-full", className)}
+      className={cn("shrink-0", square ? "rounded-[8px]" : "rounded-full", className)}
       style={{ width: size, height: size }}
     />
   );
 }
 
-/** A section's head: what it's about, a line on what it means, and what to do about it. */
-export function SectionHead({ title, lead, actions, className, align = "center", as: Heading = "h2" }: { title: ReactNode; lead?: ReactNode; actions?: ReactNode; className?: string; align?: "left" | "center"; as?: "h1" | "h2" }) {
+/** A section's head, set against the left edge: what it's about, and a line on what it means. */
+export function SectionHead({ title, lead, actions, className, align = "left", as: Heading = "h2" }: { title: ReactNode; lead?: ReactNode; actions?: ReactNode; className?: string; align?: "left" | "center"; as?: "h1" | "h2" }) {
   return (
-    <div className={cn("max-w-[760px]", align === "center" && "mx-auto text-center", className)}>
-      <Heading className="text-balance font-display text-[clamp(2.3rem,4vw,3.25rem)] font-semibold leading-[1.06] tracking-[-0.025em] text-ink">{title}</Heading>
-      {lead && <p className={cn("mt-4 max-w-[600px] text-pretty text-[18px] leading-[1.55] text-mute", align === "center" && "mx-auto")}>{lead}</p>}
-      {actions && <div className={cn("mt-7 flex flex-wrap gap-2", align === "center" && "justify-center")}>{actions}</div>}
+    <div className={cn("max-w-[820px]", align === "center" && "mx-auto text-center", className)}>
+      <Heading className="text-balance text-[clamp(2.2rem,4vw,3.4rem)] font-semibold leading-[1.02] tracking-[-0.045em] text-ink">{title}</Heading>
+      {lead && <p className={cn("mt-5 max-w-[600px] text-pretty text-[19px] leading-[1.5] text-mute", align === "center" && "mx-auto")}>{lead}</p>}
+      {actions && <div className={cn("mt-7 flex flex-wrap gap-3", align === "center" && "justify-center")}>{actions}</div>}
     </div>
   );
 }
 
-/** A small grey label: a step's number, a count, a unit. */
+/** A number set apart: a step, a count. */
 export function Chip({ children, className }: { children: ReactNode; className?: string }) {
-  return <span className={cn("inline-flex h-7 items-center rounded-[7px] bg-sunken px-2 font-mono text-[15px] font-medium text-ink-2", className)}>{children}</span>;
+  return <span className={cn("tabular font-mono text-[15px] font-medium text-accent", className)}>{children}</span>;
 }
 
-/** What happened to a request: a dot and a word. Done is ink, flagged vermilion, open a ring, live a beat. */
+/** What happened to a request, as a word: done in ink with a tick, flagged in vermilion, open in grey. */
 export function Tag({ tone, children, className }: { tone: "done" | "flag" | "open" | "live"; children: ReactNode; className?: string }) {
   return (
-    <span className={cn("inline-flex h-7 shrink-0 items-center gap-1.5 rounded-full bg-surface px-2.5 text-[15px] font-medium shadow-[0_0_0_1px_var(--pl-line)]", tone === "flag" ? "text-accent" : "text-ink", className)}>
-      <span aria-hidden className={cn("relative size-2 rounded-full", tone === "done" ? "bg-ink" : tone === "flag" ? "bg-accent" : tone === "live" ? "bg-accent" : "shadow-[inset_0_0_0_1.5px_var(--pl-mute)]")}>
-        {tone === "live" && <span className="absolute inset-0 animate-ping rounded-full bg-accent/60" />}
-      </span>
+    <span className={cn("inline-flex shrink-0 items-center gap-1.5 text-[15px] font-medium", tone === "flag" || tone === "live" ? "text-accent" : tone === "open" ? "text-mute" : "text-ink", className)}>
+      {tone === "done" && <CheckIcon size={14} weight="bold" />}
+      {tone === "flag" && <WarningIcon size={14} weight="bold" />}
+      {tone === "live" && <motion.span aria-hidden className="h-3 w-[3px] rounded-full bg-accent" animate={{ opacity: [1, 0.2, 1] }} transition={{ duration: 1.1, repeat: Infinity }} />}
       {children}
     </span>
   );
@@ -156,42 +134,69 @@ export function Tag({ tone, children, className }: { tone: "done" | "flag" | "op
 export function Toggle({ on, onChange, label, className }: { on: boolean; onChange: (v: boolean) => void; label: string; className?: string }) {
   return (
     <button type="button" role="switch" aria-checked={on} aria-label={label} onClick={() => onChange(!on)} className={cn("flex h-6 w-10 shrink-0 items-center rounded-full p-[3px] transition-colors duration-200", on ? "bg-ink" : "bg-line-strong", className)}>
-      <motion.span layout transition={{ type: "spring", stiffness: 700, damping: 36 }} className={cn("size-[18px] rounded-full bg-surface shadow-[0_1px_2px_rgb(0_0_0/0.25)]", on && "ml-auto")} />
+      <motion.span layout transition={{ type: "spring", stiffness: 700, damping: 36 }} className={cn("size-[18px] rounded-full bg-page", on && "ml-auto")} />
     </button>
   );
 }
 
-/** A row of choices on a grey track, with a white tile that slides to the one that's picked. */
+/** Choices as words in a row; a line slides under the one that's picked. */
 export function Segmented<T extends string>({ value, onChange, options, label, className }: { value: T; onChange: (v: T) => void; options: Array<{ value: T; label: string }>; label: string; className?: string }) {
   const id = useId();
   return (
-    <div role="radiogroup" aria-label={label} className={cn("inline-flex rounded-[10px] bg-sunken p-[3px]", className)}>
+    <div role="radiogroup" aria-label={label} className={cn("inline-flex gap-5", className)}>
       {options.map((o) => (
-        <button key={o.value} type="button" role="radio" aria-checked={value === o.value} onClick={() => onChange(o.value)} className={cn("relative h-8 rounded-[8px] px-3 text-[15px] font-medium transition-colors", value === o.value ? "text-ink" : "text-mute hover:text-ink")}>
-          {value === o.value && <motion.span layoutId={`seg-${id}`} className="absolute inset-0 rounded-[8px] bg-surface shadow-[0_1px_3px_rgb(0_0_0/0.12),0_0_0_1px_var(--pl-line)]" transition={{ type: "spring", stiffness: 520, damping: 40 }} />}
-          <span className="relative">{o.label}</span>
+        <button key={o.value} type="button" role="radio" aria-checked={value === o.value} onClick={() => onChange(o.value)} className={cn("relative h-9 text-[15px] font-medium transition-colors", value === o.value ? "text-ink" : "text-mute hover:text-ink")}>
+          {o.label}
+          {value === o.value && <motion.span layoutId={`seg-${id}`} className="absolute inset-x-0 bottom-0 h-[2px] rounded-full bg-ink" transition={{ type: "spring", stiffness: 520, damping: 40 }} />}
         </button>
       ))}
     </div>
   );
 }
 
-/** A piece of the product, as a window: a white panel with a hairline, and a title bar if it has one. */
-export function Window({ title, aside, children, className }: { title?: ReactNode; aside?: ReactNode; children: ReactNode; className?: string }) {
+/** A piece of pello itself: paper with a hairline, and a header saying where it is, if it has one. */
+export function Window({ title, icon, aside, children, className }: { title?: ReactNode; icon?: ReactNode; aside?: ReactNode; children: ReactNode; className?: string }) {
   return (
-    <div className={cn("overflow-hidden rounded-[12px] bg-surface shadow-[0_0_0_1px_var(--pl-line)]", className)}>
+    <div className={cn("pl-card overflow-hidden rounded-[14px]", className)}>
       {title !== undefined && (
-        <div className="flex h-11 items-center justify-between gap-3 px-4 shadow-[0_1px_0_var(--pl-line)]">
-          <div className="flex items-center gap-1.5" aria-hidden>
-            {[0, 1, 2].map((i) => (
-              <span key={i} className="size-2.5 rounded-full bg-line-strong" />
-            ))}
-          </div>
-          <div className="min-w-0 flex-1 truncate text-center text-[15px] font-medium text-mute">{title}</div>
-          <div className="flex w-[42px] justify-end">{aside}</div>
+        <div className="flex h-12 items-center gap-2.5 px-4 shadow-[0_1px_0_var(--pl-line)]">
+          {icon}
+          <div className="min-w-0 flex-1 truncate text-[15px] font-medium text-ink-2">{title}</div>
+          {aside}
         </div>
       )}
       {children}
     </div>
+  );
+}
+
+/**
+ * A moment in Fieldwork's day: its time in the margin, on the line the whole day runs along, what
+ * happened, and pello doing something about it. The dot fills when the moment comes into view.
+ */
+export function Moment({ id, time, where, title, lead, children }: { id?: string; time: string; where: string; title: ReactNode; lead?: ReactNode; children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const seen = useInView(ref, { amount: 0.3, once: true });
+  return (
+    <section id={id} className="relative scroll-mt-24 py-20 lg:py-24">
+      <Container>
+        <div ref={ref} className="relative grid gap-6 lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-10">
+          {/* The day's line, down the margin, and this moment's place on it. */}
+          <span aria-hidden className="absolute -bottom-20 -top-20 left-[5px] hidden w-px bg-line lg:-bottom-24 lg:-top-24 lg:block" />
+          <div className="relative">
+            <div className="lg:sticky lg:top-28 lg:pl-8">
+              <motion.span aria-hidden initial={false} animate={{ scale: seen ? 1 : 0.6, backgroundColor: seen ? "var(--pl-accent)" : "var(--pl-page)" }} transition={{ duration: 0.4 }} className="absolute left-0 top-[14px] hidden size-[11px] rounded-full shadow-[0_0_0_2px_var(--pl-accent)] lg:block" />
+              <p className="tabular font-mono text-[40px] font-medium leading-none tracking-[-0.04em] text-ink lg:text-[48px]">{time}</p>
+              <p className="mt-3 text-[15px] leading-[1.4] text-mute">{where}</p>
+            </div>
+          </div>
+          <div className="min-w-0">
+            <h2 className="max-w-[760px] text-balance text-[clamp(2rem,3.6vw,3.1rem)] font-semibold leading-[1.04] tracking-[-0.045em] text-ink">{title}</h2>
+            {lead && <p className="mt-4 max-w-[600px] text-pretty text-[19px] leading-[1.5] text-mute">{lead}</p>}
+            <div className="mt-10">{children}</div>
+          </div>
+        </div>
+      </Container>
+    </section>
   );
 }

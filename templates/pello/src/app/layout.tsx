@@ -1,18 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Funnel_Display, Funnel_Sans, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "@/components/site/providers";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import "./globals.css";
 import { BdFrame } from "@/bd/frame"; // basedraft wiring, taken out of the code it hands over
 
-const funnelSans = Funnel_Sans({
-  variable: "--font-funnel-sans",
-  subsets: ["latin"],
-});
-
-// Headlines: the same family's display cut.
-const funnelDisplay = Funnel_Display({
-  variable: "--font-funnel-display",
+const geistSans = Geist({
+  variable: "--font-geist-sans",
   subsets: ["latin"],
 });
 
@@ -30,12 +24,12 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#f4f4f5",
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${funnelSans.variable} ${funnelDisplay.variable} ${geistMono.variable} antialiased`}>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
       <body>
         <Providers><BdFrame>{children}</BdFrame></Providers>
       </body>

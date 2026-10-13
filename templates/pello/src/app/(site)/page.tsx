@@ -1,30 +1,29 @@
 import { Ask } from "@/components/home/ask";
 import { Cta } from "@/components/home/cta";
+import { DayOne } from "@/components/home/day-one";
 import { Faq } from "@/components/home/faq";
-import { Features } from "@/components/home/features";
 import { Hero } from "@/components/home/hero";
-import { How } from "@/components/home/how";
-import { Integrations } from "@/components/home/integrations";
-import { Logos } from "@/components/home/logos";
-import { More } from "@/components/home/more";
+import { Overtime } from "@/components/home/overtime";
 import { Payroll } from "@/components/home/payroll";
 import { Pricing } from "@/components/home/pricing";
-import { Testimonials } from "@/components/home/testimonials";
+import { Privacy } from "@/components/home/privacy";
+import { Stories } from "@/components/home/stories";
 import { TimeOff } from "@/components/home/time-off";
+import { Week } from "@/components/home/week";
 
+/* One Friday at Fieldwork: the day as it opens, then its moments in order, then what it costs. */
 export default function HomePage() {
   return (
     <>
       <Hero />
-      <Logos />
-      <How />
-      <Ask />
       <TimeOff />
+      <Ask />
       <Payroll />
-      <Features />
-      <More />
-      <Testimonials />
-      <Integrations />
+      <DayOne />
+      <Overtime />
+      <Privacy />
+      <Week />
+      <Stories />
       <Pricing />
       <Faq />
       <Cta />

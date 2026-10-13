@@ -29,7 +29,7 @@ export function Logo({ className, size = 28 }: { className?: string; size?: numb
   return (
     <span className={cn("inline-flex items-center gap-1.5 text-ink", className)}>
       <Mark size={size} />
-      <span className="font-display font-semibold leading-none tracking-[-0.035em]" style={{ fontSize: size * 0.96 }}>
+      <span className="font-display font-semibold leading-none tracking-[-0.055em]" style={{ fontSize: size * 0.96 }}>
         pello
       </span>
     </span>

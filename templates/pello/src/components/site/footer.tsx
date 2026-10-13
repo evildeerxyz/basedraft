@@ -4,7 +4,7 @@ import { LinkedinLogoIcon, XLogoIcon } from "@phosphor-icons/react/ssr";
 import Link from "next/link";
 import { useSyncExternalStore } from "react";
 import { Logo } from "./logo";
-import { Band } from "./ui";
+import { Container } from "./ui";
 
 const COLUMNS = [
   {
@@ -13,8 +13,8 @@ const COLUMNS = [
       { label: "Ask pello", href: "/product#ask" },
       { label: "Time off", href: "/product#time-off" },
       { label: "Payroll", href: "/product#payroll" },
-      { label: "Onboarding", href: "/product#features" },
-      { label: "Integrations", href: "/product#integrations" },
+      { label: "Onboarding", href: "/product#day-one" },
+      { label: "Where it works", href: "/product#works-with" },
     ],
   },
   {
@@ -49,9 +49,6 @@ const OFFICES = [
   { city: "New York", zone: "America/New_York" },
 ];
 
-/* What pello is audited against, as plain marks: edit them to the ones you actually hold. */
-const AUDITS = ["SOC 2 Type II", "ISO 27001", "GDPR", "CCPA"];
-
 // The clocks tick once a minute, and only in the browser, so the server's HTML never disagrees.
 const minute = (fn: () => void) => {
   const t = setInterval(fn, 15_000);
@@ -67,32 +64,18 @@ function Clock({ zone }: { zone: string }) {
 
 export function Footer() {
   return (
-    <footer>
-      <Band rule inner="pb-14 pt-20">
-        <div className="grid gap-14 lg:grid-cols-[1.1fr_2fr]">
+    <footer className="bg-surface">
+      <Container className="pb-10 pt-16 lg:pt-20">
+        <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)]">
           <div>
-            <Link href="/" aria-label="pello home" className="inline-flex rounded-[8px]">
+            <Link href="/" aria-label="pello home" className="inline-flex rounded-[6px]">
               <Logo />
             </Link>
-            <p className="mt-5 max-w-[340px] text-[16px] leading-[1.55] text-mute">The HR system that answers, approves and pays, so your people team can spend its week on people.</p>
-            <ul className="mt-7 flex flex-wrap gap-2">
-              {AUDITS.map((a) => (
-                <li key={a} className="flex h-9 items-center gap-2 rounded-[10px] bg-surface px-3 text-[15px] font-medium text-ink-2 shadow-[0_0_0_1px_var(--pl-line)]">
-                  <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden className="text-ink">
-                    <path d="M8 1.5 13.5 4v4c0 3.2-2.3 5.6-5.5 6.5C4.8 13.6 2.5 11.2 2.5 8V4z" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-                  </svg>
-                  {a}
-                </li>
-              ))}
-            </ul>
-            <span className="mt-7 inline-flex h-9 items-center gap-2 rounded-[10px] bg-surface px-3 font-mono text-[15px] text-ink-2 shadow-[0_0_0_1px_var(--pl-line)]">
-              All systems running
-              <span aria-hidden className="size-2 rounded-full bg-[#16a34a]" />
-            </span>
-            <p className="mt-4 flex flex-wrap gap-x-5 gap-y-1 text-[15px] text-mute">
+            <p className="mt-5 max-w-[340px] text-[16px] leading-[1.55] text-mute">The HR system that answers, approves and pays, so your People team can spend its week on people.</p>
+            <p className="mt-6 grid gap-1 text-[15px] text-mute">
               {OFFICES.map((o) => (
                 <span key={o.city}>
-                  {o.city} <Clock zone={o.zone} />
+                  {o.city}, it&apos;s <span className="text-ink"><Clock zone={o.zone} /></span>
                 </span>
               ))}
             </p>
@@ -100,11 +83,11 @@ export function Footer() {
           <div className="grid grid-cols-2 gap-10 sm:grid-cols-3">
             {COLUMNS.map((c) => (
               <div key={c.title}>
-                <h3 className="text-[16px] font-semibold text-ink">{c.title}</h3>
+                <h3 className="text-[15px] text-mute">{c.title}</h3>
                 <ul className="mt-4 grid gap-3">
                   {c.links.map((l) => (
                     <li key={l.href}>
-                      <Link href={l.href} className="rounded-[4px] text-[16px] text-ink-2 transition-colors hover:text-ink">
+                      <Link href={l.href} className="rounded-[4px] text-[16px] text-ink transition-colors hover:text-ink-2">
                         {l.label}
                       </Link>
                     </li>
@@ -114,19 +97,19 @@ export function Footer() {
             ))}
           </div>
         </div>
-      </Band>
-      <Band rule inner="flex flex-col gap-4 py-6 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-[15px] text-mute">© 2026 pello Inc. All rights reserved.</p>
-        <ul className="flex items-center gap-1">
-          {SOCIAL.map((s) => (
-            <li key={s.href}>
-              <a href={s.href} aria-label={s.label} className="grid size-10 place-items-center rounded-[10px] text-ink-2 transition-colors hover:bg-surface hover:text-ink">
-                <s.icon size={18} />
-              </a>
-            </li>
-          ))}
-        </ul>
-      </Band>
+        <div className="mt-16 flex flex-col gap-4 border-t border-line-strong pt-6 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-[15px] text-mute">© 2026 pello Inc. All rights reserved.</p>
+          <ul className="-mr-2 flex items-center gap-1">
+            {SOCIAL.map((s) => (
+              <li key={s.href}>
+                <a href={s.href} aria-label={s.label} className="grid size-10 place-items-center rounded-[10px] text-ink-2 transition-colors hover:text-ink">
+                  <s.icon size={18} />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </Container>
     </footer>
   );
 }

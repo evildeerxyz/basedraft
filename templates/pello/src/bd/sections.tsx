@@ -1,15 +1,14 @@
 import type { ReactNode } from "react";
 import { Nav } from "@/components/site/nav";
 import { Hero } from "@/components/home/hero";
-import { Logos } from "@/components/home/logos";
-import { How } from "@/components/home/how";
-import { Ask } from "@/components/home/ask";
 import { TimeOff } from "@/components/home/time-off";
+import { Ask } from "@/components/home/ask";
 import { Payroll } from "@/components/home/payroll";
-import { Features } from "@/components/home/features";
-import { More } from "@/components/home/more";
-import { Testimonials } from "@/components/home/testimonials";
-import { Integrations } from "@/components/home/integrations";
+import { DayOne } from "@/components/home/day-one";
+import { Overtime } from "@/components/home/overtime";
+import { Privacy } from "@/components/home/privacy";
+import { Week } from "@/components/home/week";
+import { Stories } from "@/components/home/stories";
 import { Pricing } from "@/components/home/pricing";
 import { Faq } from "@/components/home/faq";
 import { Cta } from "@/components/home/cta";
@@ -22,15 +21,14 @@ import { Footer } from "@/components/site/footer";
 const RENDER: Record<string, () => ReactNode> = {
   "nav": () => <Nav />,
   "hero": () => <Hero />,
-  "logos": () => <Logos />,
-  "how": () => <How />,
-  "ask": () => <Ask />,
   "time-off": () => <TimeOff />,
+  "ask": () => <Ask />,
   "payroll": () => <Payroll />,
-  "features": () => <Features />,
-  "more": () => <More />,
-  "testimonials": () => <Testimonials />,
-  "integrations": () => <Integrations />,
+  "day-one": () => <DayOne />,
+  "overtime": () => <Overtime />,
+  "privacy": () => <Privacy />,
+  "week": () => <Week />,
+  "stories": () => <Stories />,
   "pricing": () => <Pricing />,
   "faq": () => <Faq />,
   "cta": () => <Cta />,

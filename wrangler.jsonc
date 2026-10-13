@@ -8,6 +8,11 @@
   "workers_dev": true,
   // No public preview address per upload: only the deployed version is on the web.
   "preview_urls": false,
+  // basedraft.site and www.basedraft.site, as Custom Domains (Cloudflare manages their DNS records).
+  "routes": [
+    { "pattern": "basedraft.site", "custom_domain": true },
+    { "pattern": "www.basedraft.site", "custom_domain": true }
+  ],
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS",
@@ -23,6 +28,8 @@
   // GITHUB_CLIENT_SECRET) are set with `wrangler secret put`, never in this file.
   "vars": {
     "BD_SOURCE": "kv",
+    // Where every other address of the Worker (www, workers.dev) sends people, once it's set.
+    "CANONICAL_HOST": "",
     "NEXT_PUBLIC_CONVEX_URL": "https://charming-giraffe-71.convex.cloud",
     "NEXT_PUBLIC_CONVEX_SITE_URL": "https://charming-giraffe-71.convex.site",
     "NEXT_PUBLIC_SITE_URL": "https://basedraft.emmahxyz.workers.dev",

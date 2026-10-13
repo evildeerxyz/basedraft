@@ -9,6 +9,13 @@ import { pathBlob } from "./figma-geometry";
 import type { FText } from "./figma-tree";
 
 const FILES: Record<string, string> = { Geist: "Geist", "Geist Mono": "GeistMono", "Instrument Sans": "InstrumentSans", "Mona Sans": "MonaSans", "Inter Tight": "InterTight", Doto: "Doto" };
+/**
+ * Families Figma draws only by laying the text out itself: given outlines, it shows nothing. Mona
+ * Sans is one (in Figma it's a variable font with width and optical size axes): pasted with its
+ * outlines, every line Figma didn't lay out again came up blank. Without them, Figma sets each
+ * line in its own Mona Sans as it lands, and it reads as it does on the page.
+ */
+const FIGMA_LAYS_OUT = new Set(["Mona Sans"]);
 /** The weights each family has a static copy of; anything between draws from the nearest. */
 const WEIGHTS: Record<string, number[]> = { Doto: [400, 500, 600, 700, 800, 900] };
 
@@ -52,7 +59,7 @@ export interface TextStyle {
  */
 export async function derivedText(t: FText, w: number, ids: number[], styles: TextStyle[], blob: (key: string, make: () => Uint8Array) => number, fontName: (weight: number) => unknown) {
   const boxes = t.boxes;
-  if (!boxes) return null;
+  if (!boxes || FIGMA_LAYS_OUT.has(t.family)) return null;
   const weightOf = (k: number) => (ids[k] ? (styles[ids[k] - 1]?.weight ?? t.weight) : t.weight);
   const weights = [...new Set(t.chars.split("").map((_, k) => weightOf(k)))];
   const fonts = new Map<number, Loaded>();
@@ -163,7 +170,8 @@ export async function derivedText(t: FText, w: number, ids: number[], styles: Te
         fontLineHeight: (hhea.ascender - hhea.descender + hhea.lineGap) / f.font.unitsPerEm,
         fontDigest: f.digest,
         fontStyle: t.italic ? "ITALIC" : "NORMAL",
-        fontWeight: wt,
+        // The weight of the named style Figma knows (a page's 540 is Figma's Medium, 500).
+        fontWeight: Math.min(900, Math.max(100, Math.round(wt / 100) * 100)),
       };
     }),
     truncationStartIndex: -1,

@@ -1,10 +1,10 @@
 "use client";
 
-import { ArrowRightIcon, ArrowUpIcon, CheckIcon } from "@phosphor-icons/react/ssr";
+import { ArrowUpIcon, BookOpenTextIcon, CheckIcon } from "@phosphor-icons/react/ssr";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState, type FormEvent } from "react";
 import { Mark } from "@/components/site/logo";
-import { Container, Face, SectionHead, Tag } from "@/components/site/ui";
+import { Band, Face, SectionHead, Tag, Window } from "@/components/site/ui";
 import { cn } from "@/lib/cn";
 import { personOf } from "@/lib/people";
 
@@ -118,21 +118,23 @@ const HANNAH = personOf("hannah");
 function Action({ action }: { action: NonNullable<Answer["action"]> }) {
   const [done, setDone] = useState(false);
   return (
-    <div className="mt-5 flex min-h-[60px] items-center justify-between gap-4 rounded-[4px] px-4 py-2.5 shadow-[inset_0_0_0_1.5px_var(--pl-ink)]">
+    <div className="mt-4 flex min-h-[56px] items-center justify-between gap-3 rounded-[12px] bg-sunken px-3.5 py-2">
       <AnimatePresence mode="wait" initial={false}>
         {done ? (
-          <motion.p key="done" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-2.5 text-[17px] font-semibold text-ink">
-            <CheckIcon size={18} weight="bold" />
+          <motion.p key="done" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-2 text-[15px] font-medium text-ink">
+            <span className="grid size-5 place-items-center rounded-full bg-ink text-surface">
+              <CheckIcon size={11} weight="bold" />
+            </span>
             {action.done}
           </motion.p>
         ) : (
-          <motion.p key="ask" exit={{ opacity: 0, y: -6 }} className="text-[17px] font-semibold text-ink">
+          <motion.p key="ask" exit={{ opacity: 0, y: -6 }} className="text-[15px] font-medium text-ink">
             {action.label}
           </motion.p>
         )}
       </AnimatePresence>
       {!done && (
-        <button type="button" onClick={() => setDone(true)} className="h-10 shrink-0 rounded-[4px] bg-ink px-4 text-[16px] font-semibold text-page transition-colors hover:bg-accent hover:text-accent-ink">
+        <button type="button" onClick={() => setDone(true)} className="pl-btn-dark h-9 shrink-0 rounded-[10px] px-3 text-[15px] font-medium">
           {action.button}
         </button>
       )}
@@ -144,32 +146,28 @@ function Action({ action }: { action: NonNullable<Answer["action"]> }) {
 function Page({ a, marked }: { a: Answer; marked: boolean }) {
   if (!a.page)
     return (
-      <div className="flex h-full flex-col justify-between">
+      <div className="flex h-full flex-col justify-between p-7">
         <div>
-          <p className="font-display text-[44px] font-extrabold leading-[0.95] text-ink">Nothing in the handbook covers this.</p>
-          <p className="mt-5 max-w-[440px] text-[18px] leading-[1.55] text-ink-2">So pello didn&apos;t answer from what most companies do. The question went to the person who can answer it, and it&apos;s on the list of gaps to fill in the handbook.</p>
+          <p className="font-display text-[28px] font-semibold leading-[1.1] tracking-[-0.02em] text-ink">Nothing in the handbook covers this</p>
+          <p className="mt-3 text-[16px] leading-[1.55] text-mute">So pello didn&apos;t guess. The question went to the person who can answer it, and it&apos;s on the list of gaps to fill.</p>
         </div>
-        <div className="mt-10 flex items-center gap-4">
-          <Face person={HANNAH} size={56} />
+        <div className="flex items-center gap-3 rounded-[12px] bg-sunken p-3">
+          <Face person={HANNAH} size={44} />
           <div>
-            <p className="text-[18px] font-semibold text-ink">{HANNAH.name}</p>
-            <p className="text-[16px] text-mute">{HANNAH.role}, usually replies the same day</p>
+            <p className="text-[15px] font-semibold text-ink">{HANNAH.name}</p>
+            <p className="text-[15px] text-mute">{HANNAH.role}, usually replies the same day</p>
           </div>
         </div>
       </div>
     );
   const p = a.page;
   return (
-    <div className="flex h-full flex-col">
-      <div className="flex items-baseline justify-between gap-4">
-        <p className="text-[16px] font-semibold text-ink">Fieldwork handbook · {p.doc}</p>
-        <p className="tabular font-mono text-[15px] text-mute">p. {p.number}</p>
-      </div>
-      <p className="mt-10 text-[16px] text-mute">
+    <div className="flex h-full flex-col p-7">
+      <p className="text-[15px] text-mute">
         Section <span className="tabular font-mono">{p.section}</span>
       </p>
-      <p className="mt-1 font-display text-[48px] font-extrabold leading-[0.95] text-ink">{p.title}</p>
-      <div className="mt-7 grid gap-4 text-[18px] leading-[1.6] text-ink-2">
+      <p className="mt-1 font-display text-[28px] font-semibold tracking-[-0.02em] text-ink">{p.title}</p>
+      <div className="mt-4 grid gap-3.5 text-[16px] leading-[1.65] text-ink-2">
         {p.paras.map((para) => {
           const at = para.indexOf(p.mark);
           if (at < 0) return <p key={para}>{para}</p>;
@@ -180,8 +178,8 @@ function Page({ a, marked }: { a: Answer; marked: boolean }) {
                 initial={false}
                 animate={{ backgroundSize: marked ? "100% 100%" : "0% 100%" }}
                 transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-                className="bg-no-repeat px-0.5 text-ink [background-image:linear-gradient(var(--pl-accent),var(--pl-accent))]"
-                style={{ backgroundColor: "transparent" }}
+                className="rounded-[3px] bg-no-repeat px-0.5 text-ink [background-image:linear-gradient(var(--pl-accent-soft),var(--pl-accent-soft))]"
+                style={{ backgroundColor: "transparent", boxShadow: marked ? "inset 0 -2px 0 var(--pl-accent)" : "none" }}
               >
                 {p.mark}
               </motion.mark>
@@ -190,8 +188,9 @@ function Page({ a, marked }: { a: Answer; marked: boolean }) {
           );
         })}
       </div>
-      <p className="mt-auto pt-8 text-[15px] text-mute">
-        Used in <span className="tabular font-mono">{p.cited}</span> answers this month
+      <p className="mt-auto flex items-center gap-2 pt-6 text-[15px] text-mute">
+        <BookOpenTextIcon size={16} />
+        Used in <span className="tabular font-mono text-ink">{p.cited}</span> answers this month
       </p>
     </div>
   );
@@ -235,64 +234,47 @@ export function Ask() {
   };
 
   return (
-    <section id="ask" className="scroll-mt-20 py-28 lg:py-36">
-      <Container>
-        <SectionHead title="Ask it anything in the handbook." lead="People ask in Slack, Teams or the app. pello answers from your own policies, shows the line it used, and when the answer is a request, it files it." />
+    <Band rule id="ask" inner="py-20 lg:py-28">
+      <SectionHead title="Answers people can check" lead="Your team asks in Slack, Teams or the app. pello answers from your own policies and shows the line it used, so nobody has to ask twice." />
 
-        <div className="mt-16 grid gap-10 lg:grid-cols-12 lg:gap-12">
-          <div className="lg:col-span-5">
-            <ol>
-              {ASKABLE.map((k, i) => {
-                const on = turn.key === k;
-                return (
-                  <li key={k}>
-                    <button
-                      type="button"
-                      onClick={() => ask(ANSWERS[k].q, k)}
-                      disabled={busy}
-                      aria-pressed={on}
-                      className={cn("group flex w-full items-baseline gap-4 py-4 text-left shadow-[0_1px_0_var(--pl-line)] transition-colors disabled:cursor-default", on ? "text-accent" : "text-ink hover:text-accent")}
-                    >
-                      <span className="tabular w-7 shrink-0 font-mono text-[15px] text-mute">0{i + 1}</span>
-                      <span className="flex-1 font-display text-[clamp(1.6rem,2.3vw,2.1rem)] font-bold leading-[1.05] transition-transform duration-300 group-hover:translate-x-1">{ANSWERS[k].q}</span>
-                      <ArrowRightIcon size={20} weight="bold" className={cn("shrink-0 self-center transition-opacity", on ? "opacity-100" : "opacity-0 group-hover:opacity-100")} />
-                    </button>
-                  </li>
-                );
-              })}
-            </ol>
+      <div className="pl-card mt-14 overflow-hidden rounded-[16px] p-3 sm:p-4">
+        <div className="flex flex-wrap gap-2 p-2">
+          {ASKABLE.map((k) => {
+            const on = turn.key === k;
+            return (
+              <button key={k} type="button" onClick={() => ask(ANSWERS[k].q, k)} disabled={busy} aria-pressed={on} className={cn("h-10 rounded-[10px] px-3.5 text-[15px] font-medium transition-colors disabled:cursor-default", on ? "pl-btn-dark" : "pl-btn-light")}>
+                {ANSWERS[k].q}
+              </button>
+            );
+          })}
+        </div>
 
-            <form onSubmit={submit} className="mt-6">
-              <label htmlFor="ask-input" className="text-[16px] font-semibold text-ink">
-                Or ask your own
-              </label>
-              <div className="mt-2 flex items-center gap-2 rounded-[4px] bg-page p-1.5 pl-4 shadow-[inset_0_0_0_1.5px_var(--pl-ink)] transition-shadow focus-within:shadow-[0_0_0_3px_var(--pl-accent)]">
-                <input id="ask-input" value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Leave, pay, expenses, anything" autoComplete="off" className="h-11 min-w-0 flex-1 bg-transparent text-[17px] text-ink outline-none placeholder:text-mute focus-visible:outline-none" />
-                <button type="submit" disabled={busy || !draft.trim()} aria-label="Send" className="grid size-11 shrink-0 place-items-center rounded-[4px] bg-ink text-page transition-opacity disabled:opacity-30">
-                  <ArrowUpIcon size={18} weight="bold" />
-                </button>
-              </div>
-            </form>
-
-            <div className="mt-10 min-h-[300px]">
-              <div className="flex items-center gap-3">
+        <div className="mt-2 grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+          <Window title="#ask-people" className="flex min-h-[520px] flex-col">
+            <div className="flex flex-1 flex-col p-5">
+              <div className="flex items-start gap-3">
                 <Face person={ASKER} size={36} />
-                <p className="text-[16px] text-mute">
-                  <span className="font-semibold text-ink">{ASKER.name}</span> in #ask-people
-                </p>
+                <div className="min-w-0">
+                  <p className="text-[15px] font-semibold text-ink">
+                    {ASKER.name} <span className="font-normal text-mute">{ASKER.role}</span>
+                  </p>
+                  <motion.p key={turn.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="mt-0.5 text-[16px] leading-[1.5] text-ink">
+                    {turn.q}
+                  </motion.p>
+                </div>
               </div>
-              <motion.p key={turn.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-3 inline-block rounded-[4px] bg-ink px-4 py-3 text-[18px] font-medium leading-snug text-page">
-                {turn.q}
-              </motion.p>
-              <div className="mt-6 flex gap-3">
-                <span className="grid size-9 shrink-0 place-items-center rounded-[4px] bg-surface">
-                  <Mark size={22} />
+              <div className="mt-6 flex items-start gap-3">
+                <span className="grid size-9 shrink-0 place-items-center rounded-full bg-ink">
+                  <Mark size={20} className="text-surface" />
                 </span>
-                <div className="min-w-0 flex-1 pt-1">
+                <div className="min-w-0 flex-1">
+                  <p className="text-[15px] font-semibold text-ink">
+                    pello <span className="ml-1 rounded-[5px] bg-sunken px-1.5 py-0.5 text-[15px] font-medium text-mute">App</span>
+                  </p>
                   {turn.phase === "reading" ? (
-                    <p className="text-[17px] text-mute">Reading {a.page ? `${a.page.doc}, section ${a.page.section}` : "the handbook"}</p>
+                    <p className="mt-0.5 text-[16px] text-mute">Reading {a.page ? `${a.page.doc}, section ${a.page.section}` : "the handbook"}</p>
                   ) : (
-                    <p className="text-[18px] leading-[1.55] text-ink">{turn.phase === "done" ? a.text : a.text.split(" ").slice(0, turn.words).join(" ")}</p>
+                    <p className="mt-0.5 text-[16px] leading-[1.55] text-ink">{turn.phase === "done" ? a.text : a.text.split(" ").slice(0, turn.words).join(" ")}</p>
                   )}
                   {turn.phase === "done" && (
                     <motion.div key={turn.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
@@ -306,20 +288,29 @@ export function Ask() {
                   )}
                 </div>
               </div>
+              <form onSubmit={submit} className="mt-auto pt-6">
+                <label htmlFor="ask-input" className="sr-only">
+                  Ask pello your own question
+                </label>
+                <div className="flex items-center gap-2 rounded-[12px] bg-surface p-1.5 pl-3.5 shadow-[0_0_0_1px_var(--pl-line-strong)] transition-shadow focus-within:shadow-[0_0_0_1px_var(--pl-ink),0_0_0_4px_var(--pl-line)]">
+                  <input id="ask-input" value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Ask your own: leave, pay, expenses, anything" autoComplete="off" className="h-9 min-w-0 flex-1 bg-transparent text-[15px] text-ink outline-none placeholder:text-mute focus-visible:outline-none" />
+                  <button type="submit" disabled={busy || !draft.trim()} aria-label="Send" className="pl-btn-dark grid size-9 shrink-0 place-items-center rounded-[9px] disabled:opacity-30">
+                    <ArrowUpIcon size={16} weight="bold" />
+                  </button>
+                </div>
+              </form>
             </div>
-          </div>
+          </Window>
 
-          <div className="lg:col-span-7">
-            <div className="relative h-full min-h-[600px] rounded-[4px] bg-surface p-8 sm:p-12">
-              <AnimatePresence mode="wait">
-                <motion.div key={turn.key} initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }} className="h-full">
-                  <Page a={a} marked={turn.phase === "done"} />
-                </motion.div>
-              </AnimatePresence>
-            </div>
-          </div>
+          <Window title={a.page ? `Fieldwork handbook · ${a.page.doc} · p. ${a.page.number}` : "Fieldwork handbook"} className="min-h-[520px]">
+            <AnimatePresence mode="wait">
+              <motion.div key={turn.key} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }} className="h-[476px]">
+                <Page a={a} marked={turn.phase === "done"} />
+              </motion.div>
+            </AnimatePresence>
+          </Window>
         </div>
-      </Container>
-    </section>
+      </div>
+    </Band>
   );
 }

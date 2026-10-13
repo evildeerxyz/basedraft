@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { DemoForm } from "@/components/home/cta";
 import { Dithered } from "@/components/site/dither";
-import { Container } from "@/components/site/ui";
+import { Band, Chip } from "@/components/site/ui";
 import { STORIES } from "@/lib/customers";
 import { customerPhoto } from "@/lib/photos";
 
@@ -19,36 +19,39 @@ const NEXT = [
 export default function ContactPage() {
   const s = STORIES[1];
   return (
-    <section className="pb-28 pt-14 lg:pb-36 lg:pt-20">
-      <Container className="grid gap-16 lg:grid-cols-[1.15fr_0.85fr] lg:gap-20">
+    <Band inner="pb-24 pt-14 lg:pb-32 lg:pt-20">
+      <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
         <div>
-          <h1 className="font-display text-[clamp(4rem,9vw,8.6rem)] font-extrabold leading-[0.84] text-ink">Book a demo.</h1>
-          <p className="mt-8 max-w-[560px] text-[clamp(1.18rem,1.6vw,1.32rem)] leading-[1.5] text-ink-2">Tell us where to write, and how big your team is. We&apos;ll take it from there.</p>
-          <DemoForm stacked className="mt-10 max-w-[620px]" />
-          <ol className="mt-16 grid gap-8">
+          <h1 className="font-display text-[clamp(2.8rem,5.6vw,4.6rem)] font-semibold leading-[1.04] tracking-[-0.03em] text-ink">Book a demo</h1>
+          <p className="mt-5 max-w-[520px] text-[18px] leading-[1.55] text-mute">Tell us where to write, and how big your team is. We&apos;ll take it from there.</p>
+          <div className="pl-card mt-8 rounded-[16px] p-5 sm:p-6">
+            <DemoForm stacked />
+          </div>
+          <ol className="mt-10 grid gap-6">
             {NEXT.map((n, i) => (
-              <li key={n.title} className="flex gap-5">
-                <span className="tabular grid size-10 shrink-0 place-items-center rounded-[4px] bg-ink font-mono text-[15px] text-page">{i + 1}</span>
+              <li key={n.title} className="flex gap-4">
+                <Chip className="shrink-0">0{i + 1}</Chip>
                 <div>
-                  <p className="font-display text-[30px] font-extrabold leading-none text-ink">{n.title}</p>
-                  <p className="mt-1 text-[17px] leading-[1.55] text-ink-2">{n.body}</p>
+                  <p className="text-[17px] font-semibold text-ink">{n.title}</p>
+                  <p className="mt-1 text-[16px] leading-[1.55] text-mute">{n.body}</p>
                 </div>
               </li>
             ))}
           </ol>
         </div>
-        <figure className="self-start overflow-hidden rounded-[4px] bg-ink text-night-ink lg:sticky lg:top-28">
-          <Dithered src={customerPhoto(s.name)} alt={s.name} inks={["ink", "accent", "page"]} cell={3} focus={[0.5, 0.3]} className="aspect-[4/3]" />
-          <div className="p-8 sm:p-10">
-          <p className="font-display text-[84px] font-extrabold leading-[0.85] text-accent">{s.result}</p>
-          <p className="mt-2 text-[17px] text-night-mute">{s.resultLabel}</p>
-          <blockquote className="mt-8 font-display text-[34px] font-bold leading-[1.08]">{s.quote}</blockquote>
-          <figcaption className="mt-6 text-[17px] text-night-mute">
-            {s.name}, {s.role} at {s.company}
-          </figcaption>
+        <figure className="pl-card self-start overflow-hidden rounded-[16px] lg:sticky lg:top-28">
+          <Dithered src={customerPhoto(s.name)} alt={s.name} cell={3} focus={[0.5, 0.3]} className="aspect-[4/3]" />
+          <div className="p-6 sm:p-8">
+            <blockquote className="font-display text-[22px] font-semibold leading-[1.3] tracking-[-0.015em] text-ink">&ldquo;{s.quote}&rdquo;</blockquote>
+            <figcaption className="mt-5 flex items-end justify-between gap-4">
+              <span className="text-[15px] text-mute">
+                {s.name}, {s.role} at {s.company}
+              </span>
+              <span className="shrink-0 whitespace-nowrap font-display text-[26px] font-semibold leading-none tracking-[-0.02em] text-accent">{s.result}</span>
+            </figcaption>
           </div>
         </figure>
-      </Container>
-    </section>
+      </div>
+    </Band>
   );
 }

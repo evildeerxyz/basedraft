@@ -32,18 +32,18 @@ export function Roles() {
       <div className="flex flex-col gap-3 sm:flex-row">
         <Select label="Team" value={team} onChange={setTeam} options={opts("team", "All teams")} className="sm:w-[240px]" />
         <Select label="Office" value={office} onChange={setOffice} options={opts("office", "All offices")} className="sm:w-[240px]" />
-        <p className="tabular flex items-center text-[16px] text-mute sm:ml-auto">
+        <p className="tabular flex items-center text-[15px] text-mute sm:ml-auto">
           {shown.length} open {shown.length === 1 ? "role" : "roles"}
         </p>
       </div>
       <ul className="mt-8 grid gap-3">
         <AnimatePresence initial={false} mode="popLayout">
           {shown.map((r) => (
-            <motion.li key={r.id} layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ type: "spring", stiffness: 400, damping: 34 }} className="overflow-hidden rounded-[4px] bg-surface">
+            <motion.li key={r.id} layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ type: "spring", stiffness: 400, damping: 34 }} className="pl-card overflow-hidden rounded-[14px]">
               <button type="button" onClick={() => setOpen(open === r.id ? null : r.id)} aria-expanded={open === r.id} className="flex w-full flex-col gap-2 px-6 py-5 text-left sm:flex-row sm:items-center sm:gap-6">
-                <span className="flex-1 font-display text-[30px] font-extrabold leading-none text-ink">{r.title}</span>
-                <span className="text-[16px] text-ink-2">{r.team}</span>
-                <span className="text-[16px] text-mute sm:w-[180px]">{r.office}</span>
+                <span className="flex-1 text-[18px] font-semibold text-ink">{r.title}</span>
+                <span className="text-[15px] text-ink-2">{r.team}</span>
+                <span className="text-[15px] text-mute sm:w-[180px]">{r.office}</span>
                 <motion.span animate={{ rotate: open === r.id ? 180 : 0 }} className="hidden text-mute sm:block">
                   <CaretDownIcon size={18} />
                 </motion.span>
@@ -52,8 +52,8 @@ export function Roles() {
                 {open === r.id && (
                   <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} transition={{ type: "spring", stiffness: 380, damping: 36 }} className="overflow-hidden">
                     <div className="flex flex-col items-start gap-5 px-6 pb-6 sm:flex-row sm:items-end sm:justify-between">
-                      <p className="max-w-[640px] text-[17px] leading-[1.6] text-ink-2">{r.about}</p>
-                      <Link href="/contact" className={cn("inline-flex h-12 shrink-0 items-center gap-2 rounded-[4px] bg-ink px-5 text-[16px] font-semibold text-page transition-colors hover:bg-accent hover:text-accent-ink")}>
+                      <p className="max-w-[640px] text-[16px] leading-[1.6] text-mute">{r.about}</p>
+                      <Link href="/contact" className={cn("pl-btn-dark inline-flex h-10 shrink-0 items-center gap-1.5 rounded-[12px] px-3.5 text-[15px] font-medium")}>
                         Apply
                         <ArrowUpRightIcon size={17} />
                       </Link>
@@ -64,7 +64,7 @@ export function Roles() {
             </motion.li>
           ))}
         </AnimatePresence>
-        {shown.length === 0 && <li className="rounded-[4px] bg-surface px-6 py-10 text-center text-[18px] text-ink-2">Nothing open there right now. Write to us anyway at jobs@pello.example.</li>}
+        {shown.length === 0 && <li className="pl-card rounded-[14px] px-6 py-10 text-center text-[16px] text-mute">Nothing open there right now. Write to us anyway at jobs@pello.example.</li>}
       </ul>
     </div>
   );

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SignIn } from "@/components/pages/sign-in";
-import { Container } from "@/components/site/ui";
+import { Band } from "@/components/site/ui";
 
 export const metadata: Metadata = {
   title: "Sign in",
@@ -11,16 +11,14 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
   return (
-    <section className="py-20 lg:py-28">
-      <Container className="flex flex-col items-center">
+    <Band inner="flex flex-col items-center py-20 lg:py-28">
         <SignIn />
-        <p className="mt-8 text-center text-[16px] text-ink-2">
+        <p className="mt-6 text-center text-[15px] text-mute">
           New to pello?{" "}
-          <Link href="/contact" className="rounded-[2px] font-semibold text-accent underline-offset-4 hover:underline">
+          <Link href="/contact" className="rounded-[4px] font-medium text-ink underline underline-offset-4">
             Book a demo
           </Link>
         </p>
-      </Container>
-    </section>
+    </Band>
   );
 }

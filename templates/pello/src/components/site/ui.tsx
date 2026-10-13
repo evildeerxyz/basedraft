@@ -1,48 +1,86 @@
 "use client";
 
-import { ArrowRightIcon } from "@phosphor-icons/react/ssr";
+import { CaretRightIcon } from "@phosphor-icons/react/ssr";
 import { motion, useMotionValue, useReducedMotion, useSpring } from "motion/react";
 import Link from "next/link";
-import { useRef, type ComponentProps, type ReactNode } from "react";
+import { useId, useRef, type ComponentProps, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
-import { personPhoto } from "@/lib/photos";
 import type { Person } from "@/lib/people";
+import { personPhoto } from "@/lib/photos";
 import { Dithered, type Ink } from "./dither";
 
-/* The pieces every section is built from: the page's width, buttons, faces, heads, tags and stamps. */
+/*
+ * The pieces every section is built from. The page is drawn on a frame: two hairlines run its whole
+ * length either side of the content, a rule crosses between sections, and a small cross marks where
+ * they meet. Cards sit on the grey with a crisp lift; buttons are raised like keys.
+ */
+
+/** The frame's width, and how far content sits inside its lines. */
+const FRAME = "w-[min(calc(100%-24px),1200px)]";
 
 export function Container({ className, children }: { className?: string; children: ReactNode }) {
-  return <div className={cn("mx-auto w-full max-w-[1320px] px-5 lg:px-10", className)}>{children}</div>;
+  return <div className={cn("mx-auto w-full max-w-[1200px] px-5 sm:px-10 lg:px-[76px]", className)}>{children}</div>;
 }
 
-type Kind = "ink" | "accent" | "quiet" | "light";
+function Cross({ side }: { side: "left" | "right" }) {
+  return (
+    <span aria-hidden className={cn("absolute top-0 size-[15px] -translate-y-1/2", side === "left" ? "left-0 -translate-x-1/2" : "right-0 translate-x-1/2")}>
+      <span className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-line-strong" />
+      <span className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 bg-line-strong" />
+    </span>
+  );
+}
+
+/** A section on the frame: its lines run its full height, and with `rule` a hairline crosses its top. */
+export function Band({ children, rule = false, id, className, inner }: { children: ReactNode; rule?: boolean; id?: string; className?: string; inner?: string }) {
+  return (
+    <section id={id} className={cn("relative scroll-mt-24", className)}>
+      <div aria-hidden className={cn("pointer-events-none absolute inset-y-0 left-1/2 -translate-x-1/2 border-x border-line", FRAME)}>
+        {rule && (
+          <>
+            <Cross side="left" />
+            <Cross side="right" />
+          </>
+        )}
+      </div>
+      {rule && <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-line" />}
+      <Container className={cn("relative", inner)}>{children}</Container>
+    </section>
+  );
+}
+
+type Kind = "dark" | "light" | "accent";
 const KIND: Record<Kind, string> = {
-  ink: "bg-ink text-page hover:bg-accent hover:text-accent-ink",
-  accent: "bg-accent text-accent-ink hover:bg-ink hover:text-page",
-  quiet: "bg-transparent text-ink shadow-[inset_0_0_0_1.5px_var(--pl-ink)] hover:bg-ink hover:text-page",
-  light: "bg-page text-ink hover:bg-accent hover:text-accent-ink",
+  dark: "pl-btn-dark",
+  light: "pl-btn-light",
+  accent: "bg-accent text-accent-ink shadow-[inset_0_2px_0_rgb(255_255_255/0.2)] hover:brightness-105",
 };
-const button = (kind: Kind, size: "md" | "lg") =>
-  cn("group/btn inline-flex shrink-0 items-center justify-center gap-2.5 whitespace-nowrap rounded-[4px] font-semibold transition-colors duration-200", size === "lg" ? "h-14 px-6 text-[18px]" : "h-12 px-5 text-[16px]", KIND[kind]);
+const SIZE = { sm: "h-9 px-3 text-[15px] rounded-[10px]", md: "h-10 px-3.5 text-[15px] rounded-[12px]", lg: "h-12 px-5 text-[16px] rounded-[12px]" };
+const button = (kind: Kind, size: keyof typeof SIZE) => cn("group/btn inline-flex shrink-0 select-none items-center justify-center gap-1.5 whitespace-nowrap font-medium transition-[background-image,filter] duration-150", SIZE[size], KIND[kind]);
 
-/** The arrow a main action carries: it steps forward when the button is pointed at. */
-export const Arrow = () => <ArrowRightIcon size={18} weight="bold" className="transition-transform duration-200 group-hover/btn:translate-x-1" />;
+/** The chevron a button carries: it nudges forward when the button is pointed at. */
+const Chevron = () => <CaretRightIcon size={14} weight="bold" className="opacity-70 transition-transform duration-200 group-hover/btn:translate-x-0.5" />;
 
-export function ButtonLink({ href, kind = "ink", size = "md", arrow, className, children }: { href: string; kind?: Kind; size?: "md" | "lg"; arrow?: boolean; className?: string; children: ReactNode }) {
+export function ButtonLink({ href, kind = "dark", size = "md", chevron = true, className, children }: { href: string; kind?: Kind; size?: keyof typeof SIZE; chevron?: boolean; className?: string; children: ReactNode }) {
   return (
     <Link href={href} className={cn(button(kind, size), className)}>
       {children}
-      {arrow && <Arrow />}
+      {chevron && <Chevron />}
     </Link>
   );
 }
 
-export function Button({ kind = "ink", size = "md", className, ...rest }: ComponentProps<"button"> & { kind?: Kind; size?: "md" | "lg" }) {
-  return <button type="button" className={cn(button(kind, size), "disabled:pointer-events-none disabled:opacity-35", className)} {...rest} />;
+export function Button({ kind = "dark", size = "md", chevron = false, className, children, ...rest }: ComponentProps<"button"> & { kind?: Kind; size?: keyof typeof SIZE; chevron?: boolean }) {
+  return (
+    <button type="button" className={cn(button(kind, size), "disabled:pointer-events-none disabled:opacity-40", className)} {...rest}>
+      {children}
+      {chevron && <Chevron />}
+    </button>
+  );
 }
 
 /** Leans a little toward the pointer while it's near, and springs back when it leaves. */
-export function Magnetic({ children, strength = 0.24 }: { children: ReactNode; strength?: number }) {
+export function Magnetic({ children, strength = 0.22 }: { children: ReactNode; strength?: number }) {
   const ref = useRef<HTMLSpanElement>(null);
   const still = useReducedMotion();
   const x = useSpring(useMotionValue(0), { stiffness: 260, damping: 18 });
@@ -68,45 +106,92 @@ export function Magnetic({ children, strength = 0.24 }: { children: ReactNode; s
   );
 }
 
-/** Someone's photo, printed small. */
-export function Face({ person, size = 40, inks, className }: { person: Pick<Person, "id" | "name">; size?: number; inks?: Ink[]; className?: string }) {
-  return <Dithered src={personPhoto(person.id)} alt="" inks={inks} cell={size < 56 ? 1 : 2} develop={false} className={cn("shrink-0 rounded-[3px]", className)} style={{ width: size, height: size }} focus={[0.5, 0.3]} key={person.id} />;
+/** A face, printed: the person's photo in the page's greys, or in vermilion while pello's on it. */
+export function Face({ person, size = 36, hot, square, className }: { person: Pick<Person, "id" | "name">; size?: number; hot?: boolean; square?: boolean; className?: string }) {
+  const inks: Ink[] = hot ? ["ink", "accent", "surface"] : ["ink", "mute", "surface"];
+  return (
+    <Dithered
+      key={person.id}
+      src={personPhoto(person.id)}
+      alt=""
+      inks={inks}
+      cell={size < 48 ? 1 : 2}
+      develop={false}
+      focus={[0.5, 0.3]}
+      className={cn("shrink-0 shadow-[0_0_0_1px_var(--pl-line)]", square ? "rounded-[8px]" : "rounded-full", className)}
+      style={{ width: size, height: size }}
+    />
+  );
 }
 
-/** A section's head: a big statement and, under it, what it means. */
-export function SectionHead({ title, lead, className, align = "left", dark, as: Heading = "h2" }: { title: ReactNode; lead?: ReactNode; className?: string; align?: "left" | "center"; dark?: boolean; as?: "h1" | "h2" }) {
+/** A section's head: what it's about, a line on what it means, and what to do about it. */
+export function SectionHead({ title, lead, actions, className, align = "center", as: Heading = "h2" }: { title: ReactNode; lead?: ReactNode; actions?: ReactNode; className?: string; align?: "left" | "center"; as?: "h1" | "h2" }) {
   return (
-    <div className={cn("max-w-[900px]", align === "center" && "mx-auto text-center", className)}>
-      <Heading className="text-balance font-display text-[clamp(3.1rem,6.6vw,6.4rem)] font-extrabold leading-[0.88] tracking-[-0.005em]">{title}</Heading>
-      {lead && <p className={cn("mt-6 max-w-[620px] text-pretty text-[clamp(1.15rem,1.5vw,1.32rem)] leading-[1.5]", align === "center" && "mx-auto", dark ? "text-night-mute" : "text-ink-2")}>{lead}</p>}
+    <div className={cn("max-w-[760px]", align === "center" && "mx-auto text-center", className)}>
+      <Heading className="text-balance font-display text-[clamp(2.3rem,4vw,3.25rem)] font-semibold leading-[1.06] tracking-[-0.025em] text-ink">{title}</Heading>
+      {lead && <p className={cn("mt-4 max-w-[600px] text-pretty text-[18px] leading-[1.55] text-mute", align === "center" && "mx-auto")}>{lead}</p>}
+      {actions && <div className={cn("mt-7 flex flex-wrap gap-2", align === "center" && "justify-center")}>{actions}</div>}
     </div>
   );
 }
 
-/** What happened to a request, as a word with a mark: done is ink, flagged is vermilion, open is an outline. */
-export function Tag({ tone, children, className }: { tone: "done" | "flag" | "open"; children: ReactNode; className?: string }) {
+/** A small grey label: a step's number, a count, a unit. */
+export function Chip({ children, className }: { children: ReactNode; className?: string }) {
+  return <span className={cn("inline-flex h-7 items-center rounded-[7px] bg-sunken px-2 font-mono text-[15px] font-medium text-ink-2", className)}>{children}</span>;
+}
+
+/** What happened to a request: a dot and a word. Done is ink, flagged vermilion, open a ring, live a beat. */
+export function Tag({ tone, children, className }: { tone: "done" | "flag" | "open" | "live"; children: ReactNode; className?: string }) {
   return (
-    <span className={cn("inline-flex shrink-0 items-center gap-2 text-[15px] font-semibold", tone === "flag" ? "text-accent" : "text-ink", className)}>
-      <span aria-hidden className={cn("size-2.5", tone === "done" ? "bg-ink" : tone === "flag" ? "bg-accent" : "shadow-[inset_0_0_0_1.5px_currentColor]")} />
+    <span className={cn("inline-flex h-7 shrink-0 items-center gap-1.5 rounded-full bg-surface px-2.5 text-[15px] font-medium shadow-[0_0_0_1px_var(--pl-line)]", tone === "flag" ? "text-accent" : "text-ink", className)}>
+      <span aria-hidden className={cn("relative size-2 rounded-full", tone === "done" ? "bg-ink" : tone === "flag" ? "bg-accent" : tone === "live" ? "bg-accent" : "shadow-[inset_0_0_0_1.5px_var(--pl-mute)]")}>
+        {tone === "live" && <span className="absolute inset-0 animate-ping rounded-full bg-accent/60" />}
+      </span>
       {children}
     </span>
   );
 }
 
-/** A rubber stamp, as paperwork gets one: it lands with a thump and stays a little crooked. */
-export function Stamp({ children, tone = "ink", tilt = -7, className, play = true }: { children: ReactNode; tone?: "ink" | "accent"; tilt?: number; className?: string; play?: boolean }) {
+/** A switch, in ink when it's on. */
+export function Toggle({ on, onChange, label, className }: { on: boolean; onChange: (v: boolean) => void; label: string; className?: string }) {
   return (
-    <motion.span
-      initial={play ? { scale: 1.9, opacity: 0, rotate: tilt - 10 } : false}
-      animate={{ scale: 1, opacity: 1, rotate: tilt }}
-      transition={{ type: "spring", stiffness: 520, damping: 22, mass: 0.7 }}
-      className={cn(
-        "pointer-events-none inline-block rounded-[4px] px-3 pb-0.5 pt-1 font-display text-[22px] font-extrabold uppercase leading-none tracking-[0.06em] shadow-[inset_0_0_0_3px_currentColor] mix-blend-multiply",
-        tone === "accent" ? "text-accent" : "text-ink",
-        className,
+    <button type="button" role="switch" aria-checked={on} aria-label={label} onClick={() => onChange(!on)} className={cn("flex h-6 w-10 shrink-0 items-center rounded-full p-[3px] transition-colors duration-200", on ? "bg-ink" : "bg-line-strong", className)}>
+      <motion.span layout transition={{ type: "spring", stiffness: 700, damping: 36 }} className={cn("size-[18px] rounded-full bg-surface shadow-[0_1px_2px_rgb(0_0_0/0.25)]", on && "ml-auto")} />
+    </button>
+  );
+}
+
+/** A row of choices on a grey track, with a white tile that slides to the one that's picked. */
+export function Segmented<T extends string>({ value, onChange, options, label, className }: { value: T; onChange: (v: T) => void; options: Array<{ value: T; label: string }>; label: string; className?: string }) {
+  const id = useId();
+  return (
+    <div role="radiogroup" aria-label={label} className={cn("inline-flex rounded-[10px] bg-sunken p-[3px]", className)}>
+      {options.map((o) => (
+        <button key={o.value} type="button" role="radio" aria-checked={value === o.value} onClick={() => onChange(o.value)} className={cn("relative h-8 rounded-[8px] px-3 text-[15px] font-medium transition-colors", value === o.value ? "text-ink" : "text-mute hover:text-ink")}>
+          {value === o.value && <motion.span layoutId={`seg-${id}`} className="absolute inset-0 rounded-[8px] bg-surface shadow-[0_1px_3px_rgb(0_0_0/0.12),0_0_0_1px_var(--pl-line)]" transition={{ type: "spring", stiffness: 520, damping: 40 }} />}
+          <span className="relative">{o.label}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/** A piece of the product, as a window: a white panel with a hairline, and a title bar if it has one. */
+export function Window({ title, aside, children, className }: { title?: ReactNode; aside?: ReactNode; children: ReactNode; className?: string }) {
+  return (
+    <div className={cn("overflow-hidden rounded-[12px] bg-surface shadow-[0_0_0_1px_var(--pl-line)]", className)}>
+      {title !== undefined && (
+        <div className="flex h-11 items-center justify-between gap-3 px-4 shadow-[0_1px_0_var(--pl-line)]">
+          <div className="flex items-center gap-1.5" aria-hidden>
+            {[0, 1, 2].map((i) => (
+              <span key={i} className="size-2.5 rounded-full bg-line-strong" />
+            ))}
+          </div>
+          <div className="min-w-0 flex-1 truncate text-center text-[15px] font-medium text-mute">{title}</div>
+          <div className="flex w-[42px] justify-end">{aside}</div>
+        </div>
       )}
-    >
       {children}
-    </motion.span>
+    </div>
   );
 }

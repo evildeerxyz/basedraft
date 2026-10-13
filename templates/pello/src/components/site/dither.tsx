@@ -13,8 +13,8 @@ import { cn } from "@/lib/cn";
 
 const BAYER = [0, 32, 8, 40, 2, 34, 10, 42, 48, 16, 56, 24, 50, 18, 58, 26, 12, 44, 4, 36, 14, 46, 6, 38, 60, 28, 52, 20, 62, 30, 54, 22, 3, 35, 11, 43, 1, 33, 9, 41, 51, 19, 59, 27, 49, 17, 57, 25, 15, 47, 7, 39, 13, 45, 5, 37, 63, 31, 55, 23, 61, 29, 53, 21].map((v) => (v + 0.5) / 64);
 
-export type Ink = "ink" | "accent" | "page" | "surface" | "night" | "night-2";
-const VAR: Record<Ink, string> = { ink: "--pl-ink", accent: "--pl-accent", page: "--pl-page", surface: "--pl-surface", night: "--pl-night", "night-2": "--pl-night-2" };
+export type Ink = "ink" | "ink-2" | "mute" | "line" | "accent" | "page" | "surface" | "sunken" | "night" | "night-2";
+const VAR: Record<Ink, string> = { ink: "--pl-ink", "ink-2": "--pl-ink-2", mute: "--pl-mute", line: "--pl-line-strong", accent: "--pl-accent", page: "--pl-page", surface: "--pl-surface", sunken: "--pl-sunken", night: "--pl-night", "night-2": "--pl-night-2" };
 type RGB = [number, number, number];
 
 let probe: CanvasRenderingContext2D | null = null;
@@ -59,7 +59,7 @@ function print(out: Uint8ClampedArray, value: (i: number) => number, cols: numbe
 export function Dithered({
   src,
   alt = "",
-  inks = ["ink", "page"],
+  inks = ["ink", "mute", "surface"],
   cell = 2,
   focus = [0.5, 0.35],
   develop = true,
@@ -293,6 +293,114 @@ export function DitherField({ inks = ["accent", "page"], shape = "rise", at = [0
       io.disconnect();
     };
   }, [key, shape, ax, ay, reach, cell, drift]);
+
+  return (
+    <div ref={host} aria-hidden className={cn("pointer-events-none overflow-hidden", className)}>
+      <canvas ref={canvas} className="size-full [image-rendering:pixelated]" />
+    </div>
+  );
+}
+
+/**
+ * Many photos as one print: a grid of tiles, each a different photo, dithered together, fading to
+ * paper toward the middle so whatever sits on top of it stays clear.
+ */
+export function Mosaic({ srcs, tile = 76, gap = 8, cell = 2, inks = ["ink", "mute", "surface"], clear = 0.38, className }: { srcs: string[]; tile?: number; gap?: number; cell?: number; inks?: Ink[]; clear?: number; className?: string }) {
+  const host = useRef<HTMLDivElement>(null);
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const key = inks.join(",");
+  const list = srcs.join("|");
+
+  useEffect(() => {
+    const el = host.current!;
+    const out = canvas.current!;
+    const ctx = out.getContext("2d", { willReadFrequently: true })!;
+    let imgs: HTMLImageElement[] = [];
+    const layout = () => {
+      if (!imgs.length) return;
+      const w = el.clientWidth;
+      const h = el.clientHeight;
+      if (!w || !h) return;
+      const cols = Math.max(4, Math.round(w / cell));
+      const rows = Math.max(4, Math.round(h / cell));
+      out.width = cols;
+      out.height = rows;
+      const surface = rgbOf(el, "surface");
+      ctx.fillStyle = `rgb(${surface.join(",")})`;
+      ctx.fillRect(0, 0, cols, rows);
+      const t = tile / cell;
+      const g = gap / cell;
+      const across = Math.ceil(cols / (t + g)) + 1;
+      const down = Math.ceil(rows / (t + g)) + 1;
+      // Centre the grid, so the middle tile sits behind the middle of the box.
+      const ox = (cols - (across * (t + g) - g)) / 2;
+      const oy = (rows - (down * (t + g) - g)) / 2;
+      const inTile = new Uint8Array(cols * rows);
+      let n = 0;
+      for (let r = 0; r < down; r++)
+        for (let c = 0; c < across; c++) {
+          const img = imgs[(r * 5 + c * 3 + n++) % imgs.length];
+          const x = ox + c * (t + g);
+          const y = oy + r * (t + g);
+          const s = Math.max(t / img.naturalWidth, t / img.naturalHeight);
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(x, y, t, t);
+          ctx.clip();
+          ctx.drawImage(img, x + (t - img.naturalWidth * s) / 2, y + (t - img.naturalHeight * s) * 0.3, img.naturalWidth * s, img.naturalHeight * s);
+          ctx.restore();
+          for (let yy = Math.max(0, Math.floor(y)); yy < Math.min(rows, Math.ceil(y + t)); yy++) for (let xx = Math.max(0, Math.floor(x)); xx < Math.min(cols, Math.ceil(x + t)); xx++) inTile[yy * cols + xx] = 1;
+        }
+      let px: Uint8ClampedArray;
+      try {
+        px = ctx.getImageData(0, 0, cols, rows).data;
+      } catch {
+        return;
+      }
+      const frame = ctx.createImageData(cols, rows);
+      const tones = (key.split(",") as Ink[]).map((k) => rgbOf(el, k));
+      print(
+        frame.data,
+        (i) => {
+          if (!inTile[i]) return 1;
+          const x = (i % cols) / cols - 0.5;
+          const y = Math.floor(i / cols) / rows - 0.5;
+          const d = Math.hypot(x * 2, y * 2);
+          // Paper in the middle, the photos coming in toward the edges.
+          const fade = Math.min(1, Math.max(0, (d - clear) / 0.6)) ** 1.4;
+          const v = (0.299 * px[i * 4] + 0.587 * px[i * 4 + 1] + 0.114 * px[i * 4 + 2]) / 255;
+          return 1 - (1 - (0.15 + v * 0.85)) * fade * 0.85;
+        },
+        cols,
+        rows,
+        tones,
+      );
+      ctx.putImageData(frame, 0, 0);
+    };
+    let live = true;
+    Promise.all(
+      list.split("|").map(
+        (src) =>
+          new Promise<HTMLImageElement | null>((done) => {
+            const img = new Image();
+            img.decoding = "async";
+            img.onload = () => done(img);
+            img.onerror = () => done(null);
+            img.src = src;
+          }),
+      ),
+    ).then((loaded) => {
+      if (!live) return;
+      imgs = loaded.filter((x): x is HTMLImageElement => !!x);
+      layout();
+    });
+    const ro = new ResizeObserver(layout);
+    ro.observe(el);
+    return () => {
+      live = false;
+      ro.disconnect();
+    };
+  }, [list, tile, gap, cell, key, clear]);
 
   return (
     <div ref={host} aria-hidden className={cn("pointer-events-none overflow-hidden", className)}>

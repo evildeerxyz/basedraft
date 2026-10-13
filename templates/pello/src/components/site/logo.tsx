@@ -25,11 +25,11 @@ export function Mark({ size = 28, className }: { size?: number; className?: stri
   );
 }
 
-export function Logo({ className, size = 30 }: { className?: string; size?: number }) {
+export function Logo({ className, size = 28 }: { className?: string; size?: number }) {
   return (
-    <span className={cn("inline-flex items-center gap-2 text-ink", className)}>
+    <span className={cn("inline-flex items-center gap-1.5 text-ink", className)}>
       <Mark size={size} />
-      <span className="font-display font-extrabold leading-none tracking-[-0.01em]" style={{ fontSize: size * 1.02 }}>
+      <span className="font-display font-semibold leading-none tracking-[-0.035em]" style={{ fontSize: size * 0.96 }}>
         pello
       </span>
     </span>

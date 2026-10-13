@@ -1,9 +1,9 @@
 "use client";
 
 import { CheckIcon } from "@phosphor-icons/react/ssr";
-import { AnimatePresence, LayoutGroup, motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
-import { ButtonLink, Container, SectionHead } from "@/components/site/ui";
+import { Band, ButtonLink, SectionHead, Segmented } from "@/components/site/ui";
 import { cn } from "@/lib/cn";
 
 /*
@@ -76,13 +76,12 @@ function Slider({ value, onChange }: { value: number; onChange: (v: number) => v
       }}
       onPointerMove={(e) => e.buttons && set(e)}
     >
-      {/* A ruler: a tick for every step, longer at each power of ten, inked up to your size. */}
-      <div aria-hidden className="absolute inset-x-0 bottom-1 flex h-7 items-end justify-between">
-        {Array.from({ length: 61 }, (_, i) => {
-          const at = i / 60;
-          const major = [10, 100, 1000, 2000].some((n) => Math.abs(tOf(n) - at) < 0.009);
-          return <span key={i} className={cn("w-[2px]", at <= t ? "bg-ink" : "bg-line-strong", major ? "h-7" : i % 5 === 0 ? "h-4" : "h-2.5")} />;
-        })}
+      {/* The track, inked up to your size, with a tick at each power of ten. */}
+      <div aria-hidden className="absolute inset-x-0 top-1/2 h-2 -translate-y-1/2 rounded-full bg-sunken shadow-[inset_0_1px_2px_rgb(0_0_0/0.08)]">
+        <div className="h-full rounded-full bg-ink" style={{ width: `${t * 100}%` }} />
+        {[100, 1000].map((n) => (
+          <span key={n} className="absolute top-1/2 h-3 w-px -translate-y-1/2 bg-line-strong" style={{ left: `${tOf(n) * 100}%` }} />
+        ))}
       </div>
       <div
         role="slider"
@@ -93,7 +92,7 @@ function Slider({ value, onChange }: { value: number; onChange: (v: number) => v
         aria-valuenow={value}
         aria-valuetext={`${value} people`}
         onKeyDown={key}
-        className="absolute bottom-0 h-12 w-[6px] -translate-x-1/2 rounded-[2px] bg-accent transition-transform hover:scale-x-150 focus-visible:outline-offset-4"
+        className="absolute top-1/2 size-7 -translate-x-1/2 -translate-y-1/2 rounded-full bg-surface shadow-[0_0_0_1px_var(--pl-line-strong),0_2px_6px_rgb(0_0_0/0.18)] transition-transform hover:scale-110 active:scale-95"
         style={{ left: `${t * 100}%` }}
       />
     </div>
@@ -102,98 +101,93 @@ function Slider({ value, onChange }: { value: number; onChange: (v: number) => v
 
 export function Pricing({ heading = "h2" }: { heading?: "h1" | "h2" }) {
   const [size, setSize] = useState(120);
-  const [yearly, setYearly] = useState(true);
+  const [yearly, setYearly] = useState<"yearly" | "monthly">("yearly");
   const best = fits(size);
-  const k = yearly ? 0.8 : 1;
+  const k = yearly === "yearly" ? 0.8 : 1;
 
   return (
-    <section id="pricing" className="scroll-mt-20 py-28 lg:py-36">
-      <Container>
-        <SectionHead as={heading} align="center" title="Priced per person, so it grows with you." lead="Every plan has the Slack and Teams apps, unlimited questions and a 30 day free trial. No setup fee." />
+    <Band rule id="pricing" inner="py-20 lg:py-28">
+      <SectionHead as={heading} title="Priced per person, so it grows with you" lead="Every plan has the Slack and Teams apps, unlimited questions and a 30 day free trial. No setup fee." />
 
-        <div className="mx-auto mt-14 max-w-[820px] rounded-[4px] bg-surface p-6 sm:p-8">
-          <div className="flex flex-wrap items-end justify-between gap-4">
-            <p className="text-[17px] text-ink-2">
-              <span className="tabular block font-display text-[72px] font-extrabold leading-[0.85] text-ink">{size.toLocaleString("en-US")}</span>
-              people at your company
-            </p>
-            <LayoutGroup id="billing">
-              <div role="radiogroup" aria-label="Billing" className="flex rounded-[6px] bg-page p-1 shadow-[inset_0_0_0_1.5px_var(--pl-ink)]">
-                {[
-                  [false, "Monthly"],
-                  [true, "Yearly, save 20%"],
-                ].map(([v, label]) => (
-                  <button key={String(v)} type="button" role="radio" aria-checked={yearly === v} onClick={() => setYearly(v as boolean)} className={cn("relative h-11 rounded-[3px] px-5 text-[16px] font-semibold transition-colors", yearly === v ? "text-page" : "text-ink-2 hover:text-ink")}>
-                    {yearly === v && <motion.span layoutId="billing-pill" className="absolute inset-0 rounded-[3px] bg-ink" transition={{ type: "spring", stiffness: 480, damping: 38 }} />}
-                    <span className="relative">{label as string}</span>
-                  </button>
-                ))}
-              </div>
-            </LayoutGroup>
-          </div>
-          <div className="mt-6">
-            <Slider value={size} onChange={setSize} />
-            <div className="tabular relative mt-1 h-6 text-[15px] text-mute">
-              {[10, 100, 1000, 2000].map((n, i) => (
-                <span key={n} className={cn("absolute", i === 0 ? "" : i === 3 ? "-translate-x-full max-sm:hidden" : "-translate-x-1/2")} style={{ left: `${tOf(n) * 100}%` }}>
-                  {n.toLocaleString("en-US")}
-                </span>
-              ))}
-            </div>
+      <div className="pl-card mx-auto mt-12 max-w-[760px] rounded-[16px] p-6 sm:p-7">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <p>
+            <span className="tabular block font-display text-[44px] font-semibold leading-none tracking-[-0.03em] text-ink">{size.toLocaleString("en-US")}</span>
+            <span className="mt-1 block text-[15px] text-mute">people at your company</span>
+          </p>
+          <Segmented
+            label="Billing"
+            value={yearly}
+            onChange={setYearly}
+            options={[
+              { value: "monthly", label: "Monthly" },
+              { value: "yearly", label: "Yearly, save 20%" },
+            ]}
+          />
+        </div>
+        <div className="mt-5">
+          <Slider value={size} onChange={setSize} />
+          <div className="tabular relative mt-1 h-6 font-mono text-[15px] text-mute">
+            {[10, 100, 1000, 2000].map((n, i) => (
+              <span key={n} className={cn("absolute", i === 0 ? "" : i === 3 ? "-translate-x-full max-sm:hidden" : "-translate-x-1/2")} style={{ left: `${tOf(n) * 100}%` }}>
+                {n.toLocaleString("en-US")}
+              </span>
+            ))}
           </div>
         </div>
+      </div>
 
-        <div className="mt-8 grid gap-4 lg:grid-cols-3">
-          {PLANS.map((p) => {
-            const on = p.id === best;
-            const dark = p.id === "growth";
-            return (
-              <motion.div key={p.id} animate={{ y: on ? -8 : 0 }} transition={{ type: "spring", stiffness: 320, damping: 28 }} className={cn("relative flex flex-col rounded-[4px] p-7 transition-shadow duration-300 sm:p-8", dark ? "bg-night text-night-ink" : "bg-surface text-ink", on && "shadow-[0_0_0_4px_var(--pl-accent)]")}>
-                <div className="flex items-center justify-between gap-3">
-                  <p className="font-display text-[34px] font-extrabold leading-none">{p.name}</p>
-                  <AnimatePresence>
-                    {on && (
-                      <motion.span initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} className="rounded-[3px] bg-accent px-2.5 py-1 text-[15px] font-semibold text-accent-ink">
-                        Fits {size.toLocaleString("en-US")} people
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                </div>
-                <p className={cn("mt-2 text-[16px] leading-[1.5]", dark ? "text-night-mute" : "text-ink-2")}>{p.for}</p>
-                <div className="mt-8">
-                  {p.price ? (
-                    <>
-                      <p className="flex items-baseline gap-2">
-                        <span className="tabular font-display text-[64px] font-extrabold leading-none">{money(p.price * k * size)}</span>
-                        <span className={cn("text-[16px]", dark ? "text-night-mute" : "text-mute")}>a month</span>
-                      </p>
-                      <p className={cn("tabular mt-2 text-[16px]", dark ? "text-night-mute" : "text-mute")}>
-                        ${(p.price * k).toFixed(2).replace(/\.00$/, "")} per person{yearly ? `, ${money(p.price * k * size * 12)} a year` : ""}
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <p className="font-display text-[64px] font-extrabold leading-none">Let&apos;s talk</p>
-                      <p className={cn("mt-2 text-[16px]", dark ? "text-night-mute" : "text-mute")}>A price for your size and setup</p>
-                    </>
+      <div className="mt-3 grid gap-3 lg:grid-cols-3">
+        {PLANS.map((p) => {
+          const on = p.id === best;
+          return (
+            <motion.div key={p.id} layout className={cn("pl-card relative flex flex-col rounded-[16px] p-6 transition-shadow duration-300 sm:p-7", on && "shadow-[0_0_0_2px_var(--pl-ink),var(--pl-shadow)]")}>
+              <div className="flex items-center justify-between gap-3">
+                <p className="font-display text-[22px] font-semibold tracking-[-0.015em] text-ink">{p.name}</p>
+                <AnimatePresence>
+                  {on && (
+                    <motion.span initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.85 }} className="rounded-[7px] bg-ink px-2 py-1 text-[15px] font-medium text-surface">
+                      Fits {size.toLocaleString("en-US")} people
+                    </motion.span>
                   )}
-                </div>
-                <ul className="mt-8 grid flex-1 content-start gap-3">
-                  {p.features.map((f) => (
-                    <li key={f} className="flex gap-3 text-[17px] leading-[1.45]">
-                      <CheckIcon size={18} weight="bold" className="mt-0.5 shrink-0 text-accent" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <ButtonLink href="/contact" kind={dark ? "light" : on ? "accent" : "quiet"} size="lg" arrow className="mt-9 w-full">
-                  {p.price ? "Start free for 30 days" : "Talk to us"}
-                </ButtonLink>
-              </motion.div>
-            );
-          })}
-        </div>
-      </Container>
-    </section>
+                </AnimatePresence>
+              </div>
+              <p className="mt-2 text-[15px] leading-[1.5] text-mute">{p.for}</p>
+              <div className="mt-7">
+                {p.price ? (
+                  <>
+                    <p className="flex items-baseline gap-1.5">
+                      <span className="tabular font-display text-[44px] font-semibold leading-none tracking-[-0.03em] text-ink">{money(p.price * k * size)}</span>
+                      <span className="text-[15px] text-mute">a month</span>
+                    </p>
+                    <p className="mt-2 text-[15px] text-mute">
+                      <span className="tabular font-mono">${(p.price * k).toFixed(2).replace(/\.00$/, "")}</span> per person{yearly === "yearly" ? ", billed yearly" : ""}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="font-display text-[44px] font-semibold leading-none tracking-[-0.03em] text-ink">Let&apos;s talk</p>
+                    <p className="mt-2 text-[15px] text-mute">A price for your size and setup</p>
+                  </>
+                )}
+              </div>
+              <ButtonLink href="/contact" kind={on ? "dark" : "light"} className="mt-7 w-full">
+                {p.price ? "Start free for 30 days" : "Talk to us"}
+              </ButtonLink>
+              <ul className="mt-7 grid gap-2.5">
+                {p.features.map((f) => (
+                  <li key={f} className="flex gap-2.5 text-[15px] leading-[1.45] text-ink-2">
+                    <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-sunken">
+                      <CheckIcon size={11} weight="bold" className="text-ink" />
+                    </span>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          );
+        })}
+      </div>
+    </Band>
   );
 }

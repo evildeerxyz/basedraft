@@ -106,3 +106,17 @@ export const STORIES: Story[] = [
     ],
   },
 ];
+
+/** Short posts from people who use pello every day, for the wall of them on the home page. */
+export const WALL: Array<{ person: string; at: string; text: string }> = [
+  { person: "grace", at: "Fieldwork", text: "Asked pello about parental leave at 11pm and got the actual policy, with the line highlighted. Not a guess, not a link to a 40 page PDF." },
+  { person: "leo", at: "Fieldwork", text: "First day: laptop set up, accounts working, buddy waiting at the door. I didn't fill in a single form." },
+  { person: "marco", at: "Fieldwork", text: "I approve maybe one time off request a month now. The rest just happen, and I get told." },
+  { person: "priya", at: "Fieldwork", text: "Expensed a monitor arm from Slack in about ten seconds. It was in my next salary." },
+  { person: "tom", at: "Fieldwork", text: "Half my week used to be answering the same five questions. Now pello answers them and sends me the ones it can't." },
+  { person: "nina", at: "Fieldwork", text: "The overtime flags are the best part. I hear about it before anyone burns out, not after." },
+  { person: "ravi", at: "Fieldwork", text: "My payslip had overtime on it and pello explained every line before I'd even asked." },
+  { person: "mei", at: "Fieldwork", text: "We rolled out a new parental policy on Monday and pello was answering questions about it by lunch." },
+  { person: "oliver", at: "Fieldwork", text: "Onboarding three engineers in one week used to be my whole week. This time I just picked their buddies." },
+];
+

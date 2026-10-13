@@ -1,6 +1,6 @@
 import { CheckIcon } from "@phosphor-icons/react/ssr";
 import { Fragment } from "react";
-import { Container, SectionHead } from "@/components/site/ui";
+import { Band, SectionHead } from "@/components/site/ui";
 
 /* Every plan, line by line. A tick is included; an empty cell is not. */
 
@@ -45,10 +45,10 @@ const ROWS: Array<{ group: string; rows: Array<[string, Cell, Cell, Cell]> }> = 
 ];
 
 function Value({ v }: { v: Cell }) {
-  if (typeof v === "string") return <span className="text-[16px] text-ink">{v}</span>;
+  if (typeof v === "string") return <span className="text-[15px] text-ink">{v}</span>;
   return v ? (
-    <span className="inline-grid size-7 place-items-center rounded-[3px] bg-ink text-page">
-      <CheckIcon size={15} weight="bold" />
+    <span className="inline-grid size-6 place-items-center rounded-full bg-ink text-surface">
+      <CheckIcon size={12} weight="bold" />
       <span className="sr-only">Included</span>
     </span>
   ) : (
@@ -58,49 +58,47 @@ function Value({ v }: { v: Cell }) {
 
 export function Compare() {
   return (
-    <section className="py-24 lg:py-32">
-      <Container>
-        <SectionHead title="Every plan, side by side." />
-        <div className="mt-12 overflow-x-auto rounded-[4px] bg-surface">
-          <table className="w-full min-w-[760px] border-collapse text-left">
-            <thead>
-              <tr>
-                <th className="w-[40%] p-6 text-[16px] font-medium text-mute">
-                  <span className="sr-only">Feature</span>
+    <Band rule inner="py-24 lg:py-32">
+      <SectionHead title="Every plan, side by side" />
+      <div className="pl-card mt-12 overflow-x-auto rounded-[16px]">
+        <table className="w-full min-w-[720px] border-collapse text-left">
+          <thead>
+            <tr>
+              <th className="w-[40%] p-5">
+                <span className="sr-only">Feature</span>
+              </th>
+              {["Starter", "Growth", "Enterprise"].map((p) => (
+                <th key={p} className="p-5 font-display text-[20px] font-semibold tracking-[-0.01em] text-ink">
+                  {p}
                 </th>
-                {["Starter", "Growth", "Enterprise"].map((p) => (
-                  <th key={p} className="p-6 font-display text-[30px] font-extrabold text-ink">
-                    {p}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {ROWS.map((g) => (
-                <Fragment key={g.group}>
-                  <tr>
-                    <th colSpan={4} className="bg-ink px-6 py-3 text-[16px] font-semibold text-page">
-                      {g.group}
-                    </th>
-                  </tr>
-                  {g.rows.map(([label, ...cells]) => (
-                    <tr key={label} className="shadow-[0_1px_0_var(--pl-line-strong)]">
-                      <th scope="row" className="px-6 py-4 text-[17px] font-normal text-ink-2">
-                        {label}
-                      </th>
-                      {cells.map((c, i) => (
-                        <td key={i} className="px-6 py-4">
-                          <Value v={c} />
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </Fragment>
               ))}
-            </tbody>
-          </table>
-        </div>
-      </Container>
-    </section>
+            </tr>
+          </thead>
+          <tbody>
+            {ROWS.map((g) => (
+              <Fragment key={g.group}>
+                <tr>
+                  <th colSpan={4} className="bg-sunken px-5 py-2.5 text-[15px] font-semibold text-ink">
+                    {g.group}
+                  </th>
+                </tr>
+                {g.rows.map(([label, ...cells]) => (
+                  <tr key={label} className="shadow-[0_1px_0_var(--pl-line)]">
+                    <th scope="row" className="px-5 py-3.5 text-[15px] font-normal text-ink-2">
+                      {label}
+                    </th>
+                    {cells.map((c, i) => (
+                      <td key={i} className="px-5 py-3.5">
+                        <Value v={c} />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </Fragment>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Band>
   );
 }

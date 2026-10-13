@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Dithered } from "@/components/site/dither";
 import { PageHead } from "@/components/site/page";
-import { ButtonLink, Container, SectionHead } from "@/components/site/ui";
+import { Band, ButtonLink, Chip, SectionHead } from "@/components/site/ui";
 import { SCENES, teamPhoto } from "@/lib/photos";
 import { OFFICES, TEAM } from "@/lib/team";
 
@@ -18,80 +18,76 @@ const NUMBERS = [
 ];
 
 const BELIEFS = [
-  { title: "Ask a person when it matters.", body: "pello decides what a rule can decide. Everything else goes to someone, with what they need to decide it quickly." },
-  { title: "Show where it came from.", body: "Every answer links to the passage it used. If people can check it, they can trust it, and so can you." },
-  { title: "Be boring about money.", body: "Payroll is checked twice and explained line by line. Nobody gets paid until a person says so." },
+  { title: "Ask a person when it matters", body: "pello decides what a rule can decide. Everything else goes to someone, with what they need to decide it quickly." },
+  { title: "Show where it came from", body: "Every answer links to the passage it used. If people can check it, they can trust it, and so can you." },
+  { title: "Be boring about money", body: "Payroll is checked twice and explained line by line. Nobody gets paid until a person says so." },
 ];
 
 export default function CompanyPage() {
   return (
     <>
-      <PageHead title="People teams should spend their week on people." lead="Anna ran People at a 900 person company and spent most of her week on forms, inboxes and spreadsheets. Daniel had built payroll systems for ten years. In 2022 they started pello to take that week back." />
+      <PageHead title="People teams should spend their week on people" lead="Anna ran People at a 900 person company and spent most of her week on forms, inboxes and spreadsheets. Daniel had built payroll systems for ten years. In 2022 they started pello to take that week back." />
 
-      <section className="pb-24">
-        <Container>
-          <Dithered src={SCENES.office} alt="The pello office in Berlin, people at their desks" cell={3} focus={[0.5, 0.5]} className="aspect-[21/9] rounded-[4px]" />
-          <dl className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {NUMBERS.map((n) => (
-              <div key={n.label} className="flex flex-col-reverse rounded-[4px] bg-surface p-7">
-                <dt className="mt-2 text-[17px] text-mute">{n.label}</dt>
-                <dd className="tabular font-display text-[clamp(3.4rem,5vw,4.6rem)] font-extrabold leading-none text-ink">{n.value}</dd>
+      <Band inner="pb-20">
+        <div className="pl-card -mx-2 overflow-hidden rounded-[16px] sm:-mx-6 lg:-mx-[64px]">
+          <Dithered src={SCENES.office} alt="The pello office in Berlin" cell={3} focus={[0.5, 0.5]} className="aspect-[21/9]" />
+          <dl className="grid grid-cols-2 lg:grid-cols-4">
+            {NUMBERS.map((n, i) => (
+              <div key={n.label} className={`flex flex-col-reverse p-6 sm:p-8 ${i ? "shadow-[-1px_0_0_var(--pl-line)]" : ""}`}>
+                <dt className="mt-2 text-[15px] text-mute">{n.label}</dt>
+                <dd className="tabular font-display text-[clamp(2.2rem,3.6vw,3rem)] font-semibold leading-none tracking-[-0.03em] text-ink">{n.value}</dd>
               </div>
             ))}
           </dl>
-        </Container>
-      </section>
+        </div>
+      </Band>
 
-      <section className="bg-ink py-28 text-page lg:py-36">
-        <Container>
-          <SectionHead dark title="Three things we hold to." />
-          <ol className="mt-16 grid gap-12 lg:grid-cols-3">
-            {BELIEFS.map((b, i) => (
-              <li key={b.title}>
-                <span className="tabular font-mono text-[16px] text-accent">0{i + 1}</span>
-                <p className="mt-4 font-display text-[44px] font-extrabold leading-[0.92]">{b.title}</p>
-                <p className="mt-5 text-[19px] leading-[1.55] text-night-mute">{b.body}</p>
-              </li>
-            ))}
-          </ol>
-        </Container>
-      </section>
+      <Band rule inner="py-24 lg:py-32">
+        <SectionHead title="Three things we hold to" />
+        <ol className="mt-12 grid gap-3 lg:grid-cols-3">
+          {BELIEFS.map((b, i) => (
+            <li key={b.title} className="pl-card rounded-[16px] p-6 sm:p-7">
+              <Chip>0{i + 1}</Chip>
+              <p className="mt-5 font-display text-[24px] font-semibold leading-[1.15] tracking-[-0.015em] text-ink">{b.title}</p>
+              <p className="mt-3 text-[16px] leading-[1.6] text-mute">{b.body}</p>
+            </li>
+          ))}
+        </ol>
+      </Band>
 
-      <section className="py-28 lg:py-36">
-        <Container>
-          <SectionHead title="Who you'll talk to." lead="Most of us have done the work pello does, by hand, for years." />
-          <ul className="mt-14 grid grid-cols-2 gap-x-4 gap-y-10 lg:grid-cols-4">
-            {TEAM.map((p) => (
-              <li key={p.name}>
-                <Dithered src={teamPhoto(p.name)} alt={p.name} cell={2} focus={[0.5, 0.3]} className="aspect-[4/5] rounded-[4px]" />
-                <p className="mt-4 font-display text-[28px] font-extrabold leading-none text-ink">{p.name}</p>
-                <p className="mt-1.5 text-[17px] font-semibold text-ink-2">{p.role}</p>
-                <p className="mt-2 text-[16px] leading-[1.5] text-mute">{p.before}</p>
-              </li>
-            ))}
-          </ul>
-        </Container>
-      </section>
+      <Band rule inner="py-24 lg:py-32">
+        <SectionHead title="Who you'll talk to" lead="Most of us have done the work pello does, by hand, for years." />
+        <ul className="mt-12 grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {TEAM.map((p) => (
+            <li key={p.name} className="pl-card overflow-hidden rounded-[16px]">
+              <Dithered src={teamPhoto(p.name)} alt={p.name} cell={2} focus={[0.5, 0.3]} className="aspect-[4/5]" />
+              <div className="p-4 sm:p-5">
+                <p className="text-[16px] font-semibold text-ink">{p.name}</p>
+                <p className="text-[15px] text-mute">{p.role}</p>
+                <p className="mt-2 text-[15px] leading-[1.5] text-ink-2">{p.before}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </Band>
 
-      <section className="pb-28 lg:pb-36">
-        <Container className="grid gap-4 lg:grid-cols-2">
+      <Band rule inner="py-24 lg:py-32">
+        <div className="grid gap-3 lg:grid-cols-2">
           {OFFICES.map((o) => (
-            <div key={o.city} className="rounded-[4px] bg-surface p-8 sm:p-10">
-              <p className="font-display text-[clamp(3rem,5vw,4.6rem)] font-extrabold leading-none text-ink">{o.city}</p>
-              <p className="mt-4 text-[18px] text-ink-2">{o.address}</p>
-              <p className="mt-10 text-[18px] text-ink">
-                <span className="tabular font-mono">{o.people}</span> of us work here.
+            <div key={o.city} className="pl-card rounded-[16px] p-7 sm:p-8">
+              <p className="font-display text-[34px] font-semibold tracking-[-0.025em] text-ink">{o.city}</p>
+              <p className="mt-2 text-[16px] text-mute">{o.address}</p>
+              <p className="mt-8 text-[16px] text-ink-2">
+                <span className="tabular font-mono text-ink">{o.people}</span> of us work here.
               </p>
             </div>
           ))}
-          <div className="flex flex-col items-start justify-between gap-6 rounded-[4px] bg-accent p-8 text-accent-ink sm:flex-row sm:items-center sm:p-10 lg:col-span-2">
-            <p className="font-display text-[40px] font-extrabold leading-none">We&apos;re hiring in both offices.</p>
-            <ButtonLink href="/careers" kind="ink" size="lg" arrow>
-              See open roles
-            </ButtonLink>
+          <div className="pl-card flex flex-col items-start justify-between gap-6 rounded-[16px] p-7 sm:flex-row sm:items-center sm:p-8 lg:col-span-2">
+            <p className="font-display text-[28px] font-semibold tracking-[-0.02em] text-ink">We&apos;re hiring in both offices</p>
+            <ButtonLink href="/careers">See open roles</ButtonLink>
           </div>
-        </Container>
-      </section>
+        </div>
+      </Band>
     </>
   );
 }

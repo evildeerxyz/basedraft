@@ -12,9 +12,7 @@ export const metadata: Metadata = {
 export default function PricingPage() {
   return (
     <>
-      <div className="pt-4">
-        <Pricing heading="h1" />
-      </div>
+      <Pricing heading="h1" />
       <Compare />
       <Faq />
       <Cta />

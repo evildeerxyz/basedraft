@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/cn";
 import { Logo } from "./logo";
-import { ButtonLink, Container, Magnetic } from "./ui";
+import { ButtonLink } from "./ui";
 
 export const LINKS = [
   { label: "Product", href: "/product" },
@@ -17,16 +17,19 @@ export const LINKS = [
   { label: "Company", href: "/company" },
 ];
 
+/*
+ * At the top of the page the bar is part of it. Once you scroll it lifts into a white bar floating
+ * just under the window's edge, so it's there without covering the page.
+ */
 export function Nav() {
   const pathname = usePathname();
   const { scrollY } = useScroll();
-  const [scrolled, setScrolled] = useState(false);
+  const [lifted, setLifted] = useState(false);
   // The menu is open on the page it was opened on, so going to another page closes it.
   const [openOn, setOpenOn] = useState<string | null>(null);
   const open = openOn === pathname;
-  const [hover, setHover] = useState<string | null>(null);
 
-  useMotionValueEvent(scrollY, "change", (y) => setScrolled(y > 12));
+  useMotionValueEvent(scrollY, "change", (y) => setLifted(y > 24));
   useEffect(() => {
     if (!open) return;
     const key = (e: KeyboardEvent) => e.key === "Escape" && setOpenOn(null);
@@ -35,29 +38,21 @@ export function Nav() {
   }, [open]);
 
   return (
-    <header className={cn("sticky top-0 z-50 bg-page transition-shadow duration-300", (scrolled || open) && "shadow-[0_1px_0_var(--pl-ink)]")}>
-      <Container className="flex h-[76px] items-center justify-between gap-6">
-        <Link href="/" aria-label="pello home" className="rounded-[4px]">
+    <header className="sticky top-0 z-50 px-3 pt-2">
+      <div className={cn("mx-auto flex h-[60px] max-w-[1176px] items-center justify-between gap-6 rounded-[16px] px-4 transition-[background-color,box-shadow] duration-300 sm:px-6", lifted || open ? "bg-surface shadow-[0_0_0_1px_var(--pl-line),0_8px_24px_-12px_rgb(0_0_0/0.12)]" : "bg-transparent")}>
+        <Link href="/" aria-label="pello home" className="rounded-[8px]">
           <Logo />
         </Link>
 
-        <nav aria-label="Main" className="hidden lg:block" onPointerLeave={() => setHover(null)}>
-          <ul className="flex items-center">
+        <nav aria-label="Main" className="hidden lg:block">
+          <ul className="flex items-center gap-1">
             {LINKS.map((l) => {
               const on = pathname.startsWith(l.href);
               return (
-                <li key={l.href} className="relative">
-                  <Link
-                    href={l.href}
-                    onPointerEnter={() => setHover(l.href)}
-                    onFocus={() => setHover(l.href)}
-                    aria-current={on ? "page" : undefined}
-                    className={cn("relative flex h-11 items-center gap-2 rounded-[4px] px-4 text-[17px] font-semibold transition-colors", on ? "text-ink" : "text-ink-2 hover:text-ink")}
-                  >
-                    {on && <span aria-hidden className="size-2 bg-accent" />}
+                <li key={l.href}>
+                  <Link href={l.href} aria-current={on ? "page" : undefined} className={cn("flex h-9 items-center rounded-[10px] px-3.5 text-[15px] font-medium transition-colors", on ? "bg-sunken text-ink" : "text-ink-2 hover:bg-sunken hover:text-ink")}>
                     {l.label}
                   </Link>
-                  {hover === l.href && <motion.span layoutId="nav-hover" aria-hidden className="absolute inset-x-4 -bottom-0.5 h-[3px] bg-ink" transition={{ type: "spring", stiffness: 520, damping: 40 }} />}
                 </li>
               );
             })}
@@ -65,58 +60,48 @@ export function Nav() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <Link href="/login" className="hidden h-11 items-center rounded-[4px] px-4 text-[17px] font-semibold text-ink-2 transition-colors hover:text-ink sm:flex">
+          <Link href="/login" className="hidden h-9 items-center rounded-[10px] px-3 text-[15px] font-medium text-ink transition-colors hover:bg-sunken sm:flex">
             Sign in
           </Link>
-          <span className="max-sm:hidden">
-            <Magnetic strength={0.2}>
-              <ButtonLink href="/contact" kind="ink">
-                Book a demo
-              </ButtonLink>
-            </Magnetic>
-          </span>
+          <ButtonLink href="/contact" size="sm" className="max-sm:hidden">
+            Book a demo
+          </ButtonLink>
           <button
             type="button"
             onClick={() => setOpenOn(open ? null : pathname)}
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             aria-controls="mobile-menu"
-            className="grid size-11 place-items-center rounded-[4px] text-ink shadow-[inset_0_0_0_1.5px_var(--pl-ink)] lg:hidden"
+            className="pl-btn-light grid size-10 place-items-center rounded-[10px] lg:hidden"
           >
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.span key={open ? "x" : "menu"} initial={{ rotate: -45, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 45, opacity: 0 }} transition={{ duration: 0.14 }}>
-                {open ? <XIcon size={20} /> : <ListIcon size={20} />}
-              </motion.span>
-            </AnimatePresence>
+            {open ? <XIcon size={18} /> : <ListIcon size={18} />}
           </button>
         </div>
-      </Container>
+      </div>
 
       <AnimatePresence>
         {open && (
           <motion.div
             id="mobile-menu"
-            initial={{ height: 0 }}
-            animate={{ height: "auto" }}
-            exit={{ height: 0 }}
-            transition={{ type: "spring", stiffness: 380, damping: 38 }}
-            className="overflow-hidden bg-page lg:hidden"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            className="pl-pop mx-auto mt-2 max-w-[1176px] rounded-[16px] p-3 lg:hidden"
           >
-            <Container className="pb-8 pt-2">
-              <motion.ul initial="hide" animate="show" variants={{ show: { transition: { staggerChildren: 0.035, delayChildren: 0.04 } } }}>
-                {[...LINKS, { label: "Sign in", href: "/login" }].map((l) => (
-                  <motion.li key={l.href} variants={{ hide: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}>
-                    <Link href={l.href} onClick={() => setOpenOn(null)} className="flex h-16 items-center justify-between font-display text-[34px] font-extrabold text-ink shadow-[0_1px_0_var(--pl-line)]">
-                      {l.label}
-                      <ArrowUpRightIcon size={22} className="text-mute" />
-                    </Link>
-                  </motion.li>
-                ))}
-              </motion.ul>
-              <ButtonLink href="/contact" kind="accent" size="lg" arrow className="mt-6 w-full">
-                Book a demo
-              </ButtonLink>
-            </Container>
+            <ul>
+              {[...LINKS, { label: "Sign in", href: "/login" }].map((l) => (
+                <li key={l.href}>
+                  <Link href={l.href} onClick={() => setOpenOn(null)} className="flex h-12 items-center justify-between rounded-[10px] px-3 text-[17px] font-medium text-ink hover:bg-sunken">
+                    {l.label}
+                    <ArrowUpRightIcon size={16} className="text-mute" />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <ButtonLink href="/contact" size="lg" className="mt-2 w-full">
+              Book a demo
+            </ButtonLink>
           </motion.div>
         )}
       </AnimatePresence>

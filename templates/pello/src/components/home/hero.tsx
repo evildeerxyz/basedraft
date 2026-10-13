@@ -1,188 +1,204 @@
 "use client";
 
-import { ArrowDownIcon } from "@phosphor-icons/react/ssr";
+import { ArrowCounterClockwiseIcon, CheckIcon, SlackLogoIcon, XIcon } from "@phosphor-icons/react/ssr";
 import { AnimatePresence, motion, useInView } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Dithered } from "@/components/site/dither";
-import { ButtonLink, Container, Magnetic, Stamp, Tag } from "@/components/site/ui";
+import { Mark } from "@/components/site/logo";
+import { Band, Button, ButtonLink, Face, Magnetic, Tag } from "@/components/site/ui";
+import { cn } from "@/lib/cn";
 import { useEngaged } from "@/lib/engaged";
 import { happening, type Happening } from "@/lib/happenings";
-import { COMPANY, personOf, type Person } from "@/lib/people";
-import { personPhoto } from "@/lib/photos";
+import { COMPANY, personOf } from "@/lib/people";
 
 /*
- * Fieldwork's people, on a wall. pello works through their requests one after another: whoever
- * it's handling is printed again in vermilion and stamped with what happened, and the day's log
- * beside the wall fills in. Click anyone to send a request for them. It plays once someone's on
- * the page (lib/engaged.ts), and only while the wall is on screen.
+ * The first screen: what pello is, beside pello itself. Its inbox is Fieldwork's requests as they
+ * come in. The newest is opened on its own, and pello works through its checks before it decides;
+ * open any other to see how that one went. It plays once someone's on the page, while it's on
+ * screen, and stops leading for a while after you click.
  */
 
-const WALL = ["hannah", "leo", "grace", "marco", "priya", "oliver", "mei", "tom", "nina", "arjun", "clara", "ravi"].map(personOf);
 const EASE = [0.22, 1, 0.36, 1] as const;
-const STAMP: Record<string, string> = { Sent: "Paid" };
-const forWall = (i: number) => WALL[(i * 5 + 3) % WALL.length];
+const ON_LIST = ["grace", "leo", "priya", "marco", "tom", "nina", "ravi", "mei", "oliver", "clara", "arjun", "hannah"].map(personOf);
+const forList = (i: number) => ON_LIST[(i * 5 + 2) % ON_LIST.length];
+const START = 6;
 
-function Tile({ person, event, onSend }: { person: Person; event?: Happening; onSend: (p: Person) => void }) {
-  const [hover, setHover] = useState(false);
-  const hot = hover || !!event;
+function Row({ h, on, onOpen }: { h: Happening; on: boolean; onOpen: () => void }) {
   return (
-    <button
-      type="button"
-      onClick={() => onSend(person)}
-      onPointerEnter={() => setHover(true)}
-      onPointerLeave={() => setHover(false)}
-      onFocus={() => setHover(true)}
-      onBlur={() => setHover(false)}
-      aria-label={`Send a request for ${person.name}`}
-      className="group relative flex aspect-[4/5] flex-col overflow-hidden rounded-[4px] bg-surface text-left"
-    >
-      <Dithered src={personPhoto(person.id)} alt="" inks={hot ? ["ink", "accent", "page"] : ["ink", "page"]} cell={2} focus={[0.5, 0.3]} className="min-h-0 flex-1" />
-      <span className="block bg-page px-3 pb-2.5 pt-2">
-        <span className="block truncate text-[16px] font-semibold leading-tight text-ink">{person.name}</span>
-        <span className="block truncate text-[15px] leading-tight text-mute">{person.role}</span>
-      </span>
-      <AnimatePresence>
-        {event && (
-          <motion.span key={event.id} exit={{ opacity: 0, transition: { duration: 0.25 } }} className="absolute inset-x-0 top-[34%] flex justify-center">
-            <Stamp tone={event.tone === "bad" ? "accent" : "ink"} play={event.id > 4} className="bg-page/85 text-[clamp(1.2rem,1.9vw,1.75rem)]">
-              {STAMP[event.done] ?? event.done}
-            </Stamp>
-          </motion.span>
-        )}
-      </AnimatePresence>
-      {hover && !event && <span className="absolute right-2 top-2 rounded-[3px] bg-ink px-2 py-1 text-[15px] font-semibold text-page">{person.daysLeft} days left</span>}
-    </button>
+    <motion.li layout initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ type: "spring", stiffness: 420, damping: 36 }}>
+      <button type="button" onClick={onOpen} aria-pressed={on} className={cn("flex w-full items-center gap-3 rounded-[10px] px-2.5 py-2 text-left transition-colors", on ? "bg-sunken" : "hover:bg-sunken/60")}>
+        <Face person={h.person} size={34} hot={h.busy} />
+        <span className="min-w-0 flex-1">
+          <span className="flex items-baseline justify-between gap-2">
+            <span className="truncate text-[15px] font-semibold text-ink">{h.person.name}</span>
+            <span className="tabular shrink-0 font-mono text-[15px] text-mute">{h.at}</span>
+          </span>
+          <span className="flex items-center gap-1.5 text-[15px] text-mute">
+            <span aria-hidden className={cn("size-1.5 shrink-0 rounded-full", h.busy ? "animate-pulse bg-accent" : h.tone === "bad" ? "bg-accent" : "bg-ink")} />
+            <span className="truncate">{h.busy ? "pello is checking" : h.title}</span>
+          </span>
+        </span>
+      </button>
+    </motion.li>
   );
 }
 
-function Log({ items }: { items: Happening[] }) {
+function Detail({ h }: { h: Happening }) {
+  const lead = h.result;
   return (
-    <ul aria-live="polite" className="relative">
-      <AnimatePresence initial={false} mode="popLayout">
-        {items.map((h) => (
-          <motion.li
-            key={h.id}
-            layout
-            initial={{ opacity: 0, y: -14 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, transition: { duration: 0.18 } }}
-            transition={{ type: "spring", stiffness: 420, damping: 36 }}
-            className="grid grid-cols-[52px_1fr_auto] items-baseline gap-3 py-3 shadow-[0_1px_0_var(--pl-line)]"
-          >
-            <span className="tabular font-mono text-[15px] text-mute">{h.at}</span>
-            <span className="min-w-0">
-              <span className="block text-[17px] font-semibold leading-snug text-ink">{h.title}</span>
-              <span className="block truncate text-[15px] text-mute">{h.detail}</span>
-            </span>
-            {h.busy ? (
-              <Tag tone="open" className="text-mute">
-                Checking
-              </Tag>
-            ) : (
-              <Tag tone={h.tone === "bad" ? "flag" : "done"}>{h.done}</Tag>
-            )}
+    <motion.div key={h.id} initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3, ease: EASE }} className="flex h-full flex-col p-6">
+      <div className="flex items-center gap-3">
+        <Face person={h.person} size={44} hot={h.busy} />
+        <div className="min-w-0">
+          <p className="truncate text-[16px] font-semibold text-ink">{h.person.name}</p>
+          <p className="truncate text-[15px] text-mute">
+            {h.person.role}, {h.person.location}
+          </p>
+        </div>
+        <span className="ml-auto flex items-center gap-1.5 text-[15px] text-mute">
+          <SlackLogoIcon size={16} />
+          <span className="tabular font-mono">{h.at}</span>
+        </span>
+      </div>
+
+      <p className="mt-6 font-display text-[24px] font-semibold leading-[1.15] tracking-[-0.015em] text-ink">&ldquo;{h.ask}&rdquo;</p>
+
+      <p className="mt-6 text-[15px] font-medium text-mute">What pello checked</p>
+      <ul className="mt-2 grid gap-2">
+        {h.checks.map((c, i) => (
+          <motion.li key={c.text} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: h.busy ? 0.15 + i * 0.25 : 0, duration: 0.25 }} className="flex items-center gap-2.5 text-[15px] text-ink">
+            <span className={cn("grid size-5 shrink-0 place-items-center rounded-full", c.ok ? "bg-ink text-surface" : "bg-accent text-accent-ink")}>{c.ok ? <CheckIcon size={11} weight="bold" /> : <XIcon size={11} weight="bold" />}</span>
+            {c.text}
           </motion.li>
         ))}
+      </ul>
+
+      <div className="mt-auto pt-6">
+        <AnimatePresence mode="wait" initial={false}>
+          {h.busy ? (
+            <motion.p key="busy" exit={{ opacity: 0 }} className="flex items-center gap-2 text-[15px] text-mute">
+              <span className="relative grid size-6 place-items-center rounded-full bg-sunken">
+                <Mark size={14} />
+              </span>
+              Working on it
+            </motion.p>
+          ) : (
+            <motion.div key="done" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: EASE }} className="rounded-[12px] bg-sunken p-4">
+              <div className="flex items-center justify-between gap-3">
+                <Tag tone={h.tone === "bad" ? "flag" : "done"}>{h.tone === "bad" ? "Sent to a person" : `${h.done} by pello`}</Tag>
+                <Button kind="light" size="sm">
+                  <ArrowCounterClockwiseIcon size={14} />
+                  Undo
+                </Button>
+              </div>
+              <p className="mt-3 text-[15px] leading-[1.5] text-ink-2">{lead}</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </motion.div>
+  );
+}
+
+/** pello's inbox: Fieldwork's requests on the left, the open one on the right. */
+function Inbox() {
+  const box = useRef<HTMLDivElement>(null);
+  const seen = useInView(box, { amount: 0.3 });
+  const engaged = useEngaged();
+  const [items, setItems] = useState<Happening[]>(() => Array.from({ length: START }, (_, k) => START - 1 - k).map((i) => happening(i, forList(i))));
+  const [openId, setOpenId] = useState(START - 1);
+  const [handled, setHandled] = useState(1284);
+  const count = useRef(START);
+  const quiet = useRef(0);
+
+  const arrive = useCallback(() => {
+    const i = count.current++;
+    const h = happening(i, forList(i), true);
+    setItems((list) => [h, ...list].slice(0, 7));
+    if (performance.now() > quiet.current) setOpenId(h.id);
+    setTimeout(() => {
+      setItems((list) => list.map((x) => (x.id === h.id ? { ...x, busy: false } : x)));
+      setHandled((n) => n + 1);
+    }, 1300);
+  }, []);
+
+  useEffect(() => {
+    if (!seen || !engaged) return;
+    const t = setInterval(() => !document.hidden && arrive(), 3600);
+    return () => clearInterval(t);
+  }, [seen, engaged, arrive]);
+
+  const open = items.find((x) => x.id === openId) ?? items[0];
+  return (
+    <div ref={box} className="grid h-[540px] w-[640px] grid-cols-[262px_1fr] overflow-hidden rounded-[14px] bg-surface shadow-[0_0_0_1px_var(--pl-line),0_24px_60px_-30px_rgb(0_0_0/0.25)]">
+      <div className="flex min-h-0 flex-col shadow-[1px_0_0_var(--pl-line)]">
+        <div className="flex items-center justify-between px-4 pb-2 pt-4">
+          <p className="text-[16px] font-semibold text-ink">Requests</p>
+          <Tag tone="live">Live</Tag>
+        </div>
+        <ul className="min-h-0 flex-1 overflow-hidden px-2 pl-fade-b">
+          <AnimatePresence initial={false} mode="popLayout">
+            {items.map((h) => (
+              <Row
+                key={h.id}
+                h={h}
+                on={h.id === open.id}
+                onOpen={() => {
+                  quiet.current = performance.now() + 9000;
+                  setOpenId(h.id);
+                }}
+              />
+            ))}
+          </AnimatePresence>
+        </ul>
+        <div className="flex items-baseline justify-between px-4 py-3 shadow-[0_-1px_0_var(--pl-line)]">
+          <span className="text-[15px] text-mute">Handled today</span>
+          <span className="tabular font-mono text-[15px] font-medium text-ink">{handled.toLocaleString("en-US")}</span>
+        </div>
+      </div>
+      <AnimatePresence mode="wait" initial={false}>
+        <Detail key={open.id} h={open} />
       </AnimatePresence>
-    </ul>
+    </div>
   );
 }
 
 export function Hero() {
-  const wall = useRef<HTMLDivElement>(null);
-  const seen = useInView(wall, { amount: 0.25 });
-  const engaged = useEngaged();
-  const [items, setItems] = useState<Happening[]>(() => [4, 3, 2, 1, 0].map((i) => happening(i, forWall(i))));
-  const [stamped, setStamped] = useState<Record<string, Happening>>(() => ({ [forWall(4).id]: happening(4, forWall(4)) }));
-  const [handled, setHandled] = useState(1284);
-  const [flagged, setFlagged] = useState(37);
-  const count = useRef(5);
-  const quiet = useRef(0);
-
-  const send = useCallback((person?: Person) => {
-    const i = count.current++;
-    const who = person ?? forWall(i);
-    const h = happening(i, who, true);
-    setItems((list) => [h, ...list].slice(0, 5));
-    setStamped((s) => ({ ...s, [who.id]: h }));
-    setTimeout(() => {
-      setItems((list) => list.map((x) => (x.id === h.id ? { ...x, busy: false } : x)));
-      setHandled((n) => n + 1);
-      if (h.tone === "bad") setFlagged((n) => n + 1);
-    }, 900);
-    setTimeout(() => setStamped((s) => (s[who.id]?.id === h.id ? Object.fromEntries(Object.entries(s).filter(([k]) => k !== who.id)) : s)), 2600);
-  }, []);
-
-  const click = useCallback(
-    (p: Person) => {
-      quiet.current = performance.now() + 6000;
-      send(p);
-    },
-    [send],
-  );
-
-  useEffect(() => {
-    if (!seen || !engaged) return;
-    const t = setInterval(() => {
-      if (!document.hidden && performance.now() > quiet.current) send();
-    }, 2800);
-    return () => clearInterval(t);
-  }, [seen, engaged, send]);
-
   return (
-    <section className="relative overflow-hidden pb-24 pt-10 lg:pt-14">
-      <Container>
-        <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, ease: EASE }} className="font-display text-[clamp(4.6rem,12.6vw,12.4rem)] font-extrabold leading-[0.82] tracking-[-0.01em] text-ink">
-          HR that does the <span className="text-accent">paperwork.</span>
-        </motion.h1>
-
-        {/* The intro, the wall and the log: on a phone in that order; on a wide screen the wall stands beside the other two. */}
-        <div className="mt-12 grid gap-12 lg:grid-cols-12 lg:grid-rows-[auto_1fr] lg:gap-x-10 lg:gap-y-0">
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2, ease: EASE }} className="lg:col-span-4 lg:row-start-1">
-            <p className="text-pretty text-[clamp(1.2rem,1.6vw,1.38rem)] leading-[1.45] text-ink-2">pello answers policy questions, approves time off within the rules you set, runs payroll and gets new hires ready for day one. Your people team gets back to people.</p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Magnetic>
-                <ButtonLink href="/contact" kind="ink" size="lg" arrow>
+    <Band inner="pb-4 pt-4">
+      <div className="pl-card relative -mx-2 overflow-hidden rounded-[16px] sm:-mx-6 lg:-mx-[64px]">
+        <div className="grid lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+          <div className="px-6 pb-10 pt-14 sm:px-12 lg:py-24 lg:pl-16 lg:pr-6">
+            <motion.h1 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: EASE }} className="text-balance font-display text-[clamp(2.9rem,5.4vw,4.4rem)] font-semibold leading-[1.04] tracking-[-0.03em] text-ink">
+              HR that does the paperwork
+            </motion.h1>
+            <motion.p initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.1, ease: EASE }} className="mt-5 max-w-[500px] text-pretty text-[18px] leading-[1.55] text-mute">
+              pello answers policy questions, approves time off within your rules, runs payroll and gets new hires ready for day one. Your people team gets back to people.
+            </motion.p>
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2, ease: EASE }} className="mt-8 grid max-w-[480px] gap-2.5">
+              <Magnetic strength={0.08}>
+                <ButtonLink href="/contact" size="lg" className="w-full">
                   Book a demo
                 </ButtonLink>
               </Magnetic>
-              <ButtonLink href="#ask" kind="quiet" size="lg">
-                See it work
-                <ArrowDownIcon size={18} weight="bold" />
+              <ButtonLink href="#how" kind="light" size="lg" className="w-full">
+                See how it works
               </ButtonLink>
-            </div>
-          </motion.div>
+              <p className="mt-2 text-[15px] text-mute">Free for 30 days. Most teams are set up in an afternoon.</p>
+            </motion.div>
+          </div>
 
-          <motion.div ref={wall} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6, delay: 0.3 }} className="lg:col-span-8 lg:col-start-5 lg:row-span-2 lg:row-start-1">
-            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-              {WALL.map((p) => (
-                <Tile key={p.id} person={p} event={stamped[p.id]} onSend={click} />
-              ))}
+          {/* pello itself, running past the card's edge. */}
+          <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.9, delay: 0.25, ease: EASE }} className="relative h-[330px] min-[460px]:h-[400px] sm:h-[480px] lg:h-auto">
+            <div className="absolute left-6 top-0 origin-top-left scale-[0.62] min-[460px]:scale-[0.78] sm:left-12 sm:scale-100 lg:left-0 lg:top-16 lg:scale-[0.9] xl:scale-100">
+              <Inbox />
             </div>
-            <p className="mt-4 text-[15px] text-mute">
-              Twelve of {COMPANY.name}&apos;s {COMPANY.people} people. Click anyone to send pello a request for them.
-            </p>
-          </motion.div>
-
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.35, ease: EASE }} className="flex flex-col justify-end lg:col-span-4 lg:row-start-2 lg:pt-12">
-            <div className="flex items-baseline justify-between gap-4 pb-1 shadow-[0_1.5px_0_var(--pl-ink)]">
-              <h2 className="font-display text-[26px] font-extrabold text-ink">Today at {COMPANY.name}</h2>
-              <span className="text-[15px] text-mute">{COMPANY.people} people</span>
-            </div>
-            <Log items={items} />
-            <dl className="mt-6 grid grid-cols-2 gap-6">
-              <div className="flex flex-col-reverse">
-                <dt className="text-[15px] text-mute">Handled today</dt>
-                <dd className="tabular font-display text-[52px] font-extrabold leading-none text-ink">{handled.toLocaleString("en-US")}</dd>
-              </div>
-              <div className="flex flex-col-reverse">
-                <dt className="text-[15px] text-mute">Sent to a person</dt>
-                <dd className="tabular font-display text-[52px] font-extrabold leading-none text-accent">{flagged}</dd>
-              </div>
-            </dl>
           </motion.div>
         </div>
-      </Container>
-    </section>
+        <p className="sr-only">
+          A live view of pello handling requests from {COMPANY.name}&apos;s {COMPANY.people} people.
+        </p>
+      </div>
+    </Band>
   );
 }
+

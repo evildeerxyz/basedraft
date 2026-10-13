@@ -17,8 +17,8 @@ import { Group, Segments } from "./ui";
  */
 
 const IDS = Object.keys(FONTS) as FontId[];
-/** Typefaces Studio offers only to the template that's set in them (pello's Barlow). */
-const OWN_ONLY = new Set<FontId>(["barlow"]);
+/** Typefaces Studio offers only to the template that's set in them (pello's Funnel). */
+const OWN_ONLY = new Set<FontId>(["funnel"]);
 
 /** The fonts' "Aa", for the tiles: only those two letters of each, so it's a few kilobytes. */
 function useTileFonts() {

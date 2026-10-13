@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { PageHead, Prose } from "@/components/site/page";
-import { Container } from "@/components/site/ui";
+import { Band } from "@/components/site/ui";
 
 export const metadata: Metadata = {
   title: "Terms",
@@ -10,9 +10,8 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <>
-      <PageHead title="Terms" lead="Last updated September 1, 2026. This is a template: have it checked by your own lawyer before you use it." />
-      <section className="pb-28">
-        <Container>
+      <PageHead align="left" title="Terms" lead="Last updated September 1, 2026. This is a template: have it checked by your own lawyer before you use it." />
+      <Band inner="pb-28">
           <Prose>
             <h2>The agreement</h2>
             <p>These terms are between pello Inc. and the company that signs up. By using pello, the company agrees to them on behalf of everyone it invites.</p>
@@ -33,8 +32,7 @@ export default function TermsPage() {
             <h2>Changes to these terms</h2>
             <p>We&apos;ll tell you 30 days before any change that affects you, by email and in the app.</p>
           </Prose>
-        </Container>
-      </section>
+      </Band>
     </>
   );
 }

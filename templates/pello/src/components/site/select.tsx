@@ -70,9 +70,9 @@ export function Select({ value, onChange, options, label, className, dark }: { v
         onClick={() => (open ? setOpen(false) : show())}
         onKeyDown={onKey}
         className={cn(
-          "flex h-12 w-full items-center justify-between gap-3 rounded-[4px] px-4 text-left text-[16px] font-medium outline-none transition-shadow focus-visible:shadow-[0_0_0_3px_var(--pl-accent)]",
-          dark ? "bg-night-2 text-night-ink shadow-[inset_0_0_0_1.5px_var(--pl-night-line)]" : "bg-page text-ink shadow-[inset_0_0_0_1.5px_var(--pl-ink)]",
-          open && "shadow-[0_0_0_3px_var(--pl-accent)]",
+          "flex h-11 w-full items-center justify-between gap-3 rounded-[10px] px-3.5 text-left text-[15px] font-medium outline-none transition-shadow focus-visible:shadow-[0_0_0_1px_var(--pl-ink),0_0_0_4px_var(--pl-line)]",
+          dark ? "bg-night-2 text-night-ink shadow-[0_0_0_1px_var(--pl-night-line)]" : "bg-surface text-ink shadow-[0_0_0_1px_var(--pl-line-strong),0_1px_2px_rgb(0_0_0/0.04)]",
+          open && "shadow-[0_0_0_1px_var(--pl-ink),0_0_0_4px_var(--pl-line)]",
         )}
       >
         <span className="truncate">{current?.label}</span>
@@ -90,7 +90,7 @@ export function Select({ value, onChange, options, label, className, dark }: { v
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -4, scale: 0.98 }}
             transition={{ duration: 0.16, ease: [0.22, 1, 0.36, 1] }}
-            className={cn("absolute inset-x-0 top-full z-40 mt-1.5 max-h-[320px] origin-top overflow-y-auto rounded-[4px] p-1", dark ? "bg-night-2 text-night-ink shadow-[inset_0_0_0_1.5px_var(--pl-night-line)]" : "bg-page text-ink shadow-[0_14px_34px_-14px_rgb(0_0_0/0.3),inset_0_0_0_1.5px_var(--pl-ink)]")}
+            className={cn("absolute inset-x-0 top-full z-40 mt-1.5 max-h-[320px] origin-top overflow-y-auto rounded-[12px] p-1", dark ? "bg-night-2 text-night-ink shadow-[0_0_0_1px_var(--pl-night-line)]" : "pl-pop text-ink")}
           >
             {options.map((o, i) => (
               <li
@@ -101,10 +101,10 @@ export function Select({ value, onChange, options, label, className, dark }: { v
                 onPointerMove={() => setActive(i)}
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => choose(i)}
-                className={cn("flex h-11 cursor-pointer items-center justify-between rounded-[2px] px-3 text-[16px]", i === active && (dark ? "bg-night-line" : "bg-ink text-page"))}
+                className={cn("flex h-10 cursor-pointer items-center justify-between rounded-[8px] px-3 text-[15px]", i === active && (dark ? "bg-night-line" : "bg-sunken"))}
               >
                 {o.label}
-                {o.value === value && <CheckIcon size={16} weight="bold" className={i === active && !dark ? "text-page" : "text-accent"} />}
+                {o.value === value && <CheckIcon size={15} weight="bold" className="text-ink" />}
               </li>
             ))}
           </motion.ul>

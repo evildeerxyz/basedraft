@@ -3,14 +3,14 @@
 import { CaretDownIcon, CheckIcon } from "@phosphor-icons/react/ssr";
 import { AnimatePresence, animate, motion, useInView, useMotionValue, useTransform } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import { Button, Container, Face, SectionHead, Stamp, Tag } from "@/components/site/ui";
+import { Band, Button, Face, SectionHead, Tag, Window } from "@/components/site/ui";
 import { cn } from "@/lib/cn";
 import { personOf } from "@/lib/people";
 
 /*
- * October's payroll for Fieldwork's four countries, as four payslips. In view, pello checks each
- * one against September, counting up as it goes, then lists what changed and why. Nothing is paid
- * until a person approves it, and then the run prints out.
+ * October's payroll for Fieldwork's four countries. In view, pello checks each country against
+ * September, counting up as it goes, then lists what changed and why. Nothing is paid until a
+ * person approves it.
  */
 
 const COUNTRIES = [
@@ -40,9 +40,6 @@ function Money({ value, currency, run }: { value: number; currency: string; run:
   }, [run, value, v]);
   return <motion.span className="tabular">{text}</motion.span>;
 }
-
-/** A payslip's torn edge, punched along the top. */
-const PERFORATION = "radial-gradient(circle at 6px 0, var(--pl-page) 4px, transparent 4.5px) 0 0 / 12px 8px repeat-x";
 
 export function Payroll() {
   const ref = useRef<HTMLDivElement>(null);
@@ -74,102 +71,100 @@ export function Payroll() {
       const t = setTimeout(() => setPhase("ready"), 300);
       return () => clearTimeout(t);
     }
-    const t = setTimeout(() => setChecked((c) => c + 1), 650);
+    const t = setTimeout(() => setChecked((c) => c + 1), 600);
     return () => clearTimeout(t);
   }, [phase, checked]);
 
-  const status = { idle: ["open", "Not started"], checking: ["open", "Checking"], ready: ["flag", "Ready to pay"], paid: ["done", "Paid"] } as const;
+  const status = { idle: ["open", "Not started"], checking: ["live", "Checking"], ready: ["open", "Ready to pay"], paid: ["done", "Paid"] } as const;
 
   return (
-    <section id="payroll" className="scroll-mt-20 py-28 lg:py-36">
-      <Container>
-        <SectionHead title="Payroll for four countries, run in one go." lead="Hours, time off, expenses and new salaries come in on their own. pello checks the totals against last month, explains every change, and waits for your approval before anyone is paid." />
+    <Band rule id="payroll" inner="py-20 lg:py-28">
+      <SectionHead title="Payroll for four countries, in one go" lead="Hours, time off, expenses and new salaries come in on their own. pello checks the totals against last month, explains every change, and waits for a person to approve it." />
 
-        <div ref={ref} className="mt-16">
-          <div className="flex flex-col gap-5 pb-5 shadow-[0_1.5px_0_var(--pl-ink)] sm:flex-row sm:items-end sm:justify-between">
+      <div ref={ref} className="pl-card relative mt-14 rounded-[16px] p-3 sm:p-4">
+        <Window title="October payroll">
+          <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
             <div>
-              <p className="font-display text-[40px] font-extrabold leading-none text-ink">October payroll</p>
-              <p className="mt-2 text-[17px] text-mute">214 people in 4 countries, paid on Friday, October 30</p>
+              <p className="font-display text-[24px] font-semibold tracking-[-0.015em] text-ink">October 2026</p>
+              <p className="mt-0.5 text-[15px] text-mute">
+                <span className="tabular font-mono">214</span> people in <span className="tabular font-mono">4</span> countries, paid on Friday, October 30
+              </p>
             </div>
-            <div className="flex items-center gap-5">
+            <div className="flex items-center gap-3">
               <Tag tone={status[phase][0]}>{status[phase][1]}</Tag>
               {phase === "paid" ? (
-                <Button kind="quiet" onClick={start}>
+                <Button kind="light" onClick={start}>
                   Run it again
                 </Button>
               ) : (
-                <Button kind="accent" disabled={phase !== "ready"} onClick={() => setPhase("paid")}>
+                <Button disabled={phase !== "ready"} onClick={() => setPhase("paid")} chevron>
                   Approve and pay
                 </Button>
               )}
             </div>
           </div>
 
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {COUNTRIES.map((c, i) => {
-              const ok = i < checked || phase === "ready" || phase === "paid";
-              const now = phase === "checking" && i === checked;
-              return (
-                <div key={c.code} className="relative overflow-hidden rounded-b-[4px] bg-surface px-6 pb-6 pt-8">
-                  <span aria-hidden className="absolute inset-x-0 top-0 h-2" style={{ background: PERFORATION }} />
-                  {now && <motion.span aria-hidden className="absolute inset-x-0 h-[3px] bg-accent" initial={{ top: 8 }} animate={{ top: "100%" }} transition={{ duration: 0.65, ease: "linear" }} />}
-                  <div className="flex items-center justify-between">
-                    <p className="text-[18px] font-semibold text-ink">{c.name}</p>
-                    <span className={cn("grid size-7 place-items-center rounded-[3px] transition-colors duration-300", ok ? "bg-ink text-page" : "shadow-[inset_0_0_0_1.5px_var(--pl-line-strong)]")}>{ok && <CheckIcon size={15} weight="bold" />}</span>
-                  </div>
-                  <p className="mt-8 font-mono text-[clamp(1.7rem,2.3vw,2.2rem)] font-medium tracking-[-0.03em] text-ink">
-                    <Money value={c.total} currency={c.currency} run={run} />
-                  </p>
-                  <div className="mt-5 grid gap-1.5 text-[16px]">
-                    <p className="flex justify-between">
-                      <span className="text-mute">People</span>
-                      <span className="tabular font-mono text-ink">{c.people}</span>
-                    </p>
-                    <p className="flex justify-between">
-                      <span className="text-mute">On September</span>
-                      <span className={cn("tabular font-mono transition-opacity", ok ? "text-ink opacity-100" : "opacity-0")}>{c.change}</span>
-                    </p>
-                  </div>
-                  <AnimatePresence>
-                    {phase === "paid" && (
-                      <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.12 }} className="absolute bottom-16 right-4">
-                        <Stamp tone="accent" tilt={-10} className="text-[26px]">
-                          Paid
-                        </Stamp>
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                </div>
-              );
-            })}
+          <div className="overflow-x-auto px-3 pb-3 sm:px-4">
+            <table className="w-full min-w-[620px] text-left">
+              <thead>
+                <tr className="text-[15px] text-mute">
+                  <th className="px-3 py-2 font-normal">Country</th>
+                  <th className="px-3 py-2 text-right font-normal">People</th>
+                  <th className="px-3 py-2 text-right font-normal">Total</th>
+                  <th className="px-3 py-2 text-right font-normal">On September</th>
+                  <th className="px-3 py-2 text-right font-normal">Checked</th>
+                </tr>
+              </thead>
+              <tbody>
+                {COUNTRIES.map((c, i) => {
+                  const ok = i < checked || phase === "ready" || phase === "paid";
+                  const now = phase === "checking" && i === checked;
+                  return (
+                    <tr key={c.code} className={cn("shadow-[0_-1px_0_var(--pl-line)] transition-colors", now && "bg-accent-soft")}>
+                      <td className="px-3 py-3.5">
+                        <span className="flex items-center gap-3 text-[15px] font-medium text-ink">
+                          <span className="grid h-7 w-9 place-items-center rounded-[6px] bg-sunken font-mono text-[15px] text-ink-2">{c.code}</span>
+                          {c.name}
+                        </span>
+                      </td>
+                      <td className="tabular px-3 py-3.5 text-right font-mono text-[15px] text-ink-2">{c.people}</td>
+                      <td className="px-3 py-3.5 text-right font-mono text-[16px] font-medium text-ink">
+                        <Money value={c.total} currency={c.currency} run={run} />
+                      </td>
+                      <td className={cn("tabular px-3 py-3.5 text-right font-mono text-[15px] transition-opacity", ok ? "text-ink-2 opacity-100" : "opacity-0")}>{c.change}</td>
+                      <td className="px-3 py-3.5">
+                        <span className={cn("ml-auto grid size-6 place-items-center rounded-full transition-colors duration-300", ok ? (phase === "paid" ? "bg-[#16a34a] text-white" : "bg-ink text-surface") : "shadow-[inset_0_0_0_1.5px_var(--pl-line-strong)]")}>{ok && <CheckIcon size={12} weight="bold" />}</span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
 
-          <div className="mt-14 grid gap-8 lg:grid-cols-[320px_1fr]">
-            <div>
-              <p className="font-display text-[34px] font-extrabold leading-none text-ink">What changed since September</p>
-              <p className="mt-3 text-[17px] leading-[1.55] text-ink-2">Every difference, with who made it and why. Open one to read it.</p>
-            </div>
-            <ul>
+          <div className="bg-page/60 p-3 shadow-[0_-1px_0_var(--pl-line)] sm:p-4">
+            <p className="px-3 pb-2 pt-2 text-[15px] font-medium text-mute">What changed since September</p>
+            <ul className="grid gap-1.5">
               {CHANGES.map((c, i) => (
-                <li key={c.what} className="shadow-[0_1px_0_var(--pl-line-strong)] first:shadow-[0_-1px_0_var(--pl-line-strong),0_1px_0_var(--pl-line-strong)]">
-                  <button type="button" onClick={() => setOpen(open === i ? null : i)} aria-expanded={open === i} className="w-full py-4 text-left">
-                    <span className="flex items-center gap-4">
-                      <Face person={c.who} size={40} />
+                <li key={c.what} className={cn("rounded-[12px] transition-colors", open === i ? "bg-surface shadow-[0_0_0_1px_var(--pl-line)]" : "hover:bg-surface/70")}>
+                  <button type="button" onClick={() => setOpen(open === i ? null : i)} aria-expanded={open === i} className="w-full px-3 py-3 text-left">
+                    <span className="flex items-center gap-3">
+                      <Face person={c.who} size={36} />
                       <span className="min-w-0 flex-1">
-                        <span className="block text-[18px] font-semibold text-ink">{c.who.name}</span>
-                        <span className="block text-[16px] text-mute">{c.what}</span>
+                        <span className="block text-[15px] font-semibold text-ink">{c.who.name}</span>
+                        <span className="block text-[15px] text-mute">{c.what}</span>
                       </span>
-                      <span className="text-[17px] text-ink">
-                        <span className="tabular font-mono">{c.amount[0]}</span> {c.amount[1]}
+                      <span className="text-[15px] text-ink">
+                        <span className="tabular font-mono font-medium">{c.amount[0]}</span> {c.amount[1]}
                       </span>
-                      <motion.span animate={{ rotate: open === i ? 180 : 0 }} className="text-ink">
-                        <CaretDownIcon size={18} weight="bold" />
+                      <motion.span animate={{ rotate: open === i ? 180 : 0 }} className="text-mute">
+                        <CaretDownIcon size={16} weight="bold" />
                       </motion.span>
                     </span>
                     <AnimatePresence initial={false}>
                       {open === i && (
                         <motion.span initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ type: "spring", stiffness: 380, damping: 36 }} className="block overflow-hidden">
-                          <span className="block max-w-[640px] pl-14 pt-3 text-[18px] leading-[1.55] text-ink-2">{c.why}</span>
+                          <span className="block max-w-[620px] pl-12 pt-2 text-[15px] leading-[1.6] text-ink-2">{c.why}</span>
                         </motion.span>
                       )}
                     </AnimatePresence>
@@ -178,17 +173,22 @@ export function Payroll() {
               ))}
             </ul>
           </div>
+        </Window>
 
-          <AnimatePresence>
-            {phase === "paid" && (
-              <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mt-10 flex items-center gap-3 font-display text-[30px] font-extrabold text-ink">
-                <CheckIcon size={26} weight="bold" className="text-accent" />
-                Paid. 214 payslips are in the app, and Arjun has the report.
-              </motion.p>
-            )}
-          </AnimatePresence>
-        </div>
-      </Container>
-    </section>
+        <AnimatePresence>
+          {phase === "paid" && (
+            <motion.div initial={{ opacity: 0, y: 16, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 8 }} transition={{ type: "spring", stiffness: 380, damping: 30 }} className="pl-pop absolute bottom-8 right-8 flex max-w-[360px] items-start gap-3 rounded-[14px] p-4 max-sm:inset-x-6">
+              <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[#16a34a] text-white">
+                <CheckIcon size={16} weight="bold" />
+              </span>
+              <span>
+                <span className="block text-[15px] font-semibold text-ink">October payroll is paid</span>
+                <span className="block text-[15px] text-mute">214 payslips are in the app, and Arjun has the report.</span>
+              </span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </Band>
   );
 }

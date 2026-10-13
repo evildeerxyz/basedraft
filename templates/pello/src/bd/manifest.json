@@ -4,11 +4,11 @@
   "category": "HR and people",
   "price": 79,
   "accent": "#ff4b1f",
-  "tagline": "An AI HR system's site, printed: dithered photos of every person, stamps, forms and payslips.",
-  "description": "White paper, black ink and one vermilion, with every photo printed as a dither. Built for HR, people and back office products, with a working piece of the product in every section.",
+  "tagline": "An AI HR system's site: a live request inbox, a handbook that cites itself, and rules you can change on the page.",
+  "description": "A grey page, white cards and one vermilion, with the product shown working in every section and every face printed as a dither. Built for HR, people and back office products.",
   "highlights": [
-    "Every photo printed as a dither, in your colors",
-    "A staff wall that takes requests",
+    "A live request inbox in the hero",
+    "Rules you change on the page, and the request re-checked",
     "Next.js and Astro"
   ],
   "sections": [
@@ -34,6 +34,13 @@
       "tag": "<Logos />"
     },
     {
+      "id": "how",
+      "name": "How it works",
+      "kind": "steps",
+      "import": "import { How } from \"@/components/home/how\";",
+      "tag": "<How />"
+    },
+    {
       "id": "ask",
       "name": "Ask the handbook",
       "kind": "features",
@@ -43,16 +50,9 @@
     {
       "id": "time-off",
       "name": "Time off",
-      "kind": "steps",
+      "kind": "interactive",
       "import": "import { TimeOff } from \"@/components/home/time-off\";",
       "tag": "<TimeOff />"
-    },
-    {
-      "id": "onboarding",
-      "name": "Onboarding",
-      "kind": "features",
-      "import": "import { Onboarding } from \"@/components/home/onboarding\";",
-      "tag": "<Onboarding />"
     },
     {
       "id": "payroll",
@@ -62,32 +62,18 @@
       "tag": "<Payroll />"
     },
     {
-      "id": "week",
-      "name": "Before and after",
+      "id": "features",
+      "name": "Everything else",
       "kind": "features",
-      "import": "import { Week } from \"@/components/home/week\";",
-      "tag": "<Week />"
+      "import": "import { Features } from \"@/components/home/features\";",
+      "tag": "<Features />"
     },
     {
-      "id": "insights",
-      "name": "Insights",
+      "id": "more",
+      "name": "The rest of the paperwork",
       "kind": "features",
-      "import": "import { Insights } from \"@/components/home/insights\";",
-      "tag": "<Insights />"
-    },
-    {
-      "id": "stats",
-      "name": "Stats",
-      "kind": "stats",
-      "import": "import { Stats } from \"@/components/home/stats\";",
-      "tag": "<Stats />"
-    },
-    {
-      "id": "security",
-      "name": "Security",
-      "kind": "security",
-      "import": "import { Security } from \"@/components/home/security\";",
-      "tag": "<Security />"
+      "import": "import { More } from \"@/components/home/more\";",
+      "tag": "<More />"
     },
     {
       "id": "testimonials",
@@ -95,6 +81,13 @@
       "kind": "testimonials",
       "import": "import { Testimonials } from \"@/components/home/testimonials\";",
       "tag": "<Testimonials />"
+    },
+    {
+      "id": "integrations",
+      "name": "Integrations",
+      "kind": "logos",
+      "import": "import { Integrations } from \"@/components/home/integrations\";",
+      "tag": "<Integrations />"
     },
     {
       "id": "pricing",
@@ -129,15 +122,14 @@
     "nav",
     "hero",
     "logos",
+    "how",
     "ask",
     "time-off",
-    "onboarding",
     "payroll",
-    "week",
-    "insights",
-    "stats",
-    "security",
+    "features",
+    "more",
     "testimonials",
+    "integrations",
     "pricing",
     "faq",
     "cta",

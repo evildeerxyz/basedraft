@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { PageHead, Prose } from "@/components/site/page";
-import { Container } from "@/components/site/ui";
+import { Band } from "@/components/site/ui";
 
 export const metadata: Metadata = {
   title: "Privacy",
@@ -10,9 +10,8 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <>
-      <PageHead title="Privacy" lead="Last updated September 1, 2026. This is a template: have it checked by your own lawyer before you use it." />
-      <section className="pb-28">
-        <Container>
+      <PageHead align="left" title="Privacy" lead="Last updated September 1, 2026. This is a template: have it checked by your own lawyer before you use it." />
+      <Band inner="pb-28">
           <Prose>
             <h2>Who we are</h2>
             <p>pello Inc. makes HR software for companies. When a company uses pello, it decides what data goes in and what it&apos;s used for. We process that data for them, under the agreement we have with them.</p>
@@ -31,8 +30,7 @@ export default function PrivacyPage() {
             <h2>Your rights</h2>
             <p>You can ask to see, correct, export or delete what we hold about you. If your employer uses pello, ask them first, since they decide. Otherwise, write to privacy@pello.example and a person will reply within a week.</p>
           </Prose>
-        </Container>
-      </section>
+      </Band>
     </>
   );
 }

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Roles } from "@/components/pages/roles";
 import { Dithered } from "@/components/site/dither";
 import { PageHead } from "@/components/site/page";
-import { Container, SectionHead } from "@/components/site/ui";
+import { Band, SectionHead } from "@/components/site/ui";
 import { SCENES } from "@/lib/photos";
 
 export const metadata: Metadata = {
@@ -22,30 +22,26 @@ const PERKS = [
 export default function CareersPage() {
   return (
     <>
-      <PageHead title="Help People teams get their week back." lead="We're 68 people in Berlin and New York, building the HR system we wished we'd had. Here's what's open." />
-      <section className="pb-16">
-        <Container>
-          <Dithered src={SCENES.allHands} alt="The pello team at a Friday all hands" inks={["ink", "accent", "page"]} cell={3} focus={[0.5, 0.45]} className="aspect-[21/9] rounded-[4px]" />
-        </Container>
-      </section>
-      <section className="pb-28">
-        <Container>
-          <Roles />
-        </Container>
-      </section>
-      <section className="bg-ink py-28 text-page lg:py-36">
-        <Container>
-          <SectionHead dark title="What working here is like." lead="We hold ourselves to the policies we help customers write." />
-          <ul className="mt-14 grid gap-x-12 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
-            {PERKS.map((p) => (
-              <li key={p.title}>
-                <p className="font-display text-[38px] font-extrabold leading-[0.95] text-page">{p.title}</p>
-                <p className="mt-3 text-[18px] leading-[1.55] text-night-mute">{p.body}</p>
-              </li>
-            ))}
-          </ul>
-        </Container>
-      </section>
+      <PageHead title="Help People teams get their week back" lead="We're 68 people in Berlin and New York, building the HR system we wished we'd had. Here's what's open." />
+      <Band inner="pb-20">
+        <div className="pl-card -mx-2 overflow-hidden rounded-[16px] sm:-mx-6 lg:-mx-[64px]">
+          <Dithered src={SCENES.allHands} alt="The pello team at a Friday all hands" cell={3} focus={[0.5, 0.45]} className="aspect-[21/9]" />
+        </div>
+      </Band>
+      <Band rule inner="py-20 lg:py-24">
+        <Roles />
+      </Band>
+      <Band rule inner="py-24 lg:py-32">
+        <SectionHead title="What working here is like" lead="We hold ourselves to the policies we help customers write." />
+        <ul className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {PERKS.map((p) => (
+            <li key={p.title} className="pl-card rounded-[16px] p-6">
+              <p className="font-display text-[22px] font-semibold tracking-[-0.015em] text-ink">{p.title}</p>
+              <p className="mt-2 text-[16px] leading-[1.55] text-mute">{p.body}</p>
+            </li>
+          ))}
+        </ul>
+      </Band>
     </>
   );
 }

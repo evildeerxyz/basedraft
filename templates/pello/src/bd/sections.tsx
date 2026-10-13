@@ -2,15 +2,14 @@ import type { ReactNode } from "react";
 import { Nav } from "@/components/site/nav";
 import { Hero } from "@/components/home/hero";
 import { Logos } from "@/components/home/logos";
+import { How } from "@/components/home/how";
 import { Ask } from "@/components/home/ask";
 import { TimeOff } from "@/components/home/time-off";
-import { Onboarding } from "@/components/home/onboarding";
 import { Payroll } from "@/components/home/payroll";
-import { Week } from "@/components/home/week";
-import { Insights } from "@/components/home/insights";
-import { Stats } from "@/components/home/stats";
-import { Security } from "@/components/home/security";
+import { Features } from "@/components/home/features";
+import { More } from "@/components/home/more";
 import { Testimonials } from "@/components/home/testimonials";
+import { Integrations } from "@/components/home/integrations";
 import { Pricing } from "@/components/home/pricing";
 import { Faq } from "@/components/home/faq";
 import { Cta } from "@/components/home/cta";
@@ -24,15 +23,14 @@ const RENDER: Record<string, () => ReactNode> = {
   "nav": () => <Nav />,
   "hero": () => <Hero />,
   "logos": () => <Logos />,
+  "how": () => <How />,
   "ask": () => <Ask />,
   "time-off": () => <TimeOff />,
-  "onboarding": () => <Onboarding />,
   "payroll": () => <Payroll />,
-  "week": () => <Week />,
-  "insights": () => <Insights />,
-  "stats": () => <Stats />,
-  "security": () => <Security />,
+  "features": () => <Features />,
+  "more": () => <More />,
   "testimonials": () => <Testimonials />,
+  "integrations": () => <Integrations />,
   "pricing": () => <Pricing />,
   "faq": () => <Faq />,
   "cta": () => <Cta />,

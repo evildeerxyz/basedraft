@@ -121,7 +121,28 @@ export async function openLive(url: string, width: number, names: Record<string,
     f.style.height = `${height}px`;
     if (!show) f.style.transform = `scale(${Math.min(1, innerHeight / height, innerWidth / width)})`;
     await settle(doc);
-    if (edits?.theme) applyTheme(doc, edits.theme);
+    if (edits?.theme) {
+      // The colors as CSS, then the page drawn again with them, so its shaders and canvases are in
+      // them too: the page says when it has (pages that can't, a template's own, just get the CSS).
+      applyTheme(doc, edits.theme);
+      const win = f.contentWindow;
+      const redrawn = new Promise<void>((ok) => {
+        const on = (e: MessageEvent) => {
+          if (e.source !== win || e.data?.type !== "bd:rendered") return;
+          window.removeEventListener("message", on);
+          ok();
+        };
+        window.addEventListener("message", on);
+        setTimeout(() => {
+          window.removeEventListener("message", on);
+          ok();
+        }, 2500);
+      });
+      win?.postMessage({ type: "bd:theme", css: edits.theme }, location.origin);
+      await redrawn;
+      await wait(300);
+      await settle(doc);
+    }
     if (edits?.edits?.length) {
       applyEdits(doc, edits.edits, edits.remap ? (k) => edits.remap![k] ?? k : undefined);
       // Edited text can change a line's length, and with it the page's height.

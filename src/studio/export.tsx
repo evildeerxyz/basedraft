@@ -13,7 +13,8 @@ import { btnSm } from "@/site/sheet";
 import { toast } from "@/site/toast";
 import { previewHeaders } from "@/site/plan";
 import { GitHubPanel } from "./github";
-import { editList, EDITS_SCRIPT, pageCode, pageFile, projectFiles } from "./project-files";
+import { colorsCss, editList, EDITS_SCRIPT, pageCode, pageFile, projectFiles } from "./project-files";
+import { COLORS } from "@/site/theme";
 import type { Project } from "./state";
 import { track } from "@/site/analytics";
 
@@ -34,8 +35,8 @@ async function downloadSite(project: Project) {
   download(name, await r.blob(), "application/zip");
 }
 
-export function ExportDialog({ open, onClose, project, pageId, pro, proUsed, initialTab = "react", initialView = "files" }: { open: boolean; onClose: () => void; project: Project; pageId: string | null; pro: boolean; proUsed: boolean; initialTab?: "react" | "json" | "edits"; initialView?: "files" | "github" }) {
-  const [tab, setTab] = useState<"react" | "json" | "edits">(initialTab);
+export function ExportDialog({ open, onClose, project, pageId, pro, proUsed, initialTab = "react", initialView = "files" }: { open: boolean; onClose: () => void; project: Project; pageId: string | null; pro: boolean; proUsed: boolean; initialTab?: "react" | "json" | "edits" | "colors"; initialView?: "files" | "github" }) {
+  const [tab, setTab] = useState<"react" | "json" | "edits" | "colors">(initialTab);
   const [view, setView] = useState<"files" | "github">(initialView);
   const [packing, setPacking] = useState(false);
   const [which, setWhich] = useState(pageId ?? project.pages[0].id);
@@ -85,7 +86,8 @@ export function ExportDialog({ open, onClose, project, pageId, pro, proUsed, ini
   const json = projectFiles(project)["basedraft/project.json"];
   const t = templateOf(page.template)!;
   const locked = tab !== "json" && !pro;
-  const shown = tab === "react" ? code : tab === "edits" ? `// basedraft/edits.json\n${JSON.stringify(edits, null, 2)}\n\n// basedraft/apply-edits.mjs\n${EDITS_SCRIPT}` : json;
+  const colors = colorsCss(project);
+  const shown = tab === "react" ? code : tab === "colors" ? colors : tab === "edits" ? `// basedraft/edits.json\n${JSON.stringify(edits, null, 2)}\n\n// basedraft/apply-edits.mjs\n${EDITS_SCRIPT}` : json;
 
   return (
     <AnimatePresence>
@@ -124,6 +126,7 @@ export function ExportDialog({ open, onClose, project, pageId, pro, proUsed, ini
                 {[
                   { k: "react" as const, l: "Pages" },
                   { k: "edits" as const, l: `Text edits${edits.length ? ` ${edits.length}` : ""}` },
+                  ...(colors ? [{ k: "colors" as const, l: "Colors" }] : []),
                   { k: "json" as const, l: "JSON" },
                 ].map((t) => (
                   <button key={t.k} role="tab" aria-selected={tab === t.k} onClick={() => setTab(t.k)} className={cn("h-7 rounded-[8px] px-2.5 text-meta font-medium transition-colors", tab === t.k ? "bg-raised text-fg shadow-[0_1px_2px_rgb(var(--bd-shade)/0.12)]" : "text-muted hover:text-fg")}>
@@ -143,6 +146,7 @@ export function ExportDialog({ open, onClose, project, pageId, pro, proUsed, ini
               )}
             </div>
             {tab === "react" && <p className="px-6 pt-2 font-mono text-[12px] text-subtle">{pageFile(page)}</p>}
+            {tab === "colors" && <p className="px-6 pt-2 text-[12px] text-subtle">Add to the end of <span className="font-mono">{COLORS[project.template].globals}</span>. Downloads and GitHub do this for you.</p>}
             <div className="relative bg-surface-2 p-3 mt-3">
               <CodeBlock code={tab === "edits" && !edits.length ? "// No text edits yet. Double-click any text on the canvas to change it." : shown} maxHeight={400} className={cn(locked && "pointer-events-none select-none blur-[6px]")} />
               {locked && (
@@ -165,10 +169,10 @@ export function ExportDialog({ open, onClose, project, pageId, pro, proUsed, ini
               <div className="flex items-center gap-2">
                 <button
                   disabled={locked}
-                  onClick={() => (tab === "json" ? download("project.json", json, "application/json") : download("page.tsx", code, "text/plain"))}
+                  onClick={() => (tab === "json" ? download("project.json", json, "application/json") : tab === "colors" ? download("colors.css", colors, "text/css") : download("page.tsx", code, "text/plain"))}
                   className={cn(btnSm.quiet, "disabled:opacity-30")}
                 >
-                  <DownloadSimpleIcon size={15} weight="duotone" /> {tab === "json" ? "project.json" : "This page"}
+                  <DownloadSimpleIcon size={15} weight="duotone" /> {tab === "json" ? "project.json" : tab === "colors" ? "colors.css" : "This page"}
                 </button>
                 <button type="button" onClick={() => (pro ? setView("github") : openPro("react"))} className={btnSm.quiet}>
                   <GithubLogoIcon size={15} weight="fill" /> Send to GitHub

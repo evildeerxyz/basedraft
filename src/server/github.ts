@@ -4,7 +4,7 @@ import type { NextRequest, NextResponse } from "next/server";
 import { templateOf } from "@/site/live";
 import { pageFile } from "@/studio/project-files";
 import type { Project } from "@/studio/state";
-import { packageNameOf, siteFiles, writeProject, type Files } from "./site";
+import { packageNameOf, siteFiles, writeImages, writeProject, type Files } from "./site";
 
 /*
  * Sending a Studio project to GitHub, for people who'd rather not download a zip.
@@ -295,7 +295,9 @@ export async function send(token: string, project: Project, target: Target): Pro
   if (ours) {
     const copy: Files = new Map([...now].map(([k, v]) => [k, textOf(v) ?? v]));
     const report = writeProject(copy, project);
-    files = new Map([...copy].filter(([k, v]) => typeof v === "string" && v !== (now.has(k) ? textOf(now.get(k)!) : null)));
+    // Your images go in over the template's files: they're not text, so they're sent as they are.
+    const images = new Set(await writeImages(copy, project));
+    files = new Map([...copy].filter(([k, v]) => images.has(k) || (typeof v === "string" && v !== (now.has(k) ? textOf(now.get(k)!) : null))));
     // Text already changed by an earlier send reads as the new words: not a miss.
     const all = [...copy.values()].filter((v): v is string => typeof v === "string");
     missed = report.filter((r) => !r.files.length && !all.some((v) => v.includes(r.to))).map((r) => r.from);

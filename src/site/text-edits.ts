@@ -20,13 +20,13 @@ type Marked = Text & { bdFrom?: string };
 /** The text a node had before any edit, trimmed. */
 export const original = (n: Text) => (n as Marked).bdFrom ?? n.data.trim();
 
-/** Every piece of visible text under `root`, in reading order. */
+/** Every piece of visible text under `root`, in reading order, and any an edit has emptied (so it can come back). */
 export function textsIn(root: Node): Text[] {
   const doc = root.ownerDocument ?? (root as Document);
   const walk = doc.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
     acceptNode: (n) => {
       const p = n.parentElement;
-      if (!(n as Text).data.trim() || !p || p.closest("script,style,noscript,title")) return NodeFilter.FILTER_REJECT;
+      if ((!(n as Text).data.trim() && (n as Marked).bdFrom === undefined) || !p || p.closest("script,style,noscript,title")) return NodeFilter.FILTER_REJECT;
       return NodeFilter.FILTER_ACCEPT;
     },
   });

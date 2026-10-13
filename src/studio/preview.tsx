@@ -3,12 +3,13 @@
 import { ArrowClockwiseIcon, ArrowSquareOutIcon, CaretDownIcon, DesktopIcon, DeviceMobileIcon, DeviceTabletIcon, FileIcon, HouseIcon, LaptopIcon, PencilSimpleIcon, ArrowsOutLineHorizontalIcon, XIcon } from "@phosphor-icons/react";
 import { LayoutGroup, motion } from "motion/react";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Tip } from "@/site/keys";
 import { composeUrl, liveUrl, templateOf } from "@/site/live";
 import { Menu, type MenuItem } from "@/site/menu";
 import { applyEdits, original, setText, textsIn } from "@/site/text-edits";
+import { swapsOf } from "@/site/images";
 import { applyTheme, themeCss } from "@/site/theme";
 import { SAVED_KEY, savedProject, type Project, type View } from "./state";
 
@@ -62,6 +63,8 @@ export function PreviewView({ project, view: initial, viewport: startAt = "deskt
   const [ready, setReady] = useState(false);
   const [at, setAt] = useState<string | null>(null);
   const css = themeCss(project.template, project.theme);
+  const images = useMemo(() => swapsOf(project.images), [project.images]);
+  const look = `${css}|${JSON.stringify(images)}`;
 
   // The room the page has, to scale a viewport wider than the window down to fit.
   const stage = useRef<HTMLDivElement>(null);
@@ -78,9 +81,9 @@ export function PreviewView({ project, view: initial, viewport: startAt = "deskt
   const scale = vp.width ? Math.min(1, (room.w - 48) / vp.width) : 1;
   const height = vp.width ? Math.max(320, (room.h - 24) / scale) : room.h;
 
-  const latest = useRef({ project, page, css });
+  const latest = useRef({ project, page, css, images });
   useEffect(() => {
-    latest.current = { project, page, css };
+    latest.current = { project, page, css, images };
   });
 
   /** Your text and colors over the template's, with anything no longer edited put back. */
@@ -97,9 +100,9 @@ export function PreviewView({ project, view: initial, viewport: startAt = "deskt
       if (e.origin !== location.origin || e.source !== frame.current?.contentWindow) return;
       if (e.data?.type === "bd:ready") {
         setReady(true);
-        const { page: pg, css: c } = latest.current;
+        const { page: pg, css: c, images: im } = latest.current;
         if (pg) frame.current?.contentWindow?.postMessage({ type: "bd:sections", keys: pg.keys }, location.origin);
-        if (c) frame.current?.contentWindow?.postMessage({ type: "bd:theme", css: c }, location.origin);
+        if (c || Object.keys(im).length) frame.current?.contentWindow?.postMessage({ type: "bd:theme", css: c, images: im }, location.origin);
       }
       if (e.data?.type === "bd:rendered") requestAnimationFrame(paint);
     };
@@ -108,15 +111,15 @@ export function PreviewView({ project, view: initial, viewport: startAt = "deskt
   }, [paint]);
 
   // Each change in Studio: the sections, the colors (pages made of sections draw again with them) and the text.
-  const sent = useRef(css);
+  const sent = useRef(look);
   useEffect(() => {
     const w = frame.current?.contentWindow;
     if (!ready || !w) return;
     if (compose && page) w.postMessage({ type: "bd:sections", keys: page.keys }, location.origin);
-    if (css !== sent.current) w.postMessage({ type: "bd:theme", css }, location.origin);
-    sent.current = css;
+    if (look !== sent.current) w.postMessage({ type: "bd:theme", css, images }, location.origin);
+    sent.current = look;
     paint();
-  }, [ready, compose, page, css, project.edits, paint]);
+  }, [ready, compose, page, css, images, look, project.edits, paint]);
 
   // Links inside the page move it without a load; where it went is checked, and painted again.
   useEffect(() => {

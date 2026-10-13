@@ -21,6 +21,8 @@ export interface LiveCopy {
   remap?: Record<string, string>;
   /** The project's colors, as CSS laid over the template's (see site/theme). */
   theme?: string;
+  /** Images in place of the template's files: each path, and the image's address (see site/images). */
+  images?: Record<string, string>;
   /** One top-level block of a template's own page (see blocksOf), instead of the whole page. */
   block?: number;
 }
@@ -97,7 +99,7 @@ export async function settle(doc: Document, max = 6000) {
  * A template page in a hidden frame at one width, full height, settled, with its sections marked.
  * `show` puts it on the page instead, at that left edge, for checking a copy against it.
  */
-export async function openLive(url: string, width: number, names: Record<string, string>, show?: { left: number }, edits?: Pick<LiveCopy, "edits" | "remap" | "theme" | "block">) {
+export async function openLive(url: string, width: number, names: Record<string, string>, show?: { left: number }, edits?: Pick<LiveCopy, "edits" | "remap" | "theme" | "images" | "block">) {
   const f = document.createElement("iframe");
   f.setAttribute("aria-hidden", "true");
   f.tabIndex = -1;
@@ -130,11 +132,12 @@ export async function openLive(url: string, width: number, names: Record<string,
     }).finally(() => (loaded = true));
     const doc = f.contentDocument;
     if (!doc?.body) throw new Error("The page didn't load");
-    if (edits?.theme) {
+    const images = edits?.images && Object.keys(edits.images).length ? edits.images : undefined;
+    if (edits?.theme || images) {
       // The colors first, before anything settles: as CSS, then the page drawn again with them, so
       // its shaders and canvases are in them too. The page says when it has (a template's own
       // page can't, and just gets the CSS). One settle afterwards covers both.
-      applyTheme(doc, edits.theme);
+      applyTheme(doc, edits?.theme ?? "");
       await Promise.race([listening, wait(1500)]);
       const win = f.contentWindow;
       const redrawn = new Promise<void>((ok) => {
@@ -149,7 +152,7 @@ export async function openLive(url: string, width: number, names: Record<string,
           ok();
         }, 2000);
       });
-      win?.postMessage({ type: "bd:theme", css: edits.theme }, location.origin);
+      win?.postMessage({ type: "bd:theme", css: edits?.theme ?? "", images }, location.origin);
       await redrawn;
     }
     await doc.fonts?.ready;
@@ -211,7 +214,7 @@ export async function readLive(copy: LiveCopy, name: string, which: number[] = V
  * call this as they open, so by the time you click, the layers are ready.
  */
 export function prepareLive(copy: LiveCopy, name: string): Promise<Result> {
-  const key = `${copy.url}|${name}|${JSON.stringify(copy.edits ?? [])}|${copy.theme ?? ""}|${copy.block ?? ""}`;
+  const key = `${copy.url}|${name}|${JSON.stringify(copy.edits ?? [])}|${copy.theme ?? ""}|${JSON.stringify(copy.images ?? {})}|${copy.block ?? ""}`;
   const hit = cache.get(key);
   if (hit && Date.now() - hit.at < 60000) return hit.result;
   const result = readLive(copy, name);

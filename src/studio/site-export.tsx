@@ -12,6 +12,7 @@ import { IconTile, Note } from "@/site/plan-parts";
 import { btnSm } from "@/site/sheet";
 import { toast } from "@/site/toast";
 import type { Project } from "./state";
+import { swapsOf } from "@/site/images";
 import { themeCss } from "@/site/theme";
 
 /*
@@ -66,7 +67,7 @@ export function SiteExportDialog({ open, onClose, project }: { open: boolean; on
       for (const [k, it] of chosen.entries()) {
         if (stop.current) return setStep(null);
         setStep({ at: k * widths.length, of: total, name: it.name });
-        const r = await readLive({ url: it.url, names, edits: project.edits, theme: themeCss(project.template, project.theme) }, `${project.name} / ${it.name}`, widths);
+        const r = await readLive({ url: it.url, names, edits: project.edits, theme: themeCss(project.template, project.theme), images: swapsOf(project.images) }, `${project.name} / ${it.name}`, widths);
         out.push({ name: it.name, views: r.views, svg: r.svg });
       }
       setStep({ at: total - 1, of: total, name: "the Figma layers" });

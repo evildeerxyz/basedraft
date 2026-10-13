@@ -1,7 +1,7 @@
 import { sectionOf, templateOf } from "@/site/live";
 import type { TextEdit } from "@/site/text-edits";
 import { idOf, type Page, type Project, type SitePage } from "./state";
-import { COLORS, paletteOf, themeCss } from "@/site/theme";
+import { COLORS, FONTS, paletteOf, themeCss } from "@/site/theme";
 
 /*
  * A Studio project as files, for the template's own project. Plain functions, so the server
@@ -97,14 +97,25 @@ for (const e of edits) {
 }
 `;
 
-/** The project's colors as CSS for the end of the template's globals.css, or "" when it has the template's own. */
+/** The project's style (colors, type, corners) as CSS for the end of the template's globals.css, or "" when it has the template's own. */
 export function colorsCss(project: Project) {
-  const css = themeCss(project.template, project.theme);
+  const css = themeCss(project.template, project.theme, "code");
   if (!css) return "";
-  const p = paletteOf(project.template, project.theme)!;
+  const c = COLORS[project.template];
+  const t = project.theme ?? {};
+  const p = paletteOf(project.template, t)!;
+  const lines = [`Colors: accent ${p.accent}, page ${p.page}, cards ${p.cards}, text ${p.text}.`];
+  if (c.dark && t.dark) {
+    const d = paletteOf(project.template, t, "dark")!;
+    lines.push(`Dark mode: accent ${d.accent}, page ${d.page}, cards ${d.cards}, text ${d.text}.`);
+  }
+  const fonts = [t.font && `${FONTS[t.font].label} for text`, t.headings && `${FONTS[t.headings].label} for headings`].filter(Boolean);
+  if (fonts.length) lines.push(`Type: ${fonts.join(", ")}. Load ${fonts.length > 1 ? "them" : "it"} with next/font in ${c.font.layout} (Download project and GitHub do it for you).`);
+  if (t.radius !== undefined && t.radius !== 1) lines.push(`Corners: ${Math.round(t.radius * 100)}% of the template's.`);
   return `/*
- * Colors from basedraft Studio: accent ${p.accent}, page ${p.page}, cards ${p.cards}, text ${p.text}.
- * Add this to the end of ${COLORS[project.template].globals}, after the template's own colors.
+ * Style from basedraft Studio.
+${lines.map((l) => ` * ${l}`).join("\n")}
+ * Add this to the end of ${c.globals}, after the template's own styles.
  */
 ${css}`;
 }
@@ -127,7 +138,7 @@ export function projectFiles(project: Project) {
 Made in basedraft Studio from ${t.name}. Copy these files into your ${t.name} project, keeping their folders.
 
 ${project.pages.map((p) => `- \`${pageFile(p)}\`: ${p.name}, ${p.keys.length} sections`).join("\n")}
-${colors ? `\nYour colors are in \`basedraft/colors.css\`: add it to the end of \`${COLORS[project.template].globals}\` (or import it there, after everything else) and the whole site takes them.\n` : ""}${edits.length ? `\nYou changed ${edits.length} ${edits.length === 1 ? "piece" : "pieces"} of text. To write them into the template's code, run this from the project's root:\n\n    node basedraft/apply-edits.mjs\n\nIt changes text only where it still reads as the template wrote it, and lists every change.\n` : ""}
+${colors ? `\nYour colors, type and corners are in \`basedraft/colors.css\`: add it to the end of \`${COLORS[project.template].globals}\` (or import it there, after everything else) and the whole site takes them.\n` : ""}${edits.length ? `\nYou changed ${edits.length} ${edits.length === 1 ? "piece" : "pieces"} of text. To write them into the template's code, run this from the project's root:\n\n    node basedraft/apply-edits.mjs\n\nIt changes text only where it still reads as the template wrote it, and lists every change.\n` : ""}
 \`basedraft/project.json\` loads back into Studio.
 `;
   return files;

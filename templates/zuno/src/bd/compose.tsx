@@ -2,6 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { setImages } from "./images";
 import { Section } from "./sections";
 
 /*
@@ -29,6 +30,7 @@ export function Compose() {
         }
         document.head.appendChild(el);
         el.textContent = String(e.data.css ?? "");
+        setImages(e.data.images);
         releaseGl();
         setColors((n) => n + 1);
       }

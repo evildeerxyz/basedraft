@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { TemplatePrice } from "@/site/template-buy";
 import { PageHead } from "@/site/heads";
 import { ICON } from "@/site/icons";
 import { TEMPLATES, templateShot } from "@/site/live";
@@ -27,7 +28,7 @@ export default function TemplatesPage() {
                   <span aria-hidden className="size-2.5 rounded-full" style={{ background: t.accent }} />
                   {t.name}
                 </h2>
-                <span className="text-heading tabular-nums">{t.price === "free" ? "Free" : `$${t.price}`}</span>
+                <TemplatePrice slug={t.slug} className="text-heading tabular-nums" />
               </div>
               <p className="mt-1.5 text-ui text-subtle">
                 {t.category}, {t.pages.length} pages, {t.sections.length} sections

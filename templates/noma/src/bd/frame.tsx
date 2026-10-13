@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useEffect, useState, type ReactNode } from "react";
+import { setImages } from "./images";
 
 /*
  * basedraft's wiring for the template's own pages, when they're drawn inside basedraft (Studio's
@@ -22,6 +23,7 @@ export function BdFrame({ children }: { children: ReactNode }) {
       }
       document.head.appendChild(el);
       el.textContent = String(e.data.css ?? "");
+      setImages(e.data.images);
       releaseGl();
       setColors((n) => n + 1);
     };

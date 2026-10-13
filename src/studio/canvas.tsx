@@ -6,6 +6,8 @@ import { cn } from "@/lib/utils";
 import { pageHeight, pinViewportHeights } from "@/site/frame-fit";
 import { composeUrl, liveUrl, sectionOf, type TemplateSlug } from "@/site/live";
 import { addressOf, applyEdits, original, scopeRoot, setText, textsIn, type TextEdit } from "@/site/text-edits";
+import { foldersOf, roleOf, sectionBox, type FolderKind, type TextRole } from "./text-roles";
+import { IMAGE_PATH } from "@/site/images";
 import { blocksOf } from "@/site/live-export";
 import { applyTheme } from "@/site/theme";
 import { idOf, type View } from "./state";
@@ -33,7 +35,60 @@ export interface PageText {
   nth: number;
   text: string;
   tag: string;
+  /** What it is on the page: a headline, a button, a label (see text-roles). */
+  role: TextRole;
+  /** Texts in the same element share a group: a headline set in two lines is one headline. */
+  group: number;
+  /** What holds it, outermost first: a card, a callout, a list (see text-roles). */
+  folders: Array<{ id: number; kind: FolderKind }>;
+  /** It changed on its own between two reads: a counter or a ticker, not copy. */
+  live: boolean;
+  /** Not drawn at this width (it shows at another breakpoint, or only to screen readers). */
+  hidden: boolean;
+  /** Where its first line starts down the page, so lines can be told from parts of one line. */
+  top: number;
+  /** Whether a space parts it from the text before it, when the two are read as one. */
+  space: boolean;
+  /** An image, not text: `from` is the template file it draws (see site/images), `text` its name. */
+  kind?: "image";
+  /** An image with yours in its place. */
+  swapped?: boolean;
 }
+
+/** One piece of text (or an image), by where it sits. */
+export type TextRef = Pick<PageText, "scope" | "from" | "nth" | "kind">;
+
+/** The template file an image element draws: as its wiring marked it, or from its address. */
+function fileOf(el: Element) {
+  const marked = el.getAttribute("data-bd-src");
+  if (marked) return marked;
+  const src = el instanceof HTMLImageElement || el.tagName === "IMG" ? el.getAttribute("src") : null;
+  if (!src || /^(data|blob):/.test(src)) return null;
+  try {
+    const u = new URL(src, el.ownerDocument.location.href);
+    if (u.origin !== el.ownerDocument.location.origin) return null;
+    return u.pathname.replace(/^\/live\/[^/]+(?=\/)/, "");
+  } catch {
+    return null;
+  }
+}
+
+/** Every image under `root` that draws one of the template's files, in page order, with the file. */
+export function picturesIn(root: Element): Array<{ el: Element; file: string }> {
+  return [...root.querySelectorAll("img, canvas[data-bd-src]")].flatMap((el) => {
+    const file = fileOf(el);
+    return file && IMAGE_PATH.test(file) ? [{ el, file }] : [];
+  });
+}
+
+/** The element a reference points at, on a page: a text node, or an image. */
+function findRef(root: Element, t: TextRef): Node | null {
+  if (t.kind === "image") return picturesIn(root).filter((p) => p.file === t.from)[t.nth]?.el ?? null;
+  return textsIn(root).filter((n) => original(n) === t.from)[t.nth] ?? null;
+}
+
+const NO_REFS: TextRef[] = [];
+const NO_IMAGES: Record<string, string> = {};
 
 /** A top-level block of a template page, for its layers. */
 export interface Block {
@@ -63,11 +118,21 @@ export interface CanvasHandle {
   /** The primary breakpoint's document, for reading the page. */
   doc: () => Document | null;
   /** The texts in a section, or in one block of a template page, in reading order. */
-  texts: (scope: string, block?: string) => PageText[];
+  texts: (scope: string, block?: string) => PageText[] | null;
   /** Scrolls the board so a section is in view. */
   reveal: (key: string) => void;
   /** Brings a point on a page into the middle of the view. */
   revealSpot: (s: Spot) => void;
+  /** Outlines a text layer (its parts) on every breakpoint, as the pointer passes over it in the layers. */
+  mark: (t: TextRef[] | null) => void;
+  /** Brings a text layer into view. */
+  revealText: (t: TextRef[]) => void;
+  /** Shows a piece of text reading `value` on every breakpoint while it's typed, before it's kept. */
+  preview: (t: TextRef, value: string) => void;
+  /** Every breakpoint's page that's open. */
+  docs: () => Document[];
+  /** Has every page draw itself again (its shaders and canvases read the page's mode as they're made). */
+  redraw: () => void;
 }
 
 type Box = { top: number; left: number; width: number; height: number };
@@ -153,6 +218,8 @@ interface FrameProps {
   keys: string[];
   edits: TextEdit[];
   theme: string;
+  /** Images in place of the template's files: each path, and the image's address. */
+  images: Record<string, string>;
   selected: string | null;
   z: number;
   left: number;
@@ -162,6 +229,8 @@ interface FrameProps {
   onSelect: (key: string | null) => void;
   onKey: (e: KeyboardEvent) => void;
   onText: (device: CanvasDevice, node: Text, el: Element) => void;
+  /** An image double-clicked: its layer is picked. */
+  onImage: (el: Element) => void;
   onWheel: (e: WheelEvent, device: CanvasDevice) => void;
   onPoint: (device: CanvasDevice, x: number, y: number) => void;
   onReady: (device: CanvasDevice) => void;
@@ -171,13 +240,13 @@ interface FrameProps {
 }
 
 /** One breakpoint: its label, and the page at that width and its full height. */
-const Frame = memo(function Frame({ device, primary, src, onPreview, paused, resync, compose, keys, edits, theme, selected, z, left, onHeight, onRects, onHover, onSelect, onKey, onText, onWheel, onPoint, onReady, register, height, scope }: FrameProps) {
+const Frame = memo(function Frame({ device, primary, src, onPreview, paused, resync, compose, keys, edits, theme, images, selected, z, left, onHeight, onRects, onHover, onSelect, onKey, onText, onImage, onWheel, onPoint, onReady, register, height, scope }: FrameProps) {
   const ref = useRef<HTMLIFrameElement>(null);
   const [ready, setReady] = useState(false);
   const W = CANVAS_WIDTH[device];
-  const latest = useRef({ keys, edits, selected, onSelect, onKey, onHover, onText, onWheel, onPoint, scope, onRects, onHeight });
+  const latest = useRef({ keys, edits, selected, onSelect, onKey, onHover, onText, onImage, onWheel, onPoint, scope, onRects, onHeight });
   useEffect(() => {
-    latest.current = { keys, edits, selected, onSelect, onKey, onHover, onText, onWheel, onPoint, scope, onRects, onHeight };
+    latest.current = { keys, edits, selected, onSelect, onKey, onHover, onText, onImage, onWheel, onPoint, scope, onRects, onHeight };
   });
 
   useEffect(() => {
@@ -271,17 +340,19 @@ const Frame = memo(function Frame({ device, primary, src, onPreview, paused, res
       fit();
       measure();
     });
-    // Out of view, the redraw waits until it's back: no new shaders for a page nobody sees.
-    if (drawn.current === theme || paused) return;
+    // Out of view, the redraw waits until it's back: no new shaders for a page nobody sees. Images
+    // go with the colors: the page draws again for either, once.
+    const look = Object.keys(images).length ? `${theme}|${JSON.stringify(images)}` : theme;
+    if (drawn.current === look || paused) return;
     const t = setTimeout(
       () => {
-        drawn.current = theme;
-        ref.current?.contentWindow?.postMessage({ type: "bd:theme", css: theme }, location.origin);
+        drawn.current = look;
+        ref.current?.contentWindow?.postMessage({ type: "bd:theme", css: theme, images }, location.origin);
       },
-      drawn.current === "" && theme ? 0 : 450,
+      drawn.current === "" && look ? 0 : 450,
     );
     return () => clearTimeout(t);
-  }, [theme, ready, paused, fit, measure]);
+  }, [theme, images, ready, paused, fit, measure]);
 
   // Hover, clicks, keys and the wheel inside the frame, and anything that moves its sections.
   useEffect(() => {
@@ -312,6 +383,11 @@ const Frame = memo(function Frame({ device, primary, src, onPreview, paused, res
     };
     const dbl = (e: MouseEvent) => {
       const el = asEl(e.target);
+      const pic = el?.closest("img, canvas[data-bd-src]");
+      if (pic) {
+        e.preventDefault();
+        return latest.current.onImage(pic);
+      }
       const range = d.caretRangeFromPoint?.(e.clientX, e.clientY);
       const node = range?.startContainer;
       if (!el || !node || node.nodeType !== 3 || !(node as Text).data.trim()) return;
@@ -550,6 +626,8 @@ export const Canvas = forwardRef<
     edits: TextEdit[];
     /** The project's colors, as CSS (see site/theme). */
     theme?: string;
+    /** Images in place of the template's files (see site/images). */
+    images?: Record<string, string>;
     selected: string | null;
     zoom: Zoom;
     hand: boolean;
@@ -581,8 +659,12 @@ export const Canvas = forwardRef<
     paused?: boolean;
     /** Bump to have every page measured and painted again. */
     resync?: number;
+    /** The text layer picked in the layers: its parts, outlined on every breakpoint. */
+    picked?: TextRef[];
+    /** Text double-clicked on the page: the layer it's in (a section or a block) and where it sits. */
+    onPickText?: (key: string, t: TextRef) => void;
   }
->(function Canvas({ template, view, keys, devices, edits, theme = "", selected, zoom, hand, insets, onSelect, onZoom, onZoomTo, onLiveZoom, onEdit, onBlocks, onKey, bar, commenting, onPointer, onPlace, overlay, peers, onReady, onPreview, paused = false, resync = 0 }, ref) {
+>(function Canvas({ template, view, keys, devices, edits, theme = "", images = NO_IMAGES, selected, zoom, hand, insets, onSelect, onZoom, onZoomTo, onLiveZoom, onEdit, onBlocks, onKey, bar, commenting, onPointer, onPlace, overlay, peers, onReady, onPreview, paused = false, resync = 0, picked = NO_REFS, onPickText }, ref) {
   const scroller = useRef<HTMLDivElement>(null);
   const layer = useRef<HTMLDivElement>(null);
   const frames = useRef(new Map<CanvasDevice, HTMLIFrameElement>());
@@ -591,6 +673,9 @@ export const Canvas = forwardRef<
   const [rects, setRects] = useState<Partial<Record<CanvasDevice, Record<string, Box>>>>({});
   const [hover, setHover] = useState<string | null>(null);
   const [editing, setEditing] = useState<Editing | null>(null);
+  // The text layer picked in the layers, and the one the pointer is over there: their boxes on each breakpoint.
+  const marks = useRef<{ picked: TextRef[]; hover: TextRef[] }>({ picked: [], hover: [] });
+  const [textBoxes, setTextBoxes] = useState<{ picked: Partial<Record<CanvasDevice, Box>>; hover: Partial<Record<CanvasDevice, Box>> }>({ picked: {}, hover: {} });
   const [space, setSpace] = useState(false);
   const compose = view.kind === "page";
   // The list each frame was opened with; later lists are posted to it, so it never reloads.
@@ -688,13 +773,46 @@ export const Canvas = forwardRef<
     if (f) frames.current.set(d, f);
     else frames.current.delete(d);
   }, []);
+  /** Measures the marked text layers again on every breakpoint: after an edit, a resize, a redraw. */
+  const measureMarks = useCallback(() => {
+    const boxOf = (d: CanvasDevice, refs: TextRef[]): Box | undefined => {
+      const doc = frames.current.get(d)?.contentDocument;
+      const root = doc && refs.length ? scopeRoot(doc, refs[0].scope) : null;
+      if (!doc || !root) return;
+      const range = doc.createRange();
+      let [top, left, right, bottom] = [Infinity, Infinity, -Infinity, -Infinity];
+      for (const t of refs) {
+        const node = findRef(root, t);
+        if (!node) continue;
+        if (node.nodeType === 3) range.selectNodeContents(node);
+        const r = node.nodeType === 3 ? range.getBoundingClientRect() : (node as Element).getBoundingClientRect();
+        if (r.width <= 1 || r.height <= 1) continue;
+        [top, left, right, bottom] = [Math.min(top, r.top), Math.min(left, r.left), Math.max(right, r.right), Math.max(bottom, r.bottom)];
+      }
+      return top === Infinity ? undefined : { top, left, width: right - left, height: bottom - top };
+    };
+    const next: { picked: Partial<Record<CanvasDevice, Box>>; hover: Partial<Record<CanvasDevice, Box>> } = { picked: {}, hover: {} };
+    for (const d of frames.current.keys()) {
+      const p = boxOf(d, marks.current.picked);
+      const h = boxOf(d, marks.current.hover);
+      if (p) next.picked[d] = p;
+      if (h) next.hover[d] = h;
+    }
+    setTextBoxes((s) => (JSON.stringify(s) === JSON.stringify(next) ? s : next));
+  }, []);
+  useEffect(() => {
+    marks.current.picked = picked;
+    const id = requestAnimationFrame(measureMarks);
+    return () => cancelAnimationFrame(id);
+  }, [picked, measureMarks, edits]);
   const onHeight = useCallback((d: CanvasDevice, h: number) => setHeights((s) => (Math.abs((s[d] ?? 0) - h) < 1 ? s : { ...s, [d]: h })), []);
   const onRects = useCallback(
     (d: CanvasDevice, r: Record<string, Box>, blocks: Block[]) => {
       setRects((s) => (JSON.stringify(s[d]) === JSON.stringify(r) ? s : { ...s, [d]: r }));
       if (d === devices[0] && view.kind === "route") onBlocks(blocks);
+      if (marks.current.picked.length || marks.current.hover.length) measureMarks();
     },
-    [devices, view.kind, onBlocks],
+    [devices, view.kind, onBlocks, measureMarks],
   );
 
   /** Which layer an element in a frame belongs to: its section, or its top-level block. */
@@ -762,15 +880,84 @@ export const Canvas = forwardRef<
     texts: (s, block) => {
       const d = docOf(primary);
       const root = d && scopeRoot(d, s);
-      if (!root) return [];
+      // Not drawn yet (a section just added, a page still loading): nothing to read, rather than no text.
+      if (!root) return null;
       const within = block ? blocksOf(d)[Number(block.split(":")[1])] : null;
-      return textsIn(root)
+      if (block && !within) return null;
+      const owners = new Map<Element, number>();
+      const kinds = new Map<Element, FolderKind | null>();
+      const ids = new Map<Element, number>();
+      const range = d.createRange();
+      const all = sectionBox(within ?? root);
+      let before: { data: string; top: number; right: number } | null = null;
+      const folderOf = (n: Node) =>
+        foldersOf(n, within ?? root, kinds, all).map(({ el, kind }) => {
+          if (!ids.has(el)) ids.set(el, ids.size);
+          return { id: ids.get(el)!, kind };
+        });
+      // The images, each a layer of its own beside the words around it.
+      const seenFiles = new Map<string, number>();
+      const pictures = picturesIn(root).map(({ el, file }, i) => {
+        const nth = seenFiles.get(file) ?? 0;
+        seenFiles.set(file, nth + 1);
+        const r = el.getBoundingClientRect();
+        const name = el.getAttribute("aria-label") || el.getAttribute("alt") || file.split("/").pop()!;
+        return { node: el as Node, item: { scope: s, from: file, nth, text: name, tag: el.tagName.toLowerCase(), role: "image" as const, group: -1 - i, folders: folderOf(el), live: false, hidden: r.width <= 1 || r.height <= 1, top: r.top, space: true, kind: "image" as const, swapped: file in images } };
+      });
+      const read = (t: Text): PageText => {
+          const { role, owner } = roleOf(t);
+          if (!owners.has(owner)) owners.set(owner, owners.size);
+          const folders = folderOf(t);
+          // What this node read last time: if it has moved on by itself since, it's live.
+          const seen = t as Text & { bdSeen?: string };
+          const live = seen.bdSeen !== undefined && seen.bdSeen !== t.data && (t as Text & { bdFrom?: string }).bdFrom === undefined;
+          seen.bdSeen = t.data;
+          range.selectNodeContents(t);
+          const r = range.getBoundingClientRect();
+          const p = t.parentElement;
+          const hidden = r.width <= 1 || r.height <= 1 || !p?.checkVisibility({ visibilityProperty: true }) || Boolean(p.closest(".sr-only"));
+          // "+" "$23,358" "(94%)" drawn as one line read as one; words with a space (or a line) between keep it.
+          const space = !before || /^\s/.test(t.data) || /\s$/.test(before.data) || Math.abs(r.top - before.top) > 4 || r.left - before.right > 2;
+          before = { data: t.data, top: r.top, right: r.right };
+          return { scope: s, ...addressOf(t, root), text: t.data.trim(), tag: p?.closest("h1,h2,h3,h4,button,a,li,p,label,dt,dd,span")?.tagName.toLowerCase() ?? "text", role, group: owners.get(owner)!, folders, live, hidden, top: r.top, space };
+      };
+      const words = textsIn(root)
         .filter((t) => !within || within.contains(t))
-        .map((t) => ({ scope: s, ...addressOf(t, root), text: t.data.trim(), tag: t.parentElement?.closest("h1,h2,h3,h4,button,a,li,p,label,dt,dd,span")?.tagName.toLowerCase() ?? "text" }));
+        .map((t) => ({ node: t as Node, item: read(t) }));
+      return [...words, ...pictures.filter((x) => !within || within.contains(x.node))]
+        .sort((a, b) => (a.node.compareDocumentPosition(b.node) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1))
+        .map((x) => x.item);
     },
     reveal: (key) => {
       const r = rects[primary]?.[key];
       if (r) bringIntoView(r);
+    },
+    mark: (t) => {
+      marks.current.hover = t ?? [];
+      measureMarks();
+    },
+    revealText: (t) => {
+      const d = docOf(primary);
+      const root = d && t.length ? scopeRoot(d, t[0].scope) : null;
+      const node = root ? t.map((x) => findRef(root, x)).find(Boolean) : null;
+      if (!node) return;
+      const range = node.ownerDocument!.createRange();
+      range.selectNodeContents(node);
+      const r = node.nodeType === 3 ? range.getBoundingClientRect() : (node as Element).getBoundingClientRect();
+      if (r.height > 1) bringIntoView({ top: r.top, left: r.left, width: r.width, height: r.height });
+    },
+    docs: () => [...frames.current.values()].map((f) => f.contentDocument).filter((d): d is Document => Boolean(d)),
+    redraw: () => {
+      for (const f of frames.current.values()) f.contentWindow?.postMessage({ type: "bd:theme", css: theme, images }, location.origin);
+    },
+    preview: (t, value) => {
+      for (const f of frames.current.values()) {
+        const d = f.contentDocument;
+        const root = d && scopeRoot(d, t.scope);
+        const node = root ? textsIn(root).filter((n) => original(n) === t.from)[t.nth] : null;
+        if (node) setText(node, value || " ");
+      }
+      measureMarks();
     },
     revealSpot: (s) => {
       const at = place(s);
@@ -857,9 +1044,26 @@ export const Canvas = forwardRef<
       const r = range.getBoundingClientRect();
       const { from, nth } = addressOf(node, root);
       setEditing({ device, node, scope: s, from, nth, was: node.data.trim(), value: node.data.trim(), rect: { top: r.top, left: r.left, width: r.width, height: r.height } });
-      onSelect(compose ? s : scope(el));
+      const key = compose ? s : scope(el);
+      onSelect(key);
+      if (key) onPickText?.(key, { scope: s, from, nth });
     },
-    [compose, routeScope, onSelect, scope],
+    [compose, routeScope, onSelect, scope, onPickText],
+  );
+
+  /** An image double-clicked on a page: its section (or block) selected, its layer picked. */
+  const startImage = useCallback(
+    (el: Element) => {
+      const s = compose ? el.closest("[data-bd-key]")?.getAttribute("data-bd-key") : routeScope;
+      const root = s ? scopeRoot(el.ownerDocument, s) : null;
+      const all = root ? picturesIn(root) : [];
+      const me = all.find((p) => p.el === el);
+      if (!s || !me) return;
+      const key = compose ? s : scope(el);
+      onSelect(key);
+      if (key) onPickText?.(key, { scope: s, from: me.file, nth: all.filter((p) => p.file === me.file).indexOf(me), kind: "image" });
+    },
+    [compose, routeScope, onSelect, scope, onPickText],
   );
 
   const commit = (keep: boolean) => {
@@ -943,6 +1147,7 @@ export const Canvas = forwardRef<
                 keys={keys}
                 edits={edits}
                 theme={theme}
+                images={images}
                 selected={selected}
                 z={z}
                 left={lefts[i]}
@@ -953,6 +1158,7 @@ export const Canvas = forwardRef<
                 onSelect={onSelect}
                 onKey={onKey}
                 onText={startText}
+                onImage={startImage}
                 onWheel={onFrameWheel}
                 onPoint={onPoint}
                 onReady={onFrameReady}
@@ -972,6 +1178,15 @@ export const Canvas = forwardRef<
               </span>
             )}
             {ed && <span className="absolute rounded-[3px] shadow-[0_0_0_2px_#0d99ff]" style={{ top: ed.top - 2, left: ed.left - 3, width: ed.width + 6, height: ed.height + 4 }} />}
+            {/* The text layer picked in the layers, and the one the pointer is over there, on every breakpoint. */}
+            {!ed &&
+              devices.map((d, i) =>
+                (["hover", "picked"] as const).map((which) => {
+                  const b = textBoxes[which][d];
+                  if (!b || (which === "hover" && JSON.stringify(b) === JSON.stringify(textBoxes.picked[d]))) return null;
+                  return <span key={`${which}-${d}`} className={cn("absolute rounded-[3px]", which === "picked" ? "shadow-[0_0_0_2px_#0d99ff]" : "bg-[#0d99ff]/[0.08] shadow-[0_0_0_1px_#0d99ff]")} style={{ top: b.top * z - 2, left: lefts[i] + b.left * z - 3, width: b.width * z + 6, height: b.height * z + 4 }} />;
+                }),
+              )}
             {/* Other people's selections, in their colors, with their names on the first breakpoint. */}
             {peers?.map((p) =>
               devices.map((d, i) => {

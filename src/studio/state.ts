@@ -1,5 +1,6 @@
 import { templateOf, TEMPLATES, type TemplateSlug } from "@/site/live";
 import { withEdit, type TextEdit } from "@/site/text-edits";
+import { checkedImages, type Images } from "@/site/images";
 import { checkedTheme, SLOTS, type Theme } from "@/site/theme";
 
 /*
@@ -28,8 +29,10 @@ export interface Project {
   name: string;
   pages: SitePage[];
   edits: TextEdit[];
-  /** Colors changed from the template's own (see site/theme). */
+  /** Colors, type and corners changed from the template's own (see site/theme). */
   theme?: Theme;
+  /** Images put in place of the template's own files (see site/images). */
+  images?: Images;
 }
 
 /** What the canvas shows: one of your pages, or one of the template's own. */
@@ -182,13 +185,29 @@ export function merge3(base: Project, mine: Project, theirs: Project): Project {
     const e = m?.to !== b ? m : ET.get(k);
     if (e) edits.push(e);
   }
-  // Colors one by one: yours where you changed one, theirs otherwise.
+  // Style setting by setting (each color, in each mode): yours where you changed one, theirs otherwise.
   const theme: Theme = {};
   for (const k of SLOTS) {
     const v = pick(base.theme?.[k], mine.theme?.[k], theirs.theme?.[k]);
     if (v) theme[k] = v;
   }
-  return { template: mine.template, name: pick(base.name, mine.name, theirs.name), pages: pages.length ? pages : theirs.pages, edits, ...(Object.keys(theme).length ? { theme } : {}) };
+  const dark: NonNullable<Theme["dark"]> = {};
+  for (const k of SLOTS) {
+    const v = pick(base.theme?.dark?.[k], mine.theme?.dark?.[k], theirs.theme?.dark?.[k]);
+    if (v) dark[k] = v;
+  }
+  if (Object.keys(dark).length) theme.dark = dark;
+  for (const k of ["font", "headings", "weight", "tracking", "radius"] as const) {
+    const v = pick(base.theme?.[k], mine.theme?.[k], theirs.theme?.[k]);
+    if (v !== undefined) (theme as Record<string, unknown>)[k] = v;
+  }
+  // Images file by file, the same way.
+  const images: Images = {};
+  for (const k of new Set([...Object.keys(mine.images ?? {}), ...Object.keys(theirs.images ?? {}), ...Object.keys(base.images ?? {})])) {
+    const v = pick(base.images?.[k], mine.images?.[k], theirs.images?.[k]);
+    if (v) images[k] = v;
+  }
+  return { template: mine.template, name: pick(base.name, mine.name, theirs.name), pages: pages.length ? pages : theirs.pages, edits, ...(Object.keys(theme).length ? { theme } : {}), ...(Object.keys(images).length ? { images } : {}) };
 }
 
 let n = 0;
@@ -270,7 +289,8 @@ export function checkedProject(p: unknown): Project | null {
   }
   const edits = p.edits.every((e) => e && text(e.scope, 200) && text(e.from, 4000) && text(e.to, 4000) && e.from.trim().length > 0 && Number.isInteger(e.nth) && e.nth >= 0);
   const theme = checkedTheme(p.theme);
-  return edits ? { template: p.template, name: p.name, pages: p.pages.map(({ id, path, template, name, keys }) => ({ id, path, template, name, keys })), edits: p.edits.map(({ scope, from, nth, to }) => ({ scope, from, nth, to })), ...(theme ? { theme } : {}) } : null;
+  const images = checkedImages(p.images);
+  return edits ? { template: p.template, name: p.name, pages: p.pages.map(({ id, path, template, name, keys }) => ({ id, path, template, name, keys })), edits: p.edits.map(({ scope, from, nth, to }) => ({ scope, from, nth, to })), ...(theme ? { theme } : {}), ...(images ? { images } : {}) } : null;
 }
 
 /** The template from the URL wins, then the saved project, then Zuno. A page saved by an older Studio becomes a project's home. */
@@ -293,7 +313,10 @@ export function initialState(): StudioState {
     /* a broken save falls back to the default */
   }
   const home = project.pages[0];
-  return { project, view: { kind: "page", id: home.id }, selected: home.keys[1] ?? null, past: [], future: [] };
+  // A section's own link (?template=noma&section=hero) opens with that section picked.
+  const linked = new URLSearchParams(window.location.search).get("section");
+  const picked = (linked && home.keys.find((k) => idOf(k) === linked)) || home.keys[1] || null;
+  return { project, view: { kind: "page", id: home.id }, selected: picked, past: [], future: [] };
 }
 
 /** The project as Studio last saved it in this browser, for the preview tab. */

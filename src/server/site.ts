@@ -5,6 +5,7 @@ import { SKIP_DIRS, skipFile, TEMPLATE_DIRS, TEMPLATE_FILES } from "../../script
 import { templateOf, type LiveTemplate } from "@/site/live";
 import { editList, pageCode, pageFile, projectFiles } from "@/studio/project-files";
 import type { Project } from "@/studio/state";
+import { checkedImages } from "@/site/images";
 import { COLORS, themeCode, themeCss } from "@/site/theme";
 
 /*
@@ -115,15 +116,38 @@ export function writeProject(files: Files, project: Project) {
   const text = new Map([...files].filter((e): e is [string, string] => isText(e[1]) && !e[0].startsWith("basedraft/")));
   const report = rewriteAll(text, editList(project.edits));
   for (const [k, v] of text) files.set(k, v);
-  // Your colors, after the template's own, so its variables take them.
-  const css = themeCss(project.template, project.theme);
+  // Your colors, type and corners, after the template's own, so its variables take them.
+  const css = themeCss(project.template, project.theme, "code");
   const globals = COLORS[project.template]?.globals;
   const sheet = globals ? files.get(globals) : undefined;
   if (css && globals && typeof sheet === "string") files.set(globals, `${sheet.replace(/\n*\/\* Colors from basedraft Studio[\s\S]*$/, "")}\n\n/* Colors from basedraft Studio */\n${css}`);
-  // And the colors the template keeps in code for its JS drawings (shaders, charts).
+  // And the colors the template keeps in code for its JS drawings (shaders, charts), and its layout with your typefaces.
   for (const [file, src] of themeCode(project.template, project.theme, (f) => (isText(files.get(f)) ? (files.get(f) as string) : undefined))) files.set(file, src);
   files.set("basedraft/project.json", projectFiles(project)["basedraft/project.json"]);
   return report;
+}
+
+/**
+ * Your images, each written over the template file it stands in for (in its public folder), so
+ * the template's code draws them the way it draws its own. Only images kept in basedraft's own
+ * storage are read. Says which files it wrote.
+ */
+export async function writeImages(files: Files, project: Project) {
+  const images = checkedImages(project.images) ?? {};
+  const home = process.env.NEXT_PUBLIC_CONVEX_URL ? new URL(process.env.NEXT_PUBLIC_CONVEX_URL).host : null;
+  const wrote: string[] = [];
+  await Promise.all(
+    Object.entries(images).map(async ([path, { url }]) => {
+      if (home && new URL(url).host !== home) return;
+      const res = await fetch(url).catch(() => null);
+      if (!res?.ok) return;
+      const bytes = new Uint8Array(await res.arrayBuffer());
+      if (bytes.byteLength > 8 * 1024 * 1024) return;
+      files.set(`public${path}`, bytes);
+      wrote.push(`public${path}`);
+    }),
+  );
+  return wrote;
 }
 
 /** The whole site for a project, ready to run: `npm install`, then `npm run dev`. */
@@ -131,6 +155,7 @@ export async function siteFiles(project: Project) {
   const t = templateOf(project.template)!;
   const files = await templateSource(project.template);
   const report = writeProject(files, project);
+  await writeImages(files, project);
   files.set("basedraft/README.md", readme(project, t, report));
   return { files, report };
 }

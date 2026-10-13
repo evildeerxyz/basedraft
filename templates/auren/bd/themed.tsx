@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useEffect, useState, type ReactNode } from "react";
+import { setImages } from "./images";
 
 /*
  * Studio's colors, for a section drawn on its own (what basedraft's copies to Figma and Paper
@@ -20,6 +21,7 @@ export function Themed({ children }: { children: ReactNode }) {
       }
       document.head.appendChild(el);
       el.textContent = String(e.data.css ?? "");
+      setImages(e.data.images);
       releaseGl();
       setColors((n) => n + 1);
     };

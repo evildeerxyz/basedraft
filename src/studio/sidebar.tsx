@@ -11,11 +11,15 @@ import { isFree, KINDS, sectionOf, sectionShot, TEMPLATES, templateOf, templateS
 import { Menu } from "@/site/menu";
 import type { Block } from "./canvas";
 import { idOf, type Project, type View } from "./state";
+import { TextLayers, Twisty, type TextTree } from "./text-tree";
 
 /* ---------- layers ---------- */
 
-function LayerRow({ layer, section, index, selected, onSelect, onRemove, onDuplicate }: { layer: string; section: LiveSection; index: number; selected: boolean; onSelect: () => void; onRemove: () => void; onDuplicate: () => void }) {
+function LayerRow({ layer, section, index, selected, onSelect, onRemove, onDuplicate, text }: { layer: string; section: LiveSection; index: number; selected: boolean; onSelect: () => void; onRemove: () => void; onDuplicate: () => void; text: TextTree }) {
   const controls = useDragControls();
+  const open = text.open(layer);
+  // A text layer in it is picked: the section is the picked layer's parent, lit more softly.
+  const inside = selected && text.picked?.key === layer;
   return (
     <Reorder.Item
       value={layer}
@@ -28,16 +32,17 @@ function LayerRow({ layer, section, index, selected, onSelect, onRemove, onDupli
       transition={{ type: "spring", stiffness: 520, damping: 42, mass: 0.8 }}
       whileDrag={{ scale: 1.02, zIndex: 10, boxShadow: "0 8px 24px rgb(var(--bd-shade)/0.14)", borderRadius: 12 }}
     >
-      <div className={cn("group flex h-11 items-center gap-1 rounded-control pr-1 transition-colors", selected ? "bg-fg/[0.07]" : "hover:bg-fg/[0.04]")}>
-        <button type="button" aria-label={`Drag ${section.name} to reorder`} onPointerDown={(e) => controls.start(e)} className="grid h-full w-5 shrink-0 cursor-grab touch-none place-items-center text-subtle opacity-0 transition-opacity active:cursor-grabbing group-hover:opacity-100 focus-visible:opacity-100">
+      <div className={cn("group flex h-11 items-center gap-0.5 rounded-control pr-1 transition-colors", inside ? "bg-fg/[0.035]" : selected ? "bg-fg/[0.07]" : "hover:bg-fg/[0.04]")}>
+        <button type="button" aria-label={`Drag ${section.name} to reorder`} onPointerDown={(e) => controls.start(e)} className="grid h-full w-4 shrink-0 cursor-grab touch-none place-items-center text-subtle opacity-0 transition-opacity active:cursor-grabbing group-hover:opacity-100 focus-visible:opacity-100">
           <DotsSixVerticalIcon size={13} weight="bold" />
         </button>
-        <button type="button" onClick={onSelect} aria-pressed={selected} className="flex min-w-0 flex-1 items-center gap-2.5 text-left">
+        <Twisty open={open} label={section.name} onToggle={() => text.onToggle(layer)} />
+        <button type="button" onClick={onSelect} aria-pressed={selected} className="ml-1 flex min-w-0 flex-1 items-center gap-2.5 text-left">
           <span className={cn("relative block aspect-[16/10] w-11 shrink-0 overflow-hidden rounded-[6px] bg-surface shadow-[0_0_0_1px_rgb(var(--bd-ink)/0.1)]", selected && "shadow-[0_0_0_1.5px_var(--bd-fg)]")}>
             <Image src={sectionShot(section)} alt="" fill sizes="44px" className="object-cover" />
           </span>
           <span className="min-w-0 flex-1 leading-tight">
-            <span className={cn("block truncate text-[13px]", selected ? "font-semibold text-fg" : "text-fg")}>{section.name}</span>
+            <span className={cn("block truncate text-[13px]", selected && !inside ? "font-semibold text-fg" : "text-fg")}>{section.name}</span>
             {/* The component that draws it, as the template's code calls it. */}
             <span className="mt-0.5 block truncate font-mono text-[11px] text-subtle">{section.tag.match(/^<(\w+)/)?.[1]}</span>
           </span>
@@ -56,17 +61,18 @@ function LayerRow({ layer, section, index, selected, onSelect, onRemove, onDupli
           </Tip>
         </div>
       </div>
+      {open && <TextLayers layerKey={layer} tree={text} indent={46} />}
     </Reorder.Item>
   );
 }
 
-/** The page's sections, top to bottom. Drag the handle to reorder. */
-export function Layers({ template, keys, selected, onSelect, onRemove, onDuplicate, onReorder }: { template: TemplateSlug; keys: string[]; selected: string | null; onSelect: (k: string) => void; onRemove: (k: string) => void; onDuplicate: (k: string) => void; onReorder: (keys: string[]) => void }) {
+/** The page's sections, top to bottom, each opening on its text. Drag the handle to reorder. */
+export function Layers({ template, keys, selected, onSelect, onRemove, onDuplicate, onReorder, text }: { template: TemplateSlug; keys: string[]; selected: string | null; onSelect: (k: string) => void; onRemove: (k: string) => void; onDuplicate: (k: string) => void; onReorder: (keys: string[]) => void; text: TextTree }) {
   return (
     <Reorder.Group axis="y" values={keys} onReorder={onReorder} className="min-h-0 flex-1 space-y-0.5 overflow-y-auto overflow-x-hidden p-1.5">
       {keys.map((k, i) => {
         const s = sectionOf(template, idOf(k));
-        return s ? <LayerRow key={k} layer={k} section={s} index={i} selected={selected === k} onSelect={() => onSelect(k)} onRemove={() => onRemove(k)} onDuplicate={() => onDuplicate(k)} /> : null;
+        return s ? <LayerRow key={k} layer={k} section={s} index={i} selected={selected === k} onSelect={() => onSelect(k)} onRemove={() => onRemove(k)} onDuplicate={() => onDuplicate(k)} text={text} /> : null;
       })}
       {keys.length === 0 && <p className="px-3 py-6 text-center text-[13px] text-muted">No sections yet. Insert one with +.</p>}
     </Reorder.Group>
@@ -253,19 +259,28 @@ export function PagesPanel({ project, view, onView, onAdd, onRename, onDuplicate
 }
 
 /** A template page's blocks, top to bottom: read from the page, so they're its own, as written. */
-export function BlockLayers({ blocks, selected, onSelect }: { blocks: Block[]; selected: string | null; onSelect: (k: string) => void }) {
+export function BlockLayers({ blocks, selected, onSelect, text }: { blocks: Block[]; selected: string | null; onSelect: (k: string) => void; text: TextTree }) {
   return (
     <div className="min-h-0 flex-1 overflow-y-auto p-1.5">
       <ul className="space-y-0.5">
-        {blocks.map((b, i) => (
-          <li key={b.key}>
-            <button type="button" aria-pressed={selected === b.key} onClick={() => onSelect(b.key)} className={cn(pageRow, selected === b.key ? "bg-fg/[0.07] font-medium" : "hover:bg-fg/[0.04]")}>
-              <SquareIcon size={13} className="shrink-0 text-subtle" />
-              <span className="min-w-0 flex-1 truncate">{b.name}</span>
-              <span className="text-[12px] tabular-nums text-subtle">{String(i + 1).padStart(2, "0")}</span>
-            </button>
-          </li>
-        ))}
+        {blocks.map((b, i) => {
+          const on = selected === b.key;
+          const inside = on && text.picked?.key === b.key;
+          const open = text.open(b.key);
+          return (
+            <li key={b.key}>
+              <div className={cn("group flex h-9 items-center gap-1 rounded-control pl-1 pr-1 transition-colors", inside ? "bg-fg/[0.035]" : on ? "bg-fg/[0.07]" : "hover:bg-fg/[0.04]")}>
+                <Twisty open={open} label={b.name} onToggle={() => text.onToggle(b.key)} />
+                <button type="button" aria-pressed={on} onClick={() => onSelect(b.key)} className={cn("flex h-full min-w-0 flex-1 items-center gap-2 pr-1.5 text-left text-[13px]", on && !inside && "font-medium")}>
+                  <SquareIcon size={13} className="shrink-0 text-subtle" />
+                  <span className="min-w-0 flex-1 truncate">{b.name}</span>
+                  <span className="text-[12px] tabular-nums text-subtle">{String(i + 1).padStart(2, "0")}</span>
+                </button>
+              </div>
+              {open && <TextLayers layerKey={b.key} tree={text} indent={30} />}
+            </li>
+          );
+        })}
         {!blocks.length && <li className="px-3 py-6 text-center text-[13px] text-muted">Loading the page…</li>}
       </ul>
       <p className="px-2.5 pt-3 text-[12px] leading-snug text-muted">This is the template&apos;s own page, drawn as written. Double-click any text to change it.</p>

@@ -8,6 +8,7 @@ import { PageHead, SectionHead } from "@/site/heads";
 import { ICON, SectionGlyph } from "@/site/icons";
 import { kindOf, sectionOf, sectionShot, TEMPLATES, templateOf, viewUrl } from "@/site/live";
 import { btn } from "@/site/sheet";
+import { TemplateBuy } from "@/site/template-buy";
 import { TemplatePreview } from "@/site/template-preview";
 
 /*
@@ -47,7 +48,6 @@ export default function TemplatePage({ params }: PageProps<"/templates/[slug]">)
 async function Template({ params }: { params: PageProps<"/templates/[slug]">["params"] }) {
   const t = templateOf((await params).slug);
   if (!t) notFound();
-  const free = t.price === "free";
   // The home page's sections in order, each once.
   const home = [...new Set(t.home)].map((id) => sectionOf(t.slug, id)!).filter(Boolean);
   const facts = [t.category, `${t.pages.length} pages`, `${t.sections.length} sections`, "Next.js 16, React 19, Tailwind 4"];
@@ -62,10 +62,7 @@ async function Template({ params }: { params: PageProps<"/templates/[slug]">["pa
             <Link href={`/studio?template=${t.slug}`} className={btn.quiet}>
               <ICON.studio size={16} weight="duotone" /> Open in Studio
             </Link>
-            <Link href={free && t.repo ? t.repo : `/checkout?product=${t.slug}`} prefetch={false} className={btn.ink}>
-              <ICON.pro size={16} weight="duotone" />
-              {free ? "Get it on GitHub" : `Buy for $${t.price}`}
-            </Link>
+            <TemplateBuy slug={t.slug} className={btn.ink} />
           </>
         }
       >

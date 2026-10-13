@@ -15,6 +15,13 @@ interface Env {
 }
 type ExecutionContext = { waitUntil(promise: Promise<unknown>): void; passThroughOnException(): void };
 
+/**
+ * Files a template's code asks for from the site's root, as it would on its own domain (Noma's
+ * portraits load /people/<name>.jpg in script): served from that template's files, as in
+ * development (see next.config's rewrites).
+ */
+const ROOT_FILES: Array<[prefix: string, slug: string]> = [["/people/", "noma"]];
+
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
@@ -23,6 +30,13 @@ export default {
       const to = new URL(url);
       to.hostname = env.CANONICAL_HOST || url.hostname.replace(/^www\./, "");
       return Response.redirect(to.toString(), 301);
+    }
+    const root = ROOT_FILES.find(([prefix]) => url.pathname.startsWith(prefix));
+    if (root) {
+      const res = await env.ASSETS.fetch(new Request(new URL(`/live/${root[1]}${url.pathname}`, url), request));
+      const out = new Response(res.body, res);
+      out.headers.set("X-Robots-Tag", NO_AI);
+      return out;
     }
     if (!url.pathname.startsWith("/live/")) return next.fetch(request, env, ctx);
     const to = previewRedirect(request);

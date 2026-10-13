@@ -4,13 +4,15 @@ import { ArrowCounterClockwiseIcon, CheckIcon, CirclesFourIcon, PaletteIcon, War
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { templateOf, type TemplateSlug } from "@/site/live";
-import { COLORS, HEX, paletteOf, SLOT_LABEL, SLOTS, type Palette, type Theme, type ThemeSlot } from "@/site/theme";
+import { COLORS, HEX, paletteOf, SLOT_LABEL, SLOTS, type Mode, type Palette, type Theme, type ThemeSlot } from "@/site/theme";
 import { ColorPicker, contrast, type Library } from "./color-picker";
-import { Group } from "./ui";
+import { Group, Segments } from "./ui";
 
 /*
  * The project's colors, in the inspector when nothing is selected: a few palettes made for the
- * template, then its four colors one by one, each with Figma's fill row (swatch, hex, styles).
+ * template, then its four colors one by one, each with Figma's fill row (swatch, hex, styles). A
+ * template with a dark mode has a palette for each mode: the switch above them shows the canvas
+ * in that mode and edits its colors.
  */
 
 const LIBRARIES: Library[] = [
@@ -119,22 +121,47 @@ function PresetTile({ name, colors, on, onPick }: { name: string; colors: Palett
   );
 }
 
-export function ColorsGroup({ template, theme, onChange }: { template: TemplateSlug; theme?: Theme; onChange: (t: Theme | undefined) => void }) {
+/** Only what differs from `base`: a palette that matches the template's is no change at all. */
+const diff = (next: Palette, base: Palette) => Object.fromEntries(SLOTS.filter((s) => next[s].toLowerCase() !== base[s].toLowerCase()).map((s) => [s, next[s].toLowerCase()])) as Partial<Palette>;
+
+/** The theme with its colors replaced, its type and corners kept. */
+function withColors(theme: Theme | undefined, light: Partial<Palette>, dark: Partial<Palette> | undefined): Theme | undefined {
+  const out: Theme = { ...theme };
+  for (const s of SLOTS) delete out[s];
+  delete out.dark;
+  Object.assign(out, light);
+  if (dark && Object.keys(dark).length) out.dark = dark;
+  return Object.keys(out).length ? out : undefined;
+}
+
+export function ColorsGroup({ template, theme, mode, onMode, onChange }: { template: TemplateSlug; theme?: Theme; mode: Mode; onMode: (m: Mode) => void; onChange: (t: Theme | undefined) => void }) {
   const c = COLORS[template];
-  const p = paletteOf(template, theme);
+  const moded = Boolean(c?.dark);
+  const m: Mode = moded ? mode : "light";
+  const p = paletteOf(template, theme, m);
   if (!c || !p) return null;
   const t = templateOf(template)!;
-  /** Keeps only what differs from the template, so a palette that matches it is no change at all. */
+  const lightOf = (th?: Theme) => paletteOf(template, th, "light")!;
+  /** The dark palette a light accent leads to before any dark color is set: dark mode's own, with that accent. */
+  const darkFrom = (accent?: string) => paletteOf(template, accent ? { accent } : undefined, "dark")!;
   const set = (next: Palette) => {
-    const out: Theme = {};
-    for (const s of SLOTS) if (next[s].toLowerCase() !== c.base[s].toLowerCase()) out[s] = next[s].toLowerCase();
-    onChange(Object.keys(out).length ? out : undefined);
+    if (m === "dark") return onChange(withColors(theme, diff(lightOf(theme), c.base), diff(next, darkFrom(theme?.accent))));
+    const light = diff(next, c.base);
+    onChange(withColors(theme, light, theme?.dark));
   };
-  const slot = (s: ThemeSlot) => (v: string | undefined) => set({ ...p, [s]: v ?? c.base[s] });
+  const pick = (x: (typeof c.presets)[number]) => {
+    const light = diff(x.colors, c.base);
+    onChange(withColors(theme, light, c.dark && x.dark ? diff(x.dark, darkFrom(light.accent)) : theme?.dark));
+  };
+  const slot = (s: ThemeSlot) => (v: string | undefined) => set({ ...p, [s]: v ?? (m === "dark" ? darkFrom(theme?.accent)[s] : c.base[s]) });
+  const base = m === "dark" ? darkFrom(theme?.accent) : c.base;
+  const shown = (x: (typeof c.presets)[number]) => (m === "dark" && x.dark ? x.dark : x.colors);
+  const on = (x: (typeof c.presets)[number]) => same(lightOf(theme), x.colors) && (!moded || !x.dark || same(paletteOf(template, theme, "dark")!, x.dark));
+  const colored = Boolean(theme && (SLOTS.some((s) => theme[s]) || theme.dark));
   const swatches = [...new Set([p.accent, p.page, p.cards, p.text, ...c.presets.map((x) => x.colors.accent)])];
   const libraries: Library[] = [
     { group: `${t.name} / This project`, items: SLOTS.map((s) => ({ name: SLOT_LABEL[s], hex: p[s] })) },
-    { group: `${t.name} / Its palettes`, items: c.presets.flatMap((x) => [{ name: `${x.name} accent`, hex: x.colors.accent }, { name: `${x.name} page`, hex: x.colors.page }]) },
+    { group: `${t.name} / Its palettes`, items: c.presets.flatMap((x) => [{ name: `${x.name} accent`, hex: shown(x).accent }, { name: `${x.name} page`, hex: shown(x).page }]) },
     ...LIBRARIES,
   ];
   const read = contrast(p.text, p.page);
@@ -145,21 +172,33 @@ export function ColorsGroup({ template, theme, onChange }: { template: TemplateS
       title="Colors"
       icon={PaletteIcon}
       aside={
-        theme && (
-          <button type="button" onClick={() => onChange(undefined)} className="flex h-7 items-center gap-1 rounded-[8px] px-2 text-[12px] font-medium text-muted hover:bg-fg/[0.06] hover:text-fg">
+        colored && (
+          <button type="button" onClick={() => onChange(withColors(theme, {}, undefined))} className="flex h-7 items-center gap-1 rounded-[8px] px-2 text-[12px] font-medium text-muted hover:bg-fg/[0.06] hover:text-fg">
             <ArrowCounterClockwiseIcon size={12} /> Reset
           </button>
         )
       }
     >
+      {moded && (
+        <Segments
+          full
+          label="Mode"
+          value={m}
+          onChange={onMode}
+          options={[
+            { value: "light", label: "Light", title: "The light palette, and the canvas in light mode" },
+            { value: "dark", label: "Dark", title: "The dark palette, and the canvas in dark mode" },
+          ]}
+        />
+      )}
       <div role="radiogroup" aria-label="Palettes" className="grid grid-cols-3 gap-x-2 gap-y-2.5">
         {c.presets.map((x) => (
-          <PresetTile key={x.name} name={x.name} colors={x.colors} on={same(p, x.colors)} onPick={() => set(x.colors)} />
+          <PresetTile key={x.name} name={x.name} colors={shown(x)} on={on(x)} onPick={() => pick(x)} />
         ))}
       </div>
       <div className="space-y-1.5">
         {SLOTS.map((s) => (
-          <ColorRow key={s} label={SLOT_LABEL[s]} value={p[s]} base={c.base[s]} swatches={swatches} libraries={libraries} against={against[s]} onChange={slot(s)} />
+          <ColorRow key={`${m}-${s}`} label={SLOT_LABEL[s]} value={p[s]} base={base[s]} swatches={swatches} libraries={libraries} against={against[s]} onChange={slot(s)} />
         ))}
       </div>
       {read < 4.5 && (
@@ -168,7 +207,7 @@ export function ColorsGroup({ template, theme, onChange }: { template: TemplateS
           Text on the page is {read.toFixed(1)}:1, under the 4.5:1 that small text needs to read well.
         </p>
       )}
-      <p className="text-[12px] leading-snug text-muted">Every page and breakpoint takes these colors, and so do your copies to Figma and the code you download.</p>
+      <p className="text-[12px] leading-snug text-muted">{moded ? `Light and dark each keep their own colors, and ${t.name}'s own switch still moves between them.` : "Every page and breakpoint takes these colors, and so do your copies to Figma and the code you download."}</p>
     </Group>
   );
 }

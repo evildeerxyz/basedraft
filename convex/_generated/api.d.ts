@@ -18,6 +18,7 @@ import type * as emails_assets from "../emails/assets.js";
 import type * as emails_send from "../emails/send.js";
 import type * as emails_templates from "../emails/templates.js";
 import type * as http from "../http.js";
+import type * as images from "../images.js";
 import type * as mail from "../mail.js";
 import type * as presence from "../presence.js";
 import type * as products from "../products.js";
@@ -46,6 +47,7 @@ declare const fullApi: ApiFromModules<{
   "emails/send": typeof emails_send;
   "emails/templates": typeof emails_templates;
   http: typeof http;
+  images: typeof images;
   mail: typeof mail;
   presence: typeof presence;
   products: typeof products;

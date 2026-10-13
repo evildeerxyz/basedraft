@@ -7,7 +7,7 @@ import { useMutation } from "convex/react";
 import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useReducer, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState, type ReactNode } from "react";
 import { cn, EASE_OUT } from "@/lib/utils";
 import { AccountHeader, Avatar, displayName, openAuth, openProfile, signedIn, signOut, useAuth } from "@/site/auth";
 import { ColorModeSwitch } from "@/site/color-mode";
@@ -23,25 +23,31 @@ import { openPro } from "@/site/pro-modal";
 import { btn, btnSm } from "@/site/sheet";
 import { withEdit, type TextEdit } from "@/site/text-edits";
 import { toast } from "@/site/toast";
-import { Canvas, CANVAS_WIDTH, DEVICE_LABEL, type Block, type CanvasDevice, type CanvasHandle, type PageText, type Spot, type Zoom } from "./canvas";
+import { Canvas, CANVAS_WIDTH, DEVICE_LABEL, type Block, type CanvasDevice, type CanvasHandle, type PageText, type Spot, type TextRef, type Zoom } from "./canvas";
 import { useCloud } from "./cloud";
 import { CommentLayer, CommentsPanel, Cursors, Face, spotOf, useComments, usePresence, viewKey, viewOf, type Comment } from "./collab";
 import { ExportDialog } from "./export";
 import { ExportMenu } from "./export-menu";
-import { BlockPanel, PagePanel, RoutePanel, SectionPanel } from "./inspector";
+import { ImagePanel, useImageUpload } from "./image-panel";
+import { BlockPanel, PagePanel, RoutePanel, SectionPanel, TextPanel } from "./inspector";
 import { BlockLayers, InsertGrid, Layers, PagesPanel, StartFrom } from "./sidebar";
 import { SiteExportDialog } from "./site-export";
 import { HelpPanel, HintLine, Tour, useGuide, type TourStep } from "./guide";
+import { layersOf, layerWith, textLayersIn, type Layer, type TextLayer } from "./text-layers";
+import { ROLE_LABEL } from "./text-roles";
+import type { TextTree } from "./text-tree";
 import { blankPage, copyPage, idOf, initialState, instance, newProject, pageOf, pathFor, reducer, save, withPage, type Project, type SitePage, type View } from "./state";
 import { Tool } from "./ui";
 import { describeProject, HistoryPanel, LibraryDialog, ShareDialog, type LibraryTab } from "./workspace";
 import { track } from "@/site/analytics";
-import { themeCss, type Theme } from "@/site/theme";
-import { ColorsGroup } from "./colors";
+import { swapsOf } from "@/site/images";
+import { keepMode, modeIn, themeCss, type Mode, type Theme } from "@/site/theme";
+import { StylePanel } from "./style";
 import { Preloader } from "./preloader";
 import { PreviewView, type Viewport } from "./preview";
 
 const NO_KEYS: string[] = [];
+const NO_REFS: TextRef[] = [];
 const ZOOMS: Array<{ value: Zoom; label: string; keys?: string }> = [
   { value: "fit", label: "Zoom to fit", keys: "⇧1" },
   { value: "all", label: "Fit all breakpoints" },
@@ -405,7 +411,14 @@ export default function Studio() {
   const [hand, setHand] = useState(false);
   const [tab, setTab] = useState<LeftTab>("layers");
   const [blocks, setBlocks] = useState<Block[]>([]);
-  const [texts, setTexts] = useState<PageText[]>([]);
+  // The words in every section (or block) open in Layers, and the selected one: null while it's drawn.
+  const [texts, setTexts] = useState<Record<string, PageText[] | null>>({});
+  // Layer rows opened (true) or closed (false) by hand; the rest follow the selection.
+  const [unfolded, setUnfolded] = useState<Record<string, boolean>>({});
+  // The text layer picked, by the section (or block) it's in and one of its parts.
+  const [picked, setPicked] = useState<{ key: string; ref: TextRef } | null>(null);
+  // Bumped to put the cursor in the picked text's first field (Enter); 0 leaves it where it is.
+  const [focusText, setFocusText] = useState(0);
   const [pop, setPop] = useState<string | null>(null);
   const [panels, setPanels] = useState({ left: true, right: true });
   // Back from connecting GitHub, the export dialog opens where you left it.
@@ -440,8 +453,8 @@ export default function Studio() {
     const q = new URLSearchParams(window.location.search);
     if (q.get("github") === "error") toast("GitHub didn't connect", { tone: "error", detail: q.get("why") ?? undefined });
     if (q.get("github") === "connected") toast("GitHub is connected");
-    if (q.has("template") || q.has("export") || q.has("github")) {
-      for (const k of ["template", "export", "github", "why"]) q.delete(k);
+    if (q.has("template") || q.has("section") || q.has("export") || q.has("github")) {
+      for (const k of ["template", "section", "export", "github", "why"]) q.delete(k);
       window.history.replaceState(null, "", `/studio${q.size ? `?${q}` : ""}`);
     }
   }, []);
@@ -502,15 +515,42 @@ export default function Studio() {
   }, [project]);
 
   const change = useCallback((p: Project) => dispatch({ type: "change", project: p }), []);
-  const select = useCallback((key: string | null) => dispatch({ type: "select", key }), []);
+  // A new selection drops a text picked in another one.
+  const select = useCallback((key: string | null) => {
+    setPicked((p) => (p && p.key === key ? p : null));
+    dispatch({ type: "select", key });
+  }, []);
   const go = useCallback((v: View) => dispatch({ type: "view", view: v }), []);
+
   /** Changes the page on show, when it's one made of sections. */
   const setPage = (p: SitePage) => change(withPage(project, p));
-  const edit = useCallback((e: TextEdit) => change({ ...project, edits: withEdit(project.edits, e) }), [change, project]);
-  // A color dragged across the picker is one change, not one per frame: changes within a moment
-  // of the last one amend it.
+  // Images in place of the template's: sent to every page, kept with the project.
+  const swaps = useMemo(() => swapsOf(project.images), [project.images]);
+  const upload = useImageUpload();
+  const now = useRef(project);
+  useEffect(() => {
+    now.current = project;
+  });
+  /** Puts an image in place of one of the template's files, once it's uploaded (other changes made meanwhile kept). */
+  const replaceImage = async (file: string, f: File) => {
+    const swap = await upload(f, file);
+    const p = now.current;
+    change({ ...p, images: { ...p.images, [file]: swap } });
+    toast("Your image is in", { detail: "Drawn the template's way, wherever it uses that file." });
+  };
+  const resetImage = (file: string) => {
+    const rest = { ...project.images };
+    delete rest[file];
+    const next: Project = { ...project, images: rest };
+    if (!Object.keys(rest).length) delete next.images;
+    change(next);
+  };
+  /** One edit, or several as one change (a text layer reset in full is one undo). */
+  const edit = useCallback((e: TextEdit | TextEdit[]) => change({ ...project, edits: [e].flat().reduce(withEdit, project.edits) }), [change, project]);
+  // A color dragged across the picker (or a slider) is one change, not one per frame: changes
+  // within a moment of the last one amend it.
   const colorAt = useRef(0);
-  const recolor = (theme: Theme | undefined) => {
+  const restyle = (theme: Theme | undefined) => {
     const next = { ...project, theme };
     if (!theme) delete next.theme;
     const now = Date.now();
@@ -518,24 +558,89 @@ export default function Studio() {
     colorAt.current = now;
   };
 
+  // A template with a dark mode is drawn in the one its own switch last kept here (or the system's);
+  // the colors' mode switch changes it, everywhere it's open in this browser.
+  const [modes, setModes] = useState<Partial<Record<TemplateSlug, Mode>>>({});
+  const mode = modes[project.template] ?? modeIn(project.template);
+  const switchMode = (m: Mode) => {
+    keepMode(project.template, m, canvas.current?.docs());
+    setModes((x) => ({ ...x, [project.template]: m }));
+    canvas.current?.redraw();
+  };
+
   const keysOf = page?.keys ?? NO_KEYS;
   const index = selected && page ? page.keys.indexOf(selected) : -1;
   const section = selected && page ? (sectionOf(project.template, idOf(selected)) ?? null) : null;
   const block = view.kind === "route" && selected ? blocks.find((b) => b.key === selected) : undefined;
 
-  // The words in what's selected, for the inspector to edit.
-  const scope = view.kind === "route" ? `route:${view.path}` : selected;
+  /* ---------- text layers ---------- */
+
+  // A layer row is open on its text when it was opened by hand, or, unless closed by hand, when it's selected.
+  const isOpen = useCallback((k: string) => unfolded[k] ?? k === selected, [unfolded, selected]);
+  const layerKeys = page ? page.keys : blocks.map((b) => b.key);
+  const reading = [...new Set([...layerKeys.filter(isOpen), ...(selected ? [selected] : [])])].join("\n");
+  const routeScope = view.kind === "route" ? `route:${view.path}` : null;
   useEffect(() => {
-    const read = () => setTexts(scope && selected ? (canvas.current?.texts(scope, view.kind === "route" ? selected : undefined) ?? []) : []);
-    // Once now, and again once the frame has caught up with an edit or a fresh load.
+    const keys = reading ? reading.split("\n") : [];
+    const read = () => {
+      const next = Object.fromEntries(keys.map((k) => [k, canvas.current?.texts(routeScope ?? k, routeScope ? k : undefined) ?? null]));
+      setTexts((now) => (JSON.stringify(now) === JSON.stringify(next) ? now : next));
+    };
+    // Once now, and again once the frame has caught up with an edit or a fresh load; then now and
+    // then while any are open, so a counter or a ticker, which moves on by itself, is told from copy.
     const now = setTimeout(read, 0);
     const later = setTimeout(read, 600);
+    const often = keys.length ? setInterval(read, 2500) : undefined;
     return () => {
       clearTimeout(now);
       clearTimeout(later);
+      clearInterval(often);
     };
     // Again once the first page is drawn: on Cloudflare the canvas's page draws its sections after it loads.
-  }, [scope, selected, view.kind, project.edits, drawnOnce]);
+  }, [reading, routeScope, project.edits, drawnOnce, blocks]);
+  const layersBy = useMemo(() => Object.fromEntries(Object.entries(texts).map(([k, list]) => [k, list ? layersOf(list) : undefined])) as Record<string, Layer[] | undefined>, [texts]);
+  const textLayers = useMemo(() => (selected ? textLayersIn(layersBy[selected] ?? []) : []), [layersBy, selected]);
+  const pickedLayer = picked && picked.key === selected ? layerWith(layersBy[selected] ?? [], picked.ref) : undefined;
+  // The same array until the text is read again: the layers are kept as they're read.
+  const pickedRefs: TextRef[] = pickedLayer?.parts ?? NO_REFS;
+  /** Picks a text layer: its section selected, it outlined and brought into view, the inspector on it. */
+  const pickText = useCallback(
+    (key: string, l: TextLayer, focus = false) => {
+      select(key);
+      setPicked({ key, ref: l.parts[0] });
+      setFocusText((n) => (focus ? n + 1 : 0));
+      canvas.current?.revealText(l.parts);
+    },
+    [select],
+  );
+  const stepText = (by: 1 | -1) => {
+    const i = textLayers.findIndex((l) => l.id === pickedLayer?.id);
+    const next = textLayers[i + by];
+    if (selected && next) pickText(selected, next);
+  };
+  const onPickText = useCallback((key: string, ref: TextRef) => {
+    setPicked({ key, ref });
+    setFocusText(0);
+  }, []);
+  const hoverText = useCallback((l: TextLayer | null) => canvas.current?.mark(l ? l.parts : null), []);
+  /** Back from a text layer to the section (or block) it's in. */
+  const unpick = useCallback(() => setPicked(null), []);
+  /** A section (or block) picked in Layers: itself, not a text in it. */
+  const selectLayer = useCallback(
+    (k: string) => {
+      setPicked(null);
+      select(k);
+    },
+    [select],
+  );
+  const textTree: TextTree = {
+    open: isOpen,
+    onToggle: (k) => setUnfolded((u) => ({ ...u, [k]: !isOpen(k) })),
+    layers: layersBy,
+    picked: pickedLayer && selected ? { key: selected, id: pickedLayer.id } : null,
+    onPick: (k, l) => pickText(k, l),
+    onHover: hoverText,
+  };
 
   const insert = (id: string) => {
     const s = sectionOf(project.template, id);
@@ -710,17 +815,17 @@ export default function Studio() {
   // Copies draw their own frames of the template at each width (see live-export), so they never read the canvas.
   const sectionTarget = (key: string): CopyTarget => {
     const s = sectionOf(project.template, idOf(key))!;
-    return { name: `${t.name} ${s.name}`, get: () => null, live: { url: sectionUrl(s), names, edits: project.edits.filter((e) => e.scope === key), remap: { [key]: s.id }, theme: colors } };
+    return { name: `${t.name} ${s.name}`, get: () => null, live: { url: sectionUrl(s), names, edits: project.edits.filter((e) => e.scope === key), remap: { [key]: s.id }, theme: colors, images: swaps } };
   };
   /** One block of the template's own page, read on its own from the page. */
   const blockTarget = (key: string, name: string): CopyTarget => ({
     name: `${t.name} ${route?.label ?? ""} / ${name}`,
     get: () => null,
-    live: { url: liveUrl(project.template, view.kind === "route" ? view.path : "/"), names: {}, edits: project.edits, theme: colors, block: Number(key.split(":")[1]) },
+    live: { url: liveUrl(project.template, view.kind === "route" ? view.path : "/"), names: {}, edits: project.edits, theme: colors, images: swaps, block: Number(key.split(":")[1]) },
   });
   const pageTarget: CopyTarget = page
-    ? { name: `${project.name} / ${page.name}`, get: () => null, live: { url: composeUrl(project.template, page.keys), names, edits: project.edits, theme: colors } }
-    : { name: `${project.name} / ${route?.label}`, get: () => null, live: { url: liveUrl(project.template, view.kind === "route" ? view.path : "/"), names, edits: project.edits, theme: colors } };
+    ? { name: `${project.name} / ${page.name}`, get: () => null, live: { url: composeUrl(project.template, page.keys), names, edits: project.edits, theme: colors, images: swaps } }
+    : { name: `${project.name} / ${route?.label}`, get: () => null, live: { url: liveUrl(project.template, view.kind === "route" ? view.path : "/"), names, edits: project.edits, theme: colors, images: swaps } };
   const togglePanels = () => setPanels((p) => (p.left || p.right ? { left: false, right: false } : { left: true, right: true }));
   // Preview mode: the page as it ships, over Studio, at a viewport's width. Esc comes back.
   const [previewing, setPreviewing] = useState<{ view: View; viewport: Viewport } | null>(null);
@@ -749,9 +854,10 @@ export default function Studio() {
     zoomRef.current = zoom;
   });
   // Shortcuts, heard in Studio and inside the canvas alike. Ignored while typing.
-  const keys = useRef({ selected, remove, duplicate, move, togglePanels, comment, commenting, thread, draft, previewing });
+  const text = { picked: pickedLayer, first: textLayers.find((l) => !l.live), pick: pickText, step: stepText };
+  const keys = useRef({ selected, remove, duplicate, move, togglePanels, comment, commenting, thread, draft, previewing, text });
   useEffect(() => {
-    keys.current = { selected, remove, duplicate, move, togglePanels, comment, commenting, thread, draft, previewing };
+    keys.current = { selected, remove, duplicate, move, togglePanels, comment, commenting, thread, draft, previewing, text };
   });
   const onKey = useCallback(
     (e: KeyboardEvent) => {
@@ -798,8 +904,26 @@ export default function Studio() {
         } else keys.current.comment(false);
         return;
       }
-      const { selected: k, remove: rm, duplicate: dup, move: mv } = keys.current;
+      const { selected: k, remove: rm, duplicate: dup, move: mv, text: tx } = keys.current;
       if (!k) return;
+      // Keys for text layers, as in Figma, when nothing else has the focus (or a text layer's row does).
+      const free = e.target === document.body || (e.target as Node).ownerDocument !== document || Boolean((e.target as Element).closest?.("[data-text-layer]"));
+      if (tx.picked) {
+        if (e.key === "Escape") return setPicked(null);
+        // A template's words can be changed, not deleted: Delete leaves the section where it is.
+        if (e.key === "Delete" || e.key === "Backspace") return;
+        if (e.key === "Enter" && free && !mod) {
+          e.preventDefault();
+          return setFocusText((n) => n + 1);
+        }
+        if (e.key === "Tab" && free && !mod) {
+          e.preventDefault();
+          return tx.step(e.shiftKey ? -1 : 1);
+        }
+      } else if (e.key === "Enter" && free && !mod && !e.shiftKey && tx.first) {
+        e.preventDefault();
+        return tx.pick(k, tx.first, true);
+      }
       if (e.key === "Delete" || e.key === "Backspace") {
         e.preventDefault();
         rm(k);
@@ -921,6 +1045,9 @@ export default function Studio() {
             onPreview={openPreview}
             paused={previewing !== null}
             resync={resync}
+            picked={pickedRefs}
+            images={swaps}
+            onPickText={onPickText}
             overlay={(at) => (
               <>
                 {commenting && user && (
@@ -1035,7 +1162,7 @@ export default function Studio() {
                         </Tool>
                       )}
                     </div>
-                    {page ? <Layers template={project.template} keys={page.keys} selected={selected} onSelect={select} onRemove={remove} onDuplicate={duplicate} onReorder={(keys) => setPage({ ...page, keys })} /> : <BlockLayers blocks={blocks} selected={selected} onSelect={select} />}
+                    {page ? <Layers template={project.template} keys={page.keys} selected={selected} onSelect={selectLayer} onRemove={remove} onDuplicate={duplicate} onReorder={(keys) => setPage({ ...page, keys })} text={textTree} /> : <BlockLayers blocks={blocks} selected={selected} onSelect={selectLayer} text={textTree} />}
                   </>
                 )}
                 {tab === "sections" && (
@@ -1084,14 +1211,26 @@ export default function Studio() {
                       <div className="flex h-10 shrink-0 items-center gap-1.5 border-t border-line pl-4 pr-2 text-[13px]">
                         {selected && (section || block) ? (
                           <>
-                            <Tip label="Page" keys="Esc" side="bottom">
-                              <button type="button" onClick={() => select(null)} className="truncate text-muted transition-colors hover:text-fg">
+                            <Tip label="Page" keys={pickedLayer ? undefined : "Esc"} side="bottom">
+                              <button type="button" onClick={() => select(null)} className="shrink-0 truncate text-muted transition-colors hover:text-fg">
                                 {viewName}
                               </button>
                             </Tip>
                             <CaretRightIcon size={10} weight="bold" className="shrink-0 text-subtle" />
                             {section && <SectionGlyph kind={section.kind} size={14} className="shrink-0 text-muted" />}
-                            <span className="truncate font-semibold">{section?.name ?? block?.name}</span>
+                            {pickedLayer ? (
+                              <>
+                                <Tip label={section ? "Section" : "Block"} keys="Esc" side="bottom">
+                                  <button type="button" onClick={unpick} className="min-w-0 truncate text-muted transition-colors hover:text-fg">
+                                    {section?.name ?? block?.name}
+                                  </button>
+                                </Tip>
+                                <CaretRightIcon size={10} weight="bold" className="shrink-0 text-subtle" />
+                                <span className="min-w-0 truncate font-semibold">{ROLE_LABEL[pickedLayer.role]}</span>
+                              </>
+                            ) : (
+                              <span className="truncate font-semibold">{section?.name ?? block?.name}</span>
+                            )}
                             <span className="flex-1" />
                             <Tool label="Deselect" keys="Esc" onClick={() => select(null)}>
                               <XIcon size={13} weight="bold" />
@@ -1106,19 +1245,42 @@ export default function Studio() {
                       </div>
                       <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden border-t border-line">
                         <AnimatePresence mode="wait" initial={false}>
-                          <motion.div key={`${view.kind === "page" ? view.id : view.path}|${selected ?? "page"}`} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} transition={{ duration: 0.14, ease: EASE_OUT }}>
-                            {section && selected ? (
-                              <SectionPanel section={section} pro={pro} onSwap={(id) => swap(selected, id)} texts={texts} onEdit={edit} />
-                            ) : block ? (
-                              <BlockPanel name={block.name} texts={texts} onEdit={edit} />
+                          <motion.div key={`${view.kind === "page" ? view.id : view.path}|${selected ?? "page"}|${pickedLayer?.id ?? ""}`} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} transition={{ duration: 0.14, ease: EASE_OUT }}>
+                            {pickedLayer && selected && pickedLayer.parts[0]?.kind === "image" ? (
+                              <ImagePanel
+                                layer={pickedLayer}
+                                file={pickedLayer.parts[0].from}
+                                original={`/live/${project.template}${pickedLayer.parts[0].from}`}
+                                swap={project.images?.[pickedLayer.parts[0].from]}
+                                signedIn={Boolean(user)}
+                                place={{ at: textLayers.findIndex((l) => l.id === pickedLayer.id) + 1, of: textLayers.length }}
+                                onStep={stepText}
+                                onReplace={(f) => replaceImage(pickedLayer.parts[0].from, f)}
+                                onReset={() => resetImage(pickedLayer.parts[0].from)}
+                                onShow={() => canvas.current?.revealText(pickedLayer.parts)}
+                              />
+                            ) : pickedLayer && selected ? (
+                              <TextPanel
+                                layer={pickedLayer}
+                                place={{ at: textLayers.findIndex((l) => l.id === pickedLayer.id) + 1, of: textLayers.length }}
+                                focus={focusText}
+                                onStep={stepText}
+                                onEdit={edit}
+                                onPreview={(t, v) => canvas.current?.preview(t, v)}
+                                onShow={() => canvas.current?.revealText(pickedLayer.parts)}
+                              />
+                            ) : section && selected ? (
+                              <SectionPanel section={section} pro={pro} onSwap={(id) => swap(selected, id)} layers={textLayers} onPick={(l) => pickText(selected, l, true)} />
+                            ) : block && selected ? (
+                              <BlockPanel name={block.name} layers={textLayers} onPick={(l) => pickText(selected, l, true)} />
                             ) : route ? (
                               <>
-                                <ColorsGroup template={project.template} theme={project.theme} onChange={recolor} />
+                                <StylePanel template={project.template} theme={project.theme} mode={mode} onMode={switchMode} onChange={restyle} />
                                 <RoutePanel template={project.template} label={route.label} path={route.path} edits={project.edits.filter((e) => e.scope === `route:${route.path}`).length} />
                               </>
                             ) : (
                               <>
-                                <ColorsGroup template={project.template} theme={project.theme} onChange={recolor} />
+                                <StylePanel template={project.template} theme={project.theme} mode={mode} onMode={switchMode} onChange={restyle} />
                                 <PagePanel template={project.template} count={keysOf.length} onReset={() => dispatch({ type: "replace", project: { ...newProject(project.template), name: project.name, ...(project.theme ? { theme: project.theme } : {}) } })} />
                               </>
                             )}

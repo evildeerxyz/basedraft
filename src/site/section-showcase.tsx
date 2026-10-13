@@ -78,7 +78,7 @@ export function LiveSectionShowcase({ template, id }: { template: string; id: st
         </motion.div>
         <div className="mt-3 flex flex-wrap items-center justify-between gap-3 px-1 text-meta text-muted">
           <span>From the {t.name} template&apos;s home page.</span>
-          <Link href={`/studio?template=${t.slug}`} className={btn.link}>
+          <Link href={`/studio?template=${t.slug}&section=${s.id}`} className={btn.link}>
             Open {t.name} in Studio <ArrowUpRightIcon size={13} />
           </Link>
         </div>

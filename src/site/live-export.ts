@@ -21,6 +21,17 @@ export interface LiveCopy {
   remap?: Record<string, string>;
   /** The project's colors, as CSS laid over the template's (see site/theme). */
   theme?: string;
+  /** One top-level block of a template's own page (see blocksOf), instead of the whole page. */
+  block?: number;
+}
+
+/** A template page's top-level blocks: what its main element (or body) is made of. Studio selects these on the template's own pages. */
+export function blocksOf(doc: Document): Element[] {
+  const host = doc.querySelector("main") ?? doc.body;
+  let kids = [...host.children].filter((c) => (c as HTMLElement).offsetHeight > 0);
+  // A single wrapper (a layout div) isn't a block; its children are.
+  while (kids.length === 1 && kids[0].children.length > 1) kids = [...kids[0].children].filter((c) => (c as HTMLElement).offsetHeight > 0);
+  return kids;
 }
 
 export type LiveView = { name: string; tree: ReturnType<typeof toFigmaTree> };
@@ -86,7 +97,7 @@ export async function settle(doc: Document, max = 6000) {
  * A template page in a hidden frame at one width, full height, settled, with its sections marked.
  * `show` puts it on the page instead, at that left edge, for checking a copy against it.
  */
-export async function openLive(url: string, width: number, names: Record<string, string>, show?: { left: number }, edits?: Pick<LiveCopy, "edits" | "remap" | "theme">) {
+export async function openLive(url: string, width: number, names: Record<string, string>, show?: { left: number }, edits?: Pick<LiveCopy, "edits" | "remap" | "theme" | "block">) {
   const f = document.createElement("iframe");
   f.setAttribute("aria-hidden", "true");
   f.tabIndex = -1;
@@ -162,7 +173,9 @@ export async function openLive(url: string, width: number, names: Record<string,
       el.setAttribute("data-bd-name", names[id] ?? id);
     }
     await readTiles(doc.body);
-    return { doc, root: doc.body, done: () => f.remove() };
+    // A block of a page is read on its own; it keeps the page's styles, so it lands as it looks.
+    const root = edits?.block !== undefined ? ((blocksOf(doc)[edits.block] as HTMLElement | undefined) ?? doc.body) : doc.body;
+    return { doc, root, done: () => f.remove() };
   } catch (e) {
     f.remove();
     throw e;
@@ -198,7 +211,7 @@ export async function readLive(copy: LiveCopy, name: string, which: number[] = V
  * call this as they open, so by the time you click, the layers are ready.
  */
 export function prepareLive(copy: LiveCopy, name: string): Promise<Result> {
-  const key = `${copy.url}|${name}|${JSON.stringify(copy.edits ?? [])}|${copy.theme ?? ""}`;
+  const key = `${copy.url}|${name}|${JSON.stringify(copy.edits ?? [])}|${copy.theme ?? ""}|${copy.block ?? ""}`;
   const hit = cache.get(key);
   if (hit && Date.now() - hit.at < 60000) return hit.result;
   const result = readLive(copy, name);

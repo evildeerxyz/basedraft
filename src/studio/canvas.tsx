@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { pageHeight, pinViewportHeights } from "@/site/frame-fit";
 import { composeUrl, liveUrl, sectionOf, type TemplateSlug } from "@/site/live";
 import { addressOf, applyEdits, original, scopeRoot, setText, textsIn, type TextEdit } from "@/site/text-edits";
+import { blocksOf } from "@/site/live-export";
 import { applyTheme } from "@/site/theme";
 import { idOf, type View } from "./state";
 
@@ -112,14 +113,6 @@ function boxOf(el: Element | null): Box | null {
   return { top, left, width: Math.max(...rs.map((r) => r.right)) - left, height: Math.max(...rs.map((r) => r.bottom)) - top };
 }
 
-/** A template page's top-level blocks: what its main element (or body) is made of. */
-function blocksOf(doc: Document): Element[] {
-  const host = doc.querySelector("main") ?? doc.body;
-  let kids = [...host.children].filter((c) => (c as HTMLElement).offsetHeight > 0);
-  // A single wrapper (a layout div) isn't a block; its children are.
-  while (kids.length === 1 && kids[0].children.length > 1) kids = [...kids[0].children].filter((c) => (c as HTMLElement).offsetHeight > 0);
-  return kids;
-}
 
 const blockName = (el: Element, i: number) => {
   const tag = el.tagName.toLowerCase();

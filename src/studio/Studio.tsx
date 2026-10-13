@@ -317,6 +317,76 @@ function SaveState({ status, access, owner }: { status: string; access: string |
   );
 }
 
+/*
+ * The same toolbar for a block of one of the template's own pages. Those pages are the template's
+ * code as written, so their blocks keep their order; what you can do is take one elsewhere.
+ */
+function BlockBar({ name, pro, width, onCopy, onPrepare }: { name: string; pro: boolean; width: number; onCopy: (k: CopyKind) => void; onPrepare: () => void }) {
+  const [more, setMore] = useState(false);
+  const root = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!more) return;
+    const close = (e: PointerEvent) => !root.current?.contains(e.target as Node) && setMore(false);
+    document.addEventListener("pointerdown", close);
+    return () => document.removeEventListener("pointerdown", close);
+  }, [more]);
+  const tight = width < 420;
+  const tool = "grid size-[30px] place-items-center rounded-[10px] text-fg/75 transition-colors hover:bg-fg/[0.07] hover:text-fg";
+  const wide = "flex h-[30px] shrink-0 items-center gap-1.5 whitespace-nowrap rounded-[10px] px-2 text-[12.5px] font-medium text-fg/75 transition-colors hover:bg-fg/[0.07] hover:text-fg";
+  return (
+    <>
+      <span className="flex h-[26px] min-w-0 items-center gap-1.5 rounded-[9px] bg-select px-2 text-[12px] font-medium text-white shadow-[0_2px_8px_rgba(151,71,255,0.35)]">
+        <span className="truncate">{name}</span>
+      </span>
+      <div ref={root} role="toolbar" aria-label={`${name} tools`} className="relative flex h-[36px] shrink-0 items-center gap-0.5 rounded-[14px] bg-surface p-[3px] shadow-[0_6px_20px_-4px_rgb(var(--bd-shade)/0.18),0_0_0_1px_rgb(var(--bd-ink)/0.08)]">
+        <Tip label="This page is the template's own: its blocks keep their order. Arrange sections on your pages.">
+          <span className={cn(tool, "cursor-default")} aria-label="Why this block can't move">
+            <LockSimpleIcon size={14} />
+          </span>
+        </Tip>
+        <span aria-hidden className="mx-0.5 h-4 w-px bg-line" />
+        <Tip label={pro ? "Copy for Figma" : "Copy for Figma is in Pro"}>
+          <button type="button" className={wide} onPointerEnter={onPrepare} onFocus={onPrepare} onClick={() => (pro ? onCopy("figma") : openPro("figma"))} aria-label="Copy for Figma">
+            <FigmaLogoIcon size={14} /> {!tight && "Copy"}
+            {!pro && <span className="rounded-[6px] bg-fg/[0.07] px-1 py-px text-[10.5px] font-semibold text-muted">Pro</span>}
+          </button>
+        </Tip>
+        <Tip label="More">
+          <button type="button" className={cn(tool, more && "bg-fg/[0.08] text-fg")} onPointerEnter={onPrepare} onClick={() => setMore((m) => !m)} aria-label="More actions" aria-haspopup="menu" aria-expanded={more}>
+            <DotsThreeIcon size={16} weight="bold" />
+          </button>
+        </Tip>
+        <AnimatePresence>
+          {more && (
+            <motion.div role="menu" aria-label="More actions" initial={{ opacity: 0, y: -4, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -4, scale: 0.98 }} transition={{ duration: 0.16, ease: EASE_OUT }} className="absolute right-0 top-full z-20 mt-1.5 w-[220px] origin-top-right rounded-[16px] bg-surface p-1.5 shadow-[0_16px_48px_rgb(var(--bd-shade)/0.18),0_0_0_1px_rgb(var(--bd-ink)/0.06)]">
+              {[
+                { kind: "paper" as const, label: "Copy for Paper", icon: FileHtmlIcon },
+                { kind: "svg" as const, label: "Download SVG", icon: DownloadSimpleIcon },
+              ].map((m) => (
+                <button
+                  key={m.kind}
+                  role="menuitem"
+                  type="button"
+                  onClick={() => {
+                    setMore(false);
+                    if (pro) onCopy(m.kind);
+                    else openPro(m.kind);
+                  }}
+                  className="flex h-9 w-full items-center gap-2.5 rounded-[10px] px-2.5 text-left text-[13px] hover:bg-fg/[0.05]"
+                >
+                  <m.icon size={15} className="text-muted" />
+                  <span className="flex-1">{m.label}</span>
+                  {!pro && <span className="rounded-[6px] bg-fg/[0.07] px-1.5 py-px text-[11px] font-semibold text-muted">Pro</span>}
+                </button>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </>
+  );
+}
+
 /* ---------- the app ---------- */
 
 const DEVICES: CanvasDevice[] = ["desktop", "tablet", "phone"];
@@ -641,6 +711,12 @@ export default function Studio() {
     const s = sectionOf(project.template, idOf(key))!;
     return { name: `${t.name} ${s.name}`, get: () => null, live: { url: sectionUrl(s), names, edits: project.edits.filter((e) => e.scope === key), remap: { [key]: s.id }, theme: colors } };
   };
+  /** One block of the template's own page, read on its own from the page. */
+  const blockTarget = (key: string, name: string): CopyTarget => ({
+    name: `${t.name} ${route?.label ?? ""} / ${name}`,
+    get: () => null,
+    live: { url: liveUrl(project.template, view.kind === "route" ? view.path : "/"), names: {}, edits: project.edits, theme: colors, block: Number(key.split(":")[1]) },
+  });
   const pageTarget: CopyTarget = page
     ? { name: `${project.name} / ${page.name}`, get: () => null, live: { url: composeUrl(project.template, page.keys), names, edits: project.edits, theme: colors } }
     : { name: `${project.name} / ${route?.label}`, get: () => null, live: { url: liveUrl(project.template, view.kind === "route" ? view.path : "/"), names, edits: project.edits, theme: colors } };
@@ -881,7 +957,9 @@ export default function Studio() {
             bar={(key, width) => {
               if (!page) {
                 const b = blocks.find((x) => x.key === key);
-                return b ? <span className="flex h-[26px] min-w-0 items-center gap-1.5 rounded-[9px] bg-select px-2 text-[12px] font-medium text-white shadow-[0_2px_8px_rgba(151,71,255,0.35)]"><span className="truncate">{b.name}</span></span> : null;
+                if (!b) return null;
+                const target = blockTarget(key, b.name);
+                return <BlockBar name={b.name} pro={pro} width={width} onCopy={(kind) => void copyToDesign(kind, target)} onPrepare={() => pro && prepareCopy(target)} />;
               }
               const s = sectionOf(project.template, idOf(key));
               if (!s) return null;

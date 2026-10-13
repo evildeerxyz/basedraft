@@ -168,7 +168,7 @@ export function ExportDialog({ open, onClose, project, pageId, pro, proUsed, ini
             {tab === "react" && <p className="px-6 pt-2 font-mono text-[12px] text-subtle">{framework === "astro" ? (astroFiles ? Object.keys(astroFiles).join(", ") : "src/pages, src/islands, src/routes") : pageFile(page)}</p>}
             {tab === "colors" && <p className="px-6 pt-2 text-[12px] text-subtle">Add to the end of <span className="font-mono">{COLORS[project.template].globals}</span>. Downloads and GitHub do this for you.</p>}
             <div className="relative bg-surface-2 p-3 mt-3">
-              <CodeBlock code={tab === "edits" && !edits.length ? "// No text edits yet. Double-click any text on the canvas to change it." : shown} maxHeight={400} className={cn(locked && "pointer-events-none select-none blur-[6px]")} />
+              <CodeBlock code={tab === "edits" && !edits.length ? "// No text edits yet. Click any text on the canvas to change it." : shown} maxHeight={400} className={cn(locked && "pointer-events-none select-none blur-[6px]")} />
               {locked && (
                 <div className="absolute inset-0 grid place-items-center">
                   <div className="max-w-[320px] rounded-card bg-surface p-5 text-center shadow-[0_8px_30px_rgb(var(--bd-shade)/0.12),0_0_0_1px_rgb(var(--bd-ink)/0.06)]">

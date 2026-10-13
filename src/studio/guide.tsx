@@ -192,7 +192,8 @@ const SHORTCUTS: Array<{ group: string; rows: Array<[string, string]> }> = [
   {
     group: "Editing",
     rows: [
-      ["Edit text", "Double-click"],
+      ["Edit text", "Click"],
+      ["Use the page as a visitor would", "Alt Click"],
       ["Keep, undo the text", "Enter Esc"],
       ["Move a section", "Alt Up Down"],
       ["Duplicate", "Cmd D"],
@@ -229,7 +230,7 @@ export function HelpPanel({ hints, onHints, onTour }: { hints: boolean; onHints:
             {g.rows.map(([label, keys]) => (
               <div key={label} className="flex h-8 items-center justify-between rounded-[6px] px-1 text-[13px]">
                 <span>{label}</span>
-                {keys === "Double-click" ? <span className="text-[12px] text-muted">Double-click</span> : <Keys combo={keys} />}
+                {keys === "Click" ? <span className="text-[12px] text-muted">Click</span> : <Keys combo={keys} />}
               </div>
             ))}
           </div>

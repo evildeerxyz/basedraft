@@ -9,7 +9,7 @@
 
 export type TextRole = "headline" | "heading" | "paragraph" | "quote" | "item" | "text" | "button" | "link" | "label" | "number" | "date" | "code" | "image";
 
-export type FolderKind = "card" | "callout" | "chart" | "list" | "group" | "form" | "menu";
+export type FolderKind = "card" | "callout" | "chart" | "list" | "group" | "form" | "menu" | "hidden";
 
 /** The elements that make one piece of copy out of the text inside them. */
 const OWNER = "h1,h2,h3,h4,h5,h6,p,button,a,li,label,dt,dd,blockquote,q,figcaption,th,td,summary,legend,[role=button]";
@@ -38,7 +38,9 @@ function lineOf(el: Element) {
 
 export function roleOf(node: Text): { role: TextRole; owner: Element } {
   const el = node.parentElement!;
-  const copy = el.closest(OWNER);
+  const nearest = el.closest(OWNER);
+  // A link inside a sentence ("on the pricing page") is part of the sentence, not a layer of its own.
+  const copy = (nearest?.tagName === "A" && nearest.parentElement?.closest("p, h1, h2, h3, h4, h5, h6, blockquote, figcaption, dd")) || nearest;
   // A line of code drawn token by token is one line of code; a word of code in a sentence is the sentence's.
   const code = el.closest("pre,code");
   if (code && !copy?.contains(code)) return { role: "code", owner: code.tagName === "PRE" ? lineOf(el) : code };
@@ -81,6 +83,23 @@ export const ROLE_LABEL: Record<TextRole, string> = {
   image: "Image",
 };
 
+/** The same, for a set of several (see text-layers). */
+export const ROLE_PLURAL: Record<TextRole, string> = {
+  headline: "Headlines",
+  heading: "Headings",
+  paragraph: "Paragraphs",
+  quote: "Quotes",
+  item: "List items",
+  text: "Pieces of text",
+  button: "Buttons",
+  link: "Links",
+  label: "Labels",
+  number: "Figures",
+  date: "Dates",
+  code: "Lines of code",
+  image: "Images",
+};
+
 /* ---------- what holds it ---------- */
 
 const CLEAR = new Set(["rgba(0, 0, 0, 0)", "transparent"]);
@@ -99,20 +118,24 @@ export function sectionBox(root: Element) {
   return new DOMRect(left, top, Math.max(...kids.map((b) => b.right)) - left, Math.max(...kids.map((b) => b.bottom)) - top);
 }
 
-/** Whether a big drawing (a canvas, or an svg) fills a good part of an element. A canvas printing a photo is a picture, not a chart. */
+/**
+ * Whether a big drawing (a canvas, or an svg) fills a good part of an element: a chart. Not when
+ * the drawing is the backdrop behind everything in it (a hero's scene), nor when the element holds
+ * the section's headline; a canvas printing a photo is a picture.
+ */
 function drawn(el: Element, r: DOMRect, share: number) {
+  if (el.querySelector("h1, h2")) return false;
   return [...el.querySelectorAll("canvas:not([data-bd-src]), svg")].some((a) => {
     const b = a.getBoundingClientRect();
-    return b.width >= 120 && b.height >= 80 && b.width * b.height > r.width * r.height * share;
+    const area = b.width * b.height;
+    return b.width >= 120 && b.height >= 80 && area > r.width * r.height * share && area < r.width * r.height * 0.9;
   });
 }
 
-/** One of three or more siblings drawn alike in a row or a grid: a stat, a feature, a column. */
+/** One of three or more siblings drawn alike, in a row, a grid or a stack: a stat, a feature, a release, a question. */
 function repeated(el: Element) {
   const parent = el.parentElement;
-  if (!parent || parent.children.length < 3 || !el.className || typeof el.className !== "string") return false;
-  const d = styleOf(parent).display;
-  if (!d.includes("grid") && !d.includes("flex")) return false;
+  if (!parent || parent.children.length < 3 || typeof el.className !== "string") return false;
   return [...parent.children].filter((c) => c.tagName === el.tagName && c.className === el.className).length >= 3;
 }
 
@@ -180,4 +203,5 @@ export const FOLDER_LABEL: Record<FolderKind, string> = {
   group: "Group",
   form: "Form",
   menu: "Menu",
+  hidden: "Other widths",
 };

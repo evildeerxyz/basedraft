@@ -18,7 +18,7 @@ const FRONT = "M6.85547 27.2182V12.6708C6.85547 11.2225 7.81635 9.95166 9.20555 
 const BACK = "M28.6015 10.8973L16.0958 17.0783L16.0698 17.0949C15.1656 17.6727 14.6078 18.6652 14.5825 19.7411L14.3291 30.5163C14.2766 32.7474 16.4414 34.3571 18.5513 33.6561L31.0303 29.5082C32.3457 29.0709 33.2339 27.8362 33.2339 26.4448V13.7925C33.2339 11.4025 30.7368 9.84189 28.6015 10.8973Z";
 
 const TIPS = [
-  "Double-click any text on the page to change it.",
+  "Click any text on the page to change it.",
   "{C} leaves a comment anywhere on the page.",
   "Hold {Space} and drag to move around the canvas.",
   "{Cmd D} duplicates the section you've selected.",

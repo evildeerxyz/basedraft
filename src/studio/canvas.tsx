@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { pageHeight, pinViewportHeights } from "@/site/frame-fit";
 import { composeUrl, liveUrl, sectionOf, type TemplateSlug } from "@/site/live";
 import { addressOf, applyEdits, original, scopeRoot, setText, textsIn, type TextEdit } from "@/site/text-edits";
+import { spread } from "./text-layers";
 import { foldersOf, roleOf, sectionBox, type FolderKind, type TextRole } from "./text-roles";
 import { IMAGE_PATH } from "@/site/images";
 import { blocksOf } from "@/site/live-export";
@@ -49,6 +50,8 @@ export interface PageText {
   top: number;
   /** Whether a space parts it from the text before it, when the two are read as one. */
   space: boolean;
+  /** The element its piece of copy sits in beside others like it (a list, a row of buttons): short pieces in one read as one layer. */
+  row: number;
   /** An image, not text: `from` is the template file it draws (see site/images), `text` its name. */
   kind?: "image";
   /** An image with yours in its place. */
@@ -127,6 +130,8 @@ export interface CanvasHandle {
   mark: (t: TextRef[] | null) => void;
   /** Brings a text layer into view. */
   revealText: (t: TextRef[]) => void;
+  /** The same words in the decorative copies of an edit's text (a marquee repeats its cards), to change with it. */
+  clonesOf: (e: TextEdit) => TextEdit[];
   /** Shows a piece of text reading `value` on every breakpoint while it's typed, before it's kept. */
   preview: (t: TextRef, value: string) => void;
   /** Every breakpoint's page that's open. */
@@ -193,6 +198,42 @@ const asEl = (t: EventTarget | null) => {
   return el && typeof el.closest === "function" ? el : null;
 };
 
+/**
+ * Where a piece of copy repeats as a whole (a marquee draws its track twice; a carousel, its
+ * cards): "later" says it's in a copy after the first, "any" that it's in one of the copies at
+ * all. Decorative copies marked for screen readers to skip count too. `memo` keeps each element's
+ * text for the rest of a read.
+ */
+function repeated(n: Text, root: Element, memo: Map<Element, string>, which: "later" | "any") {
+  if (n.parentElement?.closest('[aria-hidden="true"]')) return true;
+  // Its words as the template wrote them: an edit being typed (or made) doesn't make a copy look different.
+  const text = (e: Element) => {
+    if (!memo.has(e)) memo.set(e, textsIn(e).map(original).join("\u0000"));
+    return memo.get(e)!;
+  };
+  for (let p = n.parentElement; p && p !== root; p = p.parentElement) {
+    const parent = p.parentElement;
+    if (!parent || parent.childElementCount < 2 || !text(p).trim()) continue;
+    const kids = [...parent.children];
+    const at = kids.indexOf(p);
+    if (kids.some((c, i) => c !== p && (which === "any" || i < at) && text(c) === text(p))) return true;
+  }
+  return false;
+}
+
+/** The text under a point on a page, if the point is on its letters (not just near them), and it's copy (not a field). */
+function textAt(d: Document, x: number, y: number): Text | null {
+  const range = d.caretRangeFromPoint?.(x, y);
+  const node = range?.startContainer;
+  if (!node || node.nodeType !== 3 || !(node as Text).data.trim()) return null;
+  const p = node.parentElement;
+  if (!p || p.closest("input, textarea, select, [contenteditable]")) return null;
+  const r = d.createRange();
+  r.selectNodeContents(node);
+  const on = [...r.getClientRects()].some((b) => x >= b.left - 2 && x <= b.right + 2 && y >= b.top - 2 && y <= b.bottom + 2);
+  return on ? (node as Text) : null;
+}
+
 interface Editing {
   device: CanvasDevice;
   node: Text;
@@ -202,6 +243,8 @@ interface Editing {
   was: string;
   value: string;
   rect: Box;
+  /** A headline set word by word: every word of it, edited as one line (see spread). */
+  words?: Array<{ node: Text; from: string; nth: number; was: string }>;
 }
 
 interface FrameProps {
@@ -229,7 +272,9 @@ interface FrameProps {
   onSelect: (key: string | null) => void;
   onKey: (e: KeyboardEvent) => void;
   onText: (device: CanvasDevice, node: Text, el: Element) => void;
-  /** An image double-clicked: its layer is picked. */
+  /** The text the pointer is over (null when it isn't over any): outlined, to say a click edits it. */
+  onTextHover: (device: CanvasDevice, node: Text | null) => void;
+  /** An image clicked: its layer is picked. */
   onImage: (el: Element) => void;
   onWheel: (e: WheelEvent, device: CanvasDevice) => void;
   onPoint: (device: CanvasDevice, x: number, y: number) => void;
@@ -240,13 +285,13 @@ interface FrameProps {
 }
 
 /** One breakpoint: its label, and the page at that width and its full height. */
-const Frame = memo(function Frame({ device, primary, src, onPreview, paused, resync, compose, keys, edits, theme, images, selected, z, left, onHeight, onRects, onHover, onSelect, onKey, onText, onImage, onWheel, onPoint, onReady, register, height, scope }: FrameProps) {
+const Frame = memo(function Frame({ device, primary, src, onPreview, paused, resync, compose, keys, edits, theme, images, selected, z, left, onHeight, onRects, onHover, onSelect, onKey, onText, onTextHover, onImage, onWheel, onPoint, onReady, register, height, scope }: FrameProps) {
   const ref = useRef<HTMLIFrameElement>(null);
   const [ready, setReady] = useState(false);
   const W = CANVAS_WIDTH[device];
-  const latest = useRef({ keys, edits, selected, onSelect, onKey, onHover, onText, onImage, onWheel, onPoint, scope, onRects, onHeight });
+  const latest = useRef({ keys, edits, selected, onSelect, onKey, onHover, onText, onTextHover, onImage, onWheel, onPoint, scope, onRects, onHeight });
   useEffect(() => {
-    latest.current = { keys, edits, selected, onSelect, onKey, onHover, onText, onImage, onWheel, onPoint, scope, onRects, onHeight };
+    latest.current = { keys, edits, selected, onSelect, onKey, onHover, onText, onTextHover, onImage, onWheel, onPoint, scope, onRects, onHeight };
   });
 
   useEffect(() => {
@@ -361,38 +406,55 @@ const Frame = memo(function Frame({ device, primary, src, onPreview, paused, res
     const win = f?.contentWindow;
     const d = f?.contentDocument;
     if (!f || !win || !d) return;
+    // The text under the pointer, checked once a frame: a text cursor and an outline say a click edits it.
+    let over: Text | null = null;
+    let at: { x: number; y: number; alt: boolean } | null = null;
+    let frame = 0;
+    const look = () => {
+      frame = 0;
+      const next = at && !at.alt ? textAt(d, at.x, at.y) : null;
+      if (next === over) return;
+      over = next;
+      d.documentElement.style.cursor = next ? "text" : "";
+      latest.current.onTextHover(device, next);
+    };
     const move = (e: PointerEvent) => {
       const el = asEl(e.target);
       latest.current.onHover(el ? latest.current.scope(el) : null);
       // The frame is the page at full height, never scrolled, so its pointer is the page's pixels.
       latest.current.onPoint(device, e.clientX, e.clientY);
+      at = { x: e.clientX, y: e.clientY, alt: e.altKey };
+      if (!frame) frame = requestAnimationFrame(look);
     };
-    const leave = () => latest.current.onHover(null);
+    const leave = () => {
+      latest.current.onHover(null);
+      at = null;
+      if (!frame) frame = requestAnimationFrame(look);
+    };
+    /*
+     * One click edits: on a word, it's ready to rewrite; on an image, its layer opens; anywhere
+     * else, the section (or block) is selected, and once it is, clicks reach the page so you can
+     * try it. Option (Alt) click always reaches the page, the way a visitor would click it.
+     */
     const click = (e: MouseEvent) => {
       const el = asEl(e.target);
       if (!el) return;
       // Links never navigate away from the canvas.
       if (el.closest("a[href]")) e.preventDefault();
-      // The first click selects; once a section is selected, clicks reach it, so you can try it.
+      if (e.altKey) return;
+      const pic = el.closest("img, canvas[data-bd-src]");
+      const node = pic ? null : textAt(d, e.clientX, e.clientY);
+      if (pic || node) {
+        e.preventDefault();
+        e.stopPropagation();
+        return pic ? latest.current.onImage(pic) : latest.current.onText(device, node!, el);
+      }
       const k = latest.current.scope(el);
       if (k && k !== latest.current.selected) {
         e.preventDefault();
         e.stopPropagation();
         latest.current.onSelect(k);
       }
-    };
-    const dbl = (e: MouseEvent) => {
-      const el = asEl(e.target);
-      const pic = el?.closest("img, canvas[data-bd-src]");
-      if (pic) {
-        e.preventDefault();
-        return latest.current.onImage(pic);
-      }
-      const range = d.caretRangeFromPoint?.(e.clientX, e.clientY);
-      const node = range?.startContainer;
-      if (!el || !node || node.nodeType !== 3 || !(node as Text).data.trim()) return;
-      e.preventDefault();
-      latest.current.onText(device, node as Text, el);
     };
     const key = (e: KeyboardEvent) => latest.current.onKey(e);
     const wheel = (e: WheelEvent) => {
@@ -412,7 +474,6 @@ const Frame = memo(function Frame({ device, primary, src, onPreview, paused, res
     d.addEventListener("pointermove", move);
     d.addEventListener("pointerleave", leave);
     d.addEventListener("click", click, true);
-    d.addEventListener("dblclick", dbl, true);
     d.addEventListener("keydown", key);
     win.addEventListener("wheel", wheel, { passive: false, capture: true });
     paint();
@@ -426,7 +487,7 @@ const Frame = memo(function Frame({ device, primary, src, onPreview, paused, res
       d.removeEventListener("pointermove", move);
       d.removeEventListener("pointerleave", leave);
       d.removeEventListener("click", click, true);
-      d.removeEventListener("dblclick", dbl, true);
+      cancelAnimationFrame(frame);
       d.removeEventListener("keydown", key);
       win.removeEventListener("wheel", wheel, { capture: true });
     };
@@ -637,7 +698,7 @@ export const Canvas = forwardRef<
     onZoomTo: (z: number) => void;
     /** The zoom as it changes mid pinch, before the pages are drawn at it. */
     onLiveZoom?: (z: number) => void;
-    onEdit: (e: TextEdit) => void;
+    onEdit: (e: TextEdit | TextEdit[]) => void;
     onBlocks: (blocks: Block[]) => void;
     /** Studio's shortcuts, also heard while focus is inside the frames. */
     onKey: (e: KeyboardEvent) => void;
@@ -661,7 +722,7 @@ export const Canvas = forwardRef<
     resync?: number;
     /** The text layer picked in the layers: its parts, outlined on every breakpoint. */
     picked?: TextRef[];
-    /** Text double-clicked on the page: the layer it's in (a section or a block) and where it sits. */
+    /** Text clicked on the page: the layer it's in (a section or a block) and where it sits. */
     onPickText?: (key: string, t: TextRef) => void;
   }
 >(function Canvas({ template, view, keys, devices, edits, theme = "", images = NO_IMAGES, selected, zoom, hand, insets, onSelect, onZoom, onZoomTo, onLiveZoom, onEdit, onBlocks, onKey, bar, commenting, onPointer, onPlace, overlay, peers, onReady, onPreview, paused = false, resync = 0, picked = NO_REFS, onPickText }, ref) {
@@ -673,6 +734,15 @@ export const Canvas = forwardRef<
   const [rects, setRects] = useState<Partial<Record<CanvasDevice, Record<string, Box>>>>({});
   const [hover, setHover] = useState<string | null>(null);
   const [editing, setEditing] = useState<Editing | null>(null);
+  // The words the pointer is over on a page, outlined: a click edits them.
+  const [overText, setOverText] = useState<{ device: CanvasDevice; box: Box } | null>(null);
+  const onTextHover = useCallback((device: CanvasDevice, node: Text | null) => {
+    if (!node) return setOverText(null);
+    const r = node.ownerDocument.createRange();
+    r.selectNodeContents(node);
+    const b = r.getBoundingClientRect();
+    setOverText({ device, box: { top: b.top, left: b.left, width: b.width, height: b.height } });
+  }, []);
   // The text layer picked in the layers, and the one the pointer is over there: their boxes on each breakpoint.
   const marks = useRef<{ picked: TextRef[]; hover: TextRef[] }>({ picked: [], hover: [] });
   const [textBoxes, setTextBoxes] = useState<{ picked: Partial<Record<CanvasDevice, Box>>; hover: Partial<Record<CanvasDevice, Box>> }>({ picked: {}, hover: {} });
@@ -902,8 +972,17 @@ export const Canvas = forwardRef<
         seenFiles.set(file, nth + 1);
         const r = el.getBoundingClientRect();
         const name = el.getAttribute("aria-label") || el.getAttribute("alt") || file.split("/").pop()!;
-        return { node: el as Node, item: { scope: s, from: file, nth, text: name, tag: el.tagName.toLowerCase(), role: "image" as const, group: -1 - i, folders: folderOf(el), live: false, hidden: r.width <= 1 || r.height <= 1, top: r.top, space: true, kind: "image" as const, swapped: file in images } };
+        return { node: el as Node, item: { scope: s, from: file, nth, text: name, tag: el.tagName.toLowerCase(), role: "image" as const, group: -1 - i, folders: folderOf(el), live: false, hidden: r.width <= 1 || r.height <= 1, top: r.top, space: true, row: -1, kind: "image" as const, swapped: file in images } };
       });
+      const rows = new Map<Element, number>();
+      /** What holds a piece of copy beside its likes: past wrappers around just the one. */
+      const rowOf = (owner: Element) => {
+        let p = owner.parentElement;
+        for (let i = 0; p && p !== root && i < 3 && p.childElementCount === 1; i++) p = p.parentElement;
+        if (!p) return -1;
+        if (!rows.has(p)) rows.set(p, rows.size);
+        return rows.get(p)!;
+      };
       const read = (t: Text): PageText => {
           const { role, owner } = roleOf(t);
           if (!owners.has(owner)) owners.set(owner, owners.size);
@@ -919,10 +998,12 @@ export const Canvas = forwardRef<
           // "+" "$23,358" "(94%)" drawn as one line read as one; words with a space (or a line) between keep it.
           const space = !before || /^\s/.test(t.data) || /\s$/.test(before.data) || Math.abs(r.top - before.top) > 4 || r.left - before.right > 2;
           before = { data: t.data, top: r.top, right: r.right };
-          return { scope: s, ...addressOf(t, root), text: t.data.trim(), tag: p?.closest("h1,h2,h3,h4,button,a,li,p,label,dt,dd,span")?.tagName.toLowerCase() ?? "text", role, group: owners.get(owner)!, folders, live, hidden, top: r.top, space };
+          return { scope: s, ...addressOf(t, root), text: t.data.trim(), tag: p?.closest("h1,h2,h3,h4,button,a,li,p,label,dt,dd,span")?.tagName.toLowerCase() ?? "text", role, group: owners.get(owner)!, folders, live, hidden, top: r.top, space, row: rowOf(owner) };
       };
+      // Copies (a marquee's repeats, a mockup marked as art) aren't layers: they follow their originals (see clonesOf).
+      const memo = new Map<Element, string>();
       const words = textsIn(root)
-        .filter((t) => !within || within.contains(t))
+        .filter((t) => (!within || within.contains(t)) && !repeated(t, root, memo, "later"))
         .map((t) => ({ node: t as Node, item: read(t) }));
       return [...words, ...pictures.filter((x) => !within || within.contains(x.node))]
         .sort((a, b) => (a.node.compareDocumentPosition(b.node) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1))
@@ -935,6 +1016,44 @@ export const Canvas = forwardRef<
     mark: (t) => {
       marks.current.hover = t ?? [];
       measureMarks();
+    },
+    clonesOf: (e) => {
+      const d = docOf(primary);
+      const root = d && scopeRoot(d, e.scope);
+      if (!root) return [];
+      const same = textsIn(root).filter((n) => original(n) === e.from);
+      const target = same[e.nth];
+      if (!target) return [];
+      // The same place in every copy of what repeats (each copy of a card, each copy of a track):
+      // change one, and they all still match. Words that merely read the same elsewhere aren't copies.
+      const memo = new Map<Element, string>();
+      const sig = (el: Element) => {
+        if (!memo.has(el)) memo.set(el, textsIn(el).map(original).join("\u0000"));
+        return memo.get(el)!;
+      };
+      // Copies can hold copies (a track drawn twice, each repeating its cards): each one found is followed too.
+      const twins = new Set<Text>([target]);
+      const queue = [target];
+      while (queue.length && twins.size < 64) {
+        const node = queue.shift()!;
+        for (let p = node.parentElement; p && p !== root; p = p.parentElement) {
+          const parent = p.parentElement;
+          if (!parent || parent.childElementCount < 2) continue;
+          const at = textsIn(p).indexOf(node);
+          for (const q of parent.children) {
+            const twin = q !== p && sig(q) === sig(p) ? textsIn(q)[at] : undefined;
+            if (twin && !twins.has(twin)) {
+              twins.add(twin);
+              queue.push(twin);
+            }
+          }
+        }
+      }
+      twins.delete(target);
+      return [...twins].flatMap((n) => {
+        const i = same.indexOf(n);
+        return i >= 0 && i !== e.nth ? [{ ...e, nth: i }] : [];
+      });
     },
     revealText: (t) => {
       const d = docOf(primary);
@@ -1040,10 +1159,16 @@ export const Canvas = forwardRef<
       const root = s ? scopeRoot(doc, s) : null;
       if (!s || !root || !root.contains(node)) return;
       const range = doc.createRange();
-      range.selectNodeContents(node);
-      const r = range.getBoundingClientRect();
       const { from, nth } = addressOf(node, root);
-      setEditing({ device, node, scope: s, from, nth, was: node.data.trim(), value: node.data.trim(), rect: { top: r.top, left: r.left, width: r.width, height: r.height } });
+      // A word of a headline set word by word: the whole headline, as one line to rewrite.
+      const owner = node.parentElement?.closest("h1, h2, h3, h4, h5, h6, p, a, button, li");
+      const pieces = owner && root.contains(owner) ? textsIn(owner) : [];
+      const words = pieces.length >= 3 && pieces.every((n) => !/\s/.test(original(n))) ? pieces.map((n) => ({ node: n, ...addressOf(n, root), was: n.data.trim() })) : undefined;
+      if (words) range.selectNodeContents(owner!);
+      else range.selectNodeContents(node);
+      const r = range.getBoundingClientRect();
+      const was = words ? words.map((w) => w.was).filter(Boolean).join(" ") : node.data.trim();
+      setEditing({ device, node, scope: s, from, nth, was, value: was, rect: { top: r.top, left: r.left, width: r.width, height: r.height }, words });
       const key = compose ? s : scope(el);
       onSelect(key);
       if (key) onPickText?.(key, { scope: s, from, nth });
@@ -1051,7 +1176,7 @@ export const Canvas = forwardRef<
     [compose, routeScope, onSelect, scope, onPickText],
   );
 
-  /** An image double-clicked on a page: its section (or block) selected, its layer picked. */
+  /** An image clicked on a page: its section (or block) selected, its layer picked. */
   const startImage = useCallback(
     (el: Element) => {
       const s = compose ? el.closest("[data-bd-key]")?.getAttribute("data-bd-key") : routeScope;
@@ -1068,6 +1193,15 @@ export const Canvas = forwardRef<
 
   const commit = (keep: boolean) => {
     if (!editing) return;
+    const { words } = editing;
+    if (words) {
+      const v = editing.value.trim();
+      if (keep && v && v !== editing.was) {
+        const next = spread(v, words.length);
+        onEdit(words.map((w, i) => ({ scope: editing.scope, from: w.from, nth: w.nth, to: next[i] })).filter((e, i) => e.to !== words[i].was));
+      } else words.forEach((w) => setText(w.node, w.was));
+      return setEditing(null);
+    }
     if (!keep) setText(editing.node, editing.was);
     else if (editing.value.trim() && editing.value.trim() !== editing.was) onEdit({ scope: editing.scope, from: editing.from, nth: editing.nth, to: editing.value.trim() });
     else setText(editing.node, editing.was);
@@ -1158,6 +1292,7 @@ export const Canvas = forwardRef<
                 onSelect={onSelect}
                 onKey={onKey}
                 onText={startText}
+                onTextHover={onTextHover}
                 onImage={startImage}
                 onWheel={onFrameWheel}
                 onPoint={onPoint}
@@ -1178,6 +1313,10 @@ export const Canvas = forwardRef<
               </span>
             )}
             {ed && <span className="absolute rounded-[3px] shadow-[0_0_0_2px_#0d99ff]" style={{ top: ed.top - 2, left: ed.left - 3, width: ed.width + 6, height: ed.height + 4 }} />}
+            {/* The words under the pointer: a click edits them. */}
+            {overText && !ed && !commenting && !panning && devices.includes(overText.device) && (
+              <span className="absolute rounded-[3px] shadow-[0_0_0_1px_#0d99ff]" style={{ top: overText.box.top * z - 2, left: lefts[devices.indexOf(overText.device)] + overText.box.left * z - 3, width: overText.box.width * z + 6, height: overText.box.height * z + 4 }} />
+            )}
             {/* The text layer picked in the layers, and the one the pointer is over there, on every breakpoint. */}
             {!ed &&
               devices.map((d, i) =>
@@ -1236,9 +1375,11 @@ export const Canvas = forwardRef<
                 aria-label="Text"
                 value={editing.value}
                 rows={Math.min(6, Math.max(1, Math.ceil(editing.value.length / 40)))}
+                onFocus={(e) => e.target.select()}
                 onChange={(e) => {
                   setEditing({ ...editing, value: e.target.value });
-                  setText(editing.node, e.target.value || " ");
+                  if (editing.words) spread(e.target.value, editing.words.length).forEach((w, i) => setText(editing.words![i].node, w || " "));
+                  else setText(editing.node, e.target.value || " ");
                 }}
                 onKeyDown={(e) => {
                   e.stopPropagation();

@@ -34,7 +34,7 @@ import { BlockLayers, InsertGrid, Layers, PagesPanel, StartFrom } from "./sideba
 import { SiteExportDialog } from "./site-export";
 import { HelpPanel, HintLine, Tour, useGuide, type TourStep } from "./guide";
 import { layersOf, layerWith, textLayersIn, type Layer, type TextLayer } from "./text-layers";
-import { ROLE_LABEL } from "./text-roles";
+import { ROLE_LABEL, ROLE_PLURAL } from "./text-roles";
 import type { TextTree } from "./text-tree";
 import { blankPage, copyPage, idOf, initialState, instance, newProject, pageOf, pathFor, reducer, save, withPage, type Project, type SitePage, type View } from "./state";
 import { Tool } from "./ui";
@@ -546,7 +546,14 @@ export default function Studio() {
     change(next);
   };
   /** One edit, or several as one change (a text layer reset in full is one undo). */
-  const edit = useCallback((e: TextEdit | TextEdit[]) => change({ ...project, edits: [e].flat().reduce(withEdit, project.edits) }), [change, project]);
+  const edit = useCallback(
+    (e: TextEdit | TextEdit[]) => {
+      // An edit takes its decorative copies along (a marquee's repeated cards), so they still match.
+      const all = [e].flat().flatMap((x) => [x, ...(canvas.current?.clonesOf(x) ?? [])]);
+      change({ ...project, edits: all.reduce(withEdit, project.edits) });
+    },
+    [change, project],
+  );
   // A color dragged across the picker (or a slider) is one change, not one per frame: changes
   // within a moment of the last one amend it.
   const colorAt = useRef(0);
@@ -580,24 +587,38 @@ export default function Studio() {
   const layerKeys = page ? page.keys : blocks.map((b) => b.key);
   const reading = [...new Set([...layerKeys.filter(isOpen), ...(selected ? [selected] : [])])].join("\n");
   const routeScope = view.kind === "route" ? `route:${view.path}` : null;
+  // What the open rows were last read with: an edit, a fresh draw or another page reads them all
+  // again; a row just opened, only it (its layers show at once from last time while it's read).
+  const readWith = useRef({ sig: "", route: null as string | null, keys: new Set<string>() });
   useEffect(() => {
     const keys = reading ? reading.split("\n") : [];
-    const read = () => {
-      const next = Object.fromEntries(keys.map((k) => [k, canvas.current?.texts(routeScope ?? k, routeScope ? k : undefined) ?? null]));
-      setTexts((now) => (JSON.stringify(now) === JSON.stringify(next) ? now : next));
+    const sig = `${routeScope}|${JSON.stringify(project.edits)}|${drawnOnce}|${blocks.length}`;
+    const was = readWith.current;
+    const fresh = was.route !== routeScope;
+    if (was.sig !== sig) readWith.current = { sig, route: routeScope, keys: new Set() };
+    const want = keys.filter((k) => !readWith.current.keys.has(k));
+    const read = (which: string[], replace = false) => {
+      if (!which.length) return;
+      // Only once it's really read does a row count as read: a read cut short by the next change isn't.
+      for (const k of which) readWith.current.keys.add(k);
+      const next = Object.fromEntries(which.map((k) => [k, canvas.current?.texts(routeScope ?? k, routeScope ? k : undefined) ?? null]));
+      setTexts((now) => {
+        const merged = replace ? next : { ...now, ...next };
+        return JSON.stringify(now) === JSON.stringify(merged) ? now : merged;
+      });
     };
     // Once now, and again once the frame has caught up with an edit or a fresh load; then now and
-    // then while any are open, so a counter or a ticker, which moves on by itself, is told from copy.
-    const now = setTimeout(read, 0);
-    const later = setTimeout(read, 600);
-    const often = keys.length ? setInterval(read, 2500) : undefined;
+    // then for the selected one, so a counter or a ticker, which moves on by itself, is told from copy.
+    const now = setTimeout(() => read(want, fresh), 0);
+    const later = setTimeout(() => read(want), 600);
+    const often = selected ? setInterval(() => read([selected]), 2500) : undefined;
     return () => {
       clearTimeout(now);
       clearTimeout(later);
       clearInterval(often);
     };
     // Again once the first page is drawn: on Cloudflare the canvas's page draws its sections after it loads.
-  }, [reading, routeScope, project.edits, drawnOnce, blocks]);
+  }, [reading, routeScope, project.edits, drawnOnce, blocks, selected]);
   const layersBy = useMemo(() => Object.fromEntries(Object.entries(texts).map(([k, list]) => [k, list ? layersOf(list) : undefined])) as Record<string, Layer[] | undefined>, [texts]);
   const textLayers = useMemo(() => (selected ? textLayersIn(layersBy[selected] ?? []) : []), [layersBy, selected]);
   const pickedLayer = picked && picked.key === selected ? layerWith(layersBy[selected] ?? [], picked.ref) : undefined;
@@ -638,7 +659,8 @@ export default function Studio() {
     onToggle: (k) => setUnfolded((u) => ({ ...u, [k]: !isOpen(k) })),
     layers: layersBy,
     picked: pickedLayer && selected ? { key: selected, id: pickedLayer.id } : null,
-    onPick: (k, l) => pickText(k, l),
+    // A click on a text layer puts the cursor in its words, ready to type.
+    onPick: (k, l) => pickText(k, l, true),
     onHover: hoverText,
   };
 
@@ -977,16 +999,16 @@ export default function Studio() {
     ? "Drag to move around. Pinch or {Cmd} scroll to zoom."
     : !page
       ? selected
-        ? "Double-click any text to change it. This page's sections are the template's own."
-        : "Click a section to select it. Double-click any text to change it."
+        ? "Click any text to change it. This page's sections are the template's own."
+        : "Click any text to change it, or anywhere else in a section to select it."
       : page.keys.length <= 2
         ? "A blank page. Add sections with {+} below, or from Sections."
         : selected
-          ? "Double-click text to edit it. {Alt Up} {Alt Down} moves the section, {Cmd D} duplicates it, {Delete} removes it."
-          : "Click a section to select it. Double-click any text to edit it.";
+          ? "Click any text to edit it. {Alt Up} {Alt Down} moves the section, {Cmd D} duplicates it, {Delete} removes it. {Alt} click uses the page."
+          : "Click any text to edit it, or anywhere else in a section to select it.";
   const tourSteps: TourStep[] = [
     { at: "panel", side: "right", title: "Pages and layers", body: "Every section on the page is a layer. Click one to select it, or drag its handle to reorder. Your pages and the template's own are under Pages." },
-    { at: "canvas", side: "center", title: "Edit right on the page", body: "Double-click any text to change it. It changes at every breakpoint at once, and in everything you export." },
+    { at: "canvas", side: "center", title: "Edit right on the page", body: "Click any text to change it. It changes at every breakpoint at once, and in everything you export." },
     ...(page ? [{ at: "insert", side: "top" as const, title: "Add sections", body: "This template's sections, ready to drop in below whatever you have selected." }] : []),
     { at: "export", side: "bottom-end", title: "Take it anywhere", body: "Copy a section, a page or the whole site into Figma. Download the code, or send it to GitHub." },
   ];
@@ -1226,7 +1248,7 @@ export default function Studio() {
                                   </button>
                                 </Tip>
                                 <CaretRightIcon size={10} weight="bold" className="shrink-0 text-subtle" />
-                                <span className="min-w-0 truncate font-semibold">{ROLE_LABEL[pickedLayer.role]}</span>
+                                <span className="min-w-0 truncate font-semibold">{pickedLayer.items ? ROLE_PLURAL[pickedLayer.role] : ROLE_LABEL[pickedLayer.role]}</span>
                               </>
                             ) : (
                               <span className="truncate font-semibold">{section?.name ?? block?.name}</span>
@@ -1264,6 +1286,7 @@ export default function Studio() {
                                 layer={pickedLayer}
                                 place={{ at: textLayers.findIndex((l) => l.id === pickedLayer.id) + 1, of: textLayers.length }}
                                 focus={focusText}
+                                focusRef={picked?.ref}
                                 onStep={stepText}
                                 onEdit={edit}
                                 onPreview={(t, v) => canvas.current?.preview(t, v)}

@@ -10,8 +10,8 @@ import { btnSm } from "@/site/sheet";
 import type { TextEdit } from "@/site/text-edits";
 import { Tip } from "@/site/keys";
 import type { PageText, TextRef } from "./canvas";
-import type { TextLayer } from "./text-layers";
-import { ROLE_LABEL } from "./text-roles";
+import { spread, type TextLayer } from "./text-layers";
+import { ROLE_LABEL, ROLE_PLURAL } from "./text-roles";
 import { ROLE_ICON } from "./text-tree";
 import { Group } from "./ui";
 
@@ -87,12 +87,6 @@ function Field({ part, label, focus, onEdit, onPreview }: { part: PageText; labe
   );
 }
 
-/** Words in `n` places: one each, the last taking any more; places left over are emptied. */
-const spread = (v: string, n: number) => {
-  const words = v.trim().split(/\s+/).filter(Boolean);
-  return Array.from({ length: n }, (_, i) => (i < n - 1 ? (words[i] ?? "") : words.slice(n - 1).join(" ")));
-};
-
 /**
  * A headline set word by word (each word its own element, to animate them in): one field for the
  * whole of it, its words handed back to their places as it's kept.
@@ -167,20 +161,24 @@ function WordsField({ parts, label, focus, onEdit, onPreview }: { parts: PageTex
 }
 
 /**
- * A text layer, picked in Layers or double-clicked on the canvas: what it is and where, then its
+ * A text layer, picked in Layers or clicked on the canvas: what it is and where, then its
  * words, a field per line (or per part, for a word set apart in a sentence), as Figma's inspector
  * shows a text layer on its own.
  */
-export function TextPanel({ layer, place, focus, onStep, onEdit, onPreview, onShow }: { layer: TextLayer; place: { at: number; of: number }; focus: number; onStep: (by: 1 | -1) => void; onEdit: (e: TextEdit | TextEdit[]) => void; onPreview: (t: TextRef, value: string) => void; onShow: () => void }) {
+export function TextPanel({ layer, place, focus, focusRef, onStep, onEdit, onPreview, onShow }: { layer: TextLayer; place: { at: number; of: number }; focus: number; focusRef?: TextRef; onStep: (by: 1 | -1) => void; onEdit: (e: TextEdit | TextEdit[]) => void; onPreview: (t: TextRef, value: string) => void; onShow: () => void }) {
   const Icon = ROLE_ICON[layer.role];
+  const set = layer.items;
   const many = layer.parts.length > 1;
   // Parts that each start lower down the page are lines; side by side, they're parts of one line.
   const lines = many && layer.parts.every((p, i) => i === 0 || p.top > layer.parts[i - 1].top + 4);
   // A word in each part (three or more): a headline set word by word.
-  const words = layer.parts.length >= 3 && layer.parts.every((p) => !/\s/.test(p.from));
-  const name = ROLE_LABEL[layer.role];
+  const words = !set && layer.parts.length >= 3 && layer.parts.every((p) => !/\s/.test(p.from));
+  const name = set ? ROLE_PLURAL[layer.role] : ROLE_LABEL[layer.role];
   const edited = layer.parts.filter((p) => p.text !== p.from);
-  const about = layer.live ? "Changes on its own" : [words ? `${layer.parts.length} words` : many ? `${layer.parts.length} ${lines ? "lines" : "parts"}` : "1 line", layer.hidden && "hidden at this width", edited.length > 0 && "edited"].filter(Boolean).join(", ");
+  const about = layer.live ? "Changes on its own" : [set ? `${set.length} side by side, each its own` : words ? `${layer.parts.length} words` : many ? `${layer.parts.length} ${lines ? "lines" : "parts"}` : "1 line", layer.hidden && "hidden at this width", edited.length > 0 && "edited"].filter(Boolean).join(", ");
+  // The cursor goes in the field for what was clicked (a link in a menu), else the first.
+  const target = (focusRef && layer.parts.find((p) => p.from === focusRef.from && p.nth === focusRef.nth)) || layer.parts[0];
+  const focusFor = (p: PageText) => (p === target ? focus : 0);
   const step = "grid size-7 place-items-center rounded-[8px] text-muted transition-colors hover:bg-fg/[0.06] hover:text-fg disabled:pointer-events-none disabled:opacity-30";
   return (
     <>
@@ -230,10 +228,12 @@ export function TextPanel({ layer, place, focus, onStep, onEdit, onPreview, onSh
           </>
         ) : (
           <>
-            {words ? (
+            {set ? (
+              set.flatMap((item, i) => item.parts.map((p, j) => <Field key={`${p.from}|${p.nth}`} part={p} label={`${ROLE_LABEL[item.role]} ${i + 1}${item.parts.length > 1 ? `, part ${j + 1}` : ""}`} focus={focusFor(p)} onEdit={onEdit} onPreview={onPreview} />))
+            ) : words ? (
               <WordsField parts={layer.parts} label={name} focus={focus} onEdit={onEdit} onPreview={onPreview} />
             ) : (
-              layer.parts.map((p, i) => <Field key={`${p.from}|${p.nth}`} part={p} label={many ? `${lines ? "Line" : "Part"} ${i + 1}` : name} focus={i === 0 ? focus : 0} onEdit={onEdit} onPreview={onPreview} />)
+              layer.parts.map((p, i) => <Field key={`${p.from}|${p.nth}`} part={p} label={many ? `${lines ? "Line" : "Part"} ${i + 1}` : name} focus={focusFor(p)} onEdit={onEdit} onPreview={onPreview} />)
             )}
             {layer.hidden && (
               <p className="flex gap-2 text-[12px] leading-snug text-muted">
@@ -258,7 +258,7 @@ function TextHint({ layers, onPick }: { layers: TextLayer[]; onPick: (l: TextLay
   return (
     <Group title="Text" icon={TextTIcon} aside={layers.length > 0 && <span className="text-[12px] tabular-nums text-subtle">{layers.length}</span>}>
       <p className="text-[12px] leading-snug text-muted">
-        {layers.length ? `${layers.length} text ${layers.length === 1 ? "layer" : "layers"}, listed under this one in Layers.` : "No text here to change."} {layers.length > 0 && "Pick one to change its words, or double-click any text on the canvas."}
+        {layers.length ? `${layers.length} text ${layers.length === 1 ? "layer" : "layers"}, listed under this one in Layers.` : "No text here to change."} {layers.length > 0 && "Click one to change its words, or click any text on the canvas."}
       </p>
       {first && (
         <button type="button" onClick={() => onPick(first)} className={cn(btnSm.quiet, "w-full justify-start")}>
@@ -360,7 +360,7 @@ export function RoutePanel({ template, label, path, edits }: { template: LiveSec
         <span className="block font-mono text-[12px] text-subtle">{path}</span>
       </div>
       <p className="text-[12px] leading-snug text-muted">
-        {t.name}&apos;s own page, exactly as the template draws it. Click a block to see its text, or double-click any text on the canvas to change it.
+        {t.name}&apos;s own page, exactly as the template draws it. Click any text on the canvas to change it, or a block to see all of its text.
         {edits > 0 && ` ${edits} ${edits === 1 ? "edit" : "edits"} on this page so far.`}
       </p>
       <a href={liveUrl(t.slug, path)} target="_blank" rel="noreferrer" className={cn(btnSm.quiet, "w-full")}>

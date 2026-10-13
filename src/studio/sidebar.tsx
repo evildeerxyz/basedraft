@@ -11,7 +11,7 @@ import { isFree, KINDS, sectionOf, sectionShot, TEMPLATES, templateOf, templateS
 import { Menu } from "@/site/menu";
 import type { Block } from "./canvas";
 import { idOf, type Project, type View } from "./state";
-import { TextLayers, Twisty, type TextTree } from "./text-tree";
+import { Fold, TextLayers, Twisty, type TextTree } from "./text-tree";
 
 /* ---------- layers ---------- */
 
@@ -25,6 +25,8 @@ function LayerRow({ layer, section, index, selected, onSelect, onRemove, onDupli
       value={layer}
       dragListener={false}
       dragControls={controls}
+      // Moves when the rows around it open or close, but never stretches with its own text opening.
+      layout="position"
       className="relative"
       initial={{ opacity: 0, height: 0 }}
       animate={{ opacity: 1, height: "auto" }}
@@ -61,7 +63,9 @@ function LayerRow({ layer, section, index, selected, onSelect, onRemove, onDupli
           </Tip>
         </div>
       </div>
-      {open && <TextLayers layerKey={layer} tree={text} indent={46} />}
+      <Fold open={open}>
+        <TextLayers layerKey={layer} tree={text} indent={48} />
+      </Fold>
     </Reorder.Item>
   );
 }
@@ -277,13 +281,15 @@ export function BlockLayers({ blocks, selected, onSelect, text }: { blocks: Bloc
                   <span className="text-[12px] tabular-nums text-subtle">{String(i + 1).padStart(2, "0")}</span>
                 </button>
               </div>
-              {open && <TextLayers layerKey={b.key} tree={text} indent={30} />}
+              <Fold open={open}>
+                <TextLayers layerKey={b.key} tree={text} indent={32} />
+              </Fold>
             </li>
           );
         })}
         {!blocks.length && <li className="px-3 py-6 text-center text-[13px] text-muted">Loading the page…</li>}
       </ul>
-      <p className="px-2.5 pt-3 text-[12px] leading-snug text-muted">This is the template&apos;s own page, drawn as written. Double-click any text to change it.</p>
+      <p className="px-2.5 pt-3 text-[12px] leading-snug text-muted">This is the template&apos;s own page, drawn as written. Click any text to change it.</p>
     </div>
   );
 }

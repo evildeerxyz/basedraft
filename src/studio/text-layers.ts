@@ -119,13 +119,6 @@ function flatten(layers: Layer[]): Layer[] {
   });
 }
 
-function firstText(layers: Layer[]): TextLayer | undefined {
-  for (const l of layers) {
-    const t = l.type === "text" ? l : firstText(l.children);
-    if (t) return t;
-  }
-}
-
 /** A quote mark, a dash or an arrow on its own: part of how copy is set, not copy anyone writes. */
 const mark = (t: PageText) => t.kind !== "image" && !/[\p{L}\p{N}]/u.test(t.text) && t.text.length <= 2;
 

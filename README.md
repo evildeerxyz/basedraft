@@ -102,7 +102,21 @@ To connect the Better Auth dashboard, give it the deployment's site address (`ht
 
 ## Deploying
 
-Deploy each template as its own project from `templates/<slug>`, then basedraft with the zone URLs set. The export routes read template sources at request time; `next.config.ts` traces exactly the files in `scripts/template-source.mjs` into those functions, so no `.env`, build output or `node_modules` ships with them. Until accounts and purchases are real, production refuses to hand out template code unless `BD_EXPORT_OPEN=1`.
+basedraft runs on Cloudflare Workers, on the free plan, at https://basedraft.emmahxyz.workers.dev, with Convex's production deployment (`charming-giraffe-71`) behind it. One command builds and deploys everything (Node 22, for wrangler):
+
+    node scripts/cf-deploy.mjs            # build and deploy
+    node scripts/cf-deploy.mjs --dry-run  # build, and check the worker's size (the free plan allows 3 MB gzipped)
+
+1. **The app**, built for Workers by [OpenNext](https://opennext.js.org/cloudflare) with the public settings in `.env.cloudflare`. Pages prerendered at build are served from the asset store (`open-next.config.ts`); images are served as they are. `src/proxy.ts` is left out of this build: on Cloudflare `cloudflare/worker.ts` wraps OpenNext's worker and guards the previews.
+2. **The templates**, built as plain static files (`BD_STATIC=1`, see each template's `next.config.ts`) and served from the asset store under `/live/<slug>` (`scripts/cf-templates.mjs`). Only their preview pages pass through the worker, for the guard; their scripts and styles don't.
+3. **The templates' code**, as their buyers get it, in the private KV namespace `TEMPLATES`, which `src/server/site.ts` reads on Cloudflare (`BD_SOURCE=kv`).
+4. **Wrangler** deploys it all (`wrangler.jsonc`). The templates are then rebuilt for local `next start`.
+
+Two workarounds in the script, until OpenNext catches up with Next 16.4: it adds `preview-props.json` to the manifests OpenNext inlines, and makes the instrumentation hook load (basedraft has none) resolve to nothing.
+
+Settings: public ones are in `wrangler.jsonc` `vars` (and built in from `.env.cloudflare`); secrets go in with `npx wrangler secret put` (`BD_SESSION_SECRET`, and `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` once Send to GitHub's OAuth app exists, with its callback at `<site>/api/github/callback`). The Convex production deployment has its own (`npx convex env list --prod`); deploy its functions with `npx convex deploy`.
+
+Locally, each template is its own Next app (`next start` on 4101 to 4103) and `next.config.ts` rewrites `/live/<slug>` to it.
 
 ## basedraft's own design
 

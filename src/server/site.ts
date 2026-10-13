@@ -1,7 +1,7 @@
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { rewriteAll } from "@/lib/rewrite-text";
-import { TEMPLATE_DIRS, TEMPLATE_FILES } from "../../scripts/template-source.mjs";
+import { SKIP_DIRS, skipFile, TEMPLATE_DIRS, TEMPLATE_FILES } from "../../scripts/template-source.mjs";
 import { templateOf, type LiveTemplate } from "@/site/live";
 import { editList, pageCode, pageFile, projectFiles } from "@/studio/project-files";
 import type { Project } from "@/studio/state";
@@ -14,17 +14,14 @@ import { COLORS, themeCode, themeCss } from "@/site/theme";
  *
  * The templates are read from templates/<slug> as they sit in this repo: the files and folders in
  * scripts/template-source.mjs, minus what only basedraft needs to serve them (their bd/ folders,
- * and the base path that puts them under /live/<slug>).
+ * and the base path that puts them under /live/<slug>). On Cloudflare there's no disk: the same
+ * files are in a private KV namespace, one bundle per template, put there by scripts/cf-deploy.mjs.
  */
 
 export type Files = Map<string, Uint8Array | string>;
 
 const ROOT = path.join(process.cwd(), "templates");
 
-// The same things each template's .gitignore leaves out, so nothing local ever ships.
-const SKIP_DIRS = new Set(["node_modules", ".next", ".git", ".vercel", ".turbo", "out", "build", "coverage"]);
-const skipFile = (name: string) =>
-  name === ".DS_Store" || name === "next-env.d.ts" || name.endsWith(".tsbuildinfo") || name.endsWith(".pem") || name.endsWith(".log") || (name.startsWith(".env") && name !== ".env.example") || /s[oö]hne/i.test(name);
 
 const utf8 = new TextDecoder("utf-8", { fatal: true });
 /** A file's text, or null for an image, a font or anything else that isn't text. */
@@ -47,8 +44,12 @@ function plumbing(t: LiveTemplate) {
 /** A layout without basedraft's wiring: its import, and the wrapper around the page. */
 const unwire = (src: string) => src.replace(/^import \{ BdFrame \} from "@\/bd\/frame";[^\n]*\n/m, "").replace(/<BdFrame>\{children\}<\/BdFrame>/g, "{children}");
 
-/** next.config without the base path that serves the template under /live/<slug>. */
-const standalone = (config: string) => config.replace(/^[ \t]*\/\/ Served by basedraft[^\n]*\n/m, "").replace(/^[ \t]*basePath:[^\n]*\n/m, "");
+/** next.config without basedraft's wiring: the base path that serves it under /live/<slug>, and its static build for Cloudflare. */
+const standalone = (config: string) =>
+  config
+    .replace(/^[ \t]*\/\/ Served by basedraft[^\n]*\n/gim, "")
+    .replace(/^[ \t]*basePath:[^\n]*\n/m, "")
+    .replace(/^[ \t]*\.\.\.\(process\.env\.BD_STATIC[^\n]*\n/m, "");
 
 async function walk(dir: string, rel = ""): Promise<string[]> {
   const out: string[] = [];
@@ -63,6 +64,23 @@ async function walk(dir: string, rel = ""): Promise<string[]> {
   return out;
 }
 
+/** A template's files, as bytes: from KV on Cloudflare (BD_SOURCE=kv), from disk otherwise. */
+async function readTemplate(slug: string, dir: string): Promise<Array<[string, Uint8Array]>> {
+  if (process.env.BD_SOURCE === "kv") {
+    const { getCloudflareContext } = await import("@opennextjs/cloudflare");
+    const { env } = await getCloudflareContext({ async: true });
+    const kv = (env as unknown as { TEMPLATES: { get: (key: string, type: "json") => Promise<unknown> } }).TEMPLATES;
+    const bundle = (await kv.get(`source:${slug}`, "json")) as { files: Record<string, string> } | null;
+    if (!bundle) throw new Error(`${slug}'s files aren't in the template store yet.`);
+    return Object.entries(bundle.files)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([rel, b64]) => [rel, Uint8Array.from(atob(b64), (c) => c.charCodeAt(0))]);
+  }
+  const out: Array<[string, Uint8Array]> = [];
+  for (const rel of (await walk(dir)).sort()) out.push([rel, new Uint8Array(await readFile(path.join(dir, rel)))]);
+  return out;
+}
+
 /** A template's code as its buyer gets it. */
 export async function templateSource(slug: string): Promise<Files> {
   const t = templateOf(slug);
@@ -70,9 +88,8 @@ export async function templateSource(slug: string): Promise<Files> {
   const dir = path.join(ROOT, t.slug);
   const off = plumbing(t);
   const files: Files = new Map();
-  for (const rel of (await walk(dir)).sort()) {
+  for (const [rel, buf] of await readTemplate(t.slug, dir)) {
     if (off.some((p) => rel.startsWith(p))) continue;
-    const buf = new Uint8Array(await readFile(path.join(dir, rel)));
     files.set(rel, asText(buf) ?? buf);
   }
   const config = files.get("next.config.ts");
@@ -86,7 +103,8 @@ export async function templateSource(slug: string): Promise<Files> {
 export async function packageNameOf(slug: string) {
   const t = templateOf(slug);
   if (!t) return undefined;
-  return (JSON.parse(await readFile(path.join(ROOT, t.slug, "package.json"), "utf8")) as { name?: string }).name;
+  const pkg = (await readTemplate(t.slug, path.join(ROOT, t.slug))).find(([rel]) => rel === "package.json")?.[1];
+  return pkg ? (JSON.parse(new TextDecoder().decode(pkg)) as { name?: string }).name : undefined;
 }
 
 const isText = (v: Uint8Array | string | undefined): v is string => typeof v === "string";

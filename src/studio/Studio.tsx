@@ -534,7 +534,8 @@ export default function Studio() {
       clearTimeout(now);
       clearTimeout(later);
     };
-  }, [scope, selected, view.kind, project.edits]);
+    // Again once the first page is drawn: on Cloudflare the canvas's page draws its sections after it loads.
+  }, [scope, selected, view.kind, project.edits, drawnOnce]);
 
   const insert = (id: string) => {
     const s = sectionOf(project.template, id);

@@ -41,6 +41,8 @@
   ],
   "exclude": [
     "node_modules",
-    "templates"
+    "templates",
+    "cloudflare",
+    ".open-next"
   ]
 }

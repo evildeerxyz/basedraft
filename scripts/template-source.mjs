@@ -9,3 +9,8 @@ export const TEMPLATE_DIRS = ["src", "app", "components", "lib", "public", "asse
 
 /** The same list as globs, for next.config's outputFileTracingIncludes. */
 export const TEMPLATE_GLOBS = [...TEMPLATE_FILES.map((f) => `./templates/*/${f}`), ...TEMPLATE_DIRS.map((d) => `./templates/*/${d}/**/*`)];
+
+/** Never in a copy, wherever it sits: the same things each template's .gitignore leaves out, and the trial fonts. */
+export const SKIP_DIRS = new Set(["node_modules", ".next", ".git", ".vercel", ".turbo", "out", "build", "coverage"]);
+export const skipFile = (name) =>
+  name === ".DS_Store" || name === "next-env.d.ts" || name.endsWith(".tsbuildinfo") || name.endsWith(".pem") || name.endsWith(".log") || (name.startsWith(".env") && name !== ".env.example") || /s[oö]hne/i.test(name);

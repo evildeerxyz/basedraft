@@ -39,7 +39,8 @@ const nextConfig: NextConfig = {
   // In development, Next's route badge sits bottom left, clear of Studio's Export button and toolbars.
   devIndicators: { position: "bottom-left" },
   // The home page's Studio tour is drawn at 85, sharper than the default for screenshots of text.
-  images: { qualities: [75, 85] },
+  // On Cloudflare (BD_CF=1) images are served as they are: the shots are already sized JPGs.
+  images: { qualities: [75, 85], ...(process.env.BD_CF === "1" ? { unoptimized: true } : {}) },
   cacheComponents: true,
   partialPrefetching: true,
   experimental: {

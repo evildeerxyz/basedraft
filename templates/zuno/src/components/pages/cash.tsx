@@ -8,6 +8,7 @@ import { cn, EASE_OUT, formatUSD } from "@/lib/utils";
 import { DitherShader } from "../dither/DitherShader";
 import { LogoMark } from "../ui/Logo";
 import { RollingNumber } from "../ui/RollingNumber";
+import { pal } from "@/lib/palette";
 
 const APY = 0.041;
 
@@ -34,7 +35,7 @@ export function CashHero() {
 
   return (
     <div ref={ref} className="relative aspect-square w-full overflow-hidden rounded-[24px] border border-white/[0.08] bg-ink-2">
-      <DitherShader shape="ripple" orb={[0.5, 0.42, 0]} color="#c8ff3e" opacity={0.7} pixelSize={4} intensity={0.8} interactive />
+      <DitherShader shape="ripple" orb={[0.5, 0.42, 0]} color={pal.accent} opacity={0.7} pixelSize={4} intensity={0.8} interactive />
       <div className="absolute inset-x-5 bottom-5 rounded-[18px] bg-ink/90 p-5 ring-1 ring-white/10 sm:inset-x-8 sm:bottom-8">
         <div className="flex items-center justify-between text-[15px] text-white/60">
           <span>Interest earned today on $25,000</span>
@@ -100,7 +101,7 @@ export function InterestCalculator() {
               <div className="mt-2 h-8 overflow-hidden rounded-[8px] bg-white/[0.04]">
                 <motion.div
                   className="h-full rounded-[8px]"
-                  style={r.you ? { background: "#c8ff3e" } : ditherStyle("#c8ff3e", i === 1 ? 0.45 : 0.2, 2)}
+                  style={r.you ? { background: "var(--zn-accent)" } : ditherStyle(pal.accent, i === 1 ? 0.45 : 0.2, 2)}
                   initial={false}
                   animate={{ width: `${Math.max(0.6, (r.year / max) * 100)}%` }}
                   transition={{ type: "spring", stiffness: 110, damping: 20 }}
@@ -170,7 +171,7 @@ export function SweepVisual() {
               <div className="relative h-[150px] overflow-hidden rounded-[14px] bg-white/[0.05] sm:h-[200px]">
                 <motion.div
                   className="absolute inset-x-0 bottom-0"
-                  style={pct === 1 ? { background: "#c8ff3e" } : ditherStyle("#c8ff3e", 0.7, 2)}
+                  style={pct === 1 ? { background: "var(--zn-accent)" } : ditherStyle(pal.accent, 0.7, 2)}
                   initial={false}
                   animate={{ height: `${pct * 100}%` }}
                   transition={{ type: "spring", stiffness: 120, damping: 20, delay: i * 0.03 }}
@@ -283,7 +284,7 @@ export function CashMoments() {
                   animate={play ? { width: r.w } : {}}
                   transition={{ duration: 1.1, ease: EASE_OUT, delay: 0.3 + i * 0.2 }}
                   className="h-full rounded-full"
-                  style={r.fill ? { background: "#c8ff3e" } : ditherStyle("#f5f5f5", 0.35, 2)}
+                  style={r.fill ? { background: "var(--zn-accent)" } : ditherStyle("#f5f5f5", 0.35, 2)}
                 />
               </div>
             </div>

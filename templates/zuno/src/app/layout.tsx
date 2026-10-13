@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "@/components/Intro";
 import "./globals.css";
+import { BdFrame } from "@/bd/frame"; // basedraft wiring, taken out of the code it hands over
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,7 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} antialiased`}
     >
       <body>
-        <Providers>{children}</Providers>
+        <Providers><BdFrame>{children}</BdFrame></Providers>
       </body>
     </html>
   );

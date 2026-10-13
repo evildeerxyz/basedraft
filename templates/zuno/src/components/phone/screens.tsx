@@ -106,7 +106,7 @@ export function HomeScreen({ play }: { play: boolean }) {
           label={
             <>
               Total value
-              <span className="flex items-center gap-[5px] rounded-full px-[8px] py-[2px] text-[12px] font-semibold" style={{ background: "rgba(200,255,62,0.12)", color: C.accent }}>
+              <span className="flex items-center gap-[5px] rounded-full px-[8px] py-[2px] text-[12px] font-semibold" style={{ background: "color-mix(in srgb, var(--zn-accent) 12%, transparent)", color: C.accent }}>
                 <span className="size-[6px] rounded-full" style={{ background: p.autopilot ? C.accent : C.secondary }} />
                 {p.autopilot ? "Autopilot on" : "Autopilot paused"}
               </span>
@@ -295,7 +295,7 @@ export function CashScreen() {
           <RollingNumber value={formatUSD(p.cash)} />
         </div>
         <div className="mt-[12px] flex items-center gap-[10px] text-[14px]">
-          <span className="rounded-full px-[9px] py-[3px] font-semibold" style={{ background: "rgba(200,255,62,0.12)", color: C.accent }}>
+          <span className="rounded-full px-[9px] py-[3px] font-semibold" style={{ background: "color-mix(in srgb, var(--zn-accent) 12%, transparent)", color: C.accent }}>
             4.10% APY
           </span>
           <span style={{ color: C.secondary }}>

@@ -7,6 +7,7 @@ import { cn, EASE_OUT } from "@/lib/utils";
 import { DitherShader } from "../dither/DitherShader";
 import { Stepper } from "../site/Stepper";
 import { LogoMark } from "../ui/Logo";
+import { pal } from "@/lib/palette";
 
 const EXCHANGES = [
   { q: "Why did my portfolio drop today?", a: "Chip stocks fell 3.4% this morning. NVDA explains 0.7 of your 1.2% dip. That's inside your normal daily range, so nothing needs to change." },
@@ -28,7 +29,7 @@ export function CopilotHero() {
 
   return (
     <div ref={ref} className="relative aspect-[4/5] w-full overflow-hidden rounded-[24px] border border-white/[0.08] bg-ink-2 sm:aspect-[5/5]">
-      <DitherShader shape="flow" color="#c8ff3e" opacity={0.55} pixelSize={3} scale={1.2} intensity={0.75} interactive />
+      <DitherShader shape="flow" color={pal.accent} opacity={0.55} pixelSize={3} scale={1.2} intensity={0.75} interactive />
       <div className="absolute inset-x-5 bottom-5 sm:inset-x-8 sm:bottom-8">
         <AnimatePresence mode="wait">
           <motion.div key={i} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.45, ease: EASE_OUT }} className="space-y-3">

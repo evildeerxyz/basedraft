@@ -11,7 +11,7 @@ import { useCallback, useEffect, useReducer, useRef, useState, type ReactNode } 
 import { cn, EASE_OUT } from "@/lib/utils";
 import { AccountHeader, Avatar, displayName, openAuth, openProfile, signedIn, signOut, useAuth } from "@/site/auth";
 import { ColorModeSwitch } from "@/site/color-mode";
-import { copyToDesign, type CopyKind, type CopyTarget } from "@/site/design-copy";
+import { copyToDesign, prepareCopy, type CopyKind, type CopyTarget } from "@/site/design-copy";
 import { SectionGlyph } from "@/site/icons";
 import { Tip, WithKeys } from "@/site/keys";
 import { composeUrl, isFree, liveUrl, sectionOf, sectionShot, sectionUrl, templateOf, type LiveSection, type TemplateSlug } from "@/site/live";
@@ -125,7 +125,7 @@ const MORE: Array<{ kind: CopyKind | "react" | "save"; label: string; icon: type
  * Sits just above the selected section, outside it, so it never covers what you're looking at:
  * the name in selection purple, then swapping, arranging, and taking the section elsewhere.
  */
-function SelectionBar({ section, index, count, pro, width, kin, onSwap, onMove, onDuplicate, onRemove, onInsert, onCopy, onSave }: { section: LiveSection; index: number; count: number; pro: boolean; width: number; kin: LiveSection[]; onSwap: (id: string) => void; onMove: (d: 1 | -1) => void; onDuplicate: () => void; onRemove: () => void; onInsert: () => void; onCopy: (k: CopyKind | "react") => void; onSave: () => void }) {
+function SelectionBar({ section, index, count, pro, width, kin, onSwap, onMove, onDuplicate, onRemove, onInsert, onCopy, onSave, onPrepare }: { section: LiveSection; index: number; count: number; pro: boolean; width: number; kin: LiveSection[]; onSwap: (id: string) => void; onMove: (d: 1 | -1) => void; onDuplicate: () => void; onRemove: () => void; onInsert: () => void; onCopy: (k: CopyKind | "react") => void; onSave: () => void; onPrepare: () => void }) {
   const [swap, setSwap] = useState(false);
   const [more, setMore] = useState(false);
   const root = useRef<HTMLDivElement>(null);
@@ -192,7 +192,7 @@ function SelectionBar({ section, index, count, pro, width, kin, onSwap, onMove, 
         )}
         {pro ? (
           <Tip label="Copy for Figma">
-            <button type="button" className={wide} onClick={() => onCopy("figma")} aria-label="Copy for Figma">
+            <button type="button" className={wide} onPointerEnter={onPrepare} onFocus={onPrepare} onClick={() => onCopy("figma")} aria-label="Copy for Figma">
               <FigmaLogoIcon size={14} /> {!tight && "Copy"}
             </button>
           </Tip>
@@ -205,7 +205,7 @@ function SelectionBar({ section, index, count, pro, width, kin, onSwap, onMove, 
           </Tip>
         )}
         <Tip label="More">
-          <button type="button" className={cn(tool, more && "bg-fg/[0.08] text-fg")} onClick={() => setMore((m) => !m)} aria-label="More actions" aria-haspopup="menu" aria-expanded={more}>
+          <button type="button" className={cn(tool, more && "bg-fg/[0.08] text-fg")} onPointerEnter={() => pro && onPrepare()} onClick={() => setMore((m) => !m)} aria-label="More actions" aria-haspopup="menu" aria-expanded={more}>
             <DotsThreeIcon size={16} weight="bold" />
           </button>
         </Tip>
@@ -647,6 +647,12 @@ export default function Studio() {
   const togglePanels = () => setPanels((p) => (p.left || p.right ? { left: false, right: false } : { left: true, right: true }));
   // Preview mode: the page as it ships, over Studio, at a viewport's width. Esc comes back.
   const [previewing, setPreviewing] = useState<{ view: View; viewport: Viewport } | null>(null);
+  // Back from the preview, the canvas's pages are measured and painted again.
+  const [resync, setResync] = useState(0);
+  const closePreview = () => {
+    setPreviewing(null);
+    setResync((n) => n + 1);
+  };
   const openPreview = (device: CanvasDevice = devices[0]) => setPreviewing({ view, viewport: device });
 
   const zoomRef = useRef(zoom);
@@ -836,6 +842,8 @@ export default function Studio() {
             peers={peers}
             onReady={(d) => d === devices[0] && setDrawnOnce(true)}
             onPreview={openPreview}
+            paused={previewing !== null}
+            resync={resync}
             overlay={(at) => (
               <>
                 {commenting && user && (
@@ -892,6 +900,8 @@ export default function Studio() {
                   onInsert={() => setPop("insert")}
                   onCopy={(kind) => (kind === "react" ? setExporting("react") : pro ? void copyToDesign(kind, sectionTarget(key)) : openPro(kind))}
                   onSave={() => saveSection(key)}
+                  // The copy is read as the pointer reaches Copy, so it's usually ready by the click.
+                  onPrepare={() => pro && prepareCopy(sectionTarget(key))}
                 />
               );
             }}
@@ -1248,7 +1258,7 @@ export default function Studio() {
         <AnimatePresence>
           {previewing && (
             <motion.div key="preview" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18, ease: EASE_OUT }} className="fixed inset-0 z-[250]">
-              <PreviewView project={project} view={previewing.view} viewport={previewing.viewport} onClose={() => setPreviewing(null)} />
+              <PreviewView project={project} view={previewing.view} viewport={previewing.viewport} onClose={closePreview} />
             </motion.div>
           )}
         </AnimatePresence>

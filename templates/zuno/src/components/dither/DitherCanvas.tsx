@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { bayer8 } from "@/lib/dither";
 import { cn, hexToRgb } from "@/lib/utils";
+import { pal } from "@/lib/palette";
 
 /** Returns coverage 0 to 1 for a cell. u/v are 0 to 1 across the canvas (v from top). */
 export type DitherField = (u: number, v: number, aspect: number) => number;
@@ -21,7 +22,7 @@ interface DitherCanvasProps {
  */
 export function DitherCanvas({
   field,
-  color = "#c8ff3e",
+  color = pal.accent,
   opacity = 1,
   pixelSize = 3,
   className,

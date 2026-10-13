@@ -20,6 +20,7 @@ export function Themed({ children }: { children: ReactNode }) {
       }
       document.head.appendChild(el);
       el.textContent = String(e.data.css ?? "");
+      releaseGl();
       setColors((n) => n + 1);
     };
     window.addEventListener("message", on);
@@ -30,4 +31,16 @@ export function Themed({ children }: { children: ReactNode }) {
     if (colors) window.parent.postMessage({ type: "bd:rendered" }, location.origin);
   }, [colors]);
   return <Fragment key={colors}>{children}</Fragment>;
+}
+
+/**
+ * The page is about to be drawn again, so its WebGL contexts are released first. Shaders open a
+ * new one when they're made, and the browser only allows a handful at once: left for the garbage
+ * collector, a few color changes would use them up and new shaders would draw blank.
+ */
+function releaseGl() {
+  for (const c of document.querySelectorAll("canvas")) {
+    const gl = (c.getContext("webgl2") ?? c.getContext("webgl")) as WebGLRenderingContext | null;
+    gl?.getExtension("WEBGL_lose_context")?.loseContext();
+  }
 }

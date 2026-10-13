@@ -8,7 +8,7 @@ import { cn, EASE_OUT } from "@/lib/utils";
 import { Segmented } from "@/ui/segmented";
 import { CodeBlock } from "./code";
 import { DesignCopyMenu } from "./design-copy";
-import { DevicePicker, LiveSectionFrame, type Device } from "./frames";
+import { DevicePicker, LiveSectionFrame, type Device, useNarrow } from "./frames";
 import { SECTION_ICON } from "./icons";
 import { sectionOf, sectionUrl, templateOf } from "./live";
 import { usePlan } from "./plan";
@@ -22,7 +22,10 @@ import { btn, Sheet } from "./sheet";
 export function LiveSectionShowcase({ template, id }: { template: string; id: string }) {
   const s = sectionOf(template, id)!;
   const t = templateOf(template)!;
-  const [device, setDevice] = useState<Device>("desktop");
+  // On a phone a desktop layout scaled to the screen is too small to read: start at phone width.
+  const narrow = useNarrow();
+  const [picked, setDevice] = useState<Device | null>(null);
+  const device = picked ?? (narrow ? "phone" : "desktop");
   const [tab, setTab] = useState<"preview" | "code">("preview");
   const [plan] = usePlan();
   const locked = plan !== "pro";

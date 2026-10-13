@@ -37,7 +37,7 @@ const onNarrow = (cb: () => void) => {
   return () => m.removeEventListener("change", cb);
 };
 /** Whether the window is phone width. The server renders as if it isn't; the browser corrects it straight after. */
-const useNarrow = () =>
+export const useNarrow = () =>
   useSyncExternalStore(
     onNarrow,
     () => matchMedia(NARROW).matches,

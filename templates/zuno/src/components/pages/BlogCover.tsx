@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { mulberry32 } from "@/lib/utils";
 import { DitherCanvas, type DitherField } from "../dither/DitherCanvas";
+import { pal } from "@/lib/palette";
 
 /** Procedural dithered cover art, unique per post. */
 function coverField(seed: number): DitherField {
@@ -50,7 +51,7 @@ export function BlogCover({ seed, className }: { seed: number; className?: strin
   const field = useMemo(() => coverField(seed), [seed]);
   return (
     <div className={`relative overflow-hidden bg-ink-3 ${className ?? ""}`}>
-      <DitherCanvas field={field} color="#c8ff3e" pixelSize={3} />
+      <DitherCanvas field={field} color={pal.accent} pixelSize={3} />
     </div>
   );
 }

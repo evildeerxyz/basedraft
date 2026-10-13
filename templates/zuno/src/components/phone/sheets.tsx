@@ -351,7 +351,7 @@ function CopilotSheet({ prompt }: { prompt?: number }) {
           onChange={(e) => setDraft(e.target.value)}
           placeholder="Ask about your money"
           aria-label="Ask Copilot a question"
-          className="h-[44px] min-w-0 flex-1 rounded-full px-[18px] text-[16px] outline-none transition-shadow placeholder:text-[rgba(235,235,245,0.35)] focus:ring-2 focus:ring-[#c8ff3e]/60"
+          className="h-[44px] min-w-0 flex-1 rounded-full px-[18px] text-[16px] outline-none transition-shadow placeholder:text-[rgba(235,235,245,0.35)] focus:ring-2 focus:ring-[var(--zn-accent)]/60"
           style={{ background: C.card2, color: C.label }}
         />
         <button type="submit" aria-label="Send" className="grid size-[44px] shrink-0 place-items-center rounded-full transition-opacity" style={{ background: C.accent, color: C.onAccent, opacity: draft.trim() ? 1 : 0.4 }}>

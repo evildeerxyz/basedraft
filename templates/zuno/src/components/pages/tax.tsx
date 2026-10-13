@@ -8,6 +8,7 @@ import { cn, EASE_OUT, formatUSD } from "@/lib/utils";
 import { Stepper } from "../site/Stepper";
 import { RollingNumber } from "../ui/RollingNumber";
 import { Switch } from "../ui/Switch";
+import { pal } from "@/lib/palette";
 
 /** Hero visual: a fund dips below your cost basis; Zuno sells, books the loss, swaps into a twin. */
 export function HarvestChart() {
@@ -44,10 +45,10 @@ export function HarvestChart() {
           animate={{ opacity: play ? 1 : 0 }}
           transition={{ delay: 1.2 }}
         />
-        <motion.path d={d} fill="none" stroke="#c8ff3e" strokeWidth="2.5" strokeLinejoin="round" initial={{ pathLength: 0 }} animate={{ pathLength: play ? 1 : 0 }} transition={{ duration: 2.4, ease: EASE_OUT }} />
+        <motion.path d={d} fill="none" stroke={pal.accent} strokeWidth="2.5" strokeLinejoin="round" initial={{ pathLength: 0 }} animate={{ pathLength: play ? 1 : 0 }} transition={{ duration: 2.4, ease: EASE_OUT }} />
         <motion.g initial={{ opacity: 0 }} animate={{ opacity: play ? 1 : 0 }} transition={{ delay: 1.3 }}>
-          <circle cx={x(sellAt)} cy={y(pts[sellAt])} r="6" fill="#000" stroke="#c8ff3e" strokeWidth="2.5" />
-          <line x1={x(sellAt)} x2={x(sellAt)} y1={y(pts[sellAt]) + 10} y2={H - 28} stroke="#c8ff3e" strokeOpacity="0.5" />
+          <circle cx={x(sellAt)} cy={y(pts[sellAt])} r="6" fill="#000" stroke={pal.accent} strokeWidth="2.5" />
+          <line x1={x(sellAt)} x2={x(sellAt)} y1={y(pts[sellAt]) + 10} y2={H - 28} stroke={pal.accent} strokeOpacity="0.5" />
         </motion.g>
       </svg>
       <motion.div
@@ -152,7 +153,7 @@ export function HarvestCalculator() {
             <motion.div
               key={i}
               className="flex-1 origin-bottom rounded-t-[4px]"
-              style={ditherStyle("#c8ff3e", 0.3 + b * 0.7, 2)}
+              style={ditherStyle(pal.accent, 0.3 + b * 0.7, 2)}
               initial={false}
               animate={{ height: `${Math.min(100, b * 100 * (0.4 + est.saved / 9000))}%` }}
               transition={{ type: "spring", stiffness: 120, damping: 20, delay: i * 0.02 }}
@@ -260,7 +261,7 @@ function Swap() {
         {["Before", "After"].map((k) => (
           <div key={k} className="flex items-center gap-4">
             <span className="w-16 text-[15px] text-white/60">{k}</span>
-            <motion.span initial={{ width: 0 }} animate={{ width: "100%" }} transition={{ duration: 0.9, ease: EASE_OUT, delay: k === "After" ? 0.35 : 0.1 }} className="h-3 rounded-full" style={ditherStyle("#c8ff3e", k === "After" ? 1 : 0.6, 2)} />
+            <motion.span initial={{ width: 0 }} animate={{ width: "100%" }} transition={{ duration: 0.9, ease: EASE_OUT, delay: k === "After" ? 0.35 : 0.1 }} className="h-3 rounded-full" style={ditherStyle(pal.accent, k === "After" ? 1 : 0.6, 2)} />
           </div>
         ))}
         <p className="pt-1 text-[16px] text-white/65">Both funds track the total US market, so your exposure barely moves.</p>
@@ -314,7 +315,7 @@ function UseLoss() {
               animate={{ width: `${(-LOSS / GAINS) * 100}%` }}
               transition={{ duration: 1, ease: EASE_OUT, delay: 0.2 }}
               className="absolute inset-y-0 right-0"
-              style={ditherStyle("#c8ff3e", 0.85, 2)}
+              style={ditherStyle(pal.accent, 0.85, 2)}
             />
           </div>
           <div className="mt-2 flex justify-between text-[15px]">

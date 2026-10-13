@@ -46,17 +46,17 @@ export default function Overview() {
 
       <LiveShowcase />
 
-      <section className="mt-24" aria-labelledby="studio-title">
+      <section className="mt-16 md:mt-24" aria-labelledby="studio-title">
         <SectionHead id="studio-title" title="Make it yours, right on the page" lead="Studio opens the real site at every breakpoint. Rearrange its sections and rewrite its words where they stand, the way you would in a design tool." action={more("/studio", "Open Studio")} />
         <StudioStage />
       </section>
 
-      <section className="mt-24" aria-labelledby="exits-title">
+      <section className="mt-16 md:mt-24" aria-labelledby="exits-title">
         <SectionHead id="exits-title" title="Then take it wherever you work" lead="The same site, as layers, as files or as a repository. Nothing to rebuild on the other side." />
         <Exits />
       </section>
 
-      <section className="mt-24" aria-labelledby="templates-title">
+      <section className="mt-16 md:mt-24" aria-labelledby="templates-title">
         <SectionHead id="templates-title" title="Whole sites, not just landing pages" lead="Pricing, security, status and blog pages come with every one, and the rest of what its product needs." action={more("/templates", "All templates")} />
         <ul className="grid gap-3 md:grid-cols-3">
           {TEMPLATES.map((t) => (
@@ -84,12 +84,12 @@ export default function Overview() {
         </ul>
       </section>
 
-      <section className="mt-24" aria-labelledby="pricing-head">
+      <section className="mt-16 md:mt-24" aria-labelledby="pricing-head">
         <SectionHead id="pricing-head" title="Pay once, keep every update" lead="Try any template in Studio for free. Buy one for $79, or get every template, section and export with Pro." action={more("/pro#license", "Compare licenses")} />
         <PricingSheet bare />
       </section>
 
-      <section className="mt-24" aria-labelledby="faq-head">
+      <section className="mt-16 md:mt-24" aria-labelledby="faq-head">
         <SectionHead id="faq-head" title="Questions" lead={<>Something else? Write to <a href="mailto:hello@basedraft.site" className="text-fg underline-offset-2 hover:underline">hello@basedraft.site</a>.</>} />
         <FaqSheet bare />
       </section>

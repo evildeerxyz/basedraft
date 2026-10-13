@@ -9,8 +9,8 @@ import { Stepper } from "../site/Stepper";
 import { LogoMark } from "../ui/Logo";
 import { RollingNumber } from "../ui/RollingNumber";
 import { Switch } from "../ui/Switch";
+import { pal } from "@/lib/palette";
 
-const LIME = "#c8ff3e";
 const CLASSES = [
   { k: "US stocks", target: 55, level: 1 },
   { k: "International", target: 18, level: 0.75 },
@@ -45,7 +45,7 @@ export function AutopilotRing() {
         <defs>
           {CLASSES.map((c, i) => (
             <pattern key={c.k} id={`ap-pat-${i}`} width="8" height="8" patternUnits="userSpaceOnUse">
-              <image href={ditherTile(LIME, c.level, 2).slice(5, -2)} width="8" height="8" />
+              <image href={ditherTile(pal.accent, c.level, 2).slice(5, -2)} width="8" height="8" />
             </pattern>
           ))}
         </defs>
@@ -59,7 +59,7 @@ export function AutopilotRing() {
               cy="150"
               r={R}
               fill="none"
-              stroke={i === 0 ? LIME : `url(#ap-pat-${i})`}
+              stroke={i === 0 ? pal.accent : `url(#ap-pat-${i})`}
               strokeWidth="44"
               initial={false}
               animate={{ strokeDasharray: `${len} ${C}`, strokeDashoffset: -offsets[i] }}
@@ -90,7 +90,7 @@ export function AutopilotRing() {
       <ul className="mt-6 flex flex-wrap justify-center gap-x-5 gap-y-2">
         {CLASSES.map((c, i) => (
           <li key={c.k} className="flex items-center gap-2 text-[15px] text-white/70">
-            <span className="size-3 rounded-[3px]" style={c.level === 1 ? { background: LIME } : { backgroundImage: ditherTile(LIME, c.level, 1), backgroundSize: "4px 4px" }} />
+            <span className="size-3 rounded-[3px]" style={c.level === 1 ? { background: pal.accent } : { backgroundImage: ditherTile(pal.accent, c.level, 1), backgroundSize: "4px 4px" }} />
             {c.k}
             <span className="font-mono text-white">{values[i]}%</span>
           </li>
@@ -193,7 +193,7 @@ export function DriftSimulator() {
                   <motion.div
                     key={CLASSES[i].k}
                     className="rounded-[4px]"
-                    style={CLASSES[i].level === 1 ? { background: LIME } : { backgroundImage: ditherTile(LIME, CLASSES[i].level, 2), backgroundSize: "8px 8px" }}
+                    style={CLASSES[i].level === 1 ? { background: pal.accent } : { backgroundImage: ditherTile(pal.accent, CLASSES[i].level, 2), backgroundSize: "8px 8px" }}
                     initial={false}
                     animate={{ width: `${v}%` }}
                     transition={{ type: "spring", stiffness: 120, damping: 20 }}
@@ -349,7 +349,7 @@ export function AutopilotDay() {
                     <span className="relative h-3.5 rounded-full bg-white/[0.06]">
                       <motion.span
                         className="absolute inset-y-0 left-0 rounded-full"
-                        style={c.level === 1 ? { background: over ? "#ff5a4e" : LIME } : { backgroundImage: ditherTile(LIME, c.level, 1), backgroundSize: "4px 4px" }}
+                        style={c.level === 1 ? { background: over ? "#ff5a4e" : pal.accent } : { backgroundImage: ditherTile(pal.accent, c.level, 1), backgroundSize: "4px 4px" }}
                         initial={false}
                         animate={{ width: `${(d.w[k] / 60) * 100}%` }}
                         transition={{ type: "spring", stiffness: 90, damping: 18 }}

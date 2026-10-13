@@ -4,6 +4,7 @@ import { Providers } from "@/components/providers";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/metadata";
 import "lenis/dist/lenis.css";
 import "./globals.css";
+import { BdFrame } from "@/bd/frame"; // basedraft wiring, taken out of the code it hands over
 
 const mona = Mona_Sans({
   variable: "--font-mona",
@@ -50,7 +51,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
     >
       <body className="bg-ink font-sans text-paper">
-        <Providers>{children}</Providers>
+        <Providers><BdFrame>{children}</BdFrame></Providers>
       </body>
     </html>
   );

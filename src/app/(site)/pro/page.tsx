@@ -41,7 +41,7 @@ function RowIcon({ icon: I }: { icon: Icon }) {
   return (
     <span
       aria-hidden
-      className="grid size-7 shrink-0 place-items-center rounded-[5px] bg-fg/[0.05] text-fg"
+      className="hidden size-7 shrink-0 place-items-center rounded-[5px] bg-fg/[0.05] text-fg sm:grid"
     >
       <I size={15} weight="duotone" />
     </span>
@@ -123,7 +123,7 @@ export default function ProPage() {
       </div>
 
 
-      <section className="mt-20 scroll-mt-20" id="delivery" aria-labelledby="delivery-title">
+      <section className="mt-14 md:mt-20 scroll-mt-20" id="delivery" aria-labelledby="delivery-title">
         <SectionHead
           id="delivery-title"
           title="How you get your template"
@@ -147,7 +147,7 @@ export default function ProPage() {
         </ol>
       </section>
 
-      <section className="mt-20 scroll-mt-20" id="license" aria-labelledby="license-title">
+      <section className="mt-14 md:mt-20 scroll-mt-20" id="license" aria-labelledby="license-title">
         <SectionHead
           id="license-title"
           title="What each license covers"
@@ -155,18 +155,18 @@ export default function ProPage() {
         />
         <Sheet>
           <div className="overflow-x-auto no-scrollbar">
-            <table className="w-full min-w-[560px] text-left">
+            <table className="w-full text-left sm:min-w-[560px]">
               <caption className="sr-only">License comparison</caption>
               <thead>
                 <tr className="border-b border-line text-meta text-muted">
-                  <th scope="col" className="px-4 py-2.5 font-normal">
+                  <th scope="col" className="py-2.5 pl-4 pr-2 font-normal sm:px-4">
                     Use
                   </th>
                   {["Free", "Pro", "Team"].map((h) => (
                     <th
                       key={h}
                       scope="col"
-                      className="w-[120px] px-4 py-2.5 font-medium text-fg"
+                      className="w-[52px] px-1 py-2.5 text-center font-medium text-fg sm:w-[120px] sm:px-4 sm:text-left"
                     >
                       {h}
                     </th>
@@ -176,14 +176,14 @@ export default function ProPage() {
               <tbody>
                 {LICENSE.map(([icon, k, ...cols]) => (
                   <tr key={k} className="border-b border-line last:border-0">
-                    <th scope="row" className="px-4 py-2 text-ui font-normal">
+                    <th scope="row" className="py-2.5 pl-4 pr-2 text-ui font-normal sm:px-4 sm:py-2">
                       <span className="flex items-center gap-2.5">
                         <RowIcon icon={icon} />
                         {k}
                       </span>
                     </th>
                     {cols.map((c, i) => (
-                      <td key={i} className="px-4 py-2">
+                      <td key={i} className="px-1 py-2 text-center sm:px-4 sm:text-left">
                         <Mark on={c} />
                       </td>
                     ))}
@@ -195,7 +195,7 @@ export default function ProPage() {
         </Sheet>
       </section>
 
-      <section className="mt-20 scroll-mt-20" id="faq" aria-labelledby="faq-title">
+      <section className="mt-14 md:mt-20 scroll-mt-20" id="faq" aria-labelledby="faq-title">
         <SectionHead
           id="faq-title"
           title="Questions"

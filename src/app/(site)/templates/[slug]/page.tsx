@@ -82,12 +82,13 @@ async function Template({ params }: { params: PageProps<"/templates/[slug]">["pa
         <TemplatePreview slug={t.slug} />
       </div>
 
-      <section className="mt-20" aria-labelledby="pages-title">
+      <section className="mt-14 md:mt-20" aria-labelledby="pages-title">
         <SectionHead id="pages-title" title={`All ${t.pages.length} pages, included`} lead="Every one is in the download and opens in Studio. Open any of them live." />
-        <ul className="bd-reveal grid gap-px overflow-hidden rounded-[var(--bd-r-sheet)] bg-line shadow-[0_0_0_1px_var(--bd-line)] sm:grid-cols-12">
+        {/* Two to a row on phones too, so 25 pages don't run a whole screen's length several times over. */}
+        <ul className="bd-reveal grid grid-cols-2 gap-px overflow-hidden rounded-[var(--bd-r-sheet)] bg-line shadow-[0_0_0_1px_var(--bd-line)] sm:grid-cols-12">
           {t.pages.map((p, i) => (
-            <li key={p.path} className={`bg-surface ${span(i, t.pages.length)}`}>
-              <a href={viewUrl(t.slug, p.path)} target="_blank" rel="noreferrer" className="group flex h-full items-center justify-between gap-3 px-4 py-3.5 transition-colors hover:bg-fg/[0.03]">
+            <li key={p.path} className={`bg-surface ${span(i, t.pages.length)} ${t.pages.length % 2 && i === t.pages.length - 1 ? "max-sm:col-span-2" : ""}`}>
+              <a href={viewUrl(t.slug, p.path)} target="_blank" rel="noreferrer" className="group flex h-full items-center justify-between gap-2 px-3 py-3 transition-colors hover:bg-fg/[0.03] sm:gap-3 sm:px-4 sm:py-3.5">
                 <span className="min-w-0">
                   <span className="block truncate text-ui font-medium">{p.label}</span>
                   <span className="block truncate font-mono text-[12px] text-subtle">{p.path}</span>
@@ -99,11 +100,12 @@ async function Template({ params }: { params: PageProps<"/templates/[slug]">["pa
         </ul>
       </section>
 
-      <section className="mt-20" aria-labelledby="sections-title">
+      <section className="mt-14 md:mt-20" aria-labelledby="sections-title">
         <SectionHead id="sections-title" title="On the home page" lead={`${home.length} sections, in order. Each one also works on its own, on any page you build.`} />
         <ul className="grid grid-cols-2 gap-x-3 gap-y-5 md:grid-cols-4">
-          {home.map((s) => (
-            <li key={s.id} className="bd-reveal">
+          {home.map((s, i) => (
+            // A lone last one on a phone's two columns takes the row.
+            <li key={s.id} className={`bd-reveal ${home.length % 2 && i === home.length - 1 ? "max-md:col-span-2" : ""}`}>
               <Link href={`/components/${s.kind}#${s.template}-${s.id}`} className="group block">
                 <span className="relative block aspect-[16/10] overflow-hidden rounded-[8px] bg-surface shadow-[0_0_0_1px_rgb(var(--bd-ink)/0.08)]">
                   <Image src={sectionShot(s)} alt="" fill sizes="(min-width: 768px) 240px, 50vw" className="object-cover transition-transform duration-500 group-hover:scale-[1.03]" />

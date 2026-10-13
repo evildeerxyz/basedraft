@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Instrument_Sans, Inter_Tight, Mona_Sans } from "next/font/google";
+import { Geist, Geist_Mono, Instrument_Sans } from "next/font/google";
 import { Analytics } from "@/site/analytics";
 import { AuthModal, ProfileModal } from "@/site/auth";
 import { COLOR_MODE_SCRIPT } from "@/site/color-mode-script";
@@ -9,12 +9,11 @@ import { ProModal } from "@/site/pro-modal";
 import { Toaster } from "@/site/toast";
 import "./globals.css";
 
-const geist = Geist({ variable: "--font-geist", subsets: ["latin"] });
-const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
-const mona = Mona_Sans({ variable: "--font-mona", subsets: ["latin"], axes: ["wdth"] });
-const interTight = Inter_Tight({ variable: "--font-inter-tight", subsets: ["latin"] });
-/* basedraft's own face. Templates bring theirs. */
+/* basedraft's own face, the one the first paint needs. Templates bring theirs. */
 const instrument = Instrument_Sans({ variable: "--font-instrument", subsets: ["latin"], axes: ["wdth"] });
+// A fallback and the code face: fetched when something uses them, not ahead of every page.
+const geist = Geist({ variable: "--font-geist", subsets: ["latin"], preload: false });
+const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"], preload: false });
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://basedraft.site"),
@@ -33,7 +32,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     // The script in <head> sets the saved or system mode before first paint, so the server's
     // "light" can differ from what hydrates: the DOM wins.
-    <html lang="en" data-theme="light" suppressHydrationWarning className={`${geist.variable} ${geistMono.variable} ${mona.variable} ${interTight.variable} ${instrument.variable}`}>
+    <html lang="en" data-theme="light" suppressHydrationWarning className={`${geist.variable} ${geistMono.variable} ${instrument.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: COLOR_MODE_SCRIPT }} />
       </head>

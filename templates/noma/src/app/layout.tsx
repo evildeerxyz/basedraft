@@ -4,6 +4,7 @@ import { Providers } from "@/components/site/providers";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import { THEME_SCRIPT } from "@/lib/theme";
 import "./globals.css";
+import { BdFrame } from "@/bd/frame"; // basedraft wiring, taken out of the code it hands over
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
@@ -32,7 +33,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
       <body>
-        <Providers>{children}</Providers>
+        <Providers><BdFrame>{children}</BdFrame></Providers>
       </body>
     </html>
   );

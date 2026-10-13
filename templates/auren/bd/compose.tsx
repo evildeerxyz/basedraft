@@ -29,6 +29,7 @@ export function Compose() {
         }
         document.head.appendChild(el);
         el.textContent = String(e.data.css ?? "");
+        releaseGl();
         setColors((n) => n + 1);
       }
     };
@@ -49,4 +50,16 @@ export function Compose() {
       ))}
     </>
   );
+}
+
+/**
+ * The page is about to be drawn again, so its WebGL contexts are released first. Shaders open a
+ * new one when they're made, and the browser only allows a handful at once: left for the garbage
+ * collector, a few color changes would use them up and new shaders would draw blank.
+ */
+function releaseGl() {
+  for (const c of document.querySelectorAll("canvas")) {
+    const gl = (c.getContext("webgl2") ?? c.getContext("webgl")) as WebGLRenderingContext | null;
+    gl?.getExtension("WEBGL_lose_context")?.loseContext();
+  }
 }

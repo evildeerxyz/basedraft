@@ -37,8 +37,9 @@ export default function ComponentsPage() {
                 </Link>
               </div>
               <ul className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                {list.map((s) => (
-                  <li key={s.key}>
+                {list.map((s, i) => (
+                  // A lone last one on a phone's two columns takes the row.
+                  <li key={s.key} className={list.length % 2 && i === list.length - 1 ? "max-md:col-span-2" : undefined}>
                     <Link href={`/components/${k.id}#${s.template}-${s.id}`} className="group block">
                       <span className="relative block aspect-[16/10] overflow-hidden rounded-[8px] bg-surface shadow-[0_0_0_1px_rgb(var(--bd-ink)/0.08)]">
                         <Image src={sectionShot(s)} alt="" fill sizes="(min-width: 768px) 240px, 50vw" className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.04]" />

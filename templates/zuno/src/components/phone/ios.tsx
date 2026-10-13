@@ -4,6 +4,7 @@ import { BackspaceIcon, CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/re
 import { motion } from "motion/react";
 import { useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { pal } from "@/lib/palette";
 
 /* iOS dark-mode system colours, tinted with the Zuno accent. */
 export const C = {
@@ -14,7 +15,9 @@ export const C = {
   card: "#1c1c1e",
   card2: "#2c2c2e",
   fill: "rgba(120,120,128,0.24)",
-  accent: "#c8ff3e",
+  get accent() {
+    return pal.accent;
+  },
   red: "#ff453a",
   onAccent: "#0a0a0a",
 };

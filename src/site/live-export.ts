@@ -96,6 +96,12 @@ export async function openLive(url: string, width: number, names: Record<string,
   Object.assign(f.style, { position: "fixed", left: "0px", top: "0px", width: `${width}px`, height: "900px", border: "0", opacity: "0", pointerEvents: "none", zIndex: "-1", transformOrigin: "0 0" });
   if (show) Object.assign(f.style, { position: "absolute", left: `${show.left}px`, opacity: "1", zIndex: "0" });
   document.body.appendChild(f);
+  // basedraft's wiring in the page says when it's listening (bd:ready); heard from the start, so
+  // it can't be missed while the page loads.
+  let hear: () => void = () => {};
+  const listening = new Promise<void>((ok) => (hear = ok));
+  const onReady = (e: MessageEvent) => e.source === f.contentWindow && e.data?.type === "bd:ready" && hear();
+  window.addEventListener("message", onReady);
   try {
     keepWebglPixels(f.contentWindow);
     // The page's own window may replace the blank one; patch it the moment it appears.
@@ -113,18 +119,12 @@ export async function openLive(url: string, width: number, names: Record<string,
     }).finally(() => (loaded = true));
     const doc = f.contentDocument;
     if (!doc?.body) throw new Error("The page didn't load");
-    await doc.fonts?.ready;
-    await wait(500);
-    // A whole page in one frame, with anything sized to the window kept at a window's height.
-    await pinViewportHeights(f, 900);
-    const height = Math.min(30000, Math.max(900, pageHeight(doc)));
-    f.style.height = `${height}px`;
-    if (!show) f.style.transform = `scale(${Math.min(1, innerHeight / height, innerWidth / width)})`;
-    await settle(doc);
     if (edits?.theme) {
-      // The colors as CSS, then the page drawn again with them, so its shaders and canvases are in
-      // them too: the page says when it has (pages that can't, a template's own, just get the CSS).
+      // The colors first, before anything settles: as CSS, then the page drawn again with them, so
+      // its shaders and canvases are in them too. The page says when it has (a template's own
+      // page can't, and just gets the CSS). One settle afterwards covers both.
       applyTheme(doc, edits.theme);
+      await Promise.race([listening, wait(1500)]);
       const win = f.contentWindow;
       const redrawn = new Promise<void>((ok) => {
         const on = (e: MessageEvent) => {
@@ -136,13 +136,19 @@ export async function openLive(url: string, width: number, names: Record<string,
         setTimeout(() => {
           window.removeEventListener("message", on);
           ok();
-        }, 2500);
+        }, 2000);
       });
       win?.postMessage({ type: "bd:theme", css: edits.theme }, location.origin);
       await redrawn;
-      await wait(300);
-      await settle(doc);
     }
+    await doc.fonts?.ready;
+    await wait(500);
+    // A whole page in one frame, with anything sized to the window kept at a window's height.
+    await pinViewportHeights(f, 900);
+    const height = Math.min(30000, Math.max(900, pageHeight(doc)));
+    f.style.height = `${height}px`;
+    if (!show) f.style.transform = `scale(${Math.min(1, innerHeight / height, innerWidth / width)})`;
+    await settle(doc);
     if (edits?.edits?.length) {
       applyEdits(doc, edits.edits, edits.remap ? (k) => edits.remap![k] ?? k : undefined);
       // Edited text can change a line's length, and with it the page's height.
@@ -160,6 +166,8 @@ export async function openLive(url: string, width: number, names: Record<string,
   } catch (e) {
     f.remove();
     throw e;
+  } finally {
+    window.removeEventListener("message", onReady);
   }
 }
 

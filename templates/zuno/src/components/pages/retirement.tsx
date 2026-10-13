@@ -7,6 +7,7 @@ import { cn, EASE_IN_OUT, EASE_OUT, formatUSD } from "@/lib/utils";
 import { DitherShader } from "../dither/DitherShader";
 import { DataTable } from "../site/DataTable";
 import { Stepper } from "../site/Stepper";
+import { pal } from "@/lib/palette";
 
 const N = 60;
 // Smooth compounding curve with a little market noise: age 30 to 65.
@@ -29,7 +30,7 @@ export function RetirementHero() {
   return (
     <div ref={ref} className="relative aspect-[5/4] w-full overflow-hidden rounded-[24px] border border-white/[0.08] bg-ink-2">
       <div className="absolute inset-x-0 bottom-10 top-24">
-        <DitherShader shape="chart" data={HEIGHTS} reveal={reveal} color="#c8ff3e" secondColor="#c8ff3e" secondOpacity={0.4} pixelSize={3} interactive={false} />
+        <DitherShader shape="chart" data={HEIGHTS} reveal={reveal} color={pal.accent} secondColor={pal.accent} secondOpacity={0.4} pixelSize={3} interactive={false} />
       </div>
       <div className="absolute left-6 top-6">
         <div className="text-[17px] font-medium text-white/60">Roth IRA · projected</div>

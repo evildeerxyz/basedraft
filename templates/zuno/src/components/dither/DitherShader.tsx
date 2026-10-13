@@ -4,6 +4,7 @@ import type { MotionValue } from "motion/react";
 import { useEffect, useRef } from "react";
 import { cn, hexToRgb } from "@/lib/utils";
 import { fragmentShader, VERTEX_SHADER, type DitherShape } from "./shaders";
+import { pal } from "@/lib/palette";
 
 type Orb = [x: number, y: number, radius: number];
 
@@ -227,7 +228,7 @@ export function DitherShader(props: DitherShaderProps) {
       gl.uniform1f(loc.time, time);
       gl.uniform2f(loc.mouse, mouse.x, mouse.y);
       gl.uniform1f(loc.mouseActive, mouse.active);
-      gl.uniform4fv(loc.front, premultiplied(p.color ?? "#c8ff3e", p.opacity ?? 1));
+      gl.uniform4fv(loc.front, premultiplied(p.color ?? pal.accent, p.opacity ?? 1));
       gl.uniform4fv(loc.second, premultiplied(p.secondColor ?? "#ffffff", p.secondOpacity ?? 0.18));
       gl.uniform1f(loc.scale, p.scale ?? 1.4);
       gl.uniform1f(loc.intensity, p.intensity ?? 1);

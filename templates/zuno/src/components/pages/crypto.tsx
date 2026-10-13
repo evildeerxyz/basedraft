@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { linePath, makeSeries } from "@/lib/chart";
 import { cn, formatUSD } from "@/lib/utils";
 import { DitherShader } from "../dither/DitherShader";
+import { pal } from "@/lib/palette";
 
 const ASSETS = [
   { sym: "BTC", name: "Bitcoin", price: 112480.55, chg: -1.12, seed: 15, color: "#f7931a" },
@@ -25,7 +26,7 @@ export function CryptoHero() {
   const prices = useLivePrices();
   return (
     <div className="relative aspect-square w-full overflow-hidden rounded-[24px] border border-white/[0.08] bg-ink-2">
-      <DitherShader shape="planet" ring orb={[0.5, 0.45, 0.24]} color="#c8ff3e" pixelSize={3} interactive />
+      <DitherShader shape="planet" ring orb={[0.5, 0.45, 0.24]} color={pal.accent} pixelSize={3} interactive />
       <div className="absolute inset-x-5 bottom-5 grid grid-cols-2 gap-3 sm:inset-x-8 sm:bottom-8">
         {ASSETS.map((a, i) => (
           <div key={a.sym} className="rounded-[14px] bg-ink/90 px-4 py-3 ring-1 ring-white/10">
@@ -82,7 +83,7 @@ function Spark({ seed, up }: { seed: number; up: boolean }) {
   const d = useMemo(() => linePath(makeSeries(seed, 40, up ? 0.5 : -0.4), 160, 56, 4), [seed, up]);
   return (
     <svg viewBox="0 0 160 56" className="h-14 w-40" aria-hidden>
-      <path d={d} fill="none" stroke={up ? "#c8ff3e" : "#ff5a4e"} strokeWidth="2" strokeLinecap="round" />
+      <path d={d} fill="none" stroke={up ? pal.accent : "#ff5a4e"} strokeWidth="2" strokeLinecap="round" />
     </svg>
   );
 }

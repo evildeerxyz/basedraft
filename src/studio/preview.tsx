@@ -113,7 +113,7 @@ export function PreviewView({ project, view: initial, viewport: startAt = "deskt
     const w = frame.current?.contentWindow;
     if (!ready || !w) return;
     if (compose && page) w.postMessage({ type: "bd:sections", keys: page.keys }, location.origin);
-    if (compose && css !== sent.current) w.postMessage({ type: "bd:theme", css }, location.origin);
+    if (css !== sent.current) w.postMessage({ type: "bd:theme", css }, location.origin);
     sent.current = css;
     paint();
   }, [ready, compose, page, css, project.edits, paint]);

@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpRightIcon, CaretDownIcon, ListIcon, XIcon } from "@phosphor-icons/react";
+import { ArrowUpRightIcon, BooksIcon, CaretDownIcon, ChatCircleIcon, ListIcon, MagnifyingGlassIcon, ScrollIcon, TruckIcon, XIcon } from "@phosphor-icons/react";
 import { AnimatePresence, LayoutGroup, motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -17,7 +17,7 @@ import { DitherSky } from "./plan-parts";
 import { usePlan } from "./plan";
 import { openPro } from "./pro-modal";
 import { btn, btnSm } from "./sheet";
-import { CommandMenu } from "./command";
+import { CommandMenu, openCommand } from "./command";
 import { toast } from "./toast";
 import { accountItems, TopBar } from "./topbar";
 
@@ -65,6 +65,20 @@ function Rail({ onNavigate, onClose }: { onNavigate?: () => void; onClose?: () =
           </button>
         )}
       </div>
+      {/* On phones there's no top bar, so search lives in the menu. */}
+      {onClose && (
+        <button
+          type="button"
+          onClick={() => {
+            onClose();
+            openCommand();
+          }}
+          className="-mt-2 mb-5 flex h-10 w-full items-center gap-2.5 rounded-control bg-fg/[0.05] px-3 text-left text-ui text-subtle transition-colors hover:bg-fg/[0.07]"
+        >
+          <MagnifyingGlassIcon size={16} className="shrink-0" />
+          Search templates and sections
+        </button>
+      )}
       <LayoutGroup id={group}>
       <nav aria-label="Main" className="no-scrollbar -mx-1 flex-1 space-y-5 overflow-y-auto px-1">
         <div className="space-y-0.5">
@@ -118,10 +132,28 @@ function Rail({ onNavigate, onClose }: { onNavigate?: () => void; onClose?: () =
           )}
           </AnimatePresence>
         </div>
+        {/* The top bar's Resources, for phones. */}
+        {onClose && (
+          <div className="space-y-0.5 border-t border-line pt-4">
+            <p className="px-2.5 pb-1 text-meta font-medium text-subtle">Resources</p>
+            <Item href="/pro#delivery" icon={TruckIcon} on={false} onNavigate={onNavigate}>
+              How you get a template
+            </Item>
+            <Item href="/pro#license" icon={ScrollIcon} on={false} onNavigate={onNavigate}>
+              What each license covers
+            </Item>
+            <Item href="/pro#faq" icon={BooksIcon} on={false} onNavigate={onNavigate}>
+              Questions
+            </Item>
+            <Item href="mailto:hello@basedraft.site" icon={ChatCircleIcon} on={false} onNavigate={onNavigate}>
+              Write to us
+            </Item>
+          </div>
+        )}
       </nav>
       </LayoutGroup>
       {/* On phones the rail is a drawer, and the poster sits at its foot; on desktop it's a card in the corner. */}
-      {onNavigate && <PlanPoster onNavigate={onNavigate} />}
+      {onNavigate && <PlanPoster onNavigate={onNavigate} compact />}
     </div>
   );
 }
@@ -137,15 +169,15 @@ const FAN = [
  * The foot of the rail: a small poster for Pro, the templates fanned out over a dithered sky, a
  * headline and one action. On Pro it says the kit is yours. Your account sits under it, apart.
  */
-function PlanPoster({ onNavigate, className = "mt-4" }: { onNavigate?: () => void; className?: string }) {
+function PlanPoster({ onNavigate, className = "mt-4", compact }: { onNavigate?: () => void; className?: string; /** Without the fan of templates, for the phone menu, where the list needs the room. */ compact?: boolean }) {
   const [plan] = usePlan();
   const pro = plan === "pro";
   return (
     <div className={cn("group relative overflow-hidden rounded-[var(--bd-r-sheet)] bg-fg text-canvas shadow-[0_18px_36px_-20px_rgb(var(--bd-shade)/0.7),inset_0_1px_0_rgb(var(--bd-paper)/0.08)]", className)}>
       {/* Clipped twice over: overflow alone lets a rotated, animating card escape in some browsers. */}
-      <div aria-hidden className="relative h-[100px] overflow-hidden [clip-path:inset(0)]">
+      <div aria-hidden className={cn("relative overflow-hidden [clip-path:inset(0)]", compact ? "h-4" : "h-[100px]")}>
         <DitherSky tone="ink" />
-        {FAN.map((f) => (
+        {!compact && FAN.map((f) => (
           <span key={f.slug} className={cn("absolute aspect-[16/11] overflow-hidden rounded-[4px] shadow-[0_10px_24px_-8px_rgba(0,0,0,0.8),0_0_0_1px_rgb(var(--bd-paper)/0.12)] transition-transform duration-500 ease-out motion-reduce:transition-none", f.className)}>
             <Image src={`/shots/${f.slug}.jpg`} alt="" fill sizes="120px" className="object-cover object-top" />
           </span>
@@ -257,7 +289,6 @@ export function SiteShell({ children }: { children: ReactNode }) {
           <BaseDraftLogo />
         </Link>
         <div className="flex items-center gap-2">
-          <ColorModeSwitch />
           <HeaderAccount />
           <button onClick={() => setOpen(true)} aria-label="Open menu" aria-expanded={open} aria-controls="mobile-rail" className="grid size-9 place-items-center rounded-control bg-fg/[0.06]">
             <ListIcon size={18} weight="bold" />
@@ -274,7 +305,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ duration: 0.35, ease: EASE_OUT }}
-              className="fixed inset-y-0 left-0 z-50 w-[280px] bg-canvas p-3 shadow-xl lg:hidden"
+              className="fixed inset-y-0 left-0 z-50 w-[min(320px,88vw)] bg-canvas p-3 shadow-xl lg:hidden"
             >
               <Rail onNavigate={() => setOpen(false)} onClose={() => setOpen(false)} />
             </motion.aside>

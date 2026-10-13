@@ -44,6 +44,9 @@ function plumbing(t: LiveTemplate) {
   return [`${src}bd/`, `${app}bd/`];
 }
 
+/** A layout without basedraft's wiring: its import, and the wrapper around the page. */
+const unwire = (src: string) => src.replace(/^import \{ BdFrame \} from "@\/bd\/frame";[^\n]*\n/m, "").replace(/<BdFrame>\{children\}<\/BdFrame>/g, "{children}");
+
 /** next.config without the base path that serves the template under /live/<slug>. */
 const standalone = (config: string) => config.replace(/^[ \t]*\/\/ Served by basedraft[^\n]*\n/m, "").replace(/^[ \t]*basePath:[^\n]*\n/m, "");
 
@@ -74,6 +77,8 @@ export async function templateSource(slug: string): Promise<Files> {
   }
   const config = files.get("next.config.ts");
   if (typeof config === "string") files.set("next.config.ts", standalone(config));
+  // basedraft's wiring in the root layout (it lets Studio recolor the template's own pages) comes out.
+  for (const [rel, v] of files) if (typeof v === "string" && v.includes("@/bd/frame")) files.set(rel, unwire(v));
   return files;
 }
 

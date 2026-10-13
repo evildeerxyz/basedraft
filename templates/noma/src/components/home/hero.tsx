@@ -141,7 +141,7 @@ export function Hero() {
   return (
     <section className="relative overflow-x-clip">
       <Container className="grid items-center gap-6 pb-12 pt-10 md:pt-14 lg:grid-cols-[1.05fr_1fr] lg:pb-16">
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }} className="relative z-10 max-w-[640px]">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }} className="relative z-10 min-w-0 max-w-[640px]">
           <Link
             href="/blog/series-b"
             className="group inline-flex h-8 max-w-full items-center gap-2.5 border border-line pl-1 pr-3 text-[13px] text-ink-2 transition-colors hover:border-ink hover:text-ink"

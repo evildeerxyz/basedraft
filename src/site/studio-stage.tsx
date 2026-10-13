@@ -71,7 +71,9 @@ function Dither() {
 
 export function StudioStage() {
   return (
-    <div className="bd-reveal relative isolate grid aspect-[4/3] place-items-center overflow-hidden rounded-[var(--bd-r-sheet)] bg-fg sm:aspect-[16/10]">
+    // On a phone the whole of Studio would be too small to read: the stage stands upright and the
+    // window shows its left half, the layers and the selected hero, at twice the size.
+    <div className="bd-reveal relative isolate grid aspect-[5/7] place-items-center overflow-hidden rounded-[var(--bd-r-sheet)] bg-fg sm:aspect-[16/10]">
       <Dither />
       <div className="w-[90%] overflow-hidden rounded-[8px] bg-surface shadow-[0_40px_90px_-30px_rgba(0,0,0,0.75),0_0_0_1px_rgb(var(--bd-paper)/0.14)] sm:w-[78%]">
         {/* A window around it, so it reads as an app on a screen. */}
@@ -80,9 +82,9 @@ export function StudioStage() {
             <span key={i} className="size-2 rounded-full bg-fg/15 sm:size-2.5" />
           ))}
         </div>
-        <div className="relative aspect-[16/10] bg-well">
-          <Image src="/shots/studio-stage.jpg" alt="Studio with Zuno open: its sections as layers on the left, the hero selected on the canvas, and its words in the inspector" fill quality={85} sizes="(min-width: 1024px) 860px, 90vw" className="object-cover dark:hidden" />
-          <Image src="/shots/studio-stage-dark.jpg" alt="" aria-hidden fill quality={85} sizes="(min-width: 1024px) 860px, 90vw" className="hidden object-cover dark:block" />
+        <div className="relative aspect-[4/5] bg-well sm:aspect-[16/10]">
+          <Image src="/shots/studio-stage.jpg" alt="Studio with Zuno open: its sections as layers on the left, the hero selected on the canvas, and its words in the inspector" fill quality={85} sizes="(min-width: 1024px) 860px, 180vw" className="object-cover object-[22%_50%] dark:hidden sm:object-center" />
+          <Image src="/shots/studio-stage-dark.jpg" alt="" aria-hidden fill quality={85} sizes="(min-width: 1024px) 860px, 180vw" className="hidden object-cover object-[22%_50%] dark:block sm:object-center" />
         </div>
       </div>
     </div>

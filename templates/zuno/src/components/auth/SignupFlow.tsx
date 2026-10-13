@@ -9,6 +9,7 @@ import { cn, EASE_OUT, formatUSD } from "@/lib/utils";
 import { Field, Input } from "../ui/Field";
 import { RollingNumber } from "../ui/RollingNumber";
 import { PASSWORD_RULES, PasswordInput, PasswordStrength, PrimaryButton } from "./parts";
+import { pal } from "@/lib/palette";
 
 /* ---------- plan maths ---------- */
 
@@ -29,7 +30,6 @@ const PLANS = [
 ];
 const MIX = ["US stocks", "International", "Bonds", "Crypto", "Cash"];
 const LEVELS = [1, 0.75, 0.5, 0.32, 0.16];
-const LIME = "#c8ff3e";
 
 function planFor(drop: Drop, horizon: Horizon) {
   const byFeel = drop === "sell" ? 0 : drop === "wait" ? 1 : 2;
@@ -90,7 +90,7 @@ function PlanPreview({ plan, initial, monthly, years, name }: { plan: number; in
             <motion.span
               key={MIX[i]}
               className="h-full rounded-[3px]"
-              style={LEVELS[i] === 1 ? { background: LIME } : { backgroundImage: ditherTile(LIME, LEVELS[i], 1), backgroundSize: "4px 4px" }}
+              style={LEVELS[i] === 1 ? { background: pal.accent } : { backgroundImage: ditherTile(pal.accent, LEVELS[i], 1), backgroundSize: "4px 4px" }}
               initial={false}
               animate={{ width: `${v}%` }}
               transition={{ type: "spring", stiffness: 120, damping: 20 }}
@@ -102,7 +102,7 @@ function PlanPreview({ plan, initial, monthly, years, name }: { plan: number; in
         {p.mix.map((v, i) =>
           v ? (
             <li key={MIX[i]} className="flex items-center gap-2 text-[15px] text-white/70">
-              <span className="size-3 rounded-[3px]" style={LEVELS[i] === 1 ? { background: LIME } : { backgroundImage: ditherTile(LIME, LEVELS[i], 1), backgroundSize: "4px 4px" }} />
+              <span className="size-3 rounded-[3px]" style={LEVELS[i] === 1 ? { background: pal.accent } : { backgroundImage: ditherTile(pal.accent, LEVELS[i], 1), backgroundSize: "4px 4px" }} />
               {MIX[i]} <span className="tabular-nums text-white">{v}%</span>
             </li>
           ) : null,
@@ -122,11 +122,11 @@ function PlanPreview({ plan, initial, monthly, years, name }: { plan: number; in
       <svg viewBox={`0 0 ${W} ${H}`} className="mt-8 h-auto w-full" aria-hidden>
         <defs>
           <pattern id="signup-dither" width="6" height="6" patternUnits="userSpaceOnUse">
-            <image href={ditherTile(LIME, 0.32, 1.5).slice(5, -2)} width="6" height="6" />
+            <image href={ditherTile(pal.accent, 0.32, 1.5).slice(5, -2)} width="6" height="6" />
           </pattern>
         </defs>
         <motion.path initial={false} animate={{ d: area }} transition={{ type: "spring", stiffness: 80, damping: 18 }} fill="url(#signup-dither)" />
-        <motion.path initial={false} animate={{ d: line }} transition={{ type: "spring", stiffness: 80, damping: 18 }} fill="none" stroke={LIME} strokeWidth="2.5" strokeLinecap="round" />
+        <motion.path initial={false} animate={{ d: line }} transition={{ type: "spring", stiffness: 80, damping: 18 }} fill="none" stroke={pal.accent} strokeWidth="2.5" strokeLinecap="round" />
       </svg>
       <p className="mt-5 text-[15px] leading-relaxed text-white/55">Hypothetical projection, not a guarantee. Assumes a steady return after the Plus fee. Real returns vary and you can lose money.</p>
     </div>

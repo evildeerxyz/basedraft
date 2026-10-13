@@ -1,8 +1,8 @@
 "use client";
 
 import Script from "next/script";
-import posthog from "posthog-js";
-import { useEffect, useRef } from "react";
+import type { PostHog } from "posthog-js";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 import { displayName, useAuth } from "./auth";
 
 /*
@@ -21,11 +21,26 @@ declare global {
   }
 }
 
+/* PostHog arrives a moment after the page (see src/instrumentation-client.ts). */
+const loaded = () => (globalThis as { posthog?: PostHog }).posthog?.__loaded ? (globalThis as { posthog?: PostHog }).posthog! : null;
+const waiting: Array<[string, Props | undefined]> = [];
+const onLoaded = (cb: () => void) => {
+  window.addEventListener("bd-analytics", cb);
+  return () => window.removeEventListener("bd-analytics", cb);
+};
+if (typeof window !== "undefined")
+  onLoaded(() => {
+    const ph = loaded();
+    for (const [e, p] of waiting.splice(0)) ph?.capture(e, p);
+  });
+
 /** One of the moments worth counting: an export, a checkout, a comment, an invite. */
 export function track(event: string, props?: Props) {
   if (!ON) return;
   try {
-    if (posthog.__loaded) posthog.capture(event, props);
+    const ph = loaded();
+    if (ph) ph.capture(event, props);
+    else waiting.push([event, props]);
     window.gtag?.("event", event, props);
   } catch {
     /* analytics never stops the site */
@@ -35,22 +50,25 @@ export function track(event: string, props?: Props) {
 export function Analytics() {
   const { user } = useAuth();
   const known = useRef<string | null>(null);
+  const ready = useSyncExternalStore(onLoaded, () => Boolean(loaded()), () => false);
   useEffect(() => {
-    if (!ON || !posthog.__loaded) return;
+    const ph = loaded();
+    if (!ON || !ph) return;
     if (user && known.current !== user.id) {
-      posthog.identify(user.id, { email: user.email, name: displayName(user) });
+      ph.identify(user.id, { email: user.email, name: displayName(user) });
       known.current = user.id;
     } else if (!user && known.current) {
-      posthog.reset();
+      ph.reset();
       known.current = null;
     }
-  }, [user]);
+  }, [user, ready]);
 
   if (!ON || !GA) return null;
   return (
     <>
-      <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA}`} strategy="afterInteractive" />
-      <Script id="ga" strategy="afterInteractive">{`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}window.gtag=gtag;gtag('js',new Date());gtag('config','${GA}');`}</Script>
+      {/* After the page has loaded: Google's tag is the heaviest thing on it. */}
+      <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA}`} strategy="lazyOnload" />
+      <Script id="ga" strategy="lazyOnload">{`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}window.gtag=gtag;gtag('js',new Date());gtag('config','${GA}');`}</Script>
     </>
   );
 }

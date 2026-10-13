@@ -67,7 +67,7 @@ export default function CareersPage() {
         <ol className="grid gap-4 lg:grid-cols-12">
           {PROCESS.map((p, i) => (
             <li key={p.title} className={p.span}>
-              <div className="h-2.5 rounded-full" style={{ background: "#c8ff3e", opacity: 0.35 + i * 0.2 }} />
+              <div className="h-2.5 rounded-full" style={{ background: "var(--zn-accent)", opacity: 0.35 + i * 0.2 }} />
               <div className="mt-6 text-[17px] font-medium text-accent">{p.when}</div>
               <div className="mt-2 text-[clamp(1.6rem,2.4vw,2.1rem)] font-semibold leading-[1.1] tracking-[-0.035em]">{p.title}</div>
               <p className="mt-3 max-w-[340px] text-[17px] leading-relaxed text-white/65">{p.body}</p>

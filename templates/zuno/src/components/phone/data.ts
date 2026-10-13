@@ -1,3 +1,4 @@
+import { pal } from "@/lib/palette";
 /* Demo account data for the in-phone prototype. */
 
 export type AssetClass = "US stocks" | "International" | "Bonds" | "Crypto" | "Cash";
@@ -104,7 +105,9 @@ export const RISK_TARGETS: Record<string, Record<AssetClass, number>> = {
 };
 
 export const CLASS_COLORS: Record<AssetClass, string> = {
-  "US stocks": "#c8ff3e",
+  get "US stocks"() {
+    return pal.accent;
+  },
   International: "#5ee0b0",
   Bonds: "#6cb8ff",
   Crypto: "#bf5af2",

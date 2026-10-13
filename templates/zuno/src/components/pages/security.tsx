@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { ditherStyle } from "@/lib/dither";
 import { cn, EASE_OUT } from "@/lib/utils";
 import { Stepper } from "../site/Stepper";
+import { pal } from "@/lib/palette";
 
 const LAYERS = [
   {
@@ -44,7 +45,7 @@ function Rings({ active }: { active: number }) {
               animate={on ? { scale: [1, 1.015, 1] } : { scale: 1 }}
               transition={on ? { duration: 2.4, repeat: Infinity, ease: "easeInOut" } : { duration: 0.3 }}
             >
-              {on && <motion.div layoutId="layer-fill" className="absolute inset-0 rounded-[34px] opacity-25" style={ditherStyle("#c8ff3e", 0.35, 2)} />}
+              {on && <motion.div layoutId="layer-fill" className="absolute inset-0 rounded-[34px] opacity-25" style={ditherStyle(pal.accent, 0.35, 2)} />}
               <span className={cn("absolute left-5 top-0 -translate-y-1/2 rounded-full bg-ink-2 px-2.5 text-[15px] font-medium transition-colors duration-500", on ? "text-accent" : "text-white/55")}>
                 {l.title}
               </span>

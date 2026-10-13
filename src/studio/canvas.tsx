@@ -152,6 +152,10 @@ interface FrameProps {
   src: string;
   /** Opens the preview at this breakpoint's width. */
   onPreview: (device: CanvasDevice) => void;
+  /** Out of view (or Studio's preview is open): drawn no more until it's back, so it costs nothing. */
+  paused: boolean;
+  /** Changes when the page should be measured and painted again (back from the preview). */
+  resync: number;
   compose: boolean;
   keys: string[];
   edits: TextEdit[];
@@ -174,7 +178,7 @@ interface FrameProps {
 }
 
 /** One breakpoint: its label, and the page at that width and its full height. */
-const Frame = memo(function Frame({ device, primary, src, onPreview, compose, keys, edits, theme, selected, z, left, onHeight, onRects, onHover, onSelect, onKey, onText, onWheel, onPoint, onReady, register, height, scope }: FrameProps) {
+const Frame = memo(function Frame({ device, primary, src, onPreview, paused, resync, compose, keys, edits, theme, selected, z, left, onHeight, onRects, onHover, onSelect, onKey, onText, onWheel, onPoint, onReady, register, height, scope }: FrameProps) {
   const ref = useRef<HTMLIFrameElement>(null);
   const [ready, setReady] = useState(false);
   const W = CANVAS_WIDTH[device];
@@ -255,8 +259,16 @@ const Frame = memo(function Frame({ device, primary, src, onPreview, compose, ke
 
   // The project's colors, over the template's own; colors can change a page's height (a font
   // doesn't, but a section that hides on contrast might), so it's measured again after.
-  // Pages made of sections also draw again once the colors settle, so shaders and canvases
-  // (which read colors when they're made) take them too.
+  // Back from somewhere that may have changed things under it: measured and painted again.
+  useEffect(() => {
+    if (!ready || !resync) return;
+    paint();
+    fit();
+    measure();
+  }, [resync, ready, paint, fit, measure]);
+
+  // Every page also draws again once the colors settle, so shaders and canvases (which read
+  // colors when they're made) take them too: basedraft's wiring in the page does it.
   const drawn = useRef("");
   useEffect(() => {
     const d = ref.current?.contentDocument;
@@ -266,7 +278,8 @@ const Frame = memo(function Frame({ device, primary, src, onPreview, compose, ke
       fit();
       measure();
     });
-    if (!compose || drawn.current === theme) return;
+    // Out of view, the redraw waits until it's back: no new shaders for a page nobody sees.
+    if (drawn.current === theme || paused) return;
     const t = setTimeout(
       () => {
         drawn.current = theme;
@@ -275,7 +288,7 @@ const Frame = memo(function Frame({ device, primary, src, onPreview, compose, ke
       drawn.current === "" && theme ? 0 : 450,
     );
     return () => clearTimeout(t);
-  }, [theme, ready, compose, fit, measure]);
+  }, [theme, ready, paused, fit, measure]);
 
   // Hover, clicks, keys and the wheel inside the frame, and anything that moves its sections.
   useEffect(() => {
@@ -360,7 +373,12 @@ const Frame = memo(function Frame({ device, primary, src, onPreview, compose, ke
         <span className={cn("font-medium", primary ? "text-fg" : "text-muted")}>{DEVICE_LABEL[device]}</span>
         <span className="tabular-nums text-subtle">{W}</span>
       </div>
-      <div className="relative overflow-hidden bg-white shadow-[0_1px_3px_rgb(var(--bd-shade)/0.08),0_16px_48px_-16px_rgb(var(--bd-shade)/0.22),0_0_0_1px_rgb(var(--bd-ink)/0.06)]" style={{ width: W * z, height: height * z }}>
+      {/*
+        Paused, the page inside isn't drawn at all (content-visibility), so its animations, shaders
+        and canvases stop costing the main thread, which the frames share with Studio. Its size,
+        and everything measured in it, stay as they were.
+      */}
+      <div className="relative overflow-hidden bg-white shadow-[0_1px_3px_rgb(var(--bd-shade)/0.08),0_16px_48px_-16px_rgb(var(--bd-shade)/0.22),0_0_0_1px_rgb(var(--bd-ink)/0.06)]" style={{ width: W * z, height: height * z, contentVisibility: paused ? "hidden" : undefined }}>
         <div style={{ width: W, height, transform: `scale(${z})`, transformOrigin: "0 0" }}>
           <iframe
             ref={ref}
@@ -566,8 +584,12 @@ export const Canvas = forwardRef<
     onReady?: (device: CanvasDevice) => void;
     /** Play on a breakpoint's label: preview the page at its width. */
     onPreview?: (device: CanvasDevice) => void;
+    /** Every page paused (while Studio's preview covers the canvas). */
+    paused?: boolean;
+    /** Bump to have every page measured and painted again. */
+    resync?: number;
   }
->(function Canvas({ template, view, keys, devices, edits, theme = "", selected, zoom, hand, insets, onSelect, onZoom, onZoomTo, onLiveZoom, onEdit, onBlocks, onKey, bar, commenting, onPointer, onPlace, overlay, peers, onReady, onPreview }, ref) {
+>(function Canvas({ template, view, keys, devices, edits, theme = "", selected, zoom, hand, insets, onSelect, onZoom, onZoomTo, onLiveZoom, onEdit, onBlocks, onKey, bar, commenting, onPointer, onPlace, overlay, peers, onReady, onPreview, paused = false, resync = 0 }, ref) {
   const scroller = useRef<HTMLDivElement>(null);
   const layer = useRef<HTMLDivElement>(null);
   const frames = useRef(new Map<CanvasDevice, HTMLIFrameElement>());
@@ -864,6 +886,14 @@ export const Canvas = forwardRef<
     return <span key={`${d}-${k}-${strong}`} className={cn("absolute rounded-[2px]", strong ? "shadow-[inset_0_0_0_2px_var(--bd-select)]" : "shadow-[inset_0_0_0_1px_var(--bd-select)]")} style={{ top: r.top * z, left: lefts[i] + r.left * z, width: r.width * z, height: r.height * z }} />;
   };
   const primaryLeft = lefts[0] ?? 0;
+  /** Whether a breakpoint shows between the panels, with a margin, at the camera React last drew. */
+  const inView = (i: number, d: CanvasDevice) => {
+    const left = lefts[i] - cam.x;
+    const right = left + CANVAS_WIDTH[d] * z;
+    const top = -cam.y;
+    const bottom = top + (heights[d] ?? CANVAS_HEIGHT[d]) * z;
+    return right > insets.left - 24 && left < size.w - insets.right + 24 && bottom > -200 && top < size.h + 200;
+  };
   const ed = editing ? { left: lefts[devices.indexOf(editing.device)] + editing.rect.left * z, top: editing.rect.top * z, width: editing.rect.width * z, height: editing.rect.height * z } : null;
 
   return (
@@ -914,6 +944,8 @@ export const Canvas = forwardRef<
                 primary={i === 0}
                 src={src}
                 onPreview={onFramePreview}
+                paused={paused || !inView(i, d)}
+                resync={resync}
                 compose={compose}
                 keys={keys}
                 edits={edits}

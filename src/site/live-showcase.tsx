@@ -21,8 +21,8 @@ export function LiveShowcase() {
   const t = TEMPLATES.find((x) => x.slug === slug)!;
   return (
     <div ref={ref} className="overflow-hidden rounded-[var(--bd-r-sheet)] bg-surface-2 shadow-[0_0_0_1px_var(--bd-line)]">
-      {/* The three sites, as tabs that say what each one is for. */}
-      <div role="tablist" aria-label="Template" className="grid grid-cols-3 gap-1 border-b border-line bg-surface p-1.5">
+      {/* The sites, as tabs that say what each one is for. */}
+      <div role="tablist" aria-label="Template" className="grid grid-cols-2 gap-1 border-b border-line bg-surface p-1.5 sm:grid-cols-4">
         {TEMPLATES.map((x) => {
           const on = x.slug === slug;
           return (

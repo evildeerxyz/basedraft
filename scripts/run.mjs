@@ -1,5 +1,5 @@
 /*
- * Runs basedraft and its three template zones together.
+ * Runs basedraft and its template zones together.
  *   node scripts/run.mjs dev     every app in dev mode, and Convex watching convex/
  *   node scripts/run.mjs build   build the zones, then basedraft
  *   node scripts/run.mjs start   serve every production build

@@ -128,7 +128,7 @@ export function InsertGrid({ template, pro, onInsert, cols = 3 }: { template: Te
 /** The templates' home pages, for starting over. */
 export function StartFrom({ onStart, current }: { onStart: (slug: TemplateSlug) => void; current: TemplateSlug }) {
   return (
-    <div className="grid grid-cols-3 gap-2">
+    <div className="grid grid-cols-2 gap-2">
       {TEMPLATES.map((t) => (
         <motion.button key={t.slug} type="button" whileTap={{ scale: 0.97 }} onClick={() => onStart(t.slug)} className="group text-left">
           <span className={cn("relative block aspect-[16/11] overflow-hidden bg-surface", tile, current === t.slug && "shadow-[0_0_0_2px_var(--bd-fg)]")}>

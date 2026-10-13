@@ -9,7 +9,7 @@ import { btn } from "@/site/sheet";
 
 export const metadata: Metadata = {
   title: "Components",
-  description: "Every section from the three basedraft templates, live, at any width, with its code and a copy for Figma.",
+  description: "Every section from the basedraft templates, live, at any width, with its code and a copy for Figma.",
 };
 
 export default function ComponentsPage() {

@@ -47,8 +47,9 @@ export function TypeGroup({ template, theme, onChange }: { template: TemplateSlu
   const font = theme?.font ?? own;
   const set = (patch: Partial<Theme>) => onChange(tidy({ ...theme, ...patch }));
   const changed = Boolean(theme && (theme.font || theme.headings || theme.weight || theme.tracking !== undefined));
-  // The template's own typeface first, then the rest.
-  const order = [...(own ? [own] : []), ...IDS.filter((f) => f !== own)];
+  // The template's own typeface first, then the rest. Inter Tight is only offered where it's the
+  // template's own, and there it stands in for Inter, which is the same face set wider.
+  const order = [...(own ? [own] : []), ...IDS.filter((f) => f !== own && f !== (own === "inter-tight" ? "inter" : "inter-tight"))];
   return (
     <Group
       title="Type"

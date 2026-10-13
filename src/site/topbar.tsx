@@ -57,9 +57,9 @@ function TemplatesMenu() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4, transition: { duration: 0.1 } }}
             transition={{ duration: 0.18, ease: EASE_OUT }}
-            className="absolute right-0 top-full z-50 mt-2 w-[620px] rounded-[var(--bd-r-sheet)] bg-surface p-2 shadow-[0_24px_60px_-20px_rgb(var(--bd-shade)/0.35),0_0_0_1px_rgb(var(--bd-ink)/0.08)]"
+            className="absolute right-0 top-full z-50 mt-2 w-[560px] rounded-[var(--bd-r-sheet)] bg-surface p-2 shadow-[0_24px_60px_-20px_rgb(var(--bd-shade)/0.35),0_0_0_1px_rgb(var(--bd-ink)/0.08)]"
           >
-            <ul className="grid grid-cols-3 gap-2">
+            <ul className="grid grid-cols-2 gap-2">
               {TEMPLATES.map((t) => (
                 <li key={t.slug}>
                   <Link href={`/templates/${t.slug}`} onClick={() => setOpen(false)} className="group block rounded-[8px] p-1.5 transition-colors hover:bg-fg/[0.04]">

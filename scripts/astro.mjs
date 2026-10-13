@@ -36,6 +36,7 @@ const WEIGHTS = {
   "Mona Sans": "200 900",
   Doto: "100 900",
   Inter: "100 900",
+  "Inter Tight": "100 900",
   Manrope: "200 800",
   "DM Sans": "100 1000",
   "Space Grotesk": "300 700",

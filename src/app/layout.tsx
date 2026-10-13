@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 export const metadata: Metadata = {
   metadataBase: new URL("https://basedraft.site"),
   title: { default: "basedraft | Landing pages that look finished", template: "%s | basedraft" },
-  description: "Three finished landing sites, in Next.js and Astro, and every section in them, to arrange in Studio, copy into Figma and ship as code.",
+  description: "Four finished landing sites, in Next.js and Astro, and every section in them, to arrange in Studio, copy into Figma and ship as code.",
 };
 
 export const viewport: Viewport = {

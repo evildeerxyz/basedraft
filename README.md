@@ -35,7 +35,7 @@ src/
   studio/            Studio: canvas, panels, export dialogs, the tour and hints (guide.tsx)
   lib/               zip, rewrite-text (writing text edits into source)
 convex/              Convex: Better Auth (auth.ts), its routes (http.ts) and component (convex.config.ts)
-templates/           zuno, noma, auren
+templates/           zuno, noma, auren, pello
 scripts/             run.mjs (all apps), zones.mjs (ports), template-source.mjs (what a buyer gets), shots.mjs
 ```
 
@@ -92,7 +92,7 @@ See `.env.example`. In `.env.local`:
 | `CONVEX_DEPLOYMENT` | The Convex deployment `npx convex dev` pushes to (dev: `qualified-snake-29`) |
 | `NEXT_PUBLIC_CONVEX_URL`, `NEXT_PUBLIC_CONVEX_SITE_URL` | That deployment's `.convex.cloud` and `.convex.site` addresses |
 | `NEXT_PUBLIC_SITE_URL` | This site's address |
-| `ZUNO_URL`, `NOMA_URL`, `AUREN_URL` | Where each template zone is deployed |
+| `ZUNO_URL`, `NOMA_URL`, `AUREN_URL`, `PELLO_URL` | Where each template zone is deployed |
 | `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | Send to GitHub. An OAuth app whose callback is `<site>/api/github/callback` |
 | `BD_SESSION_SECRET` | Seals the GitHub token in its httpOnly cookie. Required in production |
 | `BD_EXPORT_OPEN` | Lets a production deployment hand out template code before purchases are connected. Leave it off in public |
@@ -109,7 +109,7 @@ On the Convex deployment (`npx convex env set NAME value`), where Better Auth ru
 | `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | Optional: Continue with GitHub. Callback `<site>/api/auth/callback/github` |
 | `RESEND_API_KEY`, `EMAIL_FROM`, `EMAIL_REPLY_TO` | basedraft's emails, sent through Resend from `hello@basedraft.site` |
 | `WHOP_API_KEY`, `WHOP_WEBHOOK_SECRET` | Whop checkout, and its webhook at `<deployment>.convex.site/whop/webhook` |
-| `WHOP_PLAN_ZUNO`, `WHOP_PLAN_NOMA`, `WHOP_PLAN_AUREN`, `WHOP_PLAN_PRO`, `WHOP_PLAN_TEAM` | Each product's Whop plan id |
+| `WHOP_PLAN_ZUNO`, `WHOP_PLAN_NOMA`, `WHOP_PLAN_AUREN`, `WHOP_PLAN_PELLO`, `WHOP_PLAN_PRO`, `WHOP_PLAN_TEAM` | Each product's Whop plan id |
 | `BD_PREVIEW_ALLOWED` | `1` on a development deployment only: lets "Preview Pro" make a team without the Team plan |
 
 To connect the Better Auth dashboard, give it the deployment's site address (`https://qualified-snake-29.convex.site`) with the base path `/api/auth`: that's where Better Auth answers.

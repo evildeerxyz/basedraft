@@ -2,7 +2,7 @@
  * Each template as its Astro version, made the way Download project makes it, then built: run it
  * after changing a template, to see its Astro version still builds. Needs Node.js 22.12 or newer.
  *
- *   npx tsx --tsconfig tsconfig.json scripts/astro-check.ts            all three
+ *   npx tsx --tsconfig tsconfig.json scripts/astro-check.ts            all of them
  *   npx tsx --tsconfig tsconfig.json scripts/astro-check.ts noma       one
  *
  * The projects are left in your temp folder (printed below) to look at or run with npm run dev.
@@ -17,7 +17,7 @@ import { newProject } from "../src/studio/state";
 const pages = (dir: string): number => readdirSync(dir, { withFileTypes: true }).reduce((n, e) => n + (e.isDirectory() ? pages(path.join(dir, e.name)) : e.name.endsWith(".html") ? 1 : 0), 0);
 
 async function main() {
-  for (const slug of (process.argv[2] ?? "zuno,noma,auren").split(",")) {
+  for (const slug of (process.argv[2] ?? "zuno,noma,auren,pello").split(",")) {
     const { files } = await siteFiles(newProject(slug as never), "astro");
     const dir = path.join(os.tmpdir(), "basedraft-astro", slug);
     // Installed packages stay between runs.

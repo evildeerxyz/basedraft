@@ -58,12 +58,12 @@ export default function Overview() {
 
       <section className="mt-16 md:mt-24" aria-labelledby="templates-title">
         <SectionHead id="templates-title" title="Whole sites, not just landing pages" lead="Pricing, security, status and blog pages come with every one, and the rest of what its product needs." action={more("/templates", "All templates")} />
-        <ul className="grid gap-3 md:grid-cols-3">
+        <ul className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           {TEMPLATES.map((t) => (
             <li key={t.slug} className="bd-reveal">
               <Link href={`/templates/${t.slug}`} className="group block overflow-hidden rounded-[var(--bd-r-sheet)] bg-surface shadow-[0_0_0_1px_var(--bd-line)] transition-shadow hover:shadow-[0_0_0_1px_rgb(var(--bd-ink)/0.16),0_18px_40px_-24px_rgb(var(--bd-shade)/0.35)]">
                 <span className="relative block aspect-[16/10] overflow-hidden border-b border-line bg-surface-2">
-                  <Image src={templateShot(t.slug)} alt="" fill sizes="(min-width: 768px) 340px, 100vw" className="object-cover object-top transition-transform duration-700 ease-[var(--bd-ease)] group-hover:scale-[1.03]" />
+                  <Image src={templateShot(t.slug)} alt="" fill sizes="(min-width: 1280px) 300px, (min-width: 768px) 50vw, 100vw" className="object-cover object-top transition-transform duration-700 ease-[var(--bd-ease)] group-hover:scale-[1.03]" />
                 </span>
                 <span className="block p-5">
                   <span className="flex items-baseline justify-between gap-3">

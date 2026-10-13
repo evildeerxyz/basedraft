@@ -9,7 +9,7 @@ import { btn } from "@/site/sheet";
 
 export const metadata: Metadata = {
   title: "Templates",
-  description: "Three finished sites, in Next.js and Astro, for fintech, AI and developer tools, with every page a real product needs.",
+  description: "Four finished sites, in Next.js and Astro, for fintech, AI, HR and developer tools, with every page a real product needs.",
 };
 
 export default function TemplatesPage() {

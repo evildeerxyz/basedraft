@@ -1,14 +1,15 @@
 import auren from "../../templates/auren/bd/manifest.json";
 import noma from "../../templates/noma/src/bd/manifest.json";
+import pello from "../../templates/pello/src/bd/manifest.json";
 import zuno from "../../templates/zuno/src/bd/manifest.json";
 
 /*
- * The templates basedraft sells: three real Next.js sites, each its own app in templates/ and served
+ * The templates basedraft sells: four real Next.js sites, each its own app in templates/ and served
  * here under /live/<slug>. Their sections are the components on each home page, listed in the
  * template's bd/manifest.json and drawn by its own code, so what you see is exactly what you get.
  */
 
-export type TemplateSlug = "zuno" | "noma" | "auren";
+export type TemplateSlug = "zuno" | "noma" | "auren" | "pello";
 
 export type SectionKind =
   | "nav"
@@ -87,7 +88,7 @@ const load = (m: Manifest): LiveTemplate => {
   return { ...m, slug, sections: m.sections.map((s) => ({ ...s, kind: s.kind as SectionKind, template: slug, key: `${slug}/${s.id}` })) };
 };
 
-export const TEMPLATES: LiveTemplate[] = [load(zuno as Manifest), load(noma as Manifest), load(auren as Manifest)];
+export const TEMPLATES: LiveTemplate[] = [load(zuno as Manifest), load(noma as Manifest), load(auren as Manifest), load(pello as Manifest)];
 export const SECTIONS: LiveSection[] = TEMPLATES.flatMap((t) => t.sections);
 
 export const templateOf = (slug: string) => TEMPLATES.find((t) => t.slug === slug);

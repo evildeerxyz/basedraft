@@ -5,7 +5,8 @@
  *   public/shots/studio-stage.jpg           Studio on the home page, light and dark
  * Run against a running basedraft and its zones:
  *   npm run build && npm start      (in one terminal)
- *   npm run shots                   (in another; add "studio", "sections" or "templates" for just one set)
+ *   npm run shots                   (in another; add "studio", "sections" or "templates" for just one set,
+ *                                    and template slugs for just those)
  * Uses your installed Chrome. Set CHROME_PATH if it lives elsewhere.
  */
 import { mkdir, readFile } from "node:fs/promises";
@@ -17,8 +18,10 @@ const CHROME = process.env.CHROME_PATH ?? "/Applications/Google Chrome.app/Conte
 const ONLY = ["studio", "sections", "templates"].find((s) => process.argv.includes(s));
 const run = (set) => !ONLY || ONLY === set;
 
-const MANIFESTS = { zuno: "templates/zuno/src/bd/manifest.json", noma: "templates/noma/src/bd/manifest.json", auren: "templates/auren/bd/manifest.json" };
-const templates = await Promise.all(Object.entries(MANIFESTS).map(async ([slug, path]) => ({ slug, ...JSON.parse(await readFile(path, "utf8")) })));
+const MANIFESTS = { zuno: "templates/zuno/src/bd/manifest.json", noma: "templates/noma/src/bd/manifest.json", auren: "templates/auren/bd/manifest.json", pello: "templates/pello/src/bd/manifest.json" };
+// Name templates (npm run shots sections pello) to shoot only those.
+const picked = Object.keys(MANIFESTS).filter((slug) => process.argv.includes(slug));
+const templates = await Promise.all(Object.entries(MANIFESTS).filter(([slug]) => !picked.length || picked.includes(slug)).map(async ([slug, path]) => ({ slug, ...JSON.parse(await readFile(path, "utf8")) })));
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 

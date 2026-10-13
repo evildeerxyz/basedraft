@@ -8,7 +8,7 @@
  * 1. The Next app, built for Workers by OpenNext with the public settings in .env.cloudflare.
  *    src/proxy.ts is set aside for this build: on Cloudflare the previews are plain files and
  *    cloudflare/worker.ts guards them (and Next's proxy bundle alone is bigger than the plan allows).
- * 2. The three templates, as plain files in the asset store (scripts/cf-templates.mjs).
+ * 2. The templates, as plain files in the asset store (scripts/cf-templates.mjs).
  * 3. The templates' code as their buyers get it, in the private KV namespace TEMPLATES, for
  *    Download project and Send to GitHub (src/server/site.ts reads it there).
  * 4. Wrangler deploys it all. The templates are then rebuilt as usual, for local next start.
@@ -93,4 +93,4 @@ else {
 
 // Local next start serves the templates' normal builds, which the static builds replaced.
 for (const z of ZONES) execSync("npx next build", { cwd: path.join(root, z.dir), stdio: "inherit", env: { ...process.env, BD_STATIC: "" } });
-console.log("Rebuilt the templates for local next start: restart the zones (4101 to 4103) to serve them.");
+console.log("Rebuilt the templates for local next start: restart the zones (4101 to 4104) to serve them.");

@@ -9,7 +9,7 @@ import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { SKIP_DIRS } from "./template-source.mjs";
 
-const SLUGS = ["zuno", "noma", "auren"];
+const SLUGS = ["zuno", "noma", "auren", "pello"];
 const DIRS = ["src", "app", "components", "lib"];
 const CLASS = /(?<![\w-])((?:(?:sm|md|lg|xl|2xl):)?rounded(?:-(?:t|r|b|l|tl|tr|br|bl|s|e|ss|se|es|ee))?(?:-\[\d+(?:\.\d+)?(?:px|rem)\]|-(?:xs|sm|md|lg|xl|2xl|3xl|4xl))?)(?![\w[-])/g;
 

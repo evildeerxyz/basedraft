@@ -1,0 +1,201 @@
+{
+  "slug": "pello",
+  "name": "pello",
+  "category": "HR and people",
+  "price": 79,
+  "accent": "#2f5bff",
+  "tagline": "An AI HR system, shown working: a live org chart, a handbook chat and a payroll run.",
+  "description": "Cool greys, ink and one cobalt. Built for HR, people and back office products, with a working piece of the product in every section.",
+  "highlights": [
+    "A live org chart you can drag",
+    "Working product fragments in every section",
+    "Next.js and Astro"
+  ],
+  "sections": [
+    {
+      "id": "nav",
+      "name": "Navigation",
+      "kind": "nav",
+      "import": "import { Nav } from \"@/components/site/nav\";",
+      "tag": "<Nav />"
+    },
+    {
+      "id": "hero",
+      "name": "Hero",
+      "kind": "hero",
+      "import": "import { Hero } from \"@/components/home/hero\";",
+      "tag": "<Hero />"
+    },
+    {
+      "id": "logos",
+      "name": "Customers",
+      "kind": "logos",
+      "import": "import { Logos } from \"@/components/home/logos\";",
+      "tag": "<Logos />"
+    },
+    {
+      "id": "ask",
+      "name": "Ask the handbook",
+      "kind": "features",
+      "import": "import { Ask } from \"@/components/home/ask\";",
+      "tag": "<Ask />"
+    },
+    {
+      "id": "time-off",
+      "name": "Time off",
+      "kind": "steps",
+      "import": "import { TimeOff } from \"@/components/home/time-off\";",
+      "tag": "<TimeOff />"
+    },
+    {
+      "id": "onboarding",
+      "name": "Onboarding",
+      "kind": "features",
+      "import": "import { Onboarding } from \"@/components/home/onboarding\";",
+      "tag": "<Onboarding />"
+    },
+    {
+      "id": "payroll",
+      "name": "Payroll",
+      "kind": "features",
+      "import": "import { Payroll } from \"@/components/home/payroll\";",
+      "tag": "<Payroll />"
+    },
+    {
+      "id": "week",
+      "name": "Before and after",
+      "kind": "features",
+      "import": "import { Week } from \"@/components/home/week\";",
+      "tag": "<Week />"
+    },
+    {
+      "id": "insights",
+      "name": "Insights",
+      "kind": "features",
+      "import": "import { Insights } from \"@/components/home/insights\";",
+      "tag": "<Insights />"
+    },
+    {
+      "id": "stats",
+      "name": "Stats",
+      "kind": "stats",
+      "import": "import { Stats } from \"@/components/home/stats\";",
+      "tag": "<Stats />"
+    },
+    {
+      "id": "security",
+      "name": "Security",
+      "kind": "security",
+      "import": "import { Security } from \"@/components/home/security\";",
+      "tag": "<Security />"
+    },
+    {
+      "id": "testimonials",
+      "name": "Testimonials",
+      "kind": "testimonials",
+      "import": "import { Testimonials } from \"@/components/home/testimonials\";",
+      "tag": "<Testimonials />"
+    },
+    {
+      "id": "pricing",
+      "name": "Pricing",
+      "kind": "pricing",
+      "import": "import { Pricing } from \"@/components/home/pricing\";",
+      "tag": "<Pricing />"
+    },
+    {
+      "id": "faq",
+      "name": "FAQ",
+      "kind": "faq",
+      "import": "import { Faq } from \"@/components/home/faq\";",
+      "tag": "<Faq />"
+    },
+    {
+      "id": "cta",
+      "name": "Call to action",
+      "kind": "cta",
+      "import": "import { Cta } from \"@/components/home/cta\";",
+      "tag": "<Cta />"
+    },
+    {
+      "id": "footer",
+      "name": "Footer",
+      "kind": "footer",
+      "import": "import { Footer } from \"@/components/site/footer\";",
+      "tag": "<Footer />"
+    }
+  ],
+  "home": [
+    "nav",
+    "hero",
+    "logos",
+    "ask",
+    "time-off",
+    "onboarding",
+    "payroll",
+    "week",
+    "insights",
+    "stats",
+    "security",
+    "testimonials",
+    "pricing",
+    "faq",
+    "cta",
+    "footer"
+  ],
+  "pages": [
+    {
+      "label": "Home",
+      "path": "/"
+    },
+    {
+      "label": "Product",
+      "path": "/product"
+    },
+    {
+      "label": "Pricing",
+      "path": "/pricing"
+    },
+    {
+      "label": "Customers",
+      "path": "/customers"
+    },
+    {
+      "label": "Company",
+      "path": "/company"
+    },
+    {
+      "label": "Careers",
+      "path": "/careers"
+    },
+    {
+      "label": "Blog",
+      "path": "/blog"
+    },
+    {
+      "label": "Blog post",
+      "path": "/blog/answers-you-can-check"
+    },
+    {
+      "label": "Security",
+      "path": "/security"
+    },
+    {
+      "label": "Book a demo",
+      "path": "/contact"
+    },
+    {
+      "label": "Sign in",
+      "path": "/login"
+    },
+    {
+      "label": "Privacy",
+      "path": "/legal/privacy"
+    },
+    {
+      "label": "Terms",
+      "path": "/legal/terms"
+    }
+  ],
+  "pagesDir": "src/app/(site)"
+}

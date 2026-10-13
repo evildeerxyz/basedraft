@@ -1,0 +1,121 @@
+@import "tailwindcss";
+
+/*
+ * pello's colors. Four say what it looks like (the page, a card on it, ink and cobalt); the rest
+ * are mixed from them, so a new palette still reads as pello. Code that draws in JS (the org graph,
+ * the charts) reads these same variables, through src/lib/palette.ts.
+ */
+:root {
+  --pl-page: #f5f6f8;
+  --pl-surface: #ffffff;
+  --pl-ink: #0c0e14;
+  --pl-accent: #2f5bff;
+
+  --pl-sunken: color-mix(in oklab, var(--pl-page) 94%, var(--pl-ink));
+  --pl-line: color-mix(in oklab, var(--pl-page) 89%, var(--pl-ink));
+  --pl-line-strong: color-mix(in oklab, var(--pl-page) 78%, var(--pl-ink));
+  --pl-ink-2: color-mix(in oklab, var(--pl-ink) 78%, var(--pl-page));
+  --pl-mute: color-mix(in oklab, var(--pl-ink) 56%, var(--pl-page));
+  --pl-accent-ink: #ffffff;
+  --pl-accent-soft: color-mix(in oklab, var(--pl-accent) 12%, var(--pl-surface));
+  --pl-accent-deep: color-mix(in oklab, var(--pl-accent) 82%, var(--pl-ink));
+
+  /* Only for what happened to a request: approved, waiting, flagged. */
+  --pl-good: #12a36d;
+  --pl-good-soft: color-mix(in oklab, #12a36d 13%, var(--pl-surface));
+  --pl-bad: #e5484d;
+  --pl-bad-soft: color-mix(in oklab, #e5484d 11%, var(--pl-surface));
+
+  /* The dark band: the ink as a page. */
+  --pl-night: var(--pl-ink);
+  --pl-night-2: color-mix(in oklab, var(--pl-ink) 90%, var(--pl-page));
+  --pl-night-line: color-mix(in oklab, var(--pl-ink) 82%, var(--pl-page));
+  --pl-night-ink: var(--pl-page);
+  --pl-night-mute: color-mix(in oklab, var(--pl-page) 58%, var(--pl-ink));
+}
+
+@theme inline {
+  --font-sans: var(--font-inter-tight), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+
+  --color-page: var(--pl-page);
+  --color-surface: var(--pl-surface);
+  --color-sunken: var(--pl-sunken);
+  --color-line: var(--pl-line);
+  --color-line-strong: var(--pl-line-strong);
+  --color-ink: var(--pl-ink);
+  --color-ink-2: var(--pl-ink-2);
+  --color-mute: var(--pl-mute);
+  --color-accent: var(--pl-accent);
+  --color-accent-ink: var(--pl-accent-ink);
+  --color-accent-soft: var(--pl-accent-soft);
+  --color-accent-deep: var(--pl-accent-deep);
+  --color-good: var(--pl-good);
+  --color-good-soft: var(--pl-good-soft);
+  --color-bad: var(--pl-bad);
+  --color-bad-soft: var(--pl-bad-soft);
+  --color-night: var(--pl-night);
+  --color-night-2: var(--pl-night-2);
+  --color-night-line: var(--pl-night-line);
+  --color-night-ink: var(--pl-night-ink);
+  --color-night-mute: var(--pl-night-mute);
+}
+
+@theme {
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  html {
+    background: var(--pl-page);
+    color: var(--pl-ink);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: var(--pl-accent);
+    color: var(--pl-accent-ink);
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--pl-accent);
+    outline-offset: 3px;
+    border-radius: 8px;
+  }
+
+  button:not(:disabled),
+  [role="button"] {
+    cursor: pointer;
+  }
+}
+
+/* Numbers that change line up, and don't jump as they count. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* The customers' names, sliding past. The second copy is what lets the loop run on without a break. */
+@keyframes pl-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.pl-marquee {
+  animation: pl-marquee 46s linear infinite;
+}
+.pl-marquee-wrap:hover .pl-marquee {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pl-marquee {
+    animation: none;
+  }
+}

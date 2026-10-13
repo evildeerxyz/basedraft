@@ -1,0 +1,235 @@
+@import "tailwindcss";
+@import "lenis/dist/lenis.css";
+
+/* Same theme mechanics as the Noma dashboard: data-theme on <html>, set before paint.
+   Any element can also carry data-theme to scope a band, like the dark security band. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+
+  /* Surfaces: the dashboard's warm palette */
+  --page: #fbfaf7;
+  --surface: #ffffff;
+  --surface-2: #f5f2ec;
+  --sunken: #f0ece4;
+  --pill: #ece8df;
+  --pill-strong: #e2ddd2;
+
+  --line: #e2dccf;
+  --line-soft: #ece7dd;
+  --line-strong: #cfc7b6;
+  --grid: #f1ede5;
+
+  --ink: #1d1a15;
+  --ink-2: #686156;
+  --ink-3: #a29a88;
+  --ink-4: #c4bcac;
+
+  --inverse: #1d1a15;
+  --inverse-fg: #fbfaf7;
+  --inverse-hover: #2f2a23;
+
+  --hover: #f4f0e8;
+  --selected: #ece8dd;
+
+  /* Flat colour fields behind path-cut backdrops */
+  --field-blue: #dcecfa;
+  --field-peach: #fde6c8;
+  --field-mint: #d6f1e5;
+  --field-lilac: #e9e2fb;
+  --field-pink: #fbe1ef;
+  --field-sand: #efe8da;
+
+  /* Palette accents: flat, no decorative gradients */
+  --ok: #00b383;
+  --warn: #ff9e00;
+  --danger: #ff0061;
+  --blue: #009dff;
+  --violet: #7a5fd0;
+  --pink: #f762f4;
+  --teal: #2f7f7a;
+  --rust: #b0563a;
+  --accent: #ff9e00;
+
+  --focus: #9e8d7b;
+  --focus-border: color-mix(in oklab, var(--focus) 60%, var(--line));
+  --focus-ring: 0 0 0 3px color-mix(in oklab, var(--focus) 10%, transparent);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --page: #161310;
+  --surface: #1c1916;
+  --surface-2: #211e1a;
+  --sunken: #131110;
+  --pill: #24211d;
+  --pill-strong: #2d2925;
+
+  --line: #2c2824;
+  --line-soft: #231f1c;
+  --line-strong: #3d3832;
+  --grid: #1b1815;
+
+  --ink: #f2ede3;
+  --ink-2: #b3a898;
+  --ink-3: #847a6d;
+  --ink-4: #5a5249;
+
+  --inverse: #f2ede3;
+  --inverse-fg: #1d1a15;
+  --inverse-hover: #ffffff;
+
+  --hover: #221f1b;
+  --selected: #2b2825;
+  --field-blue: #142636;
+  --field-peach: #33240f;
+  --field-mint: #102a21;
+  --field-lilac: #221c36;
+  --field-pink: #33182a;
+  --field-sand: #26221d;
+
+  --focus: #b3a898;
+}
+
+/* Bold orange band: any element with data-tone="accent" re-maps the palette. */
+[data-tone="accent"] {
+  color-scheme: light;
+  --page: #ff9e00;
+  --surface: #ffae2e;
+  --surface-2: #ffa514;
+  --sunken: #f29100;
+  --pill: rgb(29 26 21 / 0.1);
+  --pill-strong: rgb(29 26 21 / 0.2);
+  --line: rgb(29 26 21 / 0.24);
+  --line-soft: rgb(29 26 21 / 0.12);
+  --line-strong: rgb(29 26 21 / 0.45);
+  --grid: rgb(29 26 21 / 0.08);
+  --ink: #1d1a15;
+  --ink-2: #3b2f1e;
+  --ink-3: #6e5221;
+  --ink-4: #8c6826;
+  --inverse: #1d1a15;
+  --inverse-fg: #fbfaf7;
+  --inverse-hover: #000000;
+  --hover: #ffb444;
+  --accent: #1d1a15;
+}
+
+@theme inline {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-sunken: var(--sunken);
+  --color-pill: var(--pill);
+  --color-pill-strong: var(--pill-strong);
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-ink-4: var(--ink-4);
+  --color-inverse: var(--inverse);
+  --color-inverse-fg: var(--inverse-fg);
+  --color-inverse-hover: var(--inverse-hover);
+  --color-hover: var(--hover);
+  --color-selected: var(--selected);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-danger: var(--danger);
+  --color-blue: var(--blue);
+  --color-violet: var(--violet);
+  --color-pink: var(--pink);
+  --color-teal: var(--teal);
+  --color-rust: var(--rust);
+  --color-accent: var(--accent);
+}
+
+@layer base {
+  body {
+    background: var(--page);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  [data-theme] {
+    color: var(--ink);
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--line) transparent;
+  }
+
+  button:not(:disabled),
+  [role="button"] {
+    cursor: pointer;
+  }
+
+  :focus-visible {
+    outline: 2px solid color-mix(in oklab, var(--focus) 45%, transparent);
+    outline-offset: 2px;
+  }
+
+  input:not([type="checkbox"], [type="radio"]),
+  textarea,
+  select {
+    transition:
+      border-color 150ms ease,
+      box-shadow 150ms ease;
+  }
+  input:not([type="checkbox"], [type="radio"]):focus,
+  textarea:focus,
+  select:focus {
+    outline: none;
+    border-color: var(--focus-border);
+    box-shadow: var(--focus-ring);
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--accent) 30%, transparent);
+  }
+}
+
+/* Circular theme reveal: disable the default cross-fade. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+}
+
+/* Engraved fill for display type: a hairline outline over a diagonal hatch. */
+@utility engraved {
+  color: transparent;
+  -webkit-text-stroke: 1px var(--ink-3);
+  background-image: repeating-linear-gradient(-45deg, var(--ink-4) 0 1px, transparent 1px 6px);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* Ordered-dither fill (2px cells), coloured by the element's text colour. */
+@utility dither-25 {
+  background-color: currentColor;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' shape-rendering='crispEdges'%3E%3Crect width='2' height='2'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' shape-rendering='crispEdges'%3E%3Crect width='2' height='2'/%3E%3C/svg%3E");
+  -webkit-mask-size: 4px 4px;
+  mask-size: 4px 4px;
+}

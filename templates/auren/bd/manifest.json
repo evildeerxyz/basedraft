@@ -1,0 +1,163 @@
+{
+  "slug": "auren",
+  "name": "Auren",
+  "category": "Developer tools",
+  "price": 79,
+  "accent": "#f2a23a",
+  "tagline": "A native code editor with an agent, in ink, paper and amber.",
+  "description": "An editorial, type-led landing for developer tools: huge statements, a product stage and a review-first story.",
+  "highlights": [
+    "Agent workspace demo",
+    "Dithered aurora shaders",
+    "Command palette"
+  ],
+  "sections": [
+    {
+      "id": "nav",
+      "name": "Navigation",
+      "kind": "nav",
+      "import": "import { Nav } from \"@/components/sections/nav\";",
+      "tag": "<Nav />"
+    },
+    {
+      "id": "hero",
+      "name": "Hero",
+      "kind": "hero",
+      "import": "import { Hero } from \"@/components/sections/hero\";",
+      "tag": "<Hero />"
+    },
+    {
+      "id": "metrics",
+      "name": "Metrics",
+      "kind": "stats",
+      "import": "import { Metrics } from \"@/components/sections/metrics\";",
+      "tag": "<Metrics />"
+    },
+    {
+      "id": "band-down",
+      "name": "Dither band, ink to paper",
+      "kind": "divider",
+      "import": "import { DitherBand } from \"@/components/ui/primitives\";",
+      "tag": "<DitherBand from=\"var(--ink)\" to=\"var(--paper)\" />"
+    },
+    {
+      "id": "features",
+      "name": "Features",
+      "kind": "features",
+      "import": "import { Features } from \"@/components/sections/features/features\";",
+      "tag": "<Features />"
+    },
+    {
+      "id": "manifesto",
+      "name": "Manifesto",
+      "kind": "story",
+      "import": "import { Manifesto } from \"@/components/sections/manifesto\";",
+      "tag": "<Manifesto />"
+    },
+    {
+      "id": "band-up",
+      "name": "Dither band, paper to ink",
+      "kind": "divider",
+      "import": "import { DitherBand } from \"@/components/ui/primitives\";",
+      "tag": "<DitherBand from=\"var(--paper)\" to=\"var(--ink)\" />"
+    },
+    {
+      "id": "specs",
+      "name": "Specs",
+      "kind": "features",
+      "import": "import { Specs } from \"@/components/sections/specs\";",
+      "tag": "<Specs />"
+    },
+    {
+      "id": "pricing",
+      "name": "Pricing",
+      "kind": "pricing",
+      "import": "import { Pricing } from \"@/components/sections/pricing\";",
+      "tag": "<Pricing />"
+    },
+    {
+      "id": "changelog",
+      "name": "Changelog",
+      "kind": "changelog",
+      "import": "import { Changelog } from \"@/components/sections/changelog\";",
+      "tag": "<Changelog />"
+    },
+    {
+      "id": "cta",
+      "name": "Call to action",
+      "kind": "cta",
+      "import": "import { FinalCta } from \"@/components/sections/final-cta\";",
+      "tag": "<FinalCta />"
+    },
+    {
+      "id": "footer",
+      "name": "Footer",
+      "kind": "footer",
+      "import": "import { Footer } from \"@/components/sections/footer\";",
+      "tag": "<Footer />"
+    }
+  ],
+  "home": [
+    "nav",
+    "hero",
+    "metrics",
+    "band-down",
+    "features",
+    "manifesto",
+    "band-up",
+    "specs",
+    "band-down",
+    "pricing",
+    "changelog",
+    "band-up",
+    "cta",
+    "footer"
+  ],
+  "pages": [
+    {
+      "label": "Home",
+      "path": "/"
+    },
+    {
+      "label": "Pricing",
+      "path": "/pricing"
+    },
+    {
+      "label": "Download",
+      "path": "/download"
+    },
+    {
+      "label": "Docs",
+      "path": "/docs"
+    },
+    {
+      "label": "Changelog",
+      "path": "/changelog"
+    },
+    {
+      "label": "Blog",
+      "path": "/blog"
+    },
+    {
+      "label": "About",
+      "path": "/about"
+    },
+    {
+      "label": "Careers",
+      "path": "/careers"
+    },
+    {
+      "label": "Brand",
+      "path": "/brand"
+    },
+    {
+      "label": "Security",
+      "path": "/security"
+    },
+    {
+      "label": "Status",
+      "path": "/status"
+    }
+  ],
+  "pagesDir": "app/(site)"
+}

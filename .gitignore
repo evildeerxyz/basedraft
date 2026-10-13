@@ -1,0 +1,17 @@
+node_modules
+.next
+out
+.env*.local
+*.tsbuildinfo
+next-env.d.ts
+.DS_Store
+
+# Söhne trial files: personal evaluation only, never commit or ship them.
+# Buy a Klim web licence before launch and replace these with the licensed files.
+public/fonts/sohne/
+.env
+
+# Cloudflare (OpenNext) build output and local secrets
+.open-next
+.wrangler
+.dev.vars

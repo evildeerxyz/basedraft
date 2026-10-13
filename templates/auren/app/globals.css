@@ -1,0 +1,152 @@
+@import "tailwindcss";
+
+:root {
+  --ink: #0a0a09;
+  --ink-2: #121211;
+  --ink-3: #1b1b19;
+  --paper: #efebe2;
+  --paper-2: #e6e1d6;
+  --paper-3: #d9d3c6;
+  --fog: #a7a297;
+  --mute: #6c6862;
+  --accent: #f2a23a;
+  --accent-deep: #3d2b11;
+  --add: #8fd19e;
+  --del: #ef8f84;
+  --nav-h: 56px;
+}
+
+:root[data-theme="aurora"] {
+  --accent: #7ddba4;
+  --accent-deep: #0f2c1c;
+}
+
+:root[data-theme="ember"] {
+  --accent: #ff6b3d;
+  --accent-deep: #3b170b;
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
+  --color-paper-3: var(--paper-3);
+  --color-fog: var(--fog);
+  --color-mute: var(--mute);
+  --color-accent: var(--accent);
+  --color-accent-deep: var(--accent-deep);
+  --color-add: var(--add);
+  --color-del: var(--del);
+  --font-sans: var(--font-mona), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+  --font-dot: var(--font-doto), var(--font-geist-mono), monospace;
+}
+
+@theme {
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  html {
+    overflow-x: clip;
+    background: var(--ink);
+    color-scheme: dark;
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    overflow-x: clip;
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: var(--ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  button {
+    cursor: pointer;
+  }
+}
+
+@utility container-x {
+  width: 100%;
+  max-width: 1320px;
+  margin-inline: auto;
+  padding-inline: clamp(1.25rem, 4vw, 2.5rem);
+}
+
+/* Wide, tight display setting of Mona Sans */
+@utility type-display {
+  font-stretch: 112%;
+  font-weight: 560;
+  letter-spacing: -0.045em;
+  line-height: 0.92;
+}
+
+@utility type-title {
+  font-stretch: 108%;
+  font-weight: 540;
+  letter-spacing: -0.035em;
+  line-height: 1;
+}
+
+@utility type-label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Fallback when WebGL is unavailable: a static ordered-dither texture */
+.dither-canvas[data-fallback] {
+  background-color: var(--ink);
+  background-image: radial-gradient(circle at 70% 70%, color-mix(in oklab, var(--accent) 22%, transparent), transparent 60%);
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes scan {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes settle {
+  from {
+    background-color: color-mix(in oklab, var(--accent) 22%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,1 @@
+Noma security: every write waits for a human. A review gate holds an orange write while a blue read passes through.

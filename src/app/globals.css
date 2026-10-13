@@ -1,0 +1,459 @@
+@import "tailwindcss";
+/* The template zones build their own CSS. */
+@source not "../../templates";
+
+/* Dark mode follows the switch, not the system: <html data-theme="dark">, set before first paint. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/*
+ * Söhne (Klim Type Foundry) for basedraft's own chrome. The files in
+ * public/fonts/sohne are trial cuts with letters and numbers only, so symbols
+ * fall back to Instrument Sans. Replace them with licensed files before launch.
+ */
+@font-face { font-family: "Sohne"; src: url("/fonts/sohne/sohne-buch.otf") format("opentype"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Sohne"; src: url("/fonts/sohne/sohne-kraftig.otf") format("opentype"); font-weight: 500; font-display: swap; }
+@font-face { font-family: "Sohne"; src: url("/fonts/sohne/sohne-halbfett.otf") format("opentype"); font-weight: 600; font-display: swap; }
+@font-face { font-family: "Sohne"; src: url("/fonts/sohne/sohne-dreiviertelfett.otf") format("opentype"); font-weight: 700; font-display: swap; }
+
+/*
+ * The kit never hard-codes a color. Sections use these names; a theme
+ * (Zuno, Noma, Auren, or one made in Studio) fills in the values.
+ */
+@theme inline {
+  --color-canvas: var(--bd-bg);
+  --color-well: var(--bd-well);
+  --color-select: var(--bd-select);
+  --color-surface: var(--bd-surface);
+  --color-surface-2: var(--bd-surface-2);
+  /* The selected piece of a segmented control, or a row lifted out of a list: white on light, a step up on dark. */
+  --color-raised: var(--bd-raised);
+  --color-fg: var(--bd-fg);
+  --color-muted: var(--bd-muted);
+  --color-subtle: var(--bd-subtle);
+  --color-line: var(--bd-line);
+  --color-accent: var(--bd-accent);
+  --color-on-accent: var(--bd-on-accent);
+  --radius-card: var(--bd-radius);
+  --radius-control: var(--bd-radius-sm);
+  --font-sans: var(--bd-font), var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+@theme {
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /*
+   * basedraft's own type scale, set in Instrument Sans. One size per job:
+   * display 52, title 30, heading 17, lead 17, body 15, ui 14, meta 13.
+   */
+  --text-display: clamp(2.4rem, 4.4vw, 3.25rem);
+  --text-display--line-height: 1.04;
+  --text-display--letter-spacing: -0.028em;
+  --text-display--font-weight: 600;
+  --text-title: clamp(1.6rem, 2.6vw, 1.875rem);
+  --text-title--line-height: 1.12;
+  --text-title--letter-spacing: -0.022em;
+  --text-title--font-weight: 600;
+  --text-heading: 1.0625rem;
+  --text-heading--line-height: 1.35;
+  --text-heading--letter-spacing: -0.012em;
+  --text-heading--font-weight: 600;
+  --text-lead: 1.0625rem;
+  --text-lead--line-height: 1.55;
+  --text-body: 0.9375rem;
+  --text-body--line-height: 1.6;
+  --text-ui: 0.875rem;
+  --text-ui--line-height: 1.4;
+  --text-meta: 0.8125rem;
+  --text-meta--line-height: 1.4;
+}
+
+/* basedraft's own theme, used by the site chrome. Templates override inside a .bd-scope. */
+:root {
+  /* basedraft's own chrome: neutral grays with no hue in them, and ink as the only highlight. */
+  --bd-bg: #ffffff;
+  /* Studio's canvas: a gray table so white pages read as pages. */
+  --bd-well: #ebebeb;
+  --bd-surface: #ffffff;
+  --bd-surface-2: #f5f5f5;
+  --bd-raised: #ffffff;
+  --bd-fg: #141414;
+  --bd-muted: #5e5e5e;
+  --bd-subtle: #8c8c8c;
+  --bd-line: #e5e5e5;
+  --bd-accent: #141414;
+  --bd-on-accent: #ffffff;
+  /* Studio's selection, Figma's purple for components: every section on the canvas is one. */
+  --bd-select: #9747ff;
+  --bd-radius: 8px;
+  --bd-radius-sm: 7px;
+  --bd-font: "Sohne", var(--font-instrument);
+  --bd-display-weight: 600;
+  --bd-display-tracking: -0.02em;
+  --bd-dither: #141414;
+  /*
+   * Channels for hairlines and shadows, so one class works in both modes: ink is the color a
+   * hairline ring is drawn in, paper the one drawn on an ink surface, shade a drop shadow's.
+   */
+  --bd-ink: 20 20 20;
+  --bd-paper: 255 255 255;
+  --bd-shade: 20 20 20;
+  /*
+   * Corners, kept tight: sheets, the pricing tray and dialogs are 12px, anything set inside one of
+   * them (frames, stages, code, plan cards) 6px, cards 8px and controls 7px.
+   */
+  --bd-r-sheet: 12px;
+  --bd-r-inset: 6px;
+  /* Motion's one curve: a long ease out, so things settle rather than stop. */
+  --bd-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  /* Code, colored as an editor colors it: GitHub's light theme here, its dark one below. */
+  --code-text: #1f2328;
+  --code-comment: #6e7781;
+  --code-key: #0550ae;
+  --code-string: #0a3069;
+  --code-number: #0550ae;
+  --code-keyword: #cf222e;
+  --code-tag: #116329;
+  --code-type: #953800;
+  --code-call: #8250df;
+  color-scheme: light;
+}
+
+/*
+ * The same chrome in dark: neutral grays with no hue, sheets a step lighter than the page and
+ * wells a step darker, and ink turned to near white, so everything drawn "in ink" (the main
+ * button, the Pro card, the poster, icon tiles, the logo) reads as the strongest thing on screen.
+ */
+[data-theme="dark"] {
+  --bd-bg: #0f0f0f;
+  --bd-well: #0a0a0a;
+  --bd-surface: #161616;
+  --bd-surface-2: #0b0b0b;
+  --bd-raised: #2a2a2a;
+  --bd-fg: #ededed;
+  --bd-muted: #a3a3a3;
+  --bd-subtle: #737373;
+  --bd-line: #262626;
+  --bd-accent: #ededed;
+  --bd-on-accent: #0f0f0f;
+  --bd-dither: #ededed;
+  --bd-ink: 255 255 255;
+  --bd-paper: 16 16 16;
+  --bd-shade: 0 0 0;
+  --code-text: #e6edf3;
+  --code-comment: #8b949e;
+  --code-key: #79c0ff;
+  --code-string: #a5d6ff;
+  --code-number: #79c0ff;
+  --code-keyword: #ff7b72;
+  --code-tag: #7ee787;
+  --code-type: #ffa657;
+  --code-call: #d2a8ff;
+  color-scheme: dark;
+}
+
+/*
+ * The primary button: an ink bar lit from above. Gradient #3e3d3c to #0a0a0a, a soft drop shadow
+ * (0 14 26, spread -12, #353332 at 80%) and a 1px white highlight along the top edge at 35%.
+ */
+@utility btn-ink {
+  color: #ffffff;
+  background-image: linear-gradient(180deg, #3e3d3c 0%, #0a0a0a 100%);
+  box-shadow: 0 14px 26px -12px rgb(53 51 50 / 0.8), inset 0 1px 0 rgb(255 255 255 / 0.35);
+  transition: filter 0.2s, box-shadow 0.2s, transform 0.1s;
+  &:hover {
+    filter: brightness(1.15);
+  }
+  &:active {
+    transform: translateY(1px);
+    box-shadow: 0 8px 16px -10px rgb(53 51 50 / 0.8), inset 0 1px 0 rgb(255 255 255 / 0.25);
+  }
+  /* In dark, the same bar in near white, lit from above, so it stays the strongest thing on screen. */
+  &:where([data-theme="dark"] *) {
+    color: #111111;
+    background-image: linear-gradient(180deg, #ffffff 0%, #d4d4d4 100%);
+    box-shadow: 0 14px 26px -12px rgb(0 0 0 / 0.9), inset 0 -1px 0 rgb(0 0 0 / 0.14);
+  }
+  &:where([data-theme="dark"] *):hover {
+    filter: brightness(0.94);
+  }
+}
+
+/* Studio: text you can click to edit, and the original hidden under its editor. */
+.bd-editing [data-bd-edit] {
+  cursor: text;
+}
+.bd-editing [data-bd-edit]:hover {
+  outline: 1px solid var(--bd-select);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+[data-bd-hidden] {
+  visibility: hidden;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Fieldsets default to their content's min width, so a long value would push a panel wider than itself. */
+  fieldset {
+    min-width: 0;
+  }
+
+  body {
+    background: var(--bd-bg);
+    color: var(--bd-fg);
+    font-family: var(--bd-font), var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+    overflow-x: clip;
+  }
+
+  ::selection {
+    background: var(--bd-accent);
+    color: var(--bd-on-accent);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--bd-accent);
+    outline-offset: 2px;
+  }
+}
+
+.bd-scope {
+  background: var(--bd-bg);
+  color: var(--bd-fg);
+  font-family: var(--bd-font), var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Headlines take the brand's weight and tracking from the theme. */
+@utility display {
+  font-weight: var(--bd-display-weight);
+  letter-spacing: var(--bd-display-tracking);
+  line-height: 0.98;
+  text-wrap: balance;
+}
+
+@utility pixelated {
+  image-rendering: pixelated;
+}
+
+/*
+ * Thin, quiet scrollbars, the way design tools draw them: a slim pill with no track,
+ * a little darker under the pointer. WebKit and Blink take the pseudo-elements; Firefox
+ * (which has no ::-webkit-scrollbar) gets the standard properties instead.
+ */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background: rgb(var(--bd-ink) / 0.16);
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(var(--bd-ink) / 0.32);
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--bd-ink) / 0.18) transparent;
+  }
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/*
+ * Native range input in the same filled-track style as the Slider component,
+ * for template code that wants a plain <input type="range" class="bd-range">.
+ * Set --fill to the value as a percentage.
+ */
+.bd-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 32px;
+  border-radius: 8px;
+  cursor: ew-resize;
+  background: linear-gradient(to right, color-mix(in oklab, var(--bd-fg) 11%, transparent) 0 var(--fill, 50%), color-mix(in oklab, var(--bd-fg) 2.5%, transparent) var(--fill, 50%) 100%);
+  box-shadow: inset 0 0 0 1px var(--bd-line);
+}
+.bd-range::-webkit-slider-runnable-track {
+  height: 32px;
+  background: transparent;
+}
+.bd-range::-moz-range-track {
+  height: 32px;
+  background: transparent;
+}
+.bd-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 3px;
+  height: 18px;
+  margin-top: 7px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--bd-fg);
+  transition: transform 0.15s;
+}
+.bd-range::-moz-range-thumb {
+  width: 3px;
+  height: 18px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--bd-fg);
+}
+.bd-range:active::-webkit-slider-thumb {
+  transform: scaleY(1.2);
+}
+.bd-range:focus-visible {
+  outline: none;
+  box-shadow:
+    inset 0 0 0 1px var(--bd-accent),
+    0 0 0 3px color-mix(in oklab, var(--bd-accent) 25%, transparent);
+}
+
+@keyframes bd-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.bd-marquee {
+  animation: bd-marquee var(--duration, 40s) linear infinite;
+}
+.bd-marquee-reverse {
+  animation-direction: reverse;
+}
+.bd-marquee-pause:hover .bd-marquee,
+.bd-marquee-pause:focus-within .bd-marquee {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bd-marquee {
+    animation: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* ---------- Motion ---------- */
+
+/*
+ * One feel everywhere: things arrive with a long ease out and leave quickly. Every rule here
+ * stands down for people who ask their system for less motion.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Clicks during a transition reach the page instead of the overlay. */
+::view-transition {
+  pointer-events: none;
+}
+
+/* Between pages: the old content fades out quickly and the new one rises in. The rail isn't in the transition, so it holds still. */
+::view-transition-old(.page-out) {
+  animation: 140ms ease-in both bd-fade reverse;
+}
+::view-transition-new(.page-in) {
+  animation:
+    260ms var(--bd-ease) 70ms both bd-fade,
+    420ms var(--bd-ease) both bd-rise;
+}
+@keyframes bd-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes bd-rise {
+  from {
+    translate: 0 12px;
+  }
+  to {
+    translate: 0 0;
+  }
+}
+
+/* Light and dark: the new mode grows in a circle from the switch; the switch sets the circle. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* Sheets ease up into place as they scroll into view, then stay put. Already on screen, they just are. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .bd-reveal {
+      animation: bd-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0 entry 180px;
+    }
+  }
+}
+@keyframes bd-reveal {
+  from {
+    opacity: 0;
+    translate: 0 28px;
+  }
+}
+
+/* Questions open and close with their height, where the browser can animate to auto. */
+details.bd-faq {
+  interpolate-size: allow-keywords;
+}
+details.bd-faq::details-content {
+  block-size: 0;
+  overflow-y: clip;
+  transition:
+    block-size 340ms var(--bd-ease),
+    content-visibility 340ms allow-discrete;
+}
+details.bd-faq[open]::details-content {
+  block-size: auto;
+}
+
+/* Links with an arrow: the arrow leans the way it points. */
+.bd-link > svg {
+  transition: translate 220ms var(--bd-ease);
+}
+.bd-link:hover > svg:last-child:not(:first-child) {
+  translate: 2px 0;
+}
+.bd-link:hover > svg:first-child:not(:last-child) {
+  translate: -2px 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+  details.bd-faq::details-content {
+    transition: none;
+  }
+}

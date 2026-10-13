@@ -1,0 +1,165 @@
+{
+  "slug": "noma",
+  "name": "Noma",
+  "category": "AI and data",
+  "price": 79,
+  "accent": "#ff9e00",
+  "tagline": "An AI layer for Postgres, drawn like a printed engraving.",
+  "description": "Warm paper, ink line work and one orange. Built for AI, data and developer tools, with light and dark themes.",
+  "highlights": [
+    "Isometric WebGL scenes",
+    "Light and dark themes",
+    "A social card for every page"
+  ],
+  "sections": [
+    {
+      "id": "nav",
+      "name": "Navigation",
+      "kind": "nav",
+      "import": "import { Nav } from \"@/components/site/nav\";",
+      "tag": "<Nav />"
+    },
+    {
+      "id": "hero",
+      "name": "Hero",
+      "kind": "hero",
+      "import": "import { Hero } from \"@/components/home/hero\";",
+      "tag": "<Hero />"
+    },
+    {
+      "id": "how",
+      "name": "How it works",
+      "kind": "steps",
+      "import": "import { HowItWorks } from \"@/components/home/sections\";",
+      "tag": "<HowItWorks />"
+    },
+    {
+      "id": "nomad",
+      "name": "Nomad AI",
+      "kind": "features",
+      "import": "import { NomadAi } from \"@/components/home/sections\";",
+      "tag": "<NomadAi />"
+    },
+    {
+      "id": "security",
+      "name": "Security",
+      "kind": "security",
+      "import": "import { Security } from \"@/components/home/sections\";",
+      "tag": "<Security />"
+    },
+    {
+      "id": "insights",
+      "name": "Insights",
+      "kind": "features",
+      "import": "import { Insights } from \"@/components/home/sections\";",
+      "tag": "<Insights />"
+    },
+    {
+      "id": "architecture",
+      "name": "Architecture",
+      "kind": "features",
+      "import": "import { ArchitectureSection } from \"@/components/home/sections\";",
+      "tag": "<ArchitectureSection />"
+    },
+    {
+      "id": "stats",
+      "name": "Stats",
+      "kind": "stats",
+      "import": "import { Stats } from \"@/components/home/sections\";",
+      "tag": "<Stats />"
+    },
+    {
+      "id": "testimonials",
+      "name": "Testimonials",
+      "kind": "testimonials",
+      "import": "import { Testimonials } from \"@/components/home/sections\";",
+      "tag": "<Testimonials />"
+    },
+    {
+      "id": "integrations",
+      "name": "Integrations",
+      "kind": "logos",
+      "import": "import { Integrations } from \"@/components/home/sections\";",
+      "tag": "<Integrations />"
+    },
+    {
+      "id": "cta",
+      "name": "Call to action",
+      "kind": "cta",
+      "import": "import { FinalCta } from \"@/components/home/sections\";",
+      "tag": "<FinalCta />"
+    },
+    {
+      "id": "footer",
+      "name": "Footer",
+      "kind": "footer",
+      "import": "import { Footer } from \"@/components/site/footer\";",
+      "tag": "<Footer />"
+    }
+  ],
+  "home": [
+    "nav",
+    "hero",
+    "how",
+    "nomad",
+    "security",
+    "insights",
+    "architecture",
+    "stats",
+    "testimonials",
+    "integrations",
+    "cta",
+    "footer"
+  ],
+  "pages": [
+    {
+      "label": "Home",
+      "path": "/"
+    },
+    {
+      "label": "Product",
+      "path": "/product"
+    },
+    {
+      "label": "Pricing",
+      "path": "/pricing"
+    },
+    {
+      "label": "Customers",
+      "path": "/customers"
+    },
+    {
+      "label": "Company",
+      "path": "/company"
+    },
+    {
+      "label": "Changelog",
+      "path": "/changelog"
+    },
+    {
+      "label": "Book a demo",
+      "path": "/contact"
+    },
+    {
+      "label": "Blog post",
+      "path": "/blog/series-b"
+    },
+    {
+      "label": "Security",
+      "path": "/security"
+    },
+    {
+      "label": "Status",
+      "path": "/status"
+    },
+    {
+      "label": "Privacy",
+      "path": "/privacy"
+    },
+    {
+      "label": "Terms",
+      "path": "/terms"
+    }
+  ],
+  "pagesDir": "src/app/(site)"
+}

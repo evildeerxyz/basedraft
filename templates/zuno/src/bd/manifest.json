@@ -1,0 +1,241 @@
+{
+  "slug": "zuno",
+  "name": "Zuno",
+  "category": "Fintech",
+  "price": 79,
+  "accent": "#c8ff3e",
+  "tagline": "An AI investing app, on a pure black page with dithered lime.",
+  "description": "A dark, calm fintech landing with a working iPhone prototype, a dithered portfolio chart and every page a regulated product needs.",
+  "highlights": [
+    "Interactive iPhone prototype",
+    "Dithered WebGL charts",
+    "Multi-step sign-up with a live plan preview"
+  ],
+  "sections": [
+    {
+      "id": "nav",
+      "name": "Navigation",
+      "kind": "nav",
+      "import": "import { Nav } from \"@/components/sections/Nav\";",
+      "tag": "<Nav />"
+    },
+    {
+      "id": "hero",
+      "name": "Hero",
+      "kind": "hero",
+      "import": "import { Hero } from \"@/components/sections/Hero\";",
+      "tag": "<Hero />"
+    },
+    {
+      "id": "ticker",
+      "name": "Ticker tape",
+      "kind": "logos",
+      "import": "import { TickerTape } from \"@/components/sections/TickerTape\";",
+      "tag": "<TickerTape />"
+    },
+    {
+      "id": "manifesto",
+      "name": "Manifesto",
+      "kind": "story",
+      "import": "import { Manifesto } from \"@/components/sections/Manifesto\";",
+      "tag": "<Manifesto />"
+    },
+    {
+      "id": "showcase",
+      "name": "App showcase",
+      "kind": "features",
+      "import": "import { AppShowcase } from \"@/components/sections/AppShowcase\";",
+      "tag": "<AppShowcase />"
+    },
+    {
+      "id": "features",
+      "name": "Features",
+      "kind": "features",
+      "import": "import { Features } from \"@/components/sections/Features\";",
+      "tag": "<Features />"
+    },
+    {
+      "id": "copilot",
+      "name": "Copilot",
+      "kind": "features",
+      "import": "import { Copilot } from \"@/components/sections/Copilot\";",
+      "tag": "<Copilot />"
+    },
+    {
+      "id": "how",
+      "name": "How it works",
+      "kind": "steps",
+      "import": "import { HowItWorks } from \"@/components/sections/HowItWorks\";",
+      "tag": "<HowItWorks />"
+    },
+    {
+      "id": "simulator",
+      "name": "Simulator",
+      "kind": "interactive",
+      "import": "import { Simulator } from \"@/components/sections/Simulator\";",
+      "tag": "<Simulator />"
+    },
+    {
+      "id": "testimonials",
+      "name": "Testimonials",
+      "kind": "testimonials",
+      "import": "import { Testimonials } from \"@/components/sections/Testimonials\";",
+      "tag": "<Testimonials />"
+    },
+    {
+      "id": "security",
+      "name": "Security",
+      "kind": "security",
+      "import": "import { Security } from \"@/components/sections/Security\";",
+      "tag": "<Security />"
+    },
+    {
+      "id": "pricing",
+      "name": "Pricing",
+      "kind": "pricing",
+      "import": "import { Pricing } from \"@/components/sections/Pricing\";",
+      "tag": "<Pricing />"
+    },
+    {
+      "id": "faq",
+      "name": "FAQ",
+      "kind": "faq",
+      "import": "import { FAQ } from \"@/components/sections/FAQ\";",
+      "tag": "<FAQ />"
+    },
+    {
+      "id": "cta",
+      "name": "Call to action",
+      "kind": "cta",
+      "import": "import { FinalCTA } from \"@/components/sections/FinalCTA\";",
+      "tag": "<FinalCTA />"
+    },
+    {
+      "id": "footer",
+      "name": "Footer",
+      "kind": "footer",
+      "import": "import { Footer } from \"@/components/sections/Footer\";",
+      "tag": "<Footer />"
+    }
+  ],
+  "home": [
+    "nav",
+    "hero",
+    "ticker",
+    "manifesto",
+    "showcase",
+    "features",
+    "copilot",
+    "how",
+    "simulator",
+    "testimonials",
+    "security",
+    "pricing",
+    "faq",
+    "cta",
+    "footer"
+  ],
+  "pages": [
+    {
+      "label": "Home",
+      "path": "/"
+    },
+    {
+      "label": "Autopilot",
+      "path": "/autopilot"
+    },
+    {
+      "label": "Copilot",
+      "path": "/copilot"
+    },
+    {
+      "label": "Tax-loss harvesting",
+      "path": "/tax-loss-harvesting"
+    },
+    {
+      "label": "Retirement",
+      "path": "/retirement"
+    },
+    {
+      "label": "Cash",
+      "path": "/cash"
+    },
+    {
+      "label": "Crypto",
+      "path": "/crypto"
+    },
+    {
+      "label": "Pricing",
+      "path": "/pricing"
+    },
+    {
+      "label": "Fees",
+      "path": "/fees"
+    },
+    {
+      "label": "Security",
+      "path": "/security"
+    },
+    {
+      "label": "About",
+      "path": "/about"
+    },
+    {
+      "label": "Careers",
+      "path": "/careers"
+    },
+    {
+      "label": "Press",
+      "path": "/press"
+    },
+    {
+      "label": "Blog",
+      "path": "/blog"
+    },
+    {
+      "label": "Help center",
+      "path": "/help"
+    },
+    {
+      "label": "Contact",
+      "path": "/contact"
+    },
+    {
+      "label": "Status",
+      "path": "/status"
+    },
+    {
+      "label": "Developers",
+      "path": "/developers"
+    },
+    {
+      "label": "Privacy",
+      "path": "/legal/privacy"
+    },
+    {
+      "label": "Terms",
+      "path": "/legal/terms"
+    },
+    {
+      "label": "Disclosures",
+      "path": "/legal/disclosures"
+    },
+    {
+      "label": "Form CRS",
+      "path": "/legal/form-crs"
+    },
+    {
+      "label": "Accessibility",
+      "path": "/legal/accessibility"
+    },
+    {
+      "label": "Log in",
+      "path": "/login"
+    },
+    {
+      "label": "Sign up",
+      "path": "/signup"
+    }
+  ],
+  "pagesDir": "src/app/(site)"
+}

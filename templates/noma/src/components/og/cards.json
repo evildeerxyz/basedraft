@@ -1,0 +1,62 @@
+[
+  {
+    "id": "home",
+    "route": "/",
+    "wait": 5800,
+    "alt": "Noma: Ask your database anything. An isometric rack of devices for Ask, Draft, Approve and Answer around a Postgres database."
+  },
+  {
+    "id": "product",
+    "route": "/product",
+    "wait": 8400,
+    "alt": "Noma product: one workspace for every question. An isometric station drafting SQL on its lid."
+  },
+  {
+    "id": "pricing",
+    "route": "/pricing",
+    "wait": 3500,
+    "alt": "Noma pricing: pay for seats, not for questions. One isometric tower per plan, Starter, Team and Enterprise."
+  },
+  {
+    "id": "security",
+    "route": "/security",
+    "wait": 2700,
+    "alt": "Noma security: every write waits for a human. A review gate holds an orange write while a blue read passes through."
+  },
+  {
+    "id": "status",
+    "route": "/status",
+    "wait": 3000,
+    "alt": "Noma status: all systems operational. Three isometric region racks with a green heartbeat."
+  },
+  {
+    "id": "customers",
+    "route": "/customers",
+    "wait": 3200,
+    "alt": "Noma customers: teams that ship answers, not queries. An isometric city of customer towers."
+  },
+  {
+    "id": "company",
+    "route": "/company",
+    "wait": 3600,
+    "alt": "Noma company: the interface between people and their data. Funding rounds drawn as rising isometric bars."
+  },
+  {
+    "id": "changelog",
+    "route": "/changelog",
+    "wait": 4200,
+    "alt": "Noma changelog: new in Noma, every other Tuesday. Four isometric release blocks on a rail."
+  },
+  {
+    "id": "contact",
+    "route": "/contact",
+    "wait": 4000,
+    "alt": "Book a Noma demo: see Noma on your own data. Your Postgres wired to Noma."
+  },
+  {
+    "id": "series",
+    "route": "/blog/series-b",
+    "wait": 3600,
+    "alt": "Noma raised $48M to give every database a voice. Funding rounds drawn as rising isometric bars."
+  }
+]

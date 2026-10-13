@@ -214,7 +214,7 @@ export function purchaseReady(brand: Brand, o: { product: string; name: string; 
     ? `${h1(`${esc(o.name)} is yours`)}
 ${p(`Thanks for buying ${esc(o.name)}. The whole site is ready: every page, every section, the code exactly as it ships. Take it whichever way suits you.`)}
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:24px;">
-${option("Download the site", "A zip of the Next.js project. Unzip it, run npm install, and it runs.", button(`${purchases}?download=${o.product}`, `Download ${esc(o.name)}`))}
+${option("Download the site", `A zip of the whole project, in Next.js. Unzip it, run npm install, and it runs. Using Astro? <a href="${purchases}?download=${o.product}&amp;framework=astro" style="color:inherit;text-decoration:underline;">Download the Astro version</a>.`, button(`${purchases}?download=${o.product}`, `Download ${esc(o.name)}`))}
 ${gap}
 ${option("Send it to GitHub", "Connect GitHub once and we make a repository with the whole site in it.", button(`${purchases}?github=${o.product}`, "Send to GitHub", false))}
 </table>`
@@ -223,7 +223,7 @@ ${p("Thanks for getting Pro. Every template is yours now, with every section, ev
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-top:24px;">
   <tr><td>${button(purchases, "Open your templates")}</td></tr>
 </table>
-${p("Each one downloads as a zip, or goes straight to a new GitHub repository.", "font-size:14px;")}`;
+${p("Each one downloads as a zip, in Next.js or Astro, or goes straight to a new GitHub repository.", "font-size:14px;")}`;
   return {
     subject: `${o.name} is yours`,
     html: layout(brand, {
@@ -236,6 +236,7 @@ ${note(`Your purchases are always on <a href="${purchases}" class="bd-muted" sty
 ${o.template ? `Thanks for buying ${o.name}. The whole site is ready.
 
 Download the site (a zip of the Next.js project): ${purchases}?download=${o.product}
+Or its Astro version: ${purchases}?download=${o.product}&framework=astro
 Send it to GitHub (we make a repository with it): ${purchases}?github=${o.product}` : `Thanks for getting Pro. Every template is yours now.
 
 Open your templates: ${purchases}`}

@@ -39,7 +39,7 @@ const COPY: Record<ProReason, { title: string; body: string }> = {
   figma: { title: "Copy for Figma is in Pro", body: "Paste any section, page or your whole site into Figma with real auto layout, and desktop, tablet and phone as component variants." },
   paper: { title: "Copy for Paper is in Pro", body: "Paste any section or page into Paper as one responsive frame, with every layer named." },
   svg: { title: "SVG download is in Pro", body: "Take any section or page into any other design tool as a single SVG file." },
-  react: { title: "Code export is in Pro", body: "Export your page as a Next.js file for its template, made of its real sections, ready to deploy." },
+  react: { title: "Code export is in Pro", body: "Export your page for its template, in Next.js or Astro, made of its real sections, ready to deploy." },
   layout: { title: "This section's code is in Pro", body: `Pro unlocks all ${TEMPLATES.length} templates and their ${SECTIONS.length} sections, now and as new ones ship.` },
   plan: { title: "basedraft Pro", body: "Everything in basedraft, paid for once, with every update after that." },
 };

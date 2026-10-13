@@ -20,7 +20,7 @@ import { FEATURE_ICON, Note } from "@/site/plan-parts";
 export const metadata: Metadata = {
   title: "basedraft Pro",
   description:
-    "Every template and all their sections, copy to Figma and Paper, the code downloaded or sent to GitHub, and every future update, for one payment.",
+    "Every template and all their sections, copy to Figma and Paper, the code in Next.js or Astro downloaded or sent to GitHub, and every future update, for one payment.",
 };
 
 /* Each use leads with the same icon it has on the plan cards, where it has one. */
@@ -28,7 +28,7 @@ const LICENSE: Array<[Icon, string, boolean, boolean, boolean]> = [
   [FEATURE_ICON.personal, "Personal projects", true, true, true],
   [FEATURE_ICON.studio, "Studio, with JSON export", true, true, true],
   [FEATURE_ICON.layouts, "Every template and section", false, true, true],
-  [FEATURE_ICON.code, "Code download and GitHub", false, true, true],
+  [FEATURE_ICON.code, "Code in Next.js or Astro, downloaded or on GitHub", false, true, true],
   [FEATURE_ICON.figma, "Copy to Figma and Paper", false, true, true],
   [StorefrontIcon, "Commercial products you own", false, true, true],
   [GitBranchIcon, "Updates, downloaded or sent to GitHub", false, true, true],

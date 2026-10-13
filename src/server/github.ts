@@ -4,7 +4,7 @@ import type { NextRequest, NextResponse } from "next/server";
 import { templateOf } from "@/site/live";
 import { pageFile } from "@/studio/project-files";
 import type { Project } from "@/studio/state";
-import { packageNameOf, siteFiles, writeImages, writeProject, type Files } from "./site";
+import { packageNameOf, siteFiles, writeImages, writeProject, type Files, type Framework } from "./site";
 
 /*
  * Sending a Studio project to GitHub, for people who'd rather not download a zip.
@@ -238,6 +238,13 @@ function packageName(b: Uint8Array | undefined) {
 
 export type Target = { kind: "new"; name: string; private: boolean } | { kind: "existing"; repo: string; direct: boolean };
 
+/** Whether two files are the same bytes. */
+function sameBytes(a: Uint8Array, b: Uint8Array) {
+  if (a.byteLength !== b.byteLength) return false;
+  for (let i = 0; i < a.byteLength; i++) if (a[i] !== b[i]) return false;
+  return true;
+}
+
 export interface Sent {
   url: string;
   repo: string;
@@ -252,7 +259,7 @@ const REPO_NAME = /^[A-Za-z0-9._-]{1,100}$/;
 const FULL_NAME = /^[A-Za-z0-9-]{1,39}\/[A-Za-z0-9._-]{1,100}$/;
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "site";
 
-export async function send(token: string, project: Project, target: Target): Promise<Sent> {
+export async function send(token: string, project: Project, target: Target, framework: Framework = "next"): Promise<Sent> {
   const t = templateOf(project.template)!;
   if (target.kind === "new") {
     if (!REPO_NAME.test(target.name) || target.name.startsWith(".")) throw new GitHubError(422, "A repository name can use letters, numbers, dots, dashes and underscores.");
@@ -267,8 +274,8 @@ export async function send(token: string, project: Project, target: Target): Pro
     let base: Awaited<ReturnType<typeof head>> | null = null;
     for (let i = 0; i < 8 && !base; i++) base = await head(token, repo.full_name, repo.default_branch).catch(() => wait(600).then(() => null));
     if (!base) throw new GitHubError(504, "GitHub made the repository but it isn't ready yet. Try again in a moment.");
-    const { files, report } = await siteFiles(project);
-    const sha = await commitFiles(token, repo.full_name, files, { parent: base.sha, message: `${project.name}, from basedraft Studio\n\n${t.name} with ${project.pages.length} ${project.pages.length === 1 ? "page" : "pages"} you built.` });
+    const { files, report } = await siteFiles(project, framework);
+    const sha = await commitFiles(token, repo.full_name, files, { parent: base.sha, message: `${project.name}, from basedraft Studio\n\n${t.name}${framework === "astro" ? " (Astro)" : ""} with ${project.pages.length} ${project.pages.length === 1 ? "page" : "pages"} you built.` });
     await gh(token, `/repos/${repo.full_name}/git/refs/heads/${encodeURIComponent(repo.default_branch)}`, { method: "PATCH", body: { sha } });
     return { url: repo.html_url, repo: repo.full_name, wrote: "site", files: files.size, missed: report.filter((r) => !r.files.length).map((r) => r.from) };
   }
@@ -290,9 +297,18 @@ export async function send(token: string, project: Project, target: Target): Pro
   // Is this already the template? Then only your pages and your text go in, over its own code.
   const now = empty ? new Map<string, Uint8Array>() : await filesAt(token, repo.full_name, repo.default_branch);
   const ours = now.has("basedraft/project.json") || packageName(now.get("package.json")) === (await packageNameOf(t.slug));
+  // Which version is there: an Astro one says so in its project.json, or has Astro's config.
+  const astroThere = /"framework":\s*"astro"/.test(textOf(now.get("basedraft/project.json") ?? new Uint8Array()) ?? "") || now.has("astro.config.mjs");
+  if (ours && astroThere !== (framework === "astro"))
+    throw new GitHubError(409, `${repo.full_name} has the ${astroThere ? "Astro" : "Next.js"} version of ${t.name}. Send that version there, or start a new repository for the ${framework === "astro" ? "Astro" : "Next.js"} one.`);
   let files: Files;
   let missed: string[];
-  if (ours) {
+  if (framework === "astro") {
+    // The Astro version is made whole each time; what goes in is what differs from the repository.
+    const site = await siteFiles(project, "astro");
+    files = new Map([...site.files].filter(([k, v]) => !now.has(k) || (typeof v === "string" ? v !== textOf(now.get(k)!) : !sameBytes(v, now.get(k)!))));
+    missed = site.report.filter((r) => !r.files.length).map((r) => r.from);
+  } else if (ours) {
     const copy: Files = new Map([...now].map(([k, v]) => [k, textOf(v) ?? v]));
     const report = writeProject(copy, project);
     // Your images go in over the template's files: they're not text, so they're sent as they are.

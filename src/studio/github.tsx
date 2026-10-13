@@ -11,6 +11,7 @@ import { Input } from "@/ui/field";
 import { save, type Project } from "./state";
 import { Segments } from "./ui";
 import { track } from "@/site/analytics";
+import type { Framework } from "@/site/framework";
 
 /*
  * Sending a project to GitHub instead of downloading it. A new repository gets the whole site,
@@ -42,7 +43,7 @@ async function json<T>(r: Response): Promise<T> {
   return j;
 }
 
-export function GitHubPanel({ project, onBack, back = "Files", returnTo = GITHUB_RETURN }: { project: Project; onBack: () => void; back?: string; returnTo?: string }) {
+export function GitHubPanel({ project, onBack, back = "Files", returnTo = GITHUB_RETURN, framework = "next" }: { project: Project; onBack: () => void; back?: string; returnTo?: string; framework?: Framework }) {
   const t = templateOf(project.template)!;
   const [me, setMe] = useState<Me | null>(null);
   const [where, setWhere] = useState<"new" | "existing">("new");
@@ -85,7 +86,7 @@ export function GitHubPanel({ project, onBack, back = "Files", returnTo = GITHUB
     setStatus({ kind: "sending" });
     try {
       const target = where === "new" ? { kind: "new", name, private: priv } : { kind: "existing", repo, direct: how === "commit" };
-      const sent = await json<Sent>(await fetch("/api/github/push", { method: "POST", headers: { "Content-Type": "application/json", ...previewHeaders() }, body: JSON.stringify({ project, target }) }));
+      const sent = await json<Sent>(await fetch("/api/github/push", { method: "POST", headers: { "Content-Type": "application/json", ...previewHeaders() }, body: JSON.stringify({ project, target, framework }) }));
       track("sent_to_github", { template: project.template, kind: target.kind });
       setStatus({ kind: "sent", sent });
     } catch (e) {

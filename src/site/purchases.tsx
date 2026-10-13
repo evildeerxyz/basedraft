@@ -14,6 +14,7 @@ import { TEMPLATES, templateOf, templateShot, type TemplateSlug } from "./live";
 import { previewHeaders, usePlan, usePurchases } from "./plan";
 import { btn, btnSm } from "./sheet";
 import { toast } from "./toast";
+import { FrameworkSwitch, useFramework, type Framework } from "./framework";
 
 /*
  * What you've bought, and the two ways to take a template: the whole site as a zip, or a GitHub
@@ -26,8 +27,8 @@ const NAMES: Record<string, string> = { pro: "basedraft Pro", team: "basedraft T
 const nameOf = (product: string) => NAMES[product] ?? templateOf(product)?.name ?? product;
 const money = (amount?: number, currency?: string) => (amount === undefined ? "" : (currency ?? "usd").toLowerCase() === "usd" ? `$${amount.toFixed(2)}` : `${amount.toFixed(2)} ${(currency ?? "").toUpperCase()}`);
 
-async function download(slug: TemplateSlug) {
-  const r = await fetch("/api/export", { method: "POST", headers: { "Content-Type": "application/json", ...previewHeaders() }, body: JSON.stringify(newProject(slug)) });
+async function download(slug: TemplateSlug, framework: Framework) {
+  const r = await fetch(`/api/export?framework=${framework}`, { method: "POST", headers: { "Content-Type": "application/json", ...previewHeaders() }, body: JSON.stringify(newProject(slug)) });
   if (!r.ok) throw new Error(((await r.json().catch(() => ({}))) as { error?: string }).error ?? "The download didn't start");
   const url = URL.createObjectURL(await r.blob());
   const a = document.createElement("a");
@@ -44,16 +45,17 @@ export function Purchases() {
   const [busy, setBusy] = useState<TemplateSlug | null>(null);
   const [github, setGithub] = useState<TemplateSlug | null>(() => (templateOf(q.get("github") ?? "") ? (q.get("github") as TemplateSlug) : null));
   const [plan] = usePlan();
+  const [framework, setFramework] = useFramework();
   // Pro (or, in development, its preview) unlocks every template; otherwise what was bought.
   const unlocked = new Set<string>(plan === "pro" ? TEMPLATES.map((t) => t.slug) : (mine?.templates ?? []));
   const bought = q.get("checkout") === "done" ? q.get("product") : null;
   const arrived = bought ? Boolean(mine?.products.includes(bought)) : false;
 
-  const take = async (slug: TemplateSlug) => {
+  const take = async (slug: TemplateSlug, as: Framework = framework) => {
     setBusy(slug);
     try {
-      await download(slug);
-      toast(`Downloading ${templateOf(slug)!.name}`, { detail: "Unzip it, run npm install, and it runs." });
+      await download(slug, as);
+      toast(`Downloading ${templateOf(slug)!.name}${as === "astro" ? " for Astro" : ""}`, { detail: as === "astro" ? "Unzip it, run npm install and npm run dev (Node.js 22.12 or newer)." : "Unzip it, run npm install, and it runs." });
     } catch (e) {
       toast("Couldn't download that", { tone: "error", detail: e instanceof Error ? e.message : undefined });
     } finally {
@@ -61,13 +63,15 @@ export function Purchases() {
     }
   };
 
-  // From the order email: start the download once we know it's theirs, once.
+  // From the order email: start the download once we know it's theirs, once (its Astro link says so).
   const asked = useRef(false);
   const want = q.get("download");
   useEffect(() => {
     if (asked.current || !want || !unlocked.has(want)) return;
     asked.current = true;
-    const id = setTimeout(() => void take(want as TemplateSlug), 0);
+    const as: Framework = q.get("framework") === "astro" ? "astro" : framework;
+    if (as !== framework) setFramework(as);
+    const id = setTimeout(() => void take(want as TemplateSlug, as), 0);
     return () => clearTimeout(id);
   });
 
@@ -112,9 +116,16 @@ export function Purchases() {
       )}
 
       <section aria-labelledby="owned-title">
-        <h2 id="owned-title" className="mb-4 px-1 text-heading">
-          Yours to take
-        </h2>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 px-1">
+          <h2 id="owned-title" className="text-heading">
+            Yours to take
+          </h2>
+          {/* Every template comes both ways: its own Next.js code, or its Astro version. */}
+          <div className="flex items-center gap-2.5 text-ui text-muted">
+            Download for
+            <FrameworkSwitch value={framework} onChange={setFramework} label="Download for" />
+          </div>
+        </div>
         <ul className="space-y-3">
           {owned.map((t) => (
             <li key={t.slug} className="bd-reveal flex flex-wrap items-center gap-5 rounded-[var(--bd-r-sheet)] bg-surface p-3 shadow-[0_0_0_1px_var(--bd-line)]">
@@ -127,7 +138,7 @@ export function Purchases() {
                   {t.name}
                 </p>
                 <p className="mt-0.5 text-ui text-muted">
-                  {t.price === "free" ? "Free" : "Yours"}, {t.pages.length} pages, Next.js 16
+                  {t.price === "free" ? "Free" : "Yours"}, {t.pages.length} pages, Next.js 16 or Astro 7
                 </p>
               </div>
               <div className="flex flex-wrap gap-2 pr-2">
@@ -218,7 +229,7 @@ export function Purchases() {
               </h2>
               <p className="mt-2 text-body text-muted">A new repository with the whole site in it, or a pull request on one you already have.</p>
             </div>
-            <GitHubPanel project={project} onBack={() => setGithub(null)} back="Purchases" returnTo={`/purchases?github=${github}`} />
+            <GitHubPanel project={project} framework={framework} onBack={() => setGithub(null)} back="Purchases" returnTo={`/purchases?github=${github}`} />
           </>
         )}
       </Dialog>

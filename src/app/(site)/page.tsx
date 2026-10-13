@@ -29,7 +29,7 @@ export default function Overview() {
       <header className="bd-reveal px-1 pb-10 pt-12 md:pb-12 md:pt-20">
         <h1 className="max-w-[720px] text-balance text-display">Start from a finished website, not a blank page.</h1>
         <p className="mt-5 max-w-[600px] text-lead text-muted">
-          {TEMPLATES.length} complete Next.js sites, every page included. Make one yours in Studio, then paste it into Figma as real layers or send the code to GitHub.
+          {TEMPLATES.length} complete sites, every page included, in Next.js and in Astro. Make one yours in Studio, then paste it into Figma as real layers or send the code to GitHub.
         </p>
         <div className="mt-8 flex flex-wrap items-center gap-2">
           <Link href="/studio" className={btn.ink}>

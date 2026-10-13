@@ -50,7 +50,7 @@ async function Template({ params }: { params: PageProps<"/templates/[slug]">["pa
   if (!t) notFound();
   // The home page's sections in order, each once.
   const home = [...new Set(t.home)].map((id) => sectionOf(t.slug, id)!).filter(Boolean);
-  const facts = [t.category, `${t.pages.length} pages`, `${t.sections.length} sections`, "Next.js 16, React 19, Tailwind 4"];
+  const facts = [t.category, `${t.pages.length} pages`, `${t.sections.length} sections`, "Next.js 16 or Astro 7", "React 19, Tailwind 4"];
   return (
     <main id="main">
       <PageHead

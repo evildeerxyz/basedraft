@@ -115,7 +115,7 @@ export function Exits() {
       <Card title="Paste it into Figma" body="Auto layout, components and named layers, at desktop, tablet and phone. Copy, then {Cmd V}. No plugin.">
         <FigmaLayers />
       </Card>
-      <Card title="Download the code" body="The template's own Next.js code with your pages and your words written in. Install, and it runs.">
+      <Card title="Download the code" body="The template's own code, in Next.js or Astro, with your pages and your words written in. Install, and it runs.">
         <Files />
       </Card>
       <Card title="Send it to GitHub" body="A new repository with the whole site, or a pull request on one you already have.">
@@ -129,7 +129,7 @@ export function Exits() {
 export function DeliveryCards() {
   return (
     <ul className="grid gap-3 md:grid-cols-2">
-      <Card title="Download the site" body="A zip of the whole Next.js project, every page included. Unzip it, install, and it runs.">
+      <Card title="Download the site" body="A zip of the whole project, in Next.js or Astro, every page included. Unzip it, install, and it runs.">
         <Files />
       </Card>
       <Card title="Send it to GitHub" body="Connect GitHub once and we make a repository with the site in it, or open a pull request on one you have.">

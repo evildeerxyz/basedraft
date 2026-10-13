@@ -9,13 +9,13 @@ import { btn } from "@/site/sheet";
 
 export const metadata: Metadata = {
   title: "Templates",
-  description: "Three finished Next.js sites, for fintech, AI and developer tools, with every page a real product needs.",
+  description: "Three finished sites, in Next.js and Astro, for fintech, AI and developer tools, with every page a real product needs.",
 };
 
 export default function TemplatesPage() {
   return (
     <main id="main">
-      <PageHead title="Templates" lead="Finished Next.js sites with every page a real product needs. Open one in Studio to make it yours, or take it as it is and ship it." />
+      <PageHead title="Templates" lead="Finished sites with every page a real product needs, in Next.js and in Astro. Open one in Studio to make it yours, or take it as it is and ship it." />
       <ul className="space-y-3">
         {TEMPLATES.map((t) => (
           <li key={t.slug} className="bd-reveal grid overflow-hidden rounded-[var(--bd-r-sheet)] bg-surface shadow-[0_0_0_1px_var(--bd-line)] lg:grid-cols-[1.45fr_1fr]">

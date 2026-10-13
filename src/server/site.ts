@@ -5,6 +5,7 @@ import { SKIP_DIRS, skipFile, TEMPLATE_DIRS, TEMPLATE_FILES } from "../../script
 import { templateOf, type LiveTemplate } from "@/site/live";
 import { editList, pageCode, pageFile, projectFiles } from "@/studio/project-files";
 import type { Project } from "@/studio/state";
+import { toAstro } from "../../scripts/astro.mjs";
 import { checkedImages } from "@/site/images";
 import { COLORS, themeCode, themeCss } from "@/site/theme";
 
@@ -20,6 +21,10 @@ import { COLORS, themeCode, themeCss } from "@/site/theme";
  */
 
 export type Files = Map<string, Uint8Array | string>;
+
+/** What a site is built with: the template's own Next.js code, or its Astro version (see scripts/astro.mjs). */
+export type Framework = "next" | "astro";
+export const frameworkOf = (v: unknown): Framework => (v === "astro" ? "astro" : "next");
 
 const ROOT = path.join(process.cwd(), "templates");
 
@@ -150,28 +155,40 @@ export async function writeImages(files: Files, project: Project) {
   return wrote;
 }
 
-/** The whole site for a project, ready to run: `npm install`, then `npm run dev`. */
-export async function siteFiles(project: Project) {
+/** The whole site for a project, ready to run: `npm install`, then `npm run dev`. In Next.js, or as its Astro version. */
+export async function siteFiles(project: Project, framework: Framework = "next") {
   const t = templateOf(project.template)!;
   const files = await templateSource(project.template);
   const report = writeProject(files, project);
   await writeImages(files, project);
-  files.set("basedraft/README.md", readme(project, t, report));
-  return { files, report };
+  files.set("basedraft/README.md", readme(project, t, report, framework));
+  if (framework === "next") return { files, report };
+  // The same site, its pages and text and style already in, made an Astro project.
+  const astro = toAstro(files, { name: project.name }) as Files;
+  const meta = JSON.parse(astro.get("basedraft/project.json") as string) as Record<string, unknown>;
+  astro.set("basedraft/project.json", `${JSON.stringify({ ...meta, framework: "astro" }, null, 2)}\n`);
+  return { files: astro, report };
 }
 
-function readme(project: Project, t: LiveTemplate, report: ReturnType<typeof writeProject>) {
+/** Where a page you built lives in each version of the site. */
+export function pageFiles(page: Project["pages"][number], framework: Framework) {
+  if (framework === "next") return [pageFile(page)];
+  const at = page.path === "/" ? "index" : page.path.slice(1);
+  return [`src/pages/${at}.astro`, `src/islands/${at}.tsx`, `src/routes/${pageFile(page).replace(/^(src\/)?app\//, "")}`];
+}
+
+function readme(project: Project, t: LiveTemplate, report: ReturnType<typeof writeProject>, framework: Framework) {
   const missed = report.filter((r) => !r.files.length);
   return `# ${project.name}
 
-Made in [basedraft](https://basedraft.site) Studio from ${t.name}. It's the template's own Next.js code, with your pages and your text written in.
+Made in [basedraft](https://basedraft.site) Studio from ${t.name}. ${framework === "astro" ? "It's the Astro version of the template (the same components, pages and content as its Next.js code), with your pages, your text and your style written in. Node.js 22.12 or newer." : "It's the template's own Next.js code, with your pages and your text written in."}
 
     npm install
     npm run dev
 
 Your pages:
 
-${project.pages.map((p) => `- \`${p.path}\` ${p.name}: \`${pageFile(p)}\``).join("\n")}
+${project.pages.map((p) => `- \`${p.path}\` ${p.name}: ${pageFiles(p, framework).map((f) => `\`${f}\``).join(", ")}`).join("\n")}
 ${report.length ? `\nYour text, written into the code: ${report.length - missed.length} of ${report.length} ${report.length === 1 ? "change" : "changes"}.\n` : ""}${missed.length ? `\nThese didn't match the code as written, so change them by hand:\n\n${missed.map((m) => `- "${m.from}" to "${m.to}"`).join("\n")}\n` : ""}
 \`basedraft/project.json\` opens this project in Studio again.
 `;

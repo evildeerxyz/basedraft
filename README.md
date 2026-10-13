@@ -69,6 +69,20 @@ Signed in, a project lives in Convex (`convex/projects.ts`) and its address is `
 - **Template view** (`/view/<slug>`): a template full window, every page clickable, with a card bottom right: its price, Buy, and Open in Studio. The site's "Open full screen" links go here.
 - **Analytics** (`src/instrumentation-client.ts`, `src/site/analytics.tsx`): PostHog, through `/ingest` on the site's own address, and Google Analytics, in production only. Signed-in people are identified by their account; a handful of named events mark the moments that matter (copies, downloads, GitHub sends, sign-ups, comments, invites, shares).
 
+## Astro versions
+
+Every template also downloads (and goes to GitHub) as an Astro 7 project. `scripts/astro.mjs`
+makes it from the same files Download project packs, after your pages, text, style and images are
+written in: the template's components stay exactly as they are and run as one React island per
+page; its `app/` routes move to `src/routes`, each with an Astro page and an island beside it;
+metadata, fonts (Astro's fonts API, under next/font's CSS variables), social images, robots.txt
+and sitemap.xml are carried over; and `src/next` answers the few `next/*` imports components use.
+The conversion is pure string work (about 7 ms), so it runs in the Worker at download time.
+
+After changing a template, check its Astro version still builds (Node.js 22.12 or newer):
+
+    npx tsx --tsconfig tsconfig.json scripts/astro-check.ts
+
 ## Environment
 
 See `.env.example`. In `.env.local`:

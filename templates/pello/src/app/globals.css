@@ -1,41 +1,35 @@
 @import "tailwindcss";
 
 /*
- * pello's colors. Four say what it looks like (the page, a card on it, ink and cobalt); the rest
- * are mixed from them, so a new palette still reads as pello. Code that draws in JS (the org graph,
- * the charts) reads these same variables, through src/lib/palette.ts.
+ * pello's colors: paper, a lighter grey for panels, ink, and one vermilion. Every other shade is
+ * mixed from those four, so a new palette still reads as pello. Photos and fields are printed in
+ * these same inks by the dither in src/components/site/dither.tsx, which reads them from here.
  */
 :root {
-  --pl-page: #f5f6f8;
-  --pl-surface: #ffffff;
-  --pl-ink: #0c0e14;
-  --pl-accent: #2f5bff;
+  --pl-page: #ffffff;
+  --pl-surface: #f1f2f3;
+  --pl-ink: #0b0b0b;
+  --pl-accent: #ff4b1f;
 
-  --pl-sunken: color-mix(in oklab, var(--pl-page) 94%, var(--pl-ink));
-  --pl-line: color-mix(in oklab, var(--pl-page) 89%, var(--pl-ink));
-  --pl-line-strong: color-mix(in oklab, var(--pl-page) 78%, var(--pl-ink));
-  --pl-ink-2: color-mix(in oklab, var(--pl-ink) 78%, var(--pl-page));
-  --pl-mute: color-mix(in oklab, var(--pl-ink) 56%, var(--pl-page));
-  --pl-accent-ink: #ffffff;
-  --pl-accent-soft: color-mix(in oklab, var(--pl-accent) 12%, var(--pl-surface));
-  --pl-accent-deep: color-mix(in oklab, var(--pl-accent) 82%, var(--pl-ink));
+  --pl-sunken: color-mix(in oklab, var(--pl-surface) 88%, var(--pl-ink));
+  --pl-line: color-mix(in oklab, var(--pl-page) 86%, var(--pl-ink));
+  --pl-line-strong: color-mix(in oklab, var(--pl-page) 64%, var(--pl-ink));
+  --pl-ink-2: color-mix(in oklab, var(--pl-ink) 80%, var(--pl-page));
+  --pl-mute: color-mix(in oklab, var(--pl-ink) 58%, var(--pl-page));
+  --pl-accent-ink: var(--pl-ink);
+  --pl-accent-soft: color-mix(in oklab, var(--pl-accent) 16%, var(--pl-page));
 
-  /* Only for what happened to a request: approved, waiting, flagged. */
-  --pl-good: #12a36d;
-  --pl-good-soft: color-mix(in oklab, #12a36d 13%, var(--pl-surface));
-  --pl-bad: #e5484d;
-  --pl-bad-soft: color-mix(in oklab, #e5484d 11%, var(--pl-surface));
-
-  /* The dark band: the ink as a page. */
+  /* The dark bands: ink as the page. */
   --pl-night: var(--pl-ink);
   --pl-night-2: color-mix(in oklab, var(--pl-ink) 90%, var(--pl-page));
-  --pl-night-line: color-mix(in oklab, var(--pl-ink) 82%, var(--pl-page));
+  --pl-night-line: color-mix(in oklab, var(--pl-ink) 78%, var(--pl-page));
   --pl-night-ink: var(--pl-page);
-  --pl-night-mute: color-mix(in oklab, var(--pl-page) 58%, var(--pl-ink));
+  --pl-night-mute: color-mix(in oklab, var(--pl-page) 60%, var(--pl-ink));
 }
 
 @theme inline {
-  --font-sans: var(--font-inter-tight), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-barlow), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-barlow-condensed), var(--font-barlow), ui-sans-serif, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
 
   --color-page: var(--pl-page);
@@ -49,20 +43,11 @@
   --color-accent: var(--pl-accent);
   --color-accent-ink: var(--pl-accent-ink);
   --color-accent-soft: var(--pl-accent-soft);
-  --color-accent-deep: var(--pl-accent-deep);
-  --color-good: var(--pl-good);
-  --color-good-soft: var(--pl-good-soft);
-  --color-bad: var(--pl-bad);
-  --color-bad-soft: var(--pl-bad-soft);
   --color-night: var(--pl-night);
   --color-night-2: var(--pl-night-2);
   --color-night-line: var(--pl-night-line);
   --color-night-ink: var(--pl-night-ink);
   --color-night-mute: var(--pl-night-mute);
-}
-
-@theme {
-  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @layer base {
@@ -74,7 +59,6 @@
 
   body {
     font-family: var(--font-sans);
-    font-feature-settings: "ss01", "cv11";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -88,7 +72,6 @@
   :focus-visible {
     outline: 3px solid var(--pl-accent);
     outline-offset: 3px;
-    border-radius: 8px;
   }
 
   button:not(:disabled),
@@ -100,6 +83,19 @@
 /* Numbers that change line up, and don't jump as they count. */
 .tabular {
   font-variant-numeric: tabular-nums;
+}
+
+/*
+ * Ink laid down as an ordered dither, for fills: 2px dots, a quarter or half of them inked. The
+ * ink is --dot (the text color unless set), so the same pattern prints in ink, vermilion or paper.
+ */
+.pl-dither-25 {
+  background-image: conic-gradient(from 90deg at 2px 2px, var(--dot, currentColor) 25%, transparent 0);
+  background-size: 4px 4px;
+}
+.pl-dither-50 {
+  background-image: repeating-conic-gradient(var(--dot, currentColor) 0 25%, transparent 0 50%);
+  background-size: 4px 4px;
 }
 
 /* The customers' names, sliding past. The second copy is what lets the loop run on without a break. */

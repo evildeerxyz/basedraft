@@ -47,7 +47,7 @@ const ROWS: Array<{ group: string; rows: Array<[string, Cell, Cell, Cell]> }> = 
 function Value({ v }: { v: Cell }) {
   if (typeof v === "string") return <span className="text-[16px] text-ink">{v}</span>;
   return v ? (
-    <span className="inline-grid size-7 place-items-center rounded-full bg-accent-soft text-accent">
+    <span className="inline-grid size-7 place-items-center rounded-[3px] bg-ink text-page">
       <CheckIcon size={15} weight="bold" />
       <span className="sr-only">Included</span>
     </span>
@@ -61,7 +61,7 @@ export function Compare() {
     <section className="py-24 lg:py-32">
       <Container>
         <SectionHead title="Every plan, side by side." />
-        <div className="mt-12 overflow-x-auto rounded-[28px] border border-line bg-surface">
+        <div className="mt-12 overflow-x-auto rounded-[4px] bg-surface">
           <table className="w-full min-w-[760px] border-collapse text-left">
             <thead>
               <tr>
@@ -69,7 +69,7 @@ export function Compare() {
                   <span className="sr-only">Feature</span>
                 </th>
                 {["Starter", "Growth", "Enterprise"].map((p) => (
-                  <th key={p} className="p-6 text-[19px] font-semibold tracking-[-0.02em] text-ink">
+                  <th key={p} className="p-6 font-display text-[30px] font-extrabold text-ink">
                     {p}
                   </th>
                 ))}
@@ -79,13 +79,13 @@ export function Compare() {
               {ROWS.map((g) => (
                 <Fragment key={g.group}>
                   <tr>
-                    <th colSpan={4} className="bg-page px-6 py-3 text-[16px] font-semibold text-ink">
+                    <th colSpan={4} className="bg-ink px-6 py-3 text-[16px] font-semibold text-page">
                       {g.group}
                     </th>
                   </tr>
                   {g.rows.map(([label, ...cells]) => (
-                    <tr key={label} className="shadow-[0_1px_0_var(--pl-line)]">
-                      <th scope="row" className="px-6 py-4 text-[16px] font-normal text-ink-2">
+                    <tr key={label} className="shadow-[0_1px_0_var(--pl-line-strong)]">
+                      <th scope="row" className="px-6 py-4 text-[17px] font-normal text-ink-2">
                         {label}
                       </th>
                       {cells.map((c, i) => (

@@ -35,9 +35,9 @@ export function Nav() {
   }, [open]);
 
   return (
-    <header className={cn("sticky top-0 z-50 bg-page transition-shadow duration-300", (scrolled || open) && "shadow-[0_1px_0_var(--pl-line)]")}>
-      <Container className="flex h-[72px] items-center justify-between gap-6">
-        <Link href="/" aria-label="pello home" className="rounded-[10px]">
+    <header className={cn("sticky top-0 z-50 bg-page transition-shadow duration-300", (scrolled || open) && "shadow-[0_1px_0_var(--pl-ink)]")}>
+      <Container className="flex h-[76px] items-center justify-between gap-6">
+        <Link href="/" aria-label="pello home" className="rounded-[4px]">
           <Logo />
         </Link>
 
@@ -47,17 +47,17 @@ export function Nav() {
               const on = pathname.startsWith(l.href);
               return (
                 <li key={l.href} className="relative">
-                  {hover === l.href && <motion.span layoutId="nav-hover" className="absolute inset-0 rounded-[12px] bg-sunken" transition={{ type: "spring", stiffness: 520, damping: 40 }} />}
                   <Link
                     href={l.href}
                     onPointerEnter={() => setHover(l.href)}
                     onFocus={() => setHover(l.href)}
                     aria-current={on ? "page" : undefined}
-                    className={cn("relative flex h-11 items-center gap-2 rounded-[12px] px-4 text-[16px] font-medium transition-colors", on ? "text-ink" : "text-ink-2 hover:text-ink")}
+                    className={cn("relative flex h-11 items-center gap-2 rounded-[4px] px-4 text-[17px] font-semibold transition-colors", on ? "text-ink" : "text-ink-2 hover:text-ink")}
                   >
-                    {on && <span aria-hidden className="size-1.5 rounded-full bg-accent" />}
+                    {on && <span aria-hidden className="size-2 bg-accent" />}
                     {l.label}
                   </Link>
+                  {hover === l.href && <motion.span layoutId="nav-hover" aria-hidden className="absolute inset-x-4 -bottom-0.5 h-[3px] bg-ink" transition={{ type: "spring", stiffness: 520, damping: 40 }} />}
                 </li>
               );
             })}
@@ -65,7 +65,7 @@ export function Nav() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <Link href="/login" className="hidden h-11 items-center rounded-[12px] px-4 text-[16px] font-medium text-ink-2 transition-colors hover:text-ink sm:flex">
+          <Link href="/login" className="hidden h-11 items-center rounded-[4px] px-4 text-[17px] font-semibold text-ink-2 transition-colors hover:text-ink sm:flex">
             Sign in
           </Link>
           <span className="max-sm:hidden">
@@ -81,7 +81,7 @@ export function Nav() {
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             aria-controls="mobile-menu"
-            className="grid size-11 place-items-center rounded-[12px] bg-surface text-ink shadow-[inset_0_0_0_1px_var(--pl-line-strong)] lg:hidden"
+            className="grid size-11 place-items-center rounded-[4px] text-ink shadow-[inset_0_0_0_1.5px_var(--pl-ink)] lg:hidden"
           >
             <AnimatePresence mode="wait" initial={false}>
               <motion.span key={open ? "x" : "menu"} initial={{ rotate: -45, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 45, opacity: 0 }} transition={{ duration: 0.14 }}>
@@ -106,14 +106,14 @@ export function Nav() {
               <motion.ul initial="hide" animate="show" variants={{ show: { transition: { staggerChildren: 0.035, delayChildren: 0.04 } } }}>
                 {[...LINKS, { label: "Sign in", href: "/login" }].map((l) => (
                   <motion.li key={l.href} variants={{ hide: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}>
-                    <Link href={l.href} onClick={() => setOpenOn(null)} className="flex h-16 items-center justify-between text-[28px] font-semibold tracking-[-0.035em] text-ink shadow-[0_1px_0_var(--pl-line)]">
+                    <Link href={l.href} onClick={() => setOpenOn(null)} className="flex h-16 items-center justify-between font-display text-[34px] font-extrabold text-ink shadow-[0_1px_0_var(--pl-line)]">
                       {l.label}
                       <ArrowUpRightIcon size={22} className="text-mute" />
                     </Link>
                   </motion.li>
                 ))}
               </motion.ul>
-              <ButtonLink href="/contact" kind="accent" size="lg" className="mt-6 w-full">
+              <ButtonLink href="/contact" kind="accent" size="lg" arrow className="mt-6 w-full">
                 Book a demo
               </ButtonLink>
             </Container>

@@ -22,12 +22,12 @@ export const SLOT_LABEL: Record<ThemeSlot, string> = { accent: "Accent", page: "
 
 export type Mode = "light" | "dark";
 
-export type FontId = "inter" | "inter-tight" | "geist" | "mona" | "manrope" | "dm-sans" | "space-grotesk" | "jakarta" | "fraunces" | "newsreader";
+export type FontId = "inter" | "barlow" | "geist" | "mona" | "manrope" | "dm-sans" | "space-grotesk" | "jakarta" | "fraunces" | "newsreader";
 
 /** Typefaces to try: variable fonts on Google Fonts, so every weight a template uses is there. */
 export const FONTS: Record<FontId, { label: string; family: string; google: string; next: string; serif?: boolean }> = {
   inter: { label: "Inter", family: "Inter", google: "Inter:wght@100..900", next: "Inter" },
-  "inter-tight": { label: "Inter Tight", family: "Inter Tight", google: "Inter+Tight:wght@100..900", next: "Inter_Tight" },
+  barlow: { label: "Barlow", family: "Barlow", google: "Barlow:wght@400;500;600;700", next: "Barlow" },
   geist: { label: "Geist", family: "Geist", google: "Geist:wght@100..900", next: "Geist" },
   mona: { label: "Mona Sans", family: "Mona Sans", google: "Mona+Sans:wght@200..900", next: "Mona_Sans" },
   manrope: { label: "Manrope", family: "Manrope", google: "Manrope:wght@200..800", next: "Manrope" },
@@ -202,7 +202,7 @@ html:root:root [data-tone="accent"] {
   },
   pello: {
     // The four colors; every other shade in pello's globals.css is mixed from them there, so it follows on its own.
-    base: { accent: "#2f5bff", page: "#f5f6f8", cards: "#ffffff", text: "#0c0e14" },
+    base: { accent: "#ff4b1f", page: "#ffffff", cards: "#f1f2f3", text: "#0b0b0b" },
     vars: {
       "--pl-accent": "accent",
       "--pl-accent-ink": "on-accent",
@@ -211,15 +211,15 @@ html:root:root [data-tone="accent"] {
       "--pl-ink": "text",
     },
     presets: [
-      { name: "pello", colors: { accent: "#2f5bff", page: "#f5f6f8", cards: "#ffffff", text: "#0c0e14" } },
-      { name: "Violet", colors: { accent: "#6d4aff", page: "#f6f5fa", cards: "#ffffff", text: "#120e20" } },
-      { name: "Teal", colors: { accent: "#0f8f86", page: "#f3f7f6", cards: "#ffffff", text: "#0b1614" } },
-      { name: "Forest", colors: { accent: "#1f7a4d", page: "#f4f6f4", cards: "#ffffff", text: "#0d1510" } },
-      { name: "Crimson", colors: { accent: "#e0294f", page: "#f6f6f7", cards: "#ffffff", text: "#141016" } },
-      { name: "Graphite", colors: { accent: "#15171c", page: "#f4f4f5", cards: "#ffffff", text: "#15171c" } },
+      { name: "pello", colors: { accent: "#ff4b1f", page: "#ffffff", cards: "#f1f2f3", text: "#0b0b0b" } },
+      { name: "Cobalt", colors: { accent: "#2a45ff", page: "#ffffff", cards: "#f0f2f6", text: "#0a0c14" } },
+      { name: "Forest", colors: { accent: "#13804f", page: "#ffffff", cards: "#eff3f0", text: "#0a120d" } },
+      { name: "Violet", colors: { accent: "#6b3cff", page: "#ffffff", cards: "#f2f1f7", text: "#100c1d" } },
+      { name: "Crimson", colors: { accent: "#e5173f", page: "#ffffff", cards: "#f4f2f3", text: "#120a0c" } },
+      { name: "Graphite", colors: { accent: "#0b0b0b", page: "#ffffff", cards: "#f1f1f1", text: "#0b0b0b" } },
     ],
     globals: "src/app/globals.css",
-    font: { own: "inter-tight", label: "Inter Tight", variable: "--font-inter-tight", layout: "src/app/layout.tsx" },
+    font: { own: "barlow", label: "Barlow", variable: "--font-barlow", layout: "src/app/layout.tsx" },
   },
 };
 

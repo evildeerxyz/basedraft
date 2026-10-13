@@ -75,10 +75,11 @@ const TO = 17;
 
 const hours = (list: Block[], kinds: Kind[]) => list.filter((x) => kinds.includes(x.kind)).reduce((n, x) => n + x.len, 0);
 
+// Admin is printed as grey busywork (a dither of ink), time with people in vermilion, pello's in ink.
 const KIND: Record<Kind, string> = {
-  admin: "bg-sunken text-ink-2",
-  people: "bg-accent-soft text-ink shadow-[inset_3px_0_0_var(--pl-accent)]",
-  fixed: "bg-surface text-ink shadow-[inset_0_0_0_1px_var(--pl-line-strong)]",
+  admin: "pl-dither-25 bg-page text-ink [--dot:var(--pl-line-strong)] shadow-[inset_0_0_0_1px_var(--pl-line-strong)]",
+  people: "bg-accent text-accent-ink",
+  fixed: "bg-page text-ink shadow-[inset_0_0_0_1.5px_var(--pl-ink)]",
   pello: "bg-ink text-page",
 };
 
@@ -103,13 +104,13 @@ export function Week() {
 
         <div className="mt-12 flex justify-center">
           <LayoutGroup id="week-switch">
-            <div role="radiogroup" aria-label="Hannah's week" className="flex rounded-full bg-surface p-1.5 shadow-[inset_0_0_0_1px_var(--pl-line)]">
+            <div role="radiogroup" aria-label="Hannah's week" className="flex rounded-[6px] p-1 shadow-[inset_0_0_0_1.5px_var(--pl-ink)]">
               {[
                 [false, "Before pello"],
                 [true, "With pello"],
               ].map(([v, label]) => (
-                <button key={String(v)} type="button" role="radio" aria-checked={after === v} onClick={() => setAfter(v as boolean)} className={cn("relative h-12 rounded-full px-6 text-[17px] font-medium transition-colors", after === v ? "text-page" : "text-ink-2 hover:text-ink")}>
-                  {after === v && <motion.span layoutId="week-pill" className="absolute inset-0 rounded-full bg-ink" transition={{ type: "spring", stiffness: 480, damping: 38 }} />}
+                <button key={String(v)} type="button" role="radio" aria-checked={after === v} onClick={() => setAfter(v as boolean)} className={cn("relative h-12 rounded-[3px] px-6 text-[17px] font-semibold transition-colors", after === v ? "text-page" : "text-ink-2 hover:text-ink")}>
+                  {after === v && <motion.span layoutId="week-pill" className="absolute inset-0 rounded-[3px] bg-ink" transition={{ type: "spring", stiffness: 480, damping: 38 }} />}
                   <span className="relative">{label as string}</span>
                 </button>
               ))}
@@ -118,11 +119,11 @@ export function Week() {
         </div>
 
         <div className="mt-12 grid gap-6 lg:grid-cols-[1fr_260px]">
-          <div className="overflow-x-auto rounded-[28px] bg-surface p-4 shadow-[inset_0_0_0_1px_var(--pl-line)] sm:p-6">
+          <div className="overflow-x-auto rounded-[4px] bg-surface p-4 sm:p-6">
             <div className="grid min-w-[720px] grid-cols-[48px_repeat(5,1fr)] gap-x-2">
               <span />
               {DAYS.map((d) => (
-                <p key={d} className="pb-3 text-[16px] font-semibold text-ink">
+                <p key={d} className="pb-3 font-display text-[22px] font-extrabold text-ink">
                   {d}
                 </p>
               ))}
@@ -134,7 +135,7 @@ export function Week() {
                 ))}
               </div>
               {DAYS.map((d, day) => (
-                <div key={d} className="relative rounded-[14px] bg-page" style={{ height: (TO - FROM) * HOUR }}>
+                <div key={d} className="relative rounded-[3px] bg-page" style={{ height: (TO - FROM) * HOUR }}>
                   <AnimatePresence initial={false} mode="popLayout">
                     {blocks
                       .filter((x) => x.day === day)
@@ -146,7 +147,7 @@ export function Week() {
                           animate={{ opacity: 1, scale: 1, transition: { delay: 0.12 + i * 0.05, type: "spring", stiffness: 380, damping: 30 } }}
                           exit={{ opacity: 0, scale: 0.85, transition: { duration: 0.2 } }}
                           transition={{ type: "spring", stiffness: 300, damping: 32 }}
-                          className={cn("absolute inset-x-1 overflow-hidden rounded-[10px] px-2.5 py-1 text-[15px] font-medium leading-[1.25]", KIND[x.kind])}
+                          className={cn("absolute inset-x-1 overflow-hidden rounded-[3px] px-2.5 py-1 text-[15px] font-semibold leading-[1.2]", KIND[x.kind])}
                           style={{ top: (x.start - FROM) * HOUR + 2, height: x.len * HOUR - 4 }}
                         >
                           {x.text}
@@ -159,25 +160,25 @@ export function Week() {
           </div>
 
           <dl className="grid content-start gap-4 sm:grid-cols-2 lg:grid-cols-1">
-            <div className="rounded-[24px] bg-surface p-6 shadow-[inset_0_0_0_1px_var(--pl-line)]">
-              <dt className="flex items-center gap-2.5 text-[16px] text-ink-2">
-                <span className="size-3 rounded-[4px] bg-sunken shadow-[inset_0_0_0_1px_var(--pl-line-strong)]" />
+            <div className="rounded-[4px] bg-surface p-6">
+              <dt className="flex items-center gap-2.5 text-[17px] font-semibold text-ink">
+                <span className="pl-dither-50 size-3.5 bg-page text-ink-2 shadow-[inset_0_0_0_1px_var(--pl-line-strong)]" />
                 Admin
               </dt>
-              <dd className="mt-2 text-[52px] font-semibold leading-none tracking-[-0.05em] text-ink">
-                <Hours value={hours(blocks, ["admin", "pello"])} /> <span className="text-[22px] tracking-[-0.02em] text-mute">hours</span>
+              <dd className="mt-2 font-display text-[72px] font-extrabold leading-none text-ink">
+                <Hours value={hours(blocks, ["admin", "pello"])} /> <span className="text-[24px] text-mute">hours</span>
               </dd>
             </div>
-            <div className="rounded-[24px] bg-surface p-6 shadow-[inset_0_0_0_1px_var(--pl-line)]">
-              <dt className="flex items-center gap-2.5 text-[16px] text-ink-2">
-                <span className="size-3 rounded-[4px] bg-accent" />
+            <div className="rounded-[4px] bg-surface p-6">
+              <dt className="flex items-center gap-2.5 text-[17px] font-semibold text-ink">
+                <span className="size-3.5 bg-accent" />
                 With people
               </dt>
-              <dd className="mt-2 text-[52px] font-semibold leading-none tracking-[-0.05em] text-ink">
-                <Hours value={hours(blocks, ["people"])} /> <span className="text-[22px] tracking-[-0.02em] text-mute">hours</span>
+              <dd className="mt-2 font-display text-[72px] font-extrabold leading-none text-ink">
+                <Hours value={hours(blocks, ["people"])} /> <span className="text-[24px] text-mute">hours</span>
               </dd>
             </div>
-            <p className="text-[16px] leading-[1.55] text-mute sm:col-span-2 lg:col-span-1">The dark blocks are pello&apos;s: the few things it sent her to decide, and approving payroll.</p>
+            <p className="text-[16px] leading-[1.55] text-mute sm:col-span-2 lg:col-span-1">The black blocks are pello&apos;s: the few things it sent her to decide, and approving payroll.</p>
           </dl>
         </div>
       </Container>

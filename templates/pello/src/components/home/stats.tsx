@@ -2,6 +2,7 @@
 
 import { animate, motion, useInView, useMotionValue, useTransform } from "motion/react";
 import { useEffect, useRef } from "react";
+import { DitherField } from "@/components/site/dither";
 import { Container, SectionHead } from "@/components/site/ui";
 
 /* What changes in a team's first three months on pello: four numbers that count up as they come into view. */
@@ -29,18 +30,20 @@ export function Stats() {
   const ref = useRef<HTMLDivElement>(null);
   const go = useInView(ref, { once: true, amount: 0.35 });
   return (
-    <section className="bg-night py-28 text-night-ink lg:py-36">
-      <Container>
+    <section className="relative overflow-hidden bg-night pb-56 pt-28 text-night-ink lg:pb-64 lg:pt-36">
+      {/* Vermilion rising from the bottom edge, below the numbers. */}
+      <DitherField inks={["accent", "night"]} shape="rise" reach={0.26} cell={4} drift className="absolute inset-0" />
+      <Container className="relative">
         <SectionHead dark title="What changes in the first three months." lead="Averages across 1,200 teams on pello, from January to September 2026." />
         <div ref={ref} className="mt-20 grid gap-x-12 gap-y-16 sm:grid-cols-2">
           {STATS.map((s, i) => (
-            <motion.div key={s.label} initial={{ opacity: 0, y: 24 }} animate={go ? { opacity: 1, y: 0 } : {}} transition={{ delay: i * 0.1, duration: 0.7, ease: [0.22, 1, 0.36, 1] }} className="group">
-              <p className="text-[clamp(4.4rem,9vw,8.4rem)] font-semibold leading-[0.9] tracking-[-0.065em]">
+            <motion.div key={s.label} initial={{ opacity: 0, y: 24 }} animate={go ? { opacity: 1, y: 0 } : {}} transition={{ delay: i * 0.1, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}>
+              <p className="font-display text-[clamp(6rem,13vw,12rem)] font-extrabold leading-[0.8]">
                 <Count to={s.value} go={go} />
-                <span className="text-night-mute">{s.unit}</span>
+                <span className="text-accent">{s.unit}</span>
               </p>
-              <p className="mt-5 max-w-[380px] text-[21px] leading-[1.35] tracking-[-0.015em]">{s.label}</p>
-              <p className="mt-2 text-[17px] text-night-mute">{s.before}</p>
+              <p className="mt-5 max-w-[400px] font-display text-[30px] font-bold leading-[1.05]">{s.label}</p>
+              <p className="mt-2 text-[18px] text-night-mute">{s.before}</p>
             </motion.div>
           ))}
         </div>

@@ -23,7 +23,7 @@ export function Integrations() {
         <SectionHead title="Works with what you already use." lead="pello reads from and writes to the tools your company runs on, so nobody copies anything from one to the other again." />
         <div className="mt-12 flex flex-wrap gap-2">
           {GROUPS.map((g) => (
-            <button key={g.id} type="button" aria-pressed={on === g.id} onClick={() => setOn(on === g.id ? null : g.id)} className={cn("h-11 rounded-full px-5 text-[16px] font-medium transition-colors", on === g.id ? "bg-ink text-page" : "bg-surface text-ink-2 shadow-[inset_0_0_0_1px_var(--pl-line)] hover:text-ink")}>
+            <button key={g.id} type="button" aria-pressed={on === g.id} onClick={() => setOn(on === g.id ? null : g.id)} className={cn("h-11 rounded-[4px] px-5 text-[16px] font-semibold transition-colors", on === g.id ? "bg-ink text-page" : "text-ink shadow-[inset_0_0_0_1.5px_var(--pl-ink)] hover:bg-ink hover:text-page")}>
               {g.label}
             </button>
           ))}
@@ -33,7 +33,7 @@ export function Integrations() {
             g.tools.map((t) => {
               const lit = !on || on === g.id;
               return (
-                <motion.li key={t} layout animate={{ opacity: lit ? 1 : 0.32, scale: lit ? 1 : 0.97 }} transition={{ type: "spring", stiffness: 380, damping: 32 }} className="flex h-24 items-center justify-center rounded-[20px] bg-surface px-4 text-center text-[17px] font-semibold tracking-[-0.02em] text-ink shadow-[inset_0_0_0_1px_var(--pl-line)]">
+                <motion.li key={t} layout animate={{ opacity: lit ? 1 : 0.32, scale: lit ? 1 : 0.97 }} transition={{ type: "spring", stiffness: 380, damping: 32 }} className="flex h-28 items-center justify-center rounded-[4px] bg-surface px-4 text-center font-display text-[26px] font-extrabold leading-none text-ink">
                   {t}
                 </motion.li>
               );

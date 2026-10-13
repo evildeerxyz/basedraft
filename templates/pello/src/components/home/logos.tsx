@@ -15,7 +15,7 @@ const MARKS: Array<{ name: string; className: string; glyph: ReactNode }> = [
 
 function Wordmark({ m }: { m: (typeof MARKS)[number] }) {
   return (
-    <span className="flex shrink-0 items-center gap-2.5 text-mute transition-colors duration-300 hover:text-ink">
+    <span className="flex shrink-0 items-center gap-2.5 text-ink-2 transition-colors duration-300 hover:text-accent">
       <svg viewBox="0 0 20 20" width="22" height="22" fill="currentColor" aria-hidden>
         {m.glyph}
       </svg>
@@ -28,7 +28,7 @@ export function Logos() {
   return (
     <section aria-label="Customers" className="pb-10 pt-4">
       <Container>
-        <p className="mx-auto max-w-[560px] text-balance text-center text-[19px] leading-[1.45] text-ink-2">1,200 companies run their people operations on pello, from 40 people to 4,000.</p>
+        <p className="mx-auto max-w-[620px] text-balance text-center font-display text-[30px] font-bold leading-[1.05] text-ink">1,200 companies run their people operations on pello, from 40 people to 4,000.</p>
       </Container>
       <div className="pl-marquee-wrap mt-10 overflow-hidden [mask-image:linear-gradient(90deg,transparent,black_12%,black_88%,transparent)]">
         <div className="pl-marquee flex w-max">

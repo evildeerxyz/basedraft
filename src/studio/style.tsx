@@ -17,6 +17,8 @@ import { Group, Segments } from "./ui";
  */
 
 const IDS = Object.keys(FONTS) as FontId[];
+/** Typefaces Studio offers only to the template that's set in them (pello's Barlow). */
+const OWN_ONLY = new Set<FontId>(["barlow"]);
 
 /** The fonts' "Aa", for the tiles: only those two letters of each, so it's a few kilobytes. */
 function useTileFonts() {
@@ -47,9 +49,9 @@ export function TypeGroup({ template, theme, onChange }: { template: TemplateSlu
   const font = theme?.font ?? own;
   const set = (patch: Partial<Theme>) => onChange(tidy({ ...theme, ...patch }));
   const changed = Boolean(theme && (theme.font || theme.headings || theme.weight || theme.tracking !== undefined));
-  // The template's own typeface first, then the rest. Inter Tight is only offered where it's the
-  // template's own, and there it stands in for Inter, which is the same face set wider.
-  const order = [...(own ? [own] : []), ...IDS.filter((f) => f !== own && f !== (own === "inter-tight" ? "inter" : "inter-tight"))];
+  // The template's own typeface first, then the rest. A typeface only one template uses is offered
+  // only there, as a wide tile of its own above the others.
+  const order = [...(own ? [own] : []), ...IDS.filter((f) => f !== own && !OWN_ONLY.has(f))];
   return (
     <Group
       title="Type"
@@ -66,7 +68,7 @@ export function TypeGroup({ template, theme, onChange }: { template: TemplateSlu
         {order.map((f) => {
           const on = f === font;
           return (
-            <button key={f} type="button" role="radio" aria-checked={on} onClick={() => set({ font: f === own ? undefined : f })} className={cn("group min-w-0 rounded-[10px] px-2 pb-1.5 pt-2 text-left transition-[background-color,box-shadow]", on ? "bg-fg/[0.05] shadow-[inset_0_0_0_1.5px_var(--bd-fg)]" : "shadow-[inset_0_0_0_1px_rgb(var(--bd-ink)/0.1)] hover:bg-fg/[0.03]")}>
+            <button key={f} type="button" role="radio" aria-checked={on} onClick={() => set({ font: f === own ? undefined : f })} className={cn("group min-w-0 rounded-[10px] px-2 pb-1.5 pt-2 text-left transition-[background-color,box-shadow]", OWN_ONLY.has(f) && "col-span-3", on ? "bg-fg/[0.05] shadow-[inset_0_0_0_1.5px_var(--bd-fg)]" : "shadow-[inset_0_0_0_1px_rgb(var(--bd-ink)/0.1)] hover:bg-fg/[0.03]")}>
               <span className="flex items-start justify-between gap-1">
                 <span className="text-[22px] font-medium leading-none" style={{ fontFamily: `"${FONTS[f].family}", ${FONTS[f].serif ? "serif" : "sans-serif"}` }}>
                   Aa

@@ -3,12 +3,12 @@
   "name": "pello",
   "category": "HR and people",
   "price": 79,
-  "accent": "#2f5bff",
-  "tagline": "An AI HR system, shown working: a live org chart, a handbook chat and a payroll run.",
-  "description": "Cool greys, ink and one cobalt. Built for HR, people and back office products, with a working piece of the product in every section.",
+  "accent": "#ff4b1f",
+  "tagline": "An AI HR system's site, printed: dithered photos of every person, stamps, forms and payslips.",
+  "description": "White paper, black ink and one vermilion, with every photo printed as a dither. Built for HR, people and back office products, with a working piece of the product in every section.",
   "highlights": [
-    "A live org chart you can drag",
-    "Working product fragments in every section",
+    "Every photo printed as a dither, in your colors",
+    "A staff wall that takes requests",
     "Next.js and Astro"
   ],
   "sections": [

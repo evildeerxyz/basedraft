@@ -16,7 +16,7 @@ export default function LoginPage() {
         <SignIn />
         <p className="mt-8 text-center text-[16px] text-ink-2">
           New to pello?{" "}
-          <Link href="/contact" className="rounded-[6px] font-medium text-accent underline-offset-4 hover:underline">
+          <Link href="/contact" className="rounded-[2px] font-semibold text-accent underline-offset-4 hover:underline">
             Book a demo
           </Link>
         </p>

@@ -1,12 +1,20 @@
 import type { Metadata, Viewport } from "next";
-import { Geist_Mono, Inter_Tight } from "next/font/google";
+import { Barlow, Barlow_Condensed, Geist_Mono } from "next/font/google";
 import { Providers } from "@/components/site/providers";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import "./globals.css";
 import { BdFrame } from "@/bd/frame"; // basedraft wiring, taken out of the code it hands over
 
-const interTight = Inter_Tight({
-  variable: "--font-inter-tight",
+const barlow = Barlow({
+  variable: "--font-barlow",
+  weight: ["400", "500", "600", "700"],
+  subsets: ["latin"],
+});
+
+// Headlines: the same family, set condensed and heavy.
+const barlowCondensed = Barlow_Condensed({
+  variable: "--font-barlow-condensed",
+  weight: ["600", "700", "800"],
   subsets: ["latin"],
 });
 
@@ -24,12 +32,12 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#f5f6f8",
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${interTight.variable} ${geistMono.variable} antialiased`}>
+    <html lang="en" className={`${barlow.variable} ${barlowCondensed.variable} ${geistMono.variable} antialiased`}>
       <body>
         <Providers><BdFrame>{children}</BdFrame></Providers>
       </body>

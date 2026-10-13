@@ -76,8 +76,13 @@ function Slider({ value, onChange }: { value: number; onChange: (v: number) => v
       }}
       onPointerMove={(e) => e.buttons && set(e)}
     >
-      <div className="absolute inset-x-0 top-1/2 h-2 -translate-y-1/2 rounded-full bg-sunken">
-        <div className="h-full rounded-full bg-accent" style={{ width: `${t * 100}%` }} />
+      {/* A ruler: a tick for every step, longer at each power of ten, inked up to your size. */}
+      <div aria-hidden className="absolute inset-x-0 bottom-1 flex h-7 items-end justify-between">
+        {Array.from({ length: 61 }, (_, i) => {
+          const at = i / 60;
+          const major = [10, 100, 1000, 2000].some((n) => Math.abs(tOf(n) - at) < 0.009);
+          return <span key={i} className={cn("w-[2px]", at <= t ? "bg-ink" : "bg-line-strong", major ? "h-7" : i % 5 === 0 ? "h-4" : "h-2.5")} />;
+        })}
       </div>
       <div
         role="slider"
@@ -88,7 +93,7 @@ function Slider({ value, onChange }: { value: number; onChange: (v: number) => v
         aria-valuenow={value}
         aria-valuetext={`${value} people`}
         onKeyDown={key}
-        className="absolute top-1/2 size-8 -translate-x-1/2 -translate-y-1/2 rounded-full bg-surface shadow-[0_2px_10px_rgb(12_14_20/0.2),inset_0_0_0_2px_var(--pl-accent)] transition-transform hover:scale-110 focus-visible:outline-offset-4 active:scale-95"
+        className="absolute bottom-0 h-12 w-[6px] -translate-x-1/2 rounded-[2px] bg-accent transition-transform hover:scale-x-150 focus-visible:outline-offset-4"
         style={{ left: `${t * 100}%` }}
       />
     </div>
@@ -106,20 +111,20 @@ export function Pricing({ heading = "h2" }: { heading?: "h1" | "h2" }) {
       <Container>
         <SectionHead as={heading} align="center" title="Priced per person, so it grows with you." lead="Every plan has the Slack and Teams apps, unlimited questions and a 30 day free trial. No setup fee." />
 
-        <div className="mx-auto mt-14 max-w-[760px] rounded-[28px] bg-surface p-6 shadow-[inset_0_0_0_1px_var(--pl-line)] sm:p-8">
+        <div className="mx-auto mt-14 max-w-[820px] rounded-[4px] bg-surface p-6 sm:p-8">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <p className="text-[17px] text-ink-2">
-              <span className="tabular block text-[48px] font-semibold leading-none tracking-[-0.05em] text-ink">{size.toLocaleString("en-US")}</span>
+              <span className="tabular block font-display text-[72px] font-extrabold leading-[0.85] text-ink">{size.toLocaleString("en-US")}</span>
               people at your company
             </p>
             <LayoutGroup id="billing">
-              <div role="radiogroup" aria-label="Billing" className="flex rounded-full bg-page p-1 shadow-[inset_0_0_0_1px_var(--pl-line)]">
+              <div role="radiogroup" aria-label="Billing" className="flex rounded-[6px] bg-page p-1 shadow-[inset_0_0_0_1.5px_var(--pl-ink)]">
                 {[
                   [false, "Monthly"],
                   [true, "Yearly, save 20%"],
                 ].map(([v, label]) => (
-                  <button key={String(v)} type="button" role="radio" aria-checked={yearly === v} onClick={() => setYearly(v as boolean)} className={cn("relative h-11 rounded-full px-5 text-[16px] font-medium transition-colors", yearly === v ? "text-page" : "text-ink-2 hover:text-ink")}>
-                    {yearly === v && <motion.span layoutId="billing-pill" className="absolute inset-0 rounded-full bg-ink" transition={{ type: "spring", stiffness: 480, damping: 38 }} />}
+                  <button key={String(v)} type="button" role="radio" aria-checked={yearly === v} onClick={() => setYearly(v as boolean)} className={cn("relative h-11 rounded-[3px] px-5 text-[16px] font-semibold transition-colors", yearly === v ? "text-page" : "text-ink-2 hover:text-ink")}>
+                    {yearly === v && <motion.span layoutId="billing-pill" className="absolute inset-0 rounded-[3px] bg-ink" transition={{ type: "spring", stiffness: 480, damping: 38 }} />}
                     <span className="relative">{label as string}</span>
                   </button>
                 ))}
@@ -143,12 +148,12 @@ export function Pricing({ heading = "h2" }: { heading?: "h1" | "h2" }) {
             const on = p.id === best;
             const dark = p.id === "growth";
             return (
-              <motion.div key={p.id} animate={{ y: on ? -8 : 0 }} transition={{ type: "spring", stiffness: 320, damping: 28 }} className={cn("relative flex flex-col rounded-[28px] p-7 transition-shadow duration-300 sm:p-8", dark ? "bg-night text-night-ink" : "bg-surface text-ink shadow-[inset_0_0_0_1px_var(--pl-line)]", on && "shadow-[0_0_0_3px_var(--pl-accent)]")}>
+              <motion.div key={p.id} animate={{ y: on ? -8 : 0 }} transition={{ type: "spring", stiffness: 320, damping: 28 }} className={cn("relative flex flex-col rounded-[4px] p-7 transition-shadow duration-300 sm:p-8", dark ? "bg-night text-night-ink" : "bg-surface text-ink", on && "shadow-[0_0_0_4px_var(--pl-accent)]")}>
                 <div className="flex items-center justify-between gap-3">
-                  <p className="text-[22px] font-semibold tracking-[-0.025em]">{p.name}</p>
+                  <p className="font-display text-[34px] font-extrabold leading-none">{p.name}</p>
                   <AnimatePresence>
                     {on && (
-                      <motion.span initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} className="rounded-full bg-accent px-3 py-1 text-[15px] font-medium text-accent-ink">
+                      <motion.span initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} className="rounded-[3px] bg-accent px-2.5 py-1 text-[15px] font-semibold text-accent-ink">
                         Fits {size.toLocaleString("en-US")} people
                       </motion.span>
                     )}
@@ -159,7 +164,7 @@ export function Pricing({ heading = "h2" }: { heading?: "h1" | "h2" }) {
                   {p.price ? (
                     <>
                       <p className="flex items-baseline gap-2">
-                        <span className="tabular text-[52px] font-semibold leading-none tracking-[-0.05em]">{money(p.price * k * size)}</span>
+                        <span className="tabular font-display text-[64px] font-extrabold leading-none">{money(p.price * k * size)}</span>
                         <span className={cn("text-[16px]", dark ? "text-night-mute" : "text-mute")}>a month</span>
                       </p>
                       <p className={cn("tabular mt-2 text-[16px]", dark ? "text-night-mute" : "text-mute")}>
@@ -168,20 +173,20 @@ export function Pricing({ heading = "h2" }: { heading?: "h1" | "h2" }) {
                     </>
                   ) : (
                     <>
-                      <p className="text-[52px] font-semibold leading-none tracking-[-0.05em]">Let&apos;s talk</p>
+                      <p className="font-display text-[64px] font-extrabold leading-none">Let&apos;s talk</p>
                       <p className={cn("mt-2 text-[16px]", dark ? "text-night-mute" : "text-mute")}>A price for your size and setup</p>
                     </>
                   )}
                 </div>
                 <ul className="mt-8 grid flex-1 content-start gap-3">
                   {p.features.map((f) => (
-                    <li key={f} className="flex gap-3 text-[16px] leading-[1.45]">
+                    <li key={f} className="flex gap-3 text-[17px] leading-[1.45]">
                       <CheckIcon size={18} weight="bold" className="mt-0.5 shrink-0 text-accent" />
                       {f}
                     </li>
                   ))}
                 </ul>
-                <ButtonLink href="/contact" kind={dark ? "light" : on ? "accent" : "quiet"} size="lg" className="mt-9 w-full">
+                <ButtonLink href="/contact" kind={dark ? "light" : on ? "accent" : "quiet"} size="lg" arrow className="mt-9 w-full">
                   {p.price ? "Start free for 30 days" : "Talk to us"}
                 </ButtonLink>
               </motion.div>

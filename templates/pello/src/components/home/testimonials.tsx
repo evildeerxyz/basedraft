@@ -3,33 +3,31 @@
 import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react/ssr";
 import { animate, motion, useMotionValue, useMotionValueEvent, useTransform } from "motion/react";
 import { useRef, useState } from "react";
+import { Dithered } from "@/components/site/dither";
 import { Container, SectionHead } from "@/components/site/ui";
 import { STORIES, type Story } from "@/lib/customers";
+import { customerPhoto } from "@/lib/photos";
 
 /* What customers say, on cards you can drag sideways (or step through with the buttons). */
 
 function Card({ s }: { s: Story }) {
+  const [hover, setHover] = useState(false);
   return (
-    <article className="flex w-[min(84vw,440px)] shrink-0 select-none flex-col justify-between rounded-[28px] bg-surface p-7 shadow-[inset_0_0_0_1px_var(--pl-line)] sm:p-8">
-      <div>
-        <p className="text-[46px] font-semibold leading-none tracking-[-0.05em] text-accent">{s.result}</p>
-        <p className="mt-2 text-[16px] text-mute">{s.resultLabel}</p>
+    <article onPointerEnter={() => setHover(true)} onPointerLeave={() => setHover(false)} className="flex w-[min(84vw,420px)] shrink-0 select-none flex-col overflow-hidden rounded-[4px] bg-page">
+      <div className="relative">
+        <Dithered src={customerPhoto(s.name)} alt={s.name} inks={hover ? ["ink", "accent", "page"] : ["ink", "page"]} cell={3} focus={[0.5, 0.3]} className="aspect-[4/3]" />
+        <p className="absolute bottom-0 left-0 bg-page px-4 pb-1 pt-2 font-display text-[54px] font-extrabold leading-none text-accent">{s.result}</p>
       </div>
-      <blockquote className="mt-10 text-[21px] leading-[1.45] tracking-[-0.015em] text-ink">{s.quote}</blockquote>
-      <footer className="mt-10 flex items-center gap-3.5">
-        <span aria-hidden className="grid size-11 place-items-center rounded-full bg-sunken text-[15px] font-semibold text-ink-2">
-          {s.name
-            .split(" ")
-            .map((w) => w[0])
-            .join("")}
-        </span>
-        <span>
-          <span className="block text-[17px] font-semibold text-ink">{s.name}</span>
-          <span className="block text-[15px] text-mute">
+      <div className="flex flex-1 flex-col p-6 sm:p-7">
+        <p className="text-[16px] text-mute">{s.resultLabel}</p>
+        <blockquote className="mt-6 flex-1 text-[21px] leading-[1.45] text-ink">{s.quote}</blockquote>
+        <footer className="mt-8">
+          <span className="block text-[18px] font-semibold text-ink">{s.name}</span>
+          <span className="block text-[16px] text-mute">
             {s.role}, {s.company}
           </span>
-        </span>
-      </footer>
+        </footer>
+      </div>
     </article>
   );
 }
@@ -63,10 +61,10 @@ export function Testimonials() {
         <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
           <SectionHead title="The people teams who stopped doing paperwork." />
           <div className="flex gap-2">
-            <button type="button" onClick={() => by(-1)} disabled={edge === "start"} aria-label="Previous" className="grid size-12 place-items-center rounded-full bg-page text-ink shadow-[inset_0_0_0_1px_var(--pl-line-strong)] transition-opacity hover:bg-sunken disabled:opacity-35">
+            <button type="button" onClick={() => by(-1)} disabled={edge === "start"} aria-label="Previous" className="grid size-12 place-items-center rounded-[4px] text-ink shadow-[inset_0_0_0_1.5px_var(--pl-ink)] transition-colors hover:bg-ink hover:text-page disabled:opacity-30">
               <ArrowLeftIcon size={20} />
             </button>
-            <button type="button" onClick={() => by(1)} disabled={edge === "end"} aria-label="Next" className="grid size-12 place-items-center rounded-full bg-page text-ink shadow-[inset_0_0_0_1px_var(--pl-line-strong)] transition-opacity hover:bg-sunken disabled:opacity-35">
+            <button type="button" onClick={() => by(1)} disabled={edge === "end"} aria-label="Next" className="grid size-12 place-items-center rounded-[4px] text-ink shadow-[inset_0_0_0_1.5px_var(--pl-ink)] transition-colors hover:bg-ink hover:text-page disabled:opacity-30">
               <ArrowRightIcon size={20} />
             </button>
           </div>
@@ -78,8 +76,8 @@ export function Testimonials() {
             ))}
           </motion.div>
         </div>
-        <div className="mt-10 h-1 overflow-hidden rounded-full bg-line" aria-hidden>
-          <motion.div className="h-full origin-left rounded-full bg-ink" style={{ scaleX: bar }} />
+        <div className="mt-10 h-1 overflow-hidden bg-line-strong" aria-hidden>
+          <motion.div className="h-full origin-left bg-ink" style={{ scaleX: bar }} />
         </div>
       </Container>
     </section>

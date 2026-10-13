@@ -4,15 +4,15 @@ import { CheckIcon, XIcon } from "@phosphor-icons/react/ssr";
 import { AnimatePresence, motion, useInView } from "motion/react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Mark } from "@/components/site/logo";
-import { Avatar, Container, SectionHead, Status } from "@/components/site/ui";
+import { Container, Face, SectionHead, Stamp, Tag } from "@/components/site/ui";
 import { cn } from "@/lib/cn";
 import { useEngaged } from "@/lib/engaged";
 import { PEOPLE, personOf } from "@/lib/people";
 
 /*
- * One request for time off, start to finish, in four steps that play on their own while the
- * section is on screen (or click one). The switch makes it a busy week in Sales: the request breaks a rule, so pello hands it
- * to Marco with what he needs to decide, instead of deciding itself.
+ * One request for time off, start to finish, in four steps filed like folders. They play on
+ * their own while the section is on screen (or open one). The switch makes it a busy week in
+ * Sales: the request breaks a rule, so pello hands it to Marco instead of deciding itself.
  */
 
 const GRACE = personOf("grace");
@@ -22,10 +22,10 @@ const DAYS = [22, 23, 24];
 const STEP_MS = 4200;
 
 const STEPS = [
-  { title: "Grace asks for three days", body: "In Slack, the way she'd ask a colleague: can I take December 22 to 24 off?" },
-  { title: "pello checks your rules", body: "Days left, notice, how many of her team are already out, and anything booked on her calendar." },
-  { title: "Approved, or sent to Marco", body: "Inside the rules, it's approved and Marco is told. Outside them, Marco decides, with everything in front of him." },
-  { title: "Everything else follows", body: "The team calendar, cover for her accounts and payroll update on their own." },
+  { tab: "Request", title: "Grace asks for three days", body: "In Slack, the way she'd ask a colleague." },
+  { tab: "Rules", title: "pello checks your rules", body: "Days left, notice, who else is out, her calendar." },
+  { tab: "Decision", title: "Approved, or sent to Marco", body: "Inside the rules it's approved. Outside them, Marco decides." },
+  { tab: "Updates", title: "Everything else follows", body: "Calendar, cover and payroll update on their own." },
 ];
 
 function rules(busy: boolean) {
@@ -37,31 +37,68 @@ function rules(busy: boolean) {
   ];
 }
 
+function Field({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="py-3 shadow-[0_1px_0_var(--pl-line-strong)]">
+      <p className="text-[15px] text-mute">{label}</p>
+      <div className="mt-0.5 text-[19px] font-semibold text-ink">{children}</div>
+    </div>
+  );
+}
+
+/** The request, as a form: it's what every step is about, so it stays on the left. */
+function Form({ step, busy }: { step: number; busy: boolean }) {
+  return (
+    <div className="relative">
+      <div className="flex items-baseline justify-between">
+        <p className="font-display text-[26px] font-extrabold text-ink">Time off request</p>
+        <p className="tabular font-mono text-[15px] text-mute">No. 4417</p>
+      </div>
+      <div className="mt-4">
+        <Field label="Who">
+          <span className="flex items-center gap-3">
+            <Face person={GRACE} size={32} />
+            {GRACE.name}, {GRACE.role}
+          </span>
+        </Field>
+        <Field label="When">December 22 to 24, back on the 28th</Field>
+        <Field label="Days">
+          <span className="tabular font-mono">3</span> of <span className="tabular font-mono">15</span> left
+        </Field>
+        <Field label="Signs off">{MARCO.name}, Sales Lead</Field>
+      </div>
+      <AnimatePresence>
+        {step >= 2 && (
+          <motion.div key={busy ? "busy" : "ok"} exit={{ opacity: 0 }} className="absolute bottom-8 right-0">
+            <Stamp tone={busy ? "accent" : "ink"} tilt={-9} className="text-[30px]">
+              {busy ? "Sent to Marco" : "Approved"}
+            </Stamp>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 function Calendar() {
   // December 2026 starts on a Tuesday.
   const cells = [null, ...Array.from({ length: 31 }, (_, i) => i + 1)];
   return (
-    <div className="w-full max-w-[400px]">
+    <div className="w-full max-w-[420px]">
       <div className="flex items-baseline justify-between">
-        <p className="text-[19px] font-semibold text-ink">December</p>
-        <p className="tabular text-[16px] text-mute">2026</p>
+        <p className="font-display text-[26px] font-extrabold text-ink">December</p>
+        <p className="tabular font-mono text-[15px] text-mute">2026</p>
       </div>
-      <div className="mt-4 grid grid-cols-7 gap-1.5 text-center">
+      <div className="mt-4 grid grid-cols-7 gap-1 text-center">
         {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
-          <span key={i} className="pb-1 text-[15px] text-mute">
+          <span key={i} className="pb-1 text-[15px] font-semibold text-mute">
             {d}
           </span>
         ))}
         {cells.map((d, i) => {
           const on = d !== null && DAYS.includes(d);
           return (
-            <motion.span
-              key={i}
-              initial={false}
-              animate={on ? { scale: [1, 1.12, 1] } : {}}
-              transition={{ delay: on ? 0.25 + DAYS.indexOf(d!) * 0.12 : 0, duration: 0.4 }}
-              className={cn("tabular grid h-10 place-items-center rounded-[10px] text-[15px]", d === null ? "" : on ? "bg-accent font-semibold text-accent-ink" : i % 7 >= 5 ? "text-mute" : "bg-surface text-ink-2")}
-            >
+            <motion.span key={i} initial={false} animate={on ? { scale: [1, 1.14, 1] } : {}} transition={{ delay: on ? 0.25 + DAYS.indexOf(d!) * 0.12 : 0, duration: 0.4 }} className={cn("tabular grid h-10 place-items-center rounded-[3px] font-mono text-[15px]", d === null ? "" : on ? "bg-accent font-semibold text-accent-ink" : i % 7 >= 5 ? "text-mute" : "bg-page text-ink-2")}>
               {d}
             </motion.span>
           );
@@ -71,72 +108,60 @@ function Calendar() {
   );
 }
 
-function Message({ who, children, delay = 0 }: { who: "pello" | typeof GRACE; children: ReactNode; delay?: number }) {
-  return (
-    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay, duration: 0.4, ease: [0.22, 1, 0.36, 1] }} className="flex gap-3">
-      {who === "pello" ? (
-        <span className="grid size-10 shrink-0 place-items-center rounded-full bg-ink">
-          <Mark size={22} className="text-page" />
-        </span>
-      ) : (
-        <Avatar person={who} size={40} />
-      )}
-      <div className="min-w-0">
-        <p className="text-[16px] font-semibold text-ink">{who === "pello" ? "pello" : who.name}</p>
-        <div className="mt-1 text-[17px] leading-[1.5] text-ink-2">{children}</div>
-      </div>
-    </motion.div>
-  );
-}
-
 function Stage({ step, busy }: { step: number; busy: boolean }) {
   const [decided, setDecided] = useState<null | "yes" | "other">(null);
   if (step === 0)
     return (
-      <div className="flex w-full flex-col items-start gap-8 sm:flex-row sm:items-center sm:justify-between">
-        <Message who={GRACE}>Can I take December 22 to 24 off? Back on the 28th.</Message>
+      <div className="grid w-full gap-8">
+        <div className="flex gap-3">
+          <Face person={GRACE} size={40} />
+          <div>
+            <p className="text-[16px] font-semibold text-ink">
+              {GRACE.name} <span className="font-normal text-mute">in Slack, 09:12</span>
+            </p>
+            <p className="mt-1 text-[19px] leading-[1.45] text-ink">Can I take December 22 to 24 off? Back on the 28th.</p>
+          </div>
+        </div>
         <Calendar />
       </div>
     );
   if (step === 1)
     return (
-      <ul className="grid w-full max-w-[520px] gap-3">
+      <ul className="w-full">
         {rules(busy).map((r, i) => (
-          <motion.li key={r.text} initial={{ opacity: 0, x: -14 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.15 + i * 0.32, duration: 0.4 }} className="flex items-center gap-4 rounded-[16px] bg-surface px-4 py-4 shadow-[inset_0_0_0_1px_var(--pl-line)]">
-            <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.35 + i * 0.32, type: "spring", stiffness: 500, damping: 20 }} className={cn("grid size-7 shrink-0 place-items-center rounded-full text-white", r.ok ? "bg-good" : "bg-bad")}>
-              {r.ok ? <CheckIcon size={15} weight="bold" /> : <XIcon size={15} weight="bold" />}
+          <motion.li key={r.text} initial={{ opacity: 0, x: -14 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 + i * 0.3, duration: 0.35 }} className="flex items-center gap-4 py-4 shadow-[0_1px_0_var(--pl-line-strong)]">
+            <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.3 + i * 0.3, type: "spring", stiffness: 500, damping: 20 }} className={cn("grid size-8 shrink-0 place-items-center rounded-[3px]", r.ok ? "bg-ink text-page" : "bg-accent text-accent-ink")}>
+              {r.ok ? <CheckIcon size={17} weight="bold" /> : <XIcon size={17} weight="bold" />}
             </motion.span>
-            <span className={cn("text-[17px]", r.ok ? "text-ink" : "font-medium text-bad")}>{r.text}</span>
+            <span className={cn("text-[19px]", r.ok ? "text-ink" : "font-semibold text-accent")}>{r.text}</span>
           </motion.li>
         ))}
       </ul>
     );
   if (step === 2)
     return busy ? (
-      <div className="w-full max-w-[540px] rounded-[22px] bg-surface p-6 shadow-[0_24px_60px_-30px_rgb(12_14_20/0.35),inset_0_0_0_1px_var(--pl-line)]">
+      <div className="w-full">
         <div className="flex items-center justify-between gap-4">
-          <p className="flex items-center gap-3 text-[16px] font-semibold text-ink">
-            <Avatar person={MARCO} size={36} />
+          <p className="flex items-center gap-3 text-[17px] font-semibold text-ink">
+            <Face person={MARCO} size={36} />
             For {MARCO.name}
           </p>
-          <Status tone={decided ? "good" : "wait"}>{decided ? "Decided" : "Needs you"}</Status>
+          <Tag tone={decided ? "done" : "flag"}>{decided ? "Decided" : "Needs you"}</Tag>
         </div>
-        <p className="mt-5 text-[19px] font-semibold leading-snug tracking-[-0.02em] text-ink">Grace asked for December 22 to 24.</p>
-        <p className="mt-2 text-[17px] leading-[1.55] text-ink-2">Ben and Sofia are already out those days, and the limit for Sales is 2. Lucas is in and could cover her accounts.</p>
+        <p className="mt-6 font-display text-[34px] font-extrabold leading-[0.98] text-ink">Grace asked for December 22 to 24.</p>
+        <p className="mt-3 text-[18px] leading-[1.55] text-ink-2">Ben and Sofia are already out those days, and the limit for Sales is 2. Lucas is in and could cover her accounts.</p>
         <AnimatePresence mode="wait" initial={false}>
           {decided ? (
-            <motion.p key="d" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-6 flex items-center gap-2.5 text-[17px] font-medium text-ink">
-              <span className="grid size-6 place-items-center rounded-full bg-good text-white">
-                <CheckIcon size={14} weight="bold" />
-              </span>
+            <motion.p key="d" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-7 flex items-center gap-2.5 text-[18px] font-semibold text-ink">
+              <CheckIcon size={20} weight="bold" />
               {decided === "yes" ? "Approved by Marco. Grace and Lucas have been told." : "Sent Grace January 5 to 7 instead."}
             </motion.p>
           ) : (
-            <motion.div key="b" exit={{ opacity: 0 }} className="mt-6 flex flex-wrap gap-3">
-              <button type="button" onClick={() => setDecided("yes")} className="h-11 rounded-[12px] bg-ink px-5 text-[16px] font-medium text-page transition-colors hover:bg-ink-2">
+            <motion.div key="b" exit={{ opacity: 0 }} className="mt-7 flex flex-wrap gap-3">
+              <button type="button" onClick={() => setDecided("yes")} className="h-12 rounded-[4px] bg-ink px-5 text-[16px] font-semibold text-page transition-colors hover:bg-accent hover:text-accent-ink">
                 Approve anyway
               </button>
-              <button type="button" onClick={() => setDecided("other")} className="h-11 rounded-[12px] bg-surface px-5 text-[16px] font-medium text-ink shadow-[inset_0_0_0_1px_var(--pl-line-strong)] transition-colors hover:bg-sunken">
+              <button type="button" onClick={() => setDecided("other")} className="h-12 rounded-[4px] px-5 text-[16px] font-semibold text-ink shadow-[inset_0_0_0_1.5px_var(--pl-ink)] transition-colors hover:bg-ink hover:text-page">
                 Suggest other days
               </button>
             </motion.div>
@@ -144,32 +169,42 @@ function Stage({ step, busy }: { step: number; busy: boolean }) {
         </AnimatePresence>
       </div>
     ) : (
-      <div className="grid w-full max-w-[560px] gap-6">
-        <Message who="pello">
-          You&apos;re off December 22 to 24. Enjoy it, Grace.{" "}
-          <span className="ml-1 inline-flex align-middle">
-            <Status tone="good">Approved in 4 seconds</Status>
-          </span>
-        </Message>
-        <Message who="pello" delay={0.5}>
-          <span className="text-ink">To Marco:</span> Grace is off December 22 to 24. It was inside the rules, so I approved it. Lucas has her accounts.
-        </Message>
+      <div className="grid w-full gap-7">
+        {[
+          { to: "To Grace", text: "You're off December 22 to 24. Enjoy it, Grace." },
+          { to: "To Marco", text: "Grace is off December 22 to 24. It was inside the rules, so I approved it. Lucas has her accounts." },
+        ].map((m, i) => (
+          <motion.div key={m.to} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.45, duration: 0.4 }} className="flex gap-3">
+            <span className="grid size-10 shrink-0 place-items-center rounded-[4px] bg-page">
+              <Mark size={24} />
+            </span>
+            <div>
+              <p className="text-[16px] font-semibold text-ink">
+                pello <span className="font-normal text-mute">{m.to}</span>
+              </p>
+              <p className="mt-1 text-[19px] leading-[1.45] text-ink">{m.text}</p>
+            </div>
+          </motion.div>
+        ))}
+        <p className="text-[16px] text-mute">
+          Decided in <span className="tabular font-mono text-ink">4</span> seconds.
+        </p>
       </div>
     );
   return (
-    <div className="w-full max-w-[560px]">
-      <div className="grid grid-cols-[1fr_repeat(3,64px)] items-center gap-2">
+    <div className="w-full">
+      <div className="grid grid-cols-[1fr_repeat(3,60px)] items-center gap-1.5">
         <span />
         {DAYS.map((d) => (
-          <span key={d} className="tabular text-center text-[15px] text-mute">
-            Dec {d}
+          <span key={d} className="tabular text-center font-mono text-[15px] text-mute">
+            {d}
           </span>
         ))}
         {SALES.map((p, r) => {
           const out = p.id === "grace" || (busy && (p.id === "ben" || p.id === "sofia"));
           return [
-            <span key={p.id} className="flex items-center gap-3 py-1 text-[16px] text-ink">
-              <Avatar person={p} size={30} />
+            <span key={p.id} className="flex items-center gap-3 py-1 text-[17px] text-ink">
+              <Face person={p} size={30} />
               {p.name}
             </span>,
             ...DAYS.map((d, i) => (
@@ -178,16 +213,16 @@ function Stage({ step, busy }: { step: number; busy: boolean }) {
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: 1 }}
                 transition={{ delay: 0.1 + r * 0.06 + i * 0.05, duration: 0.35 }}
-                className={cn("h-9 origin-left rounded-[8px]", out ? (p.id === "grace" ? "bg-accent" : "bg-ink-2") : "bg-surface shadow-[inset_0_0_0_1px_var(--pl-line)]")}
+                className={cn("h-9 origin-left rounded-[3px]", out ? (p.id === "grace" ? "bg-accent" : "pl-dither-50 bg-page text-ink") : "bg-page")}
               />
             )),
           ];
         })}
       </div>
-      <div className="mt-6 flex flex-wrap gap-2">
-        <Status tone="good">Calendar updated</Status>
-        <Status tone="good">Lucas covers her accounts</Status>
-        <Status tone="wait">No change to pay</Status>
+      <div className="mt-7 flex flex-wrap gap-x-6 gap-y-2">
+        <Tag tone="done">Calendar updated</Tag>
+        <Tag tone="done">Lucas covers her accounts</Tag>
+        <Tag tone="open">No change to pay</Tag>
       </div>
     </div>
   );
@@ -195,7 +230,6 @@ function Stage({ step, busy }: { step: number; busy: boolean }) {
 
 export function TimeOff() {
   const ref = useRef<HTMLDivElement>(null);
-  // It plays while it's on screen, once someone is on the page (see lib/engaged.ts).
   const inView = useInView(ref, { amount: 0.4 });
   const engaged = useEngaged();
   const seen = inView && engaged;
@@ -210,7 +244,7 @@ export function TimeOff() {
   }, [seen, manual, step]);
 
   return (
-    <section id="time-off" className="scroll-mt-20 bg-surface py-28 lg:py-36">
+    <section id="time-off" className="scroll-mt-20 py-28 lg:py-36">
       <Container>
         <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
           <SectionHead title="Time off, approved before the kettle boils." lead="Set the rules once: how much notice, how many people per team can be out, who signs off on what. pello checks every request against them and only asks a person when it has to." />
@@ -223,55 +257,51 @@ export function TimeOff() {
               setStep(1);
               setManual(false);
             }}
-            className="flex shrink-0 items-center gap-3 self-start rounded-full bg-page py-2 pl-2 pr-5 text-[16px] font-medium text-ink shadow-[inset_0_0_0_1px_var(--pl-line)] lg:self-end"
+            className="flex shrink-0 items-center gap-3 self-start rounded-[4px] py-2 pl-2 pr-4 text-[17px] font-semibold text-ink shadow-[inset_0_0_0_1.5px_var(--pl-ink)] lg:self-end"
           >
-            <span className={cn("flex h-7 w-12 items-center rounded-full p-1 transition-colors duration-300", busy ? "bg-bad" : "bg-line-strong")}>
-              <motion.span layout transition={{ type: "spring", stiffness: 600, damping: 34 }} className={cn("size-5 rounded-full bg-white shadow-sm", busy && "ml-auto")} />
+            <span className={cn("flex h-7 w-12 items-center rounded-[3px] p-1 transition-colors duration-300", busy ? "bg-accent" : "bg-sunken")}>
+              <motion.span layout transition={{ type: "spring", stiffness: 600, damping: 34 }} className={cn("size-5 rounded-[2px] bg-ink", busy && "ml-auto")} />
             </span>
             Make it a busy week in Sales
           </button>
         </div>
 
-        <div ref={ref} className="mt-14 grid overflow-hidden rounded-[28px] border border-line bg-page lg:grid-cols-[400px_1fr]">
-          <ol className="p-3 lg:p-4">
+        <div ref={ref} className="mt-14">
+          <div role="tablist" aria-label="Steps" className="flex gap-1 overflow-x-auto">
             {STEPS.map((s, i) => {
               const on = i === step;
               return (
-                <li key={s.title}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setStep(i);
-                      setManual(true);
-                    }}
-                    aria-current={on ? "step" : undefined}
-                    className={cn("relative w-full overflow-hidden rounded-[20px] px-5 py-5 text-left transition-colors", on ? "bg-surface shadow-[inset_0_0_0_1px_var(--pl-line)]" : "hover:bg-sunken")}
-                  >
-                    <span className="flex items-baseline gap-4">
-                      <span className={cn("tabular font-mono text-[15px]", on ? "text-accent" : "text-mute")}>0{i + 1}</span>
-                      <span className={cn("text-[19px] font-semibold tracking-[-0.02em]", on ? "text-ink" : "text-ink-2")}>{s.title}</span>
-                    </span>
-                    <AnimatePresence initial={false}>
-                      {on && (
-                        <motion.span initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ type: "spring", stiffness: 380, damping: 36 }} className="block overflow-hidden">
-                          <span className="block pl-[38px] pt-2 text-[16px] leading-[1.55] text-ink-2">{s.body}</span>
-                        </motion.span>
-                      )}
-                    </AnimatePresence>
-                    {on && seen && !manual && (
-                      <motion.span key={`${step}-${busy}`} aria-hidden className="absolute inset-x-5 bottom-0 h-[3px] origin-left rounded-full bg-accent" initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: STEP_MS / 1000, ease: "linear" }} />
-                    )}
-                  </button>
-                </li>
+                <button
+                  key={s.tab}
+                  type="button"
+                  role="tab"
+                  aria-selected={on}
+                  onClick={() => {
+                    setStep(i);
+                    setManual(true);
+                  }}
+                  className={cn("relative min-w-[150px] flex-1 overflow-hidden rounded-t-[6px] px-5 pb-3 pt-4 text-left transition-colors", on ? "bg-surface text-ink" : "bg-page text-mute shadow-[inset_0_0_0_1px_var(--pl-line-strong)] hover:text-ink")}
+                >
+                  <span className="tabular block font-mono text-[15px]">0{i + 1}</span>
+                  <span className="block font-display text-[24px] font-extrabold leading-tight">{s.tab}</span>
+                  {on && seen && !manual && <motion.span key={`${step}-${busy}`} aria-hidden className="absolute inset-x-0 top-0 h-[3px] origin-left bg-accent" initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: STEP_MS / 1000, ease: "linear" }} />}
+                </button>
               );
             })}
-          </ol>
-          <div className="relative flex min-h-[460px] items-center justify-center overflow-hidden p-6 shadow-[inset_0_1px_0_var(--pl-line)] sm:p-10 lg:shadow-[inset_1px_0_0_var(--pl-line)]">
-            <AnimatePresence mode="wait">
-              <motion.div key={`${step}-${busy}`} initial={{ opacity: 0, y: 18, filter: "blur(4px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} exit={{ opacity: 0, y: -12, filter: "blur(4px)" }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }} className="flex w-full justify-center">
-                <Stage step={step} busy={busy} />
-              </motion.div>
-            </AnimatePresence>
+          </div>
+          <div className="grid gap-10 rounded-b-[4px] bg-surface p-6 sm:p-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-16 lg:p-12">
+            <Form step={step} busy={busy} />
+            <div className="min-h-[420px]">
+              <p className="font-display text-[34px] font-extrabold leading-none text-ink">{STEPS[step].title}</p>
+              <p className="mt-2 text-[17px] text-ink-2">{STEPS[step].body}</p>
+              <div className="mt-8">
+                <AnimatePresence mode="wait">
+                  <motion.div key={`${step}-${busy}`} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}>
+                    <Stage step={step} busy={busy} />
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+            </div>
           </div>
         </div>
       </Container>

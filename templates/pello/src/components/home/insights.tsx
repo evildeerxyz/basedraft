@@ -91,12 +91,12 @@ export function Insights() {
       <Container>
         <SectionHead title="See how the company is doing before the survey tells you." lead="Headcount, time off and overtime by team, updated every morning. pello writes down what changed and who should know." />
 
-        <div className="mt-14 overflow-hidden rounded-[28px] border border-line bg-surface">
+        <div className="mt-14 overflow-hidden rounded-[4px] bg-surface">
           <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between lg:px-7 lg:pt-6">
-            <div role="tablist" aria-label="Measure" className="flex rounded-[16px] bg-page p-1 shadow-[inset_0_0_0_1px_var(--pl-line)]">
+            <div role="tablist" aria-label="Measure" className="flex rounded-[6px] bg-page p-1 shadow-[inset_0_0_0_1.5px_var(--pl-ink)]">
               {METRICS.map((m) => (
-                <button key={m.id} type="button" role="tab" aria-selected={metric === m.id} onClick={() => setMetric(m.id)} className={cn("relative h-11 flex-1 rounded-[12px] px-4 text-[16px] font-medium transition-colors sm:flex-none", metric === m.id ? "text-ink" : "text-ink-2 hover:text-ink")}>
-                  {metric === m.id && <motion.span layoutId="metric-pill" className="absolute inset-0 rounded-[12px] bg-surface shadow-[0_1px_3px_rgb(12_14_20/0.12),inset_0_0_0_1px_var(--pl-line)]" transition={{ type: "spring", stiffness: 480, damping: 38 }} />}
+                <button key={m.id} type="button" role="tab" aria-selected={metric === m.id} onClick={() => setMetric(m.id)} className={cn("relative h-11 flex-1 rounded-[3px] px-4 text-[16px] font-semibold transition-colors sm:flex-none", metric === m.id ? "text-page" : "text-ink-2 hover:text-ink")}>
+                  {metric === m.id && <motion.span layoutId="metric-pill" className="absolute inset-0 rounded-[3px] bg-ink" transition={{ type: "spring", stiffness: 480, damping: 38 }} />}
                   <span className="relative">{m.label}</span>
                 </button>
               ))}
@@ -107,7 +107,7 @@ export function Insights() {
           <div className="grid lg:grid-cols-[1fr_340px]">
             <div className="p-5 pt-2 lg:p-7 lg:pt-3">
               <div className="flex items-baseline gap-3">
-                <p className="tabular text-[56px] font-semibold leading-none tracking-[-0.05em] text-ink">{s[shown].toLocaleString("en-US")}</p>
+                <p className="tabular font-display text-[80px] font-extrabold leading-none text-ink">{s[shown].toLocaleString("en-US")}</p>
                 <p className="text-[17px] text-mute">
                   {unit} in {MONTHS[shown]}
                 </p>
@@ -123,22 +123,23 @@ export function Insights() {
               >
                 <svg viewBox={`0 0 ${W} ${H}`} className="block h-auto w-full overflow-visible" aria-label={`${unit} by month`} role="img">
                   <defs>
-                    <linearGradient id="insights-fill" x1="0" x2="0" y1="0" y2="1">
-                      <stop offset="0" stopColor="var(--pl-accent)" stopOpacity="0.2" />
-                      <stop offset="1" stopColor="var(--pl-accent)" stopOpacity="0" />
-                    </linearGradient>
+                    {/* The area under the line, printed as a half dither of vermilion. */}
+                    <pattern id="insights-fill" width="4" height="4" patternUnits="userSpaceOnUse">
+                      <rect width="2" height="2" fill="var(--pl-accent)" />
+                      <rect x="2" y="2" width="2" height="2" fill="var(--pl-accent)" />
+                    </pattern>
                   </defs>
                   {[0.25, 0.5, 0.75, 1].map((k) => (
-                    <line key={k} x1={0} x2={W} y1={H - (H - 20) * k} y2={H - (H - 20) * k} stroke="var(--pl-line)" strokeDasharray="3 6" />
+                    <line key={k} x1={0} x2={W} y1={H - (H - 20) * k} y2={H - (H - 20) * k} stroke="var(--pl-line-strong)" strokeDasharray="2 6" />
                   ))}
                   <motion.path initial={false} animate={{ d: area }} transition={{ type: "spring", stiffness: 120, damping: 20 }} fill="url(#insights-fill)" />
-                  <motion.path initial={false} animate={{ d: line }} transition={{ type: "spring", stiffness: 120, damping: 20 }} fill="none" stroke="var(--pl-accent)" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" />
-                  <line x1={x(shown)} x2={x(shown)} y1={0} y2={H} stroke="var(--pl-line-strong)" strokeDasharray="2 4" />
-                  <motion.circle initial={false} animate={{ cx: x(shown), cy: y(s[shown]) }} transition={{ type: "spring", stiffness: 500, damping: 36 }} r="7" fill="var(--pl-surface)" stroke="var(--pl-accent)" strokeWidth="3" />
+                  <motion.path initial={false} animate={{ d: line }} transition={{ type: "spring", stiffness: 120, damping: 20 }} fill="none" stroke="var(--pl-ink)" strokeWidth="3.5" strokeLinejoin="miter" strokeLinecap="square" />
+                  <line x1={x(shown)} x2={x(shown)} y1={0} y2={H} stroke="var(--pl-ink)" strokeWidth="1.5" />
+                  <motion.rect initial={false} animate={{ x: x(shown) - 7, y: y(s[shown]) - 7 }} transition={{ type: "spring", stiffness: 500, damping: 36 }} width="14" height="14" fill="var(--pl-page)" stroke="var(--pl-ink)" strokeWidth="3.5" />
                 </svg>
                 <div className="relative mt-3 h-6">
                   {MONTHS.map((m, i) => (
-                    <span key={m} className={cn("absolute -translate-x-1/2 text-[15px] transition-colors", i === shown ? "font-medium text-ink" : "text-mute", i % 2 === 1 && "max-sm:invisible")} style={{ left: `${(x(i) / W) * 100}%` }}>
+                    <span key={m} className={cn("absolute -translate-x-1/2 text-[15px] transition-colors", i === shown ? "font-semibold text-ink" : "text-mute", i % 2 === 1 && "max-sm:invisible")} style={{ left: `${(x(i) / W) * 100}%` }}>
                       {m}
                     </span>
                   ))}
@@ -146,17 +147,17 @@ export function Insights() {
               </div>
             </div>
 
-            <div className="flex flex-col justify-between gap-6 bg-page p-6 shadow-[inset_0_1px_0_var(--pl-line)] lg:p-7 lg:shadow-[inset_1px_0_0_var(--pl-line)]">
+            <div className="flex flex-col justify-between gap-6 bg-ink p-6 text-page lg:p-8">
               <div>
-                <p className="flex items-center gap-2.5 text-[16px] font-semibold text-ink">
-                  <Mark size={22} />
+                <p className="flex items-center gap-2.5 text-[16px] font-semibold text-page">
+                  <Mark size={22} className="text-page" />
                   What pello noticed
                 </p>
-                <motion.p key={`${team}-${metric}`} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }} className="mt-4 text-[19px] leading-[1.5] tracking-[-0.01em] text-ink">
+                <motion.p key={`${team}-${metric}`} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }} className="mt-5 font-display text-[30px] font-bold leading-[1.1] text-page">
                   {noteOf(team, metric, s)}
                 </motion.p>
               </div>
-              <p className="text-[15px] text-mute">Updated today at 07:00 from payroll, time off and calendars.</p>
+              <p className="text-[15px] text-night-mute">Updated today at 07:00 from payroll, time off and calendars.</p>
             </div>
           </div>
         </div>

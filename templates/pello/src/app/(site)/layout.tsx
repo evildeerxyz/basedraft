@@ -5,7 +5,7 @@ import { Nav } from "@/components/site/nav";
 export default function SiteLayout({ children }: LayoutProps<"/">) {
   return (
     <>
-      <a href="#main" className="sr-only z-[300] rounded-[12px] bg-ink px-4 py-3 text-[16px] font-medium text-page focus:not-sr-only focus:fixed focus:left-4 focus:top-4">
+      <a href="#main" className="sr-only z-[300] rounded-[4px] bg-ink px-4 py-3 text-[16px] font-medium text-page focus:not-sr-only focus:fixed focus:left-4 focus:top-4">
         Skip to content
       </a>
       <Nav />

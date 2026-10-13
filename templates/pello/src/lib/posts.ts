@@ -1,3 +1,5 @@
+import { SCENES } from "./photos";
+
 /* The blog. Made up, and safe to replace: each post is a list of blocks, drawn by the post page. */
 
 export type Block = { h2: string } | { p: string } | { list: string[] } | { quote: string; by: string };
@@ -10,12 +12,15 @@ export interface Post {
   author: string;
   role: string;
   minutes: number;
+  /** A photo for the top of the post, printed like the rest. */
+  cover: string;
   body: Block[];
 }
 
 export const POSTS: Post[] = [
   {
     slug: "answers-you-can-check",
+    cover: SCENES.meeting,
     title: "Answers you can check",
     excerpt: "Why every answer pello gives comes with the passage it used, and what it does when there isn't one.",
     date: "October 6, 2026",
@@ -39,6 +44,7 @@ export const POSTS: Post[] = [
   },
   {
     slug: "rules-not-approvals",
+    cover: SCENES.planning,
     title: "Write rules, not approvals",
     excerpt: "Most time off requests don't need a manager. How to write the rules that let them through, and catch the ones that do.",
     date: "September 22, 2026",
@@ -58,6 +64,7 @@ export const POSTS: Post[] = [
   },
   {
     slug: "payroll-in-one-afternoon",
+    cover: SCENES.desk,
     title: "Payroll in one afternoon",
     excerpt: "What changed for Brightwater when the month's changes arrived as they happened, instead of on the 28th.",
     date: "September 8, 2026",
@@ -76,6 +83,7 @@ export const POSTS: Post[] = [
   },
   {
     slug: "the-first-day",
+    cover: SCENES.laptops,
     title: "Everything ready for the first day",
     excerpt: "A new starter's first morning says a lot about a company. We looked at 3,000 of them.",
     date: "August 25, 2026",

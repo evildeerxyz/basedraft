@@ -1,9 +1,9 @@
 "use client";
 
 import { LinkedinLogoIcon, XLogoIcon } from "@phosphor-icons/react/ssr";
-import { motion, useMotionValue, useReducedMotion, useSpring } from "motion/react";
 import Link from "next/link";
-import { useRef, useSyncExternalStore } from "react";
+import { useSyncExternalStore } from "react";
+import { DitherField } from "./dither";
 import { Logo } from "./logo";
 import { Container } from "./ui";
 
@@ -63,45 +63,16 @@ function Clock({ zone }: { zone: string }) {
   return <span className="tabular font-mono">{new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: zone }).format(at * 60_000)}</span>;
 }
 
-/** The mark, big: the cobalt one leans toward wherever the pointer is. */
-function LiveMark() {
-  const ref = useRef<SVGSVGElement>(null);
-  const still = useReducedMotion();
-  const x = useSpring(useMotionValue(0), { stiffness: 120, damping: 14 });
-  const y = useSpring(useMotionValue(0), { stiffness: 120, damping: 14 });
-  return (
-    <svg
-      ref={ref}
-      viewBox="0 0 32 32"
-      aria-hidden
-      className="size-[clamp(5rem,18vw,15rem)] shrink-0 text-ink"
-      onPointerMove={(e) => {
-        if (still) return;
-        const r = ref.current!.getBoundingClientRect();
-        x.set(((e.clientX - r.left) / r.width - 0.5) * 6);
-        y.set(((e.clientY - r.top) / r.height - 0.5) * 6);
-      }}
-      onPointerLeave={() => {
-        x.set(0);
-        y.set(0);
-      }}
-    >
-      <circle cx="12.5" cy="16" r="8.5" fill="currentColor" />
-      <motion.circle cx="19.5" cy="16" r="8.5" fill="var(--pl-accent)" fillOpacity="0.94" style={{ x, y }} />
-    </svg>
-  );
-}
-
 export function Footer() {
   return (
-    <footer className="overflow-hidden bg-page pt-24">
+    <footer className="relative overflow-hidden bg-page pt-24">
       <Container>
         <div className="grid gap-14 lg:grid-cols-[1.2fr_2fr]">
           <div>
-            <Link href="/" aria-label="pello home" className="inline-flex rounded-[10px]">
+            <Link href="/" aria-label="pello home" className="inline-flex rounded-[4px]">
               <Logo />
             </Link>
-            <p className="mt-6 max-w-[340px] text-[17px] leading-[1.55] text-ink-2">The HR system that answers, approves and pays, so your people team can spend its week on people.</p>
+            <p className="mt-6 max-w-[340px] text-[18px] leading-[1.5] text-ink-2">The HR system that answers, approves and pays, so your people team can spend its week on people.</p>
             <ul className="mt-8 grid gap-2 text-[16px] text-ink-2">
               {OFFICES.map((o) => (
                 <li key={o.city} className="flex items-center gap-3">
@@ -114,11 +85,11 @@ export function Footer() {
           <div className="grid grid-cols-2 gap-10 sm:grid-cols-3">
             {COLUMNS.map((c) => (
               <div key={c.title}>
-                <h3 className="text-[16px] font-semibold text-ink">{c.title}</h3>
+                <h3 className="font-display text-[22px] font-extrabold text-ink">{c.title}</h3>
                 <ul className="mt-5 grid gap-3">
                   {c.links.map((l) => (
                     <li key={l.href}>
-                      <Link href={l.href} className="rounded-[6px] text-[16px] text-ink-2 transition-colors hover:text-ink">
+                      <Link href={l.href} className="rounded-[2px] text-[17px] text-ink-2 underline-offset-4 transition-colors hover:text-ink hover:underline">
                         {l.label}
                       </Link>
                     </li>
@@ -134,7 +105,7 @@ export function Footer() {
           <ul className="flex items-center gap-2">
             {SOCIAL.map((s) => (
               <li key={s.href}>
-                <a href={s.href} aria-label={s.label} className="grid size-11 place-items-center rounded-[12px] text-ink-2 transition-colors hover:bg-sunken hover:text-ink">
+                <a href={s.href} aria-label={s.label} className="grid size-11 place-items-center rounded-[4px] text-ink-2 transition-colors hover:bg-ink hover:text-page">
                   <s.icon size={20} />
                 </a>
               </li>
@@ -142,14 +113,15 @@ export function Footer() {
           </ul>
         </div>
 
-        {/* The name, big, cut off by the bottom of the page. */}
-        <div className="mt-6 flex items-end justify-between gap-6">
-          <p className="-mb-[0.06em] select-none text-[clamp(6rem,27vw,24rem)] font-semibold leading-[0.9] tracking-[-0.075em] text-ink">pello</p>
-          <div className="pb-[3vw]">
-            <LiveMark />
-          </div>
-        </div>
       </Container>
+
+      {/* The name, big, cut off by the bottom of the page, over vermilion printed rising from it. */}
+      <div className="relative mt-4">
+        <DitherField inks={["accent", "page"]} shape="rise" reach={0.95} cell={4} drift className="absolute inset-0" />
+        <Container className="relative">
+          <p className="-mb-[0.14em] select-none font-display text-[clamp(8rem,38vw,34rem)] font-extrabold leading-[0.8] tracking-[-0.02em] text-ink">pello</p>
+        </Container>
+      </div>
     </footer>
   );
 }

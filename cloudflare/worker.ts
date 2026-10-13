@@ -20,7 +20,10 @@ type ExecutionContext = { waitUntil(promise: Promise<unknown>): void; passThroug
  * portraits load /people/<name>.jpg in script): served from that template's files, as in
  * development (see next.config's rewrites).
  */
-const ROOT_FILES: Array<[prefix: string, slug: string]> = [["/people/", "noma"]];
+const ROOT_FILES: Array<[prefix: string, slug: string]> = [
+  ["/people/", "noma"],
+  ["/photos/", "pello"],
+];
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {

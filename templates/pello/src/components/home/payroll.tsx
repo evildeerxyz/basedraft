@@ -3,14 +3,14 @@
 import { CaretDownIcon, CheckIcon } from "@phosphor-icons/react/ssr";
 import { AnimatePresence, animate, motion, useInView, useMotionValue, useTransform } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import { Avatar, Button, Container, SectionHead, Status } from "@/components/site/ui";
+import { Button, Container, Face, SectionHead, Stamp, Tag } from "@/components/site/ui";
 import { cn } from "@/lib/cn";
 import { personOf } from "@/lib/people";
 
 /*
- * October's payroll for Fieldwork's four countries. In view, pello checks each country against
- * September, counting up as it goes, then lists what changed and why. Nothing is paid until a
- * person approves it.
+ * October's payroll for Fieldwork's four countries, as four payslips. In view, pello checks each
+ * one against September, counting up as it goes, then lists what changed and why. Nothing is paid
+ * until a person approves it, and then the run prints out.
  */
 
 const COUNTRIES = [
@@ -21,10 +21,10 @@ const COUNTRIES = [
 ];
 
 const CHANGES = [
-  { who: personOf("ravi"), what: "6 hours of overtime", amount: "$412 more", why: "Worked late on October 14 and 15 for the data migration. Oliver approved it on the 16th, so it's paid at time and a half." },
-  { who: personOf("grace"), what: "Home office expense", amount: "£249 more", why: "A desk chair, with the receipt added on October 9. It's inside her £400 budget, with £31 left for the year." },
-  { who: personOf("noah"), what: "New salary from October 1", amount: "€350 more", why: "Agreed in his review with Oliver on September 24. The new contract is signed and in his file." },
-  { who: personOf("hugo"), what: "2 days of unpaid leave", amount: "C$1,140 less", why: "October 20 and 21, approved by Nina. Taken off this month's pay, as his request said." },
+  { who: personOf("ravi"), what: "6 hours of overtime", amount: ["$412", "more"], why: "Worked late on October 14 and 15 for the data migration. Oliver approved it on the 16th, so it's paid at time and a half." },
+  { who: personOf("grace"), what: "Home office expense", amount: ["£249", "more"], why: "A desk chair, with the receipt added on October 9. It's inside her £400 budget, with £31 left for the year." },
+  { who: personOf("noah"), what: "New salary from October 1", amount: ["€350", "more"], why: "Agreed in his review with Oliver on September 24. The new contract is signed and in his file." },
+  { who: personOf("hugo"), what: "2 days of unpaid leave", amount: ["C$1,140", "less"], why: "October 20 and 21, approved by Nina. Taken off this month's pay, as his request said." },
 ];
 
 type Phase = "idle" | "checking" | "ready" | "paid";
@@ -40,6 +40,9 @@ function Money({ value, currency, run }: { value: number; currency: string; run:
   }, [run, value, v]);
   return <motion.span className="tabular">{text}</motion.span>;
 }
+
+/** A payslip's torn edge, punched along the top. */
+const PERFORATION = "radial-gradient(circle at 6px 0, var(--pl-page) 4px, transparent 4.5px) 0 0 / 12px 8px repeat-x";
 
 export function Payroll() {
   const ref = useRef<HTMLDivElement>(null);
@@ -75,21 +78,21 @@ export function Payroll() {
     return () => clearTimeout(t);
   }, [phase, checked]);
 
-  const status = { idle: ["wait", "Not started"], checking: ["wait", "Checking"], ready: ["accent", "Ready to pay"], paid: ["good", "Paid"] } as const;
+  const status = { idle: ["open", "Not started"], checking: ["open", "Checking"], ready: ["flag", "Ready to pay"], paid: ["done", "Paid"] } as const;
 
   return (
-    <section id="payroll" className="scroll-mt-20 bg-surface py-28 lg:py-36">
+    <section id="payroll" className="scroll-mt-20 py-28 lg:py-36">
       <Container>
         <SectionHead title="Payroll for four countries, run in one go." lead="Hours, time off, expenses and new salaries come in on their own. pello checks the totals against last month, explains every change, and waits for your approval before anyone is paid." />
 
-        <div ref={ref} className="mt-16 overflow-hidden rounded-[28px] border border-line bg-page">
-          <div className="flex flex-col gap-5 p-6 sm:flex-row sm:items-center sm:justify-between lg:px-8">
+        <div ref={ref} className="mt-16">
+          <div className="flex flex-col gap-5 pb-5 shadow-[0_1.5px_0_var(--pl-ink)] sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-[22px] font-semibold tracking-[-0.025em] text-ink">October payroll</p>
-              <p className="mt-1 text-[16px] text-mute">214 people in 4 countries, paid on Friday, October 30</p>
+              <p className="font-display text-[40px] font-extrabold leading-none text-ink">October payroll</p>
+              <p className="mt-2 text-[17px] text-mute">214 people in 4 countries, paid on Friday, October 30</p>
             </div>
-            <div className="flex items-center gap-3">
-              <Status tone={status[phase][0]}>{status[phase][1]}</Status>
+            <div className="flex items-center gap-5">
+              <Tag tone={status[phase][0]}>{status[phase][1]}</Tag>
               {phase === "paid" ? (
                 <Button kind="quiet" onClick={start}>
                   Run it again
@@ -102,52 +105,71 @@ export function Payroll() {
             </div>
           </div>
 
-          <div className="grid gap-px bg-line shadow-[0_-1px_0_var(--pl-line)] sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {COUNTRIES.map((c, i) => {
               const ok = i < checked || phase === "ready" || phase === "paid";
               const now = phase === "checking" && i === checked;
               return (
-                <div key={c.code} className="relative overflow-hidden bg-page p-6 lg:p-8">
-                  {now && <motion.span aria-hidden className="absolute inset-y-0 left-0 w-full bg-accent-soft" initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 0.65, ease: "linear" }} style={{ originX: 0 }} />}
-                  <div className="relative">
-                    <div className="flex items-center justify-between">
-                      <p className="text-[17px] font-semibold text-ink">{c.name}</p>
-                      <span className={cn("grid size-7 place-items-center rounded-full transition-colors duration-300", ok ? "bg-good text-white" : "shadow-[inset_0_0_0_2px_var(--pl-line-strong)]")}>{ok && <CheckIcon size={15} weight="bold" />}</span>
-                    </div>
-                    <p className="mt-6 text-[clamp(1.9rem,2.6vw,2.4rem)] font-semibold tracking-[-0.04em] text-ink">
-                      <Money value={c.total} currency={c.currency} run={run} />
+                <div key={c.code} className="relative overflow-hidden rounded-b-[4px] bg-surface px-6 pb-6 pt-8">
+                  <span aria-hidden className="absolute inset-x-0 top-0 h-2" style={{ background: PERFORATION }} />
+                  {now && <motion.span aria-hidden className="absolute inset-x-0 h-[3px] bg-accent" initial={{ top: 8 }} animate={{ top: "100%" }} transition={{ duration: 0.65, ease: "linear" }} />}
+                  <div className="flex items-center justify-between">
+                    <p className="text-[18px] font-semibold text-ink">{c.name}</p>
+                    <span className={cn("grid size-7 place-items-center rounded-[3px] transition-colors duration-300", ok ? "bg-ink text-page" : "shadow-[inset_0_0_0_1.5px_var(--pl-line-strong)]")}>{ok && <CheckIcon size={15} weight="bold" />}</span>
+                  </div>
+                  <p className="mt-8 font-mono text-[clamp(1.7rem,2.3vw,2.2rem)] font-medium tracking-[-0.03em] text-ink">
+                    <Money value={c.total} currency={c.currency} run={run} />
+                  </p>
+                  <div className="mt-5 grid gap-1.5 text-[16px]">
+                    <p className="flex justify-between">
+                      <span className="text-mute">People</span>
+                      <span className="tabular font-mono text-ink">{c.people}</span>
                     </p>
-                    <p className="mt-2 flex items-baseline justify-between text-[16px] text-mute">
-                      <span className="tabular">{c.people} people</span>
-                      <span className={cn("tabular transition-opacity", ok ? "opacity-100" : "opacity-0")}>{c.change} on September</span>
+                    <p className="flex justify-between">
+                      <span className="text-mute">On September</span>
+                      <span className={cn("tabular font-mono transition-opacity", ok ? "text-ink opacity-100" : "opacity-0")}>{c.change}</span>
                     </p>
                   </div>
+                  <AnimatePresence>
+                    {phase === "paid" && (
+                      <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.12 }} className="absolute bottom-16 right-4">
+                        <Stamp tone="accent" tilt={-10} className="text-[26px]">
+                          Paid
+                        </Stamp>
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
                 </div>
               );
             })}
           </div>
 
-          <div className="p-3 shadow-[0_-1px_0_var(--pl-line)] lg:p-4">
-            <p className="px-4 pb-2 pt-4 text-[19px] font-semibold tracking-[-0.02em] text-ink">What changed since September</p>
+          <div className="mt-14 grid gap-8 lg:grid-cols-[320px_1fr]">
+            <div>
+              <p className="font-display text-[34px] font-extrabold leading-none text-ink">What changed since September</p>
+              <p className="mt-3 text-[17px] leading-[1.55] text-ink-2">Every difference, with who made it and why. Open one to read it.</p>
+            </div>
             <ul>
               {CHANGES.map((c, i) => (
-                <li key={c.what}>
-                  <button type="button" onClick={() => setOpen(open === i ? null : i)} aria-expanded={open === i} className={cn("w-full rounded-[18px] px-4 py-3.5 text-left transition-colors", open === i ? "bg-surface shadow-[inset_0_0_0_1px_var(--pl-line)]" : "hover:bg-sunken")}>
+                <li key={c.what} className="shadow-[0_1px_0_var(--pl-line-strong)] first:shadow-[0_-1px_0_var(--pl-line-strong),0_1px_0_var(--pl-line-strong)]">
+                  <button type="button" onClick={() => setOpen(open === i ? null : i)} aria-expanded={open === i} className="w-full py-4 text-left">
                     <span className="flex items-center gap-4">
-                      <Avatar person={c.who} size={36} />
+                      <Face person={c.who} size={40} />
                       <span className="min-w-0 flex-1">
-                        <span className="block text-[17px] font-medium text-ink">{c.who.name}</span>
+                        <span className="block text-[18px] font-semibold text-ink">{c.who.name}</span>
                         <span className="block text-[16px] text-mute">{c.what}</span>
                       </span>
-                      <span className="tabular text-[17px] font-medium text-ink">{c.amount}</span>
-                      <motion.span animate={{ rotate: open === i ? 180 : 0 }} className="text-mute">
-                        <CaretDownIcon size={18} />
+                      <span className="text-[17px] text-ink">
+                        <span className="tabular font-mono">{c.amount[0]}</span> {c.amount[1]}
+                      </span>
+                      <motion.span animate={{ rotate: open === i ? 180 : 0 }} className="text-ink">
+                        <CaretDownIcon size={18} weight="bold" />
                       </motion.span>
                     </span>
                     <AnimatePresence initial={false}>
                       {open === i && (
                         <motion.span initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ type: "spring", stiffness: 380, damping: 36 }} className="block overflow-hidden">
-                          <span className="block pl-[52px] pt-3 text-[17px] leading-[1.55] text-ink-2">{c.why}</span>
+                          <span className="block max-w-[640px] pl-14 pt-3 text-[18px] leading-[1.55] text-ink-2">{c.why}</span>
                         </motion.span>
                       )}
                     </AnimatePresence>
@@ -159,12 +181,10 @@ export function Payroll() {
 
           <AnimatePresence>
             {phase === "paid" && (
-              <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} transition={{ type: "spring", stiffness: 300, damping: 34 }} className="overflow-hidden bg-good text-white">
-                <p className="flex items-center gap-3 px-6 py-5 text-[18px] font-medium lg:px-8">
-                  <CheckIcon size={20} weight="bold" />
-                  Paid. 214 payslips are in the app, and Arjun has the report.
-                </p>
-              </motion.div>
+              <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mt-10 flex items-center gap-3 font-display text-[30px] font-extrabold text-ink">
+                <CheckIcon size={26} weight="bold" className="text-accent" />
+                Paid. 214 payslips are in the app, and Arjun has the report.
+              </motion.p>
             )}
           </AnimatePresence>
         </div>

@@ -1,152 +1,187 @@
 "use client";
 
-import { ArrowDownIcon, PaperPlaneTiltIcon } from "@phosphor-icons/react/ssr";
-import { AnimatePresence, motion } from "motion/react";
-import { useCallback, useRef, useState } from "react";
-import { Avatar, Button, ButtonLink, Container, Magnetic, Status } from "@/components/site/ui";
+import { ArrowDownIcon } from "@phosphor-icons/react/ssr";
+import { AnimatePresence, motion, useInView } from "motion/react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Dithered } from "@/components/site/dither";
+import { ButtonLink, Container, Magnetic, Stamp, Tag } from "@/components/site/ui";
+import { useEngaged } from "@/lib/engaged";
 import { happening, type Happening } from "@/lib/happenings";
-import { COMPANY } from "@/lib/people";
-import { OrgGraph, type OrgGraphHandle } from "./org-graph";
+import { COMPANY, personOf, type Person } from "@/lib/people";
+import { personPhoto } from "@/lib/photos";
 
+/*
+ * Fieldwork's people, on a wall. pello works through their requests one after another: whoever
+ * it's handling is printed again in vermilion and stamped with what happened, and the day's log
+ * beside the wall fills in. Click anyone to send a request for them. It plays once someone's on
+ * the page (lib/engaged.ts), and only while the wall is on screen.
+ */
+
+const WALL = ["hannah", "leo", "grace", "marco", "priya", "oliver", "mei", "tom", "nina", "arjun", "clara", "ravi"].map(personOf);
 const EASE = [0.22, 1, 0.36, 1] as const;
+const STAMP: Record<string, string> = { Sent: "Paid" };
+const forWall = (i: number) => WALL[(i * 5 + 3) % WALL.length];
 
-function Line({ children, delay }: { children: string; delay: number }) {
+function Tile({ person, event, onSend }: { person: Person; event?: Happening; onSend: (p: Person) => void }) {
+  const [hover, setHover] = useState(false);
+  const hot = hover || !!event;
   return (
-    <span className="block overflow-hidden pb-[0.08em]">
-      <motion.span className="block" initial={{ y: "105%" }} animate={{ y: 0 }} transition={{ duration: 0.9, delay, ease: EASE }}>
-        {children}
-      </motion.span>
-    </span>
-  );
-}
-
-function Checking() {
-  return (
-    <span className="inline-flex h-7 shrink-0 items-center gap-1 rounded-full bg-sunken px-3 text-[15px] font-medium text-ink-2">
-      Checking
-      <span className="flex gap-0.5" aria-hidden>
-        {[0, 1, 2].map((i) => (
-          <motion.span key={i} className="size-1 rounded-full bg-ink-2" animate={{ opacity: [0.25, 1, 0.25] }} transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.15 }} />
-        ))}
+    <button
+      type="button"
+      onClick={() => onSend(person)}
+      onPointerEnter={() => setHover(true)}
+      onPointerLeave={() => setHover(false)}
+      onFocus={() => setHover(true)}
+      onBlur={() => setHover(false)}
+      aria-label={`Send a request for ${person.name}`}
+      className="group relative flex aspect-[4/5] flex-col overflow-hidden rounded-[4px] bg-surface text-left"
+    >
+      <Dithered src={personPhoto(person.id)} alt="" inks={hot ? ["ink", "accent", "page"] : ["ink", "page"]} cell={2} focus={[0.5, 0.3]} className="min-h-0 flex-1" />
+      <span className="block bg-page px-3 pb-2.5 pt-2">
+        <span className="block truncate text-[16px] font-semibold leading-tight text-ink">{person.name}</span>
+        <span className="block truncate text-[15px] leading-tight text-mute">{person.role}</span>
       </span>
-    </span>
+      <AnimatePresence>
+        {event && (
+          <motion.span key={event.id} exit={{ opacity: 0, transition: { duration: 0.25 } }} className="absolute inset-x-0 top-[34%] flex justify-center">
+            <Stamp tone={event.tone === "bad" ? "accent" : "ink"} play={event.id > 4} className="bg-page/85 text-[clamp(1.2rem,1.9vw,1.75rem)]">
+              {STAMP[event.done] ?? event.done}
+            </Stamp>
+          </motion.span>
+        )}
+      </AnimatePresence>
+      {hover && !event && <span className="absolute right-2 top-2 rounded-[3px] bg-ink px-2 py-1 text-[15px] font-semibold text-page">{person.daysLeft} days left</span>}
+    </button>
   );
 }
 
-function Feed({ items, handled, flagged }: { items: Happening[]; handled: number; flagged: number }) {
+function Log({ items }: { items: Happening[] }) {
   return (
-    <div className="flex h-full flex-col">
-      <div className="flex items-baseline justify-between gap-4 px-6 pt-6">
-        <h2 className="text-[19px] font-semibold tracking-[-0.02em] text-ink">Today at {COMPANY.name}</h2>
-        <span className="text-[15px] text-mute">{COMPANY.people} people</span>
-      </div>
-      <ul className="relative mt-4 flex-1 overflow-hidden px-3" aria-live="polite">
-        <AnimatePresence initial={false} mode="popLayout">
-          {items.map((h) => (
-            <motion.li
-              key={h.id}
-              layout
-              initial={{ opacity: 0, y: -18, scale: 0.97 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.97, transition: { duration: 0.2 } }}
-              transition={{ type: "spring", stiffness: 420, damping: 34 }}
-              className="flex items-start gap-3 rounded-[16px] px-3 py-2.5"
-            >
-              <Avatar person={h.person} size={38} />
-              <div className="min-w-0 flex-1">
-                <div className="flex items-start justify-between gap-3">
-                  <p className="text-[16px] font-medium leading-snug text-ink">{h.title}</p>
-                  <AnimatePresence mode="wait" initial={false}>
-                    <motion.span key={h.busy ? "busy" : "done"} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} transition={{ duration: 0.16 }}>
-                      {h.busy ? <Checking /> : <Status tone={h.tone}>{h.done}</Status>}
-                    </motion.span>
-                  </AnimatePresence>
-                </div>
-                <div className="mt-0.5 flex items-baseline justify-between gap-3 text-[15px] text-mute">
-                  <p className="truncate">{h.detail}</p>
-                  <span className="tabular shrink-0 font-mono">{h.at}</span>
-                </div>
-              </div>
-            </motion.li>
-          ))}
-        </AnimatePresence>
-      </ul>
-      <dl className="grid grid-cols-2 gap-px bg-line shadow-[0_-1px_0_var(--pl-line)]">
-        <div className="bg-surface px-6 py-5">
-          <dt className="text-[15px] text-mute">Handled today</dt>
-          <dd className="tabular mt-1 text-[30px] font-semibold tracking-[-0.04em] text-ink">{handled.toLocaleString("en-US")}</dd>
-        </div>
-        <div className="bg-surface px-6 py-5">
-          <dt className="text-[15px] text-mute">Sent to a person</dt>
-          <dd className="tabular mt-1 text-[30px] font-semibold tracking-[-0.04em] text-ink">{flagged}</dd>
-        </div>
-      </dl>
-    </div>
+    <ul aria-live="polite" className="relative">
+      <AnimatePresence initial={false} mode="popLayout">
+        {items.map((h) => (
+          <motion.li
+            key={h.id}
+            layout
+            initial={{ opacity: 0, y: -14 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, transition: { duration: 0.18 } }}
+            transition={{ type: "spring", stiffness: 420, damping: 36 }}
+            className="grid grid-cols-[52px_1fr_auto] items-baseline gap-3 py-3 shadow-[0_1px_0_var(--pl-line)]"
+          >
+            <span className="tabular font-mono text-[15px] text-mute">{h.at}</span>
+            <span className="min-w-0">
+              <span className="block text-[17px] font-semibold leading-snug text-ink">{h.title}</span>
+              <span className="block truncate text-[15px] text-mute">{h.detail}</span>
+            </span>
+            {h.busy ? (
+              <Tag tone="open" className="text-mute">
+                Checking
+              </Tag>
+            ) : (
+              <Tag tone={h.tone === "bad" ? "flag" : "done"}>{h.done}</Tag>
+            )}
+          </motion.li>
+        ))}
+      </AnimatePresence>
+    </ul>
   );
 }
 
 export function Hero() {
-  const graph = useRef<OrgGraphHandle>(null);
-  const [items, setItems] = useState<Happening[]>(() => [4, 3, 2, 1, 0].map((i) => happening(i)));
+  const wall = useRef<HTMLDivElement>(null);
+  const seen = useInView(wall, { amount: 0.25 });
+  const engaged = useEngaged();
+  const [items, setItems] = useState<Happening[]>(() => [4, 3, 2, 1, 0].map((i) => happening(i, forWall(i))));
+  const [stamped, setStamped] = useState<Record<string, Happening>>(() => ({ [forWall(4).id]: happening(4, forWall(4)) }));
   const [handled, setHandled] = useState(1284);
   const [flagged, setFlagged] = useState(37);
+  const count = useRef(5);
+  const quiet = useRef(0);
 
-  const start = useCallback((h: Happening) => setItems((list) => [h, ...list].slice(0, 5)), []);
-  const done = useCallback((h: Happening) => {
-    setItems((list) => list.map((x) => (x.id === h.id ? { ...x, busy: false } : x)));
-    setHandled((n) => n + 1);
-    if (h.tone === "bad") setFlagged((n) => n + 1);
+  const send = useCallback((person?: Person) => {
+    const i = count.current++;
+    const who = person ?? forWall(i);
+    const h = happening(i, who, true);
+    setItems((list) => [h, ...list].slice(0, 5));
+    setStamped((s) => ({ ...s, [who.id]: h }));
+    setTimeout(() => {
+      setItems((list) => list.map((x) => (x.id === h.id ? { ...x, busy: false } : x)));
+      setHandled((n) => n + 1);
+      if (h.tone === "bad") setFlagged((n) => n + 1);
+    }, 900);
+    setTimeout(() => setStamped((s) => (s[who.id]?.id === h.id ? Object.fromEntries(Object.entries(s).filter(([k]) => k !== who.id)) : s)), 2600);
   }, []);
 
+  const click = useCallback(
+    (p: Person) => {
+      quiet.current = performance.now() + 6000;
+      send(p);
+    },
+    [send],
+  );
+
+  useEffect(() => {
+    if (!seen || !engaged) return;
+    const t = setInterval(() => {
+      if (!document.hidden && performance.now() > quiet.current) send();
+    }, 2800);
+    return () => clearInterval(t);
+  }, [seen, engaged, send]);
+
   return (
-    <section className="relative overflow-hidden pb-24 pt-14 lg:pt-20">
+    <section className="relative overflow-hidden pb-24 pt-10 lg:pt-14">
       <Container>
-        <h1 className="text-[clamp(3.3rem,8.6vw,8.2rem)] font-semibold leading-[0.9] tracking-[-0.06em] text-ink">
-          <Line delay={0.05}>HR that does</Line>
-          <Line delay={0.16}>the paperwork.</Line>
-        </h1>
-        <div className="mt-10 flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
-          <motion.p
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.32, ease: EASE }}
-            className="max-w-[560px] text-pretty text-[clamp(1.18rem,1.6vw,1.32rem)] leading-[1.5] text-ink-2"
-          >
-            pello answers policy questions, approves time off within the rules you set, runs payroll and gets new hires ready for day one. Your people team gets back to people.
-          </motion.p>
-          <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.42, ease: EASE }} className="flex flex-wrap items-center gap-3">
-            <Magnetic>
-              <ButtonLink href="/contact" kind="accent" size="lg">
-                Book a demo
+        <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, ease: EASE }} className="font-display text-[clamp(4.6rem,12.6vw,12.4rem)] font-extrabold leading-[0.82] tracking-[-0.01em] text-ink">
+          HR that does the <span className="text-accent">paperwork.</span>
+        </motion.h1>
+
+        {/* The intro, the wall and the log: on a phone in that order; on a wide screen the wall stands beside the other two. */}
+        <div className="mt-12 grid gap-12 lg:grid-cols-12 lg:grid-rows-[auto_1fr] lg:gap-x-10 lg:gap-y-0">
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2, ease: EASE }} className="lg:col-span-4 lg:row-start-1">
+            <p className="text-pretty text-[clamp(1.2rem,1.6vw,1.38rem)] leading-[1.45] text-ink-2">pello answers policy questions, approves time off within the rules you set, runs payroll and gets new hires ready for day one. Your people team gets back to people.</p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Magnetic>
+                <ButtonLink href="/contact" kind="ink" size="lg" arrow>
+                  Book a demo
+                </ButtonLink>
+              </Magnetic>
+              <ButtonLink href="#ask" kind="quiet" size="lg">
+                See it work
+                <ArrowDownIcon size={18} weight="bold" />
               </ButtonLink>
-            </Magnetic>
-            <ButtonLink href="#ask" kind="quiet" size="lg">
-              See it work
-              <ArrowDownIcon size={18} />
-            </ButtonLink>
+            </div>
+          </motion.div>
+
+          <motion.div ref={wall} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6, delay: 0.3 }} className="lg:col-span-8 lg:col-start-5 lg:row-span-2 lg:row-start-1">
+            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+              {WALL.map((p) => (
+                <Tile key={p.id} person={p} event={stamped[p.id]} onSend={click} />
+              ))}
+            </div>
+            <p className="mt-4 text-[15px] text-mute">
+              Twelve of {COMPANY.name}&apos;s {COMPANY.people} people. Click anyone to send pello a request for them.
+            </p>
+          </motion.div>
+
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.35, ease: EASE }} className="flex flex-col justify-end lg:col-span-4 lg:row-start-2 lg:pt-12">
+            <div className="flex items-baseline justify-between gap-4 pb-1 shadow-[0_1.5px_0_var(--pl-ink)]">
+              <h2 className="font-display text-[26px] font-extrabold text-ink">Today at {COMPANY.name}</h2>
+              <span className="text-[15px] text-mute">{COMPANY.people} people</span>
+            </div>
+            <Log items={items} />
+            <dl className="mt-6 grid grid-cols-2 gap-6">
+              <div className="flex flex-col-reverse">
+                <dt className="text-[15px] text-mute">Handled today</dt>
+                <dd className="tabular font-display text-[52px] font-extrabold leading-none text-ink">{handled.toLocaleString("en-US")}</dd>
+              </div>
+              <div className="flex flex-col-reverse">
+                <dt className="text-[15px] text-mute">Sent to a person</dt>
+                <dd className="tabular font-display text-[52px] font-extrabold leading-none text-accent">{flagged}</dd>
+              </div>
+            </dl>
           </motion.div>
         </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.1, delay: 0.5, ease: EASE }}
-          className="mt-14 grid overflow-hidden rounded-[28px] border border-line bg-surface shadow-[0_30px_80px_-40px_rgb(12_14_20/0.35)] lg:grid-cols-[1fr_400px]"
-        >
-          <div className="relative h-[480px] sm:h-[560px] lg:h-[600px]">
-            <OrgGraph ref={graph} onStart={start} onDone={done} />
-            <div className="pointer-events-none absolute inset-x-5 bottom-5 flex flex-wrap items-end justify-between gap-3">
-              <p className="max-w-[300px] text-[15px] leading-snug text-mute max-sm:hidden">Drag anyone around. Click a person to send a request for them.</p>
-              <Button kind="quiet" onClick={() => graph.current?.send()} className="pointer-events-auto">
-                <PaperPlaneTiltIcon size={18} />
-                Send a request
-              </Button>
-            </div>
-          </div>
-          <div className="shadow-[inset_0_1px_0_var(--pl-line)] lg:shadow-[inset_1px_0_0_var(--pl-line)]">
-            <Feed items={items} handled={handled} flagged={flagged} />
-          </div>
-        </motion.div>
       </Container>
     </section>
   );

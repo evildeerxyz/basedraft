@@ -59,20 +59,11 @@
     "rounded-t-[10px]"
   ],
   "pello": [
-    "rounded-[10px]",
-    "rounded-[12px]",
-    "rounded-[14px]",
-    "rounded-[16px]",
-    "rounded-[18px]",
-    "rounded-[20px]",
-    "rounded-[22px]",
-    "rounded-[24px]",
-    "rounded-[28px]",
-    "rounded-[32px]",
-    "rounded-[36px]",
+    "rounded-[2px]",
+    "rounded-[3px]",
     "rounded-[4px]",
     "rounded-[6px]",
-    "rounded-[8px]",
-    "rounded-br-[6px]"
+    "rounded-b-[4px]",
+    "rounded-t-[6px]"
   ]
 }

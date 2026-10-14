@@ -5,6 +5,7 @@
  * asset store is served without it, and everything else goes to Next.
  */
 import { NO_AI, previewRedirect } from "../src/lib/preview-guard";
+import { RELEASED } from "../scripts/zones.mjs";
 // @ts-ignore: made by `opennextjs-cloudflare build`
 import { default as next } from "../.open-next/worker.js";
 
@@ -20,10 +21,12 @@ type ExecutionContext = { waitUntil(promise: Promise<unknown>): void; passThroug
  * portraits load /people/<name>.jpg in script): served from that template's files, as in
  * development (see next.config's rewrites).
  */
-const ROOT_FILES: Array<[prefix: string, slug: string]> = [
-  ["/people/", "noma"],
-  ["/photos/", "pello"],
-];
+const ROOT_FILES: Array<[prefix: string, slug: string]> = (
+  [
+    ["/people/", "noma"],
+    ["/photos/", "pello"],
+  ] as Array<[string, string]>
+).filter(([, slug]) => RELEASED.some((z) => z.slug === slug));
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {

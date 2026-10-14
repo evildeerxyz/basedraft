@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 import { TEMPLATE_GLOBS } from "./scripts/template-source.mjs";
-import { ZONES } from "./scripts/zones.mjs";
+import { RELEASED, ZONES as ALL_ZONES } from "./scripts/zones.mjs";
 
+/* The template zones: every one in development, only the released ones in a production build. */
+const ZONES = process.env.NODE_ENV === "production" ? RELEASED : ALL_ZONES;
 /* Where each template zone runs: its deployment in production, its local port otherwise. */
 const zoneUrl = (z: (typeof ZONES)[number]) => process.env[z.env] ?? `http://localhost:${z.port}`;
 
@@ -11,7 +13,7 @@ const nextConfig: NextConfig = {
   // The templates are their own Next apps; these send /live/<slug> to them, so they share BaseDraft's address.
   async rewrites() {
     const noma = ZONES.find((z) => z.slug === "noma")!;
-    const pello = ZONES.find((z) => z.slug === "pello")!;
+    const pello = ZONES.find((z) => z.slug === "pello");
     return [
       ...ZONES.flatMap((z) => [
         { source: `/live/${z.slug}`, destination: `${zoneUrl(z)}/live/${z.slug}` },
@@ -20,7 +22,7 @@ const nextConfig: NextConfig = {
       // Noma's portraits load from an absolute /people/ path, outside its base path; its files live under it.
       { source: "/people/:path*", destination: `${zoneUrl(noma)}/live/noma/people/:path*` },
       // pello's photos, the same way: an absolute /photos/ path, so its code stays as a buyer gets it.
-      { source: "/photos/:path*", destination: `${zoneUrl(pello)}/live/pello/photos/:path*` },
+      ...(pello ? [{ source: "/photos/:path*", destination: `${zoneUrl(pello)}/live/pello/photos/:path*` }] : []),
       // PostHog, on basedraft's own address (see src/instrumentation-client.ts).
       { source: "/ingest/static/:path*", destination: "https://us-assets.i.posthog.com/static/:path*" },
       { source: "/ingest/array/:path*", destination: "https://us-assets.i.posthog.com/array/:path*" },

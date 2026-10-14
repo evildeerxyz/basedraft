@@ -18,7 +18,7 @@ import { mkdtempSync, readdirSync, readFileSync, renameSync, statSync, writeFile
 import os from "node:os";
 import path from "node:path";
 import { SKIP_DIRS, skipFile, TEMPLATE_DIRS, TEMPLATE_FILES } from "./template-source.mjs";
-import { ZONES } from "./zones.mjs";
+import { RELEASED, ZONES } from "./zones.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
 const dry = process.argv.includes("--dry-run");
@@ -75,7 +75,7 @@ function walk(dir, rel = "", out = []) {
   return out;
 }
 const tmp = mkdtempSync(path.join(os.tmpdir(), "bd-sources-"));
-const bundles = ZONES.map((z) => {
+const bundles = RELEASED.map((z) => {
   const dir = path.join(root, z.dir);
   const files = Object.fromEntries(walk(dir).map((rel) => [rel, readFileSync(path.join(dir, rel)).toString("base64")]));
   const file = path.join(tmp, `${z.slug}.json`);

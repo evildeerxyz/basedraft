@@ -14,7 +14,7 @@
 import { execSync } from "node:child_process";
 import { cpSync, existsSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { ZONES } from "./zones.mjs";
+import { RELEASED, ZONES } from "./zones.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
 const dest = path.resolve(root, process.argv[2] ?? ".open-next/assets");
@@ -33,7 +33,16 @@ function walk(dir, test, out = []) {
   return out;
 }
 
-for (const z of ZONES) {
+// An unreleased template isn't built, and nothing of it is left from an earlier build: not its
+// preview, and not its screenshots (public/shots, which the app's build copied in).
+for (const z of ZONES.filter((z) => !RELEASED.includes(z))) {
+  rmSync(path.join(dest, "live", z.slug), { recursive: true, force: true });
+  rmSync(path.join(dest, "shots", `${z.slug}.jpg`), { force: true });
+  const sections = path.join(dest, "shots", "sections");
+  if (existsSync(sections)) for (const f of readdirSync(sections).filter((f) => f.startsWith(`${z.slug}-`))) rmSync(path.join(sections, f));
+}
+
+for (const z of RELEASED) {
   const dir = path.join(root, z.dir);
   const app = existsSync(path.join(dir, "src/app")) ? path.join(dir, "src/app") : path.join(dir, "app");
   const marked = walk(app, METADATA).filter((f) => !/export const dynamic/.test(readFileSync(f, "utf8")));

@@ -2,6 +2,7 @@ import auren from "../../templates/auren/bd/manifest.json";
 import noma from "../../templates/noma/src/bd/manifest.json";
 import pello from "../../templates/pello/src/bd/manifest.json";
 import zuno from "../../templates/zuno/src/bd/manifest.json";
+import { ZONES } from "../../scripts/zones.mjs";
 
 /*
  * The templates basedraft sells: four real Next.js sites, each its own app in templates/ and served
@@ -88,7 +89,10 @@ const load = (m: Manifest): LiveTemplate => {
   return { ...m, slug, sections: m.sections.map((s) => ({ ...s, kind: s.kind as SectionKind, template: slug, key: `${slug}/${s.id}` })) };
 };
 
-export const TEMPLATES: LiveTemplate[] = [load(zuno as Manifest), load(noma as Manifest), load(auren as Manifest), load(pello as Manifest)];
+const ALL: LiveTemplate[] = [load(zuno as Manifest), load(noma as Manifest), load(auren as Manifest), load(pello as Manifest)];
+// A template that isn't out yet (marked in scripts/zones.mjs) is only here in development.
+const UNRELEASED = new Set<string>(ZONES.filter((z) => "unreleased" in z && z.unreleased).map((z) => z.slug));
+export const TEMPLATES: LiveTemplate[] = process.env.NODE_ENV === "production" ? ALL.filter((t) => !UNRELEASED.has(t.slug)) : ALL;
 export const SECTIONS: LiveSection[] = TEMPLATES.flatMap((t) => t.sections);
 
 export const templateOf = (slug: string) => TEMPLATES.find((t) => t.slug === slug);

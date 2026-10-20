@@ -1,0 +1,8 @@
+# basedraft's Supabase project. Its tables, functions and policies are in migrations/: apply new
+# ones with `supabase link --project-ref rgrnoosyaistemnmmiwl`, then `supabase db push`.
+# Auth settings live in the dashboard (see the README's "Accounts"), not here: `supabase config
+# push` would reset whatever this file leaves out, the Send Email hook among them.
+project_id = "basedraft"
+
+[db]
+major_version = 17

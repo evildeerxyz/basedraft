@@ -17,8 +17,12 @@ export type Images = Record<string, ImageSwap>;
 /** A template file that can be swapped: a picture, by a plain path. */
 export const IMAGE_PATH = /^\/[\w.-]+(?:\/[\w.-]+)*\.(?:jpe?g|png|webp|avif|gif)$/i;
 
+/** Where basedraft keeps them: the public "images" bucket in its Supabase storage, one folder per account. */
+export const IMAGES_AT = `${process.env.NEXT_PUBLIC_SUPABASE_URL ?? ""}/storage/v1/object/public/images/`;
 /** Only basedraft's own storage: the server reads these back to write them into downloads. */
-const STORED = /^https:\/\/[a-z0-9-]+\.convex\.cloud\/api\/storage\/[0-9a-f-]{20,}$/i;
+const UUID = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
+const STORED = new RegExp(`^${IMAGES_AT.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&")}${UUID}/${UUID}\\.(?:jpg|png|webp)$`, "i");
+const stored = (url: string) => process.env.NEXT_PUBLIC_SUPABASE_URL !== undefined && STORED.test(url);
 
 /** Images checked for the server: real template paths, kept in basedraft's storage. */
 export function checkedImages(x: unknown): Images | undefined {
@@ -26,7 +30,7 @@ export function checkedImages(x: unknown): Images | undefined {
   const out: Images = {};
   for (const [path, v] of Object.entries(x as Record<string, unknown>).slice(0, 200)) {
     const s = v as ImageSwap;
-    if (!IMAGE_PATH.test(path) || !s || typeof s.url !== "string" || !STORED.test(s.url)) continue;
+    if (!IMAGE_PATH.test(path) || !s || typeof s.url !== "string" || !stored(s.url)) continue;
     out[path] = { url: s.url, ...(typeof s.name === "string" ? { name: s.name.slice(0, 120) } : {}) };
   }
   return Object.keys(out).length ? out : undefined;

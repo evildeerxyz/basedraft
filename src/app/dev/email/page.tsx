@@ -1,13 +1,13 @@
-import { projectShared, purchaseReady, signInCode, teamInvite, welcome } from "@convex/emails/templates";
 import { notFound } from "next/navigation";
+import { projectShared, purchaseReady, signInCode, teamInvite, welcome } from "@/server/emails/templates";
 
 /*
  * basedraft's emails, as they render, in light and dark: a page for working on them. They're sent
- * from Convex (convex/emails); this only draws them. Development only.
+ * from the site's server (src/server/emails); this only draws them, with the images from public/. Development only.
  */
 export default function EmailPreview() {
   if (process.env.NODE_ENV === "production") notFound();
-  const brand = { assets: process.env.NEXT_PUBLIC_CONVEX_SITE_URL ?? "", site: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3400" };
+  const brand = { assets: "", site: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3400" };
   const emails = [
     { name: "Sign-in code", email: signInCode(brand, { code: "482916" }) },
     { name: "Welcome", email: welcome(brand, { name: "Riley Parker" }) },
@@ -19,7 +19,7 @@ export default function EmailPreview() {
   return (
     <main className="min-h-dvh bg-surface-2 p-8">
       <h1 className="text-title">Emails</h1>
-      <p className="mt-2 text-body text-muted">Sent through Resend from Convex. Light on the left, dark on the right, as mail apps that support it show them.</p>
+      <p className="mt-2 text-body text-muted">Sent through Resend from the site&apos;s server. Light on the left, dark on the right, as mail apps that support it show them.</p>
       <div className="mt-8 space-y-12">
         {emails.map(({ name, email }) => (
           <section key={name}>

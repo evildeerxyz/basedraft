@@ -14,8 +14,6 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // The template zones lint themselves.
     "templates/**",
-    // Written by `npx convex dev`.
-    "convex/_generated/**",
   ]),
 ]);
 

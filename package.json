@@ -14,12 +14,9 @@
     "shots": "node scripts/shots.mjs"
   },
   "dependencies": {
-    "@better-auth/core": "1.6.33",
-    "@better-auth/infra": "0.4.18",
-    "@convex-dev/better-auth": "0.12.5",
     "@phosphor-icons/react": "^2.1.10",
-    "better-auth": "1.6.33",
-    "convex": "1.46.0",
+    "@supabase/ssr": "0.12.7",
+    "@supabase/supabase-js": "2.118.0",
     "kiwi-schema": "^0.5.0",
     "motion": "^14.1.0",
     "next": "16.4.0",
@@ -35,6 +32,7 @@
     "@types/opentype.js": "^1.3.10",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "esbuild": "0.28.2",
     "eslint": "^9",
     "eslint-config-next": "16.4.0",
     "puppeteer-core": "^24.43.1",

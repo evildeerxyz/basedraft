@@ -1,6 +1,6 @@
 /*
  * Runs basedraft and its template zones together.
- *   node scripts/run.mjs dev     every app in dev mode, and Convex watching convex/
+ *   node scripts/run.mjs dev     every app in dev mode
  *   node scripts/run.mjs build   build the zones, then basedraft
  *   node scripts/run.mjs start   serve every production build
  * basedraft is on 3400; the zones on the ports in scripts/zones.mjs.
@@ -30,8 +30,6 @@ if (mode === "build") {
   await next(".", ["build"], "basedraft");
 } else {
   const apps = [...ZONES.map((z) => next(z.dir, [mode, "-p", String(z.port)], z.slug)), next(".", [mode, "-p", "3400"], "basedraft")];
-  // Accounts run in Convex (convex/): in dev, its functions redeploy as you save them.
-  if (mode === "dev") apps.push(npx(".", ["convex", "dev"], "convex"));
   await Promise.race(apps).catch((e) => {
     console.error(e.message);
     process.exit(1);

@@ -1,15 +1,14 @@
 "use client";
 
-import { api } from "@convex/_generated/api";
-import type { Id } from "@convex/_generated/dataModel";
 import { CheckCircleIcon, EnvelopeSimpleIcon, LockSimpleIcon, UsersThreeIcon } from "@phosphor-icons/react";
-import { useMutation, useQuery } from "convex/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import type { Member } from "@/lib/api";
 import { Input } from "@/ui/field";
 import { cn } from "@/lib/utils";
 import { Avatar, displayName, openAuth, signOut, useAuth } from "./auth";
+import { change, refresh, useRpc } from "./db";
 import { usePlan } from "./plan";
 import { btn, btnSm } from "./sheet";
 import { toast } from "./toast";
@@ -21,13 +20,13 @@ import { track } from "./analytics";
  * on it, and the drafts shared with the team are in all their Libraries.
  */
 
-const why = (e: unknown) => (e instanceof Error ? e.message.replace(/^.*Uncaught Error: /, "").split("\n")[0].replace(/ at handler.*$/, "") : "Something went wrong.");
+const why = (e: unknown) => (e instanceof Error ? e.message : "Something went wrong.");
 const CARD = "bd-reveal rounded-[var(--bd-r-sheet)] bg-surface shadow-[0_0_0_1px_var(--bd-line)]";
 
 export function Team() {
   const { user, loading } = useAuth();
   const [, { preview }] = usePlan();
-  const data = useQuery(api.teams.mine, user ? { preview } : "skip");
+  const data = useRpc("teams_mine", user ? { preview } : "skip");
 
   if (loading || (user && data === undefined)) return <div className="h-[420px]" aria-busy="true" />;
 
@@ -78,7 +77,7 @@ function NoTeam() {
 
 function CreateTeam({ preview }: { preview: boolean }) {
   const { user } = useAuth();
-  const create = useMutation(api.teams.create);
+  const create = change("teams_create", "teams_mine");
   const [name, setName] = useState(() => (user ? `${displayName(user).split(" ")[0]}'s team` : ""));
   const [busy, setBusy] = useState(false);
   const submit = async (e: FormEvent) => {
@@ -111,15 +110,20 @@ function CreateTeam({ preview }: { preview: boolean }) {
   );
 }
 
-type Member = { id: Id<"teamMembers">; email: string; role: "owner" | "member"; status: "invited" | "active"; name: string | null };
+/** Invites, and invites again, through the site: it sends the email with the link to join. */
+async function sendInvite(body: { email: string } | { memberId: string }) {
+  const r = await fetch("/api/team/invite", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  if (!r.ok) throw new Error(((await r.json().catch(() => ({}))) as { error?: string }).error ?? "That didn't go through. Try again.");
+  refresh("teams_mine");
+}
+const rename = change("teams_rename", "teams_mine");
+const remove = change("teams_remove", "teams_mine");
+// Leaving takes the Pro the team gave, too.
+const leave = change("teams_leave", "teams_mine", "purchases_mine", "projects_list");
+const accept = change("teams_accept", "teams_mine", "purchases_mine", "projects_list");
 
-function TeamView({ team, role, people, seats, me }: { team: { id: Id<"teams">; name: string }; role: "owner" | "member"; people: Member[]; seats: number; me: string }) {
+function TeamView({ team, role, people, seats, me }: { team: { id: string; name: string }; role: "owner" | "member"; people: Member[]; seats: number; me: string }) {
   const owner = role === "owner";
-  const rename = useMutation(api.teams.rename);
-  const invite = useMutation(api.teams.invite);
-  const resend = useMutation(api.teams.resend);
-  const remove = useMutation(api.teams.remove);
-  const leave = useMutation(api.teams.leave);
   const [name, setName] = useState(team.name);
   const [email, setEmail] = useState("");
   const [problem, setProblem] = useState("");
@@ -135,7 +139,7 @@ function TeamView({ team, role, people, seats, me }: { team: { id: Id<"teams">; 
     setProblem("");
     setBusy(true);
     try {
-      await invite({ email: em });
+      await sendInvite({ email: em });
       track("team_invite_sent");
       setEmail("");
       toast(`Invited ${em}`, { detail: "We emailed them a link to join." });
@@ -237,7 +241,7 @@ function TeamView({ team, role, people, seats, me }: { team: { id: Id<"teams">; 
                 {owner && m.role !== "owner" && (
                   <span className="flex gap-1.5">
                     {m.status === "invited" && (
-                      <button type="button" onClick={() => void run(resend({ memberId: m.id }), `Sent ${m.email} the invite again`)} className={btnSm.quiet}>
+                      <button type="button" onClick={() => void run(sendInvite({ memberId: m.id }), `Sent ${m.email} the invite again`)} className={btnSm.quiet}>
                         Resend
                       </button>
                     )}
@@ -246,7 +250,7 @@ function TeamView({ team, role, people, seats, me }: { team: { id: Id<"teams">; 
                       onClick={() => {
                         if (doomed !== m.id) return setDoomed(m.id);
                         setDoomed(null);
-                        void run(remove({ memberId: m.id }), m.status === "invited" ? `Cancelled ${m.email}'s invite` : `Removed ${m.name ?? m.email} from the team`);
+                        void run(remove({ member_id: m.id }), m.status === "invited" ? `Cancelled ${m.email}'s invite` : `Removed ${m.name ?? m.email} from the team`);
                       }}
                       onBlur={() => setDoomed((x) => (x === m.id ? null : x))}
                       className={cn(btnSm.quiet, doomed === m.id && "bg-[#d92d20] text-white hover:bg-[#b42318]")}
@@ -266,7 +270,7 @@ function TeamView({ team, role, people, seats, me }: { team: { id: Id<"teams">; 
               type="button"
               onClick={() => {
                 if (doomed !== "leave") return setDoomed("leave");
-                void run(leave(), `You left ${team.name}`);
+                void run(leave({}), `You left ${team.name}`);
               }}
               onBlur={() => setDoomed(null)}
               className={cn(btnSm.quiet, doomed === "leave" && "bg-[#d92d20] text-white hover:bg-[#b42318]")}
@@ -291,8 +295,7 @@ function TeamView({ team, role, people, seats, me }: { team: { id: Id<"teams">; 
 /** Joining a team from an invite link. */
 export function Invite({ token }: { token: string }) {
   const { user, loading } = useAuth();
-  const invite = useQuery(api.teams.invitation, { token });
-  const accept = useMutation(api.teams.accept);
+  const invite = useRpc("teams_invitation", { token });
   const router = useRouter();
   const [joined, setJoined] = useState(false);
   const [busy, setBusy] = useState(false);

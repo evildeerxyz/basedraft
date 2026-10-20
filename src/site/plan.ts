@@ -1,11 +1,12 @@
 "use client";
 
-import { api } from "@convex/_generated/api";
-import { useQuery } from "convex/react";
-import { useSyncExternalStore } from "react";
+import { useMemo, useSyncExternalStore } from "react";
+import { unlocked } from "@/lib/products";
+import { getSession, SERVER_SESSION, subscribeSession } from "@/lib/supabase";
+import { useRpc } from "./db";
 
 /*
- * What the signed-in person owns, from their Whop purchases in Convex: signed out is Free. Pro
+ * What the signed-in person owns, from their Whop purchases in Supabase: signed out is Free. Pro
  * (or Team) unlocks every Pro feature and every template; buying one template unlocks its code.
  *
  * In development only, Pro can be previewed on a signed-in account without buying it (the switch
@@ -34,10 +35,18 @@ export function setPreview(on: boolean) {
 /** Sent with downloads and GitHub sends, so the server previews Pro too. Development only. */
 export const previewHeaders = (): Record<string, string> => (previewOn() ? { "x-bd-preview": "pro" } : {});
 
-// Without a Convex address there's nothing to ask; the choice is made once, for the whole app.
-const useMine = process.env.NEXT_PUBLIC_CONVEX_URL ? () => useQuery(api.purchases.mine) : () => undefined;
+/** Purchases and the templates they unlock: undefined while loading, null when signed out. Signed out, nothing is asked. */
+function useMine() {
+  const session = useSyncExternalStore(subscribeSession, getSession, () => SERVER_SESSION);
+  const mine = useRpc("purchases_mine", session.user ? {} : "skip");
+  return useMemo(() => {
+    if (!session.ready) return undefined;
+    if (!session.user || mine === null) return null;
+    if (!mine) return undefined;
+    return { ...mine, templates: unlocked(mine.products), pro: mine.products.includes("pro") || mine.products.includes("team") };
+  }, [session.ready, session.user, mine]);
+}
 
-/** Purchases and unlocked templates: undefined while loading, null when signed out. */
 export function usePurchases() {
   return useMine();
 }

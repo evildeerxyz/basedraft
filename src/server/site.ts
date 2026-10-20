@@ -138,12 +138,11 @@ export function writeProject(files: Files, project: Project) {
  * storage are read. Says which files it wrote.
  */
 export async function writeImages(files: Files, project: Project) {
+  // checkedImages keeps only addresses in basedraft's own image bucket.
   const images = checkedImages(project.images) ?? {};
-  const home = process.env.NEXT_PUBLIC_CONVEX_URL ? new URL(process.env.NEXT_PUBLIC_CONVEX_URL).host : null;
   const wrote: string[] = [];
   await Promise.all(
     Object.entries(images).map(async ([path, { url }]) => {
-      if (home && new URL(url).host !== home) return;
       const res = await fetch(url).catch(() => null);
       if (!res?.ok) return;
       const bytes = new Uint8Array(await res.arrayBuffer());

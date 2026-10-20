@@ -1,10 +1,8 @@
 "use client";
 
-import { api } from "@convex/_generated/api";
-import type { Id } from "@convex/_generated/dataModel";
 import { ArrowCounterClockwiseIcon, CaretDownIcon, CaretUpIcon, CrosshairSimpleIcon, ImageIcon, SpinnerGapIcon, UploadSimpleIcon } from "@phosphor-icons/react";
-import { useMutation } from "convex/react";
 import { useRef, useState, type DragEvent } from "react";
+import { supabase } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 import { openAuth } from "@/site/auth";
 import { typeOf, type ImageSwap } from "@/site/images";
@@ -50,18 +48,24 @@ async function prepared(file: File, path: string): Promise<Blob> {
   }
 }
 
-/** Sends an image to storage, made ready for `path`, and says where it's kept. */
+const EXT = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" } as const;
+
+/**
+ * Sends an image to storage, made ready for `path`, and says where it's kept: the "images" bucket,
+ * in a folder of the signed-in person's own. Storage itself turns away anything but a JPEG, PNG or
+ * WebP under 8 MB (see supabase/migrations).
+ */
 export function useImageUpload() {
-  const uploadUrl = useMutation(api.images.uploadUrl);
-  const stored = useMutation(api.images.stored);
   return async (file: File, path: string): Promise<ImageSwap> => {
     if (!file.type.startsWith("image/")) throw new Error("That isn't an image.");
     const blob = await prepared(file, path);
-    const to = await uploadUrl();
-    const res = await fetch(to, { method: "POST", headers: { "Content-Type": blob.type }, body: blob });
-    if (!res.ok) throw new Error("The image didn't upload. Try it again.");
-    const { storageId } = (await res.json()) as { storageId: Id<"_storage"> };
-    return { url: await stored({ storageId }), name: file.name.slice(0, 120) };
+    const db = supabase();
+    const { data } = await db.auth.getSession();
+    if (!data.session) throw new Error("Sign in to use your own images.");
+    const key = `${data.session.user.id}/${crypto.randomUUID()}.${EXT[blob.type as keyof typeof EXT] ?? "jpg"}`;
+    const { error } = await db.storage.from("images").upload(key, blob, { contentType: blob.type, cacheControl: "31536000" });
+    if (error) throw new Error(/size|mime|type/i.test(error.message) ? "That image can't be used: a JPEG, PNG or WebP under 8 MB works." : "The image didn't upload. Try it again.");
+    return { url: db.storage.from("images").getPublicUrl(key).data.publicUrl, name: file.name.slice(0, 120) };
   };
 }
 

@@ -3,8 +3,9 @@
 import { ArrowRightIcon, EnvelopeSimpleIcon, GithubLogoIcon, GoogleLogoIcon, InfoIcon } from "@phosphor-icons/react/ssr";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import type { User as SupabaseUser } from "@supabase/supabase-js";
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type FormEvent, type ReactNode } from "react";
-import { authClient } from "@/lib/auth-client";
+import { getSession, providerOn, SERVER_SESSION, subscribeSession, SUPABASE_ON, supabase } from "@/lib/supabase";
 import { Input } from "@/ui/field";
 import { cn } from "@/lib/utils";
 import { Dialog, DIALOG_CARD, DialogClose } from "./dialog";
@@ -16,9 +17,10 @@ import { toast } from "./toast";
 import { track } from "./analytics";
 
 /*
- * Accounts, on Better Auth running in Convex (convex/auth.ts). Sign in with Google or GitHub, or with
- * an email and a 6-digit code. The session is a cookie on this site; `useAuth()` reads it.
- *   - `User` is the shape the rest of the site uses, made from Better Auth's user.
+ * Accounts, on Supabase Auth. Sign in with Google or GitHub, or with an email and a 6-digit code
+ * (sent by this site: src/app/api/auth/email). The session is a cookie on this site; `useAuth()`
+ * reads it.
+ *   - `User` is the shape the rest of the site uses, made from Supabase's user.
  *   - `useAuth()` returns { user, loading, signOut }.
  */
 
@@ -41,28 +43,37 @@ export type AuthReason = "share" | "history" | "library" | "save" | "comment" | 
 
 type AuthUser = { id: string; email: string; emailVerified: boolean; name?: string | null; image?: string | null; createdAt: Date | string; updatedAt: Date | string };
 
-/** Better Auth's user, as the site's `User`. */
+/** Supabase's user, as the card works with it. Their name is in their metadata: from signing up, or from Google or GitHub. */
+function authUserOf(u: SupabaseUser): AuthUser {
+  const m = (u.user_metadata ?? {}) as { name?: string; full_name?: string; avatar_url?: string };
+  return { id: u.id, email: u.email ?? "", emailVerified: Boolean(u.email_confirmed_at), name: m.name || m.full_name || null, image: m.avatar_url ?? null, createdAt: u.created_at, updatedAt: u.updated_at ?? u.created_at };
+}
+
+/** The signed-in user, as the site's `User`. */
 function toUser(u: AuthUser): User {
   const [first, ...rest] = (u.name ?? "").trim().split(/\s+/).filter(Boolean);
   return { object: "user", id: u.id, email: u.email, emailVerified: u.emailVerified, firstName: first ?? null, lastName: rest.join(" ") || null, profilePictureUrl: u.image ?? null, createdAt: new Date(u.createdAt).toISOString(), updatedAt: new Date(u.updatedAt).toISOString() };
 }
 
+/** Changes the name others see. */
+const saveDisplayName = (name: string) => supabase().auth.updateUser({ data: { name } });
+
 export async function signOut() {
-  await authClient.signOut();
+  await supabase().auth.signOut();
   toast("Signed out", { detail: "Your current draft stays in this browser." });
 }
 
 export function useAuth() {
-  const { data, isPending } = authClient.useSession();
-  const raw = data?.user as AuthUser | undefined;
-  const user = useMemo(() => (raw ? toUser(raw) : null), [raw]);
-  return { user, loading: isPending, signOut };
+  const session = useSyncExternalStore(subscribeSession, getSession, () => SERVER_SESSION);
+  const user = useMemo(() => (session.user ? toUser(authUserOf(session.user)) : null), [session.user]);
+  return { user, loading: !session.ready, signOut };
 }
 
 /** Whether someone is signed in right now, for code outside React. */
 export async function signedIn() {
-  const { data } = await authClient.getSession();
-  return Boolean(data?.user);
+  if (!SUPABASE_ON) return false;
+  const { data } = await supabase().auth.getSession();
+  return Boolean(data.session);
 }
 
 export const displayName = (u: User) => [u.firstName, u.lastName].filter(Boolean).join(" ") || u.email.split("@")[0];
@@ -167,11 +178,11 @@ const WHY: Record<AuthReason, string> = {
 type Problem = { field: "name" | "email" | "code" | "social"; text: string; fix?: AuthMode };
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-/** What a failed code check means, in words. */
+/** What a failed code check (or send) means, in words. Supabase says the same for a wrong code and an expired one. */
 const CODE_ERROR: Record<string, string> = {
-  OTP_EXPIRED: "That code has expired. Send a new one.",
-  TOO_MANY_ATTEMPTS: "Too many tries with that code. Send a new one.",
-  INVALID_OTP: "That code isn't right. Check the email and try again.",
+  otp_expired: "That code isn't right, or it has expired. Check the email, or send a new one.",
+  over_request_rate_limit: "Too many tries. Wait a minute, then send a new code.",
+  over_email_send_rate_limit: "We've sent a few codes already. Wait a minute, then try again.",
 };
 
 function Spinner() {
@@ -273,24 +284,35 @@ export function AuthCard({ initialMode, reason, onDone, onModeChange, page }: { 
   };
   const finish = (u: User, fresh: boolean) => {
     setBusy(null);
+    // A new account's welcome email, once it has its name. The server sends it once, however often it's asked.
+    if (fresh) void fetch("/api/auth/welcome", { method: "POST" }).catch(() => {});
     onDone(u, fresh);
   };
+
+  // Comes back to this page, signed in (src/app/api/auth/callback).
+  const callback = () => `${window.location.origin}/api/auth/callback?next=${encodeURIComponent(`${window.location.pathname}${window.location.search}`)}`;
 
   // Off to Google or GitHub, and back to this page signed in.
   const social = async (p: "google" | "github") => {
     setProblem(null);
     setBusy(p);
-    const back = `${window.location.pathname}${window.location.search}`;
-    const { error } = await authClient.signIn.social({ provider: p, callbackURL: back, errorCallbackURL: back });
-    if (error) {
+    const notYet = () => {
       setBusy(null);
       setProblem({ field: "social", text: `${p === "google" ? "Google" : "GitHub"} sign in isn't connected yet. Use your email for now.` });
-    }
+    };
+    if (!(await providerOn(p))) return notYet();
+    // Google goes through this site, so its consent screen names basedraft (src/server/google.ts).
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- a route that sends you on to Google, not a page
+    if (p === "google") return window.location.assign(`/api/auth/google?next=${encodeURIComponent(`${window.location.pathname}${window.location.search}`)}`);
+    const { error } = await supabase().auth.signInWithOAuth({ provider: p, options: { redirectTo: callback() } });
+    if (error) notYet();
   };
 
+  // The code makes the account on a first sign in; signing up names it as it's made.
   const send = async (em: string) => {
-    const { error } = await authClient.emailOtp.sendVerificationOtp({ email: em, type: "sign-in" });
-    return error ? (error.message ?? "We couldn't send a code. Try again in a moment.") : null;
+    if (!SUPABASE_ON) return "Accounts aren't set up here yet.";
+    const { error } = await supabase().auth.signInWithOtp({ email: em, options: { shouldCreateUser: true, emailRedirectTo: callback(), data: up && name.trim() ? { name: name.trim() } : undefined } });
+    return error ? (CODE_ERROR[error.code ?? ""] ?? error.message ?? "We couldn't send a code. Try again in a moment.") : null;
   };
 
   const sendCode = async (e: FormEvent) => {
@@ -317,16 +339,16 @@ export function AuthCard({ initialMode, reason, onDone, onModeChange, page }: { 
     if (c.length < 6) return setProblem({ field: "code", text: "Enter all 6 digits." });
     setProblem(null);
     setBusy("code");
-    const { data, error } = await authClient.signIn.emailOtp({ email: email.trim().toLowerCase(), otp: c });
-    if (error || !data) {
+    const { data, error } = await supabase().auth.verifyOtp({ email: email.trim().toLowerCase(), token: c, type: "email" });
+    if (error || !data.user) {
       setBusy(null);
       return setProblem({ field: "code", text: CODE_ERROR[error?.code ?? ""] ?? error?.message ?? "That didn't work. Try again." });
     }
-    let u = data.user as AuthUser;
-    // A first sign in makes the account; signing up named it, so the name goes on it now.
+    let u = authUserOf(data.user);
+    // A first sign in makes the account. Signing up named it; signing up as someone who already had an account names it now.
     const fresh = Date.now() - new Date(u.createdAt).getTime() < 120_000;
     if (name.trim() && !u.name) {
-      await authClient.updateUser({ name: name.trim() });
+      await saveDisplayName(name.trim());
       u = { ...u, name: name.trim() };
     }
     if (!u.name?.trim()) {
@@ -344,7 +366,7 @@ export function AuthCard({ initialMode, reason, onDone, onModeChange, page }: { 
     const n = name.trim();
     if (!n) return setProblem({ field: "name", text: "Add the name you'd like people to see, or skip for now." });
     setBusy("email");
-    await authClient.updateUser({ name: n });
+    await saveDisplayName(n);
     finish(toUser({ ...pending.user, name: n }), pending.fresh);
   };
 
@@ -597,7 +619,7 @@ function ProfileForm({ user }: { user: User }) {
     const n = name.trim();
     if (!n) return;
     setBusy(true);
-    const { error } = await authClient.updateUser({ name: n });
+    const { error } = await saveDisplayName(n);
     setBusy(false);
     if (error) return toast("Couldn't save your name", { tone: "error", detail: error.message });
     closeProfile();

@@ -11,7 +11,7 @@ Finished websites you make your own. basedraft.site sells three complete Next.js
 
 ```bash
 npm install
-npm run dev        # basedraft on :3400 with hot reload, the templates on :4101 to :4103, Convex watching convex/
+npm run dev        # basedraft on :3400 with hot reload, the templates on :4101 to :4103
 npm run build      # the templates, then basedraft
 npm start
 ```
@@ -29,14 +29,14 @@ basedraft's own wiring lives beside each template's code, never inside it:
 src/
   app/(site)/        the site: home, templates, components, pro
   app/studio/        Studio
-  app/api/           auth (Better Auth, passed to Convex), export (the site as a zip), github/* (connect, repos, push)
-  server/            site.ts builds a project's whole site, github.ts sends it, guard.ts gates both
+  app/api/           auth/* (sign-in callback, code emails, welcome), whop/webhook, share, team/invite, export (the site as a zip), github/* (connect, repos, push)
+  server/            site.ts builds a project's whole site, github.ts sends it, guard.ts gates both; supabase.ts, whop.ts, mail.ts and emails/
   site/              chrome, page blocks, live.ts (the catalog), and the Figma and Paper exporters
   studio/            Studio: canvas, panels, export dialogs, the tour and hints (guide.tsx)
-  lib/               zip, rewrite-text (writing text edits into source)
-convex/              Convex: Better Auth (auth.ts), its routes (http.ts) and component (convex.config.ts)
+  lib/               zip, rewrite-text (writing text edits into source), supabase.ts (the browser's client), api.ts (the database's functions, typed)
+supabase/            migrations/: the tables, the functions that are the API, live channels and image storage
 templates/           zuno, noma, auren, pello
-scripts/             run.mjs (all apps), zones.mjs (ports), template-source.mjs (what a buyer gets), shots.mjs
+scripts/             run.mjs (all apps), zones.mjs (ports), template-source.mjs (what a buyer gets), shots.mjs, convex-to-supabase.mjs (the move)
 ```
 
 ### Studio
@@ -51,12 +51,12 @@ scripts/             run.mjs (all apps), zones.mjs (ports), template-source.mjs 
 
 ### Working together
 
-Signed in, a project lives in Convex (`convex/projects.ts`) and its address is `/studio?p=<id>`. Studio saves the whole project a moment after each change, if the account still has the version the change was made on; when someone else saved first, their save arrives, is merged with yours page by page and edit by edit (`merge3` in `src/studio/state.ts`, also used so undo never takes out a teammate's change), and yours saves after it (`src/studio/cloud.ts`).
+Signed in, a project lives in Supabase (`projects_*` in `supabase/migrations`) and its address is `/studio?p=<id>`. Studio saves the whole project a moment after each change, if the account still has the version the change was made on; when someone else saved first, the project's live channel says so, their save arrives, is merged with yours page by page and edit by edit (`merge3` in `src/studio/state.ts`, also used so undo never takes out a teammate's change), and yours saves after it (`src/studio/cloud.ts`).
 
 - **Sharing:** with people by email (edit or view), with your whole team, or as a view-only link. Invites are emailed.
-- **Teams** (`/team`, `convex/teams.ts`): the Team plan's ten seats. The owner invites by email (`/invite/<token>`, a link that works once, for that address), resends, cancels and removes; anyone can leave. Everyone on a team whose owner has Team has Pro while they're on it.
-- **Live:** everyone's cursor on the page they're on, their faces in the top bar, and their selections in their colors (`convex/presence.ts`).
-- **Comments** (C): a pin on any section at any breakpoint, with replies, resolve and delete, listed in the inspector while commenting (`convex/comments.ts`).
+- **Teams** (`/team`, `teams_*`): the Team plan's ten seats. The owner invites by email (`/invite/<token>`, a link that works once, for that address), resends, cancels and removes; anyone can leave. Everyone on a team whose owner has Team has Pro while they're on it.
+- **Live:** everyone's cursor on the page they're on, their faces in the top bar, and their selections in their colors, sent on the project's live channel (`src/studio/collab.tsx`, `src/studio/channel.ts`).
+- **Comments** (C): a pin on any section at any breakpoint, with replies, resolve and delete, listed in the inspector while commenting (`comments_*`).
 - **Library and history:** your drafts, your team's, the ones shared with you and your saved sections; versions you name, and one kept every ten minutes of editing.
 
 ### Exports
@@ -89,34 +89,26 @@ See `.env.example`. In `.env.local`:
 
 | Variable | For |
 | --- | --- |
-| `CONVEX_DEPLOYMENT` | The Convex deployment `npx convex dev` pushes to (dev: `qualified-snake-29`) |
-| `NEXT_PUBLIC_CONVEX_URL`, `NEXT_PUBLIC_CONVEX_SITE_URL` | That deployment's `.convex.cloud` and `.convex.site` addresses |
+| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | The Supabase project (`rgrnoosyaistemnmmiwl`): its address and publishable key |
+| `SUPABASE_SECRET_KEY` | Server only: Whop's webhook records purchases with it |
+| `SEND_EMAIL_HOOK_SECRET` | The Send Email hook's secret, which signs each sign-in code Supabase asks the site to send |
+| `RESEND_API_KEY`, `EMAIL_FROM`, `EMAIL_REPLY_TO` | basedraft's emails, sent through Resend from `hello@basedraft.site` |
+| `WHOP_API_KEY`, `WHOP_WEBHOOK_SECRET` | Whop checkout, and its webhook at `<site>/api/whop/webhook` |
+| `WHOP_PLAN_ZUNO`, `WHOP_PLAN_NOMA`, `WHOP_PLAN_AUREN`, `WHOP_PLAN_PELLO`, `WHOP_PLAN_PRO`, `WHOP_PLAN_TEAM` | Each product's Whop plan id |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Continue with Google: an OAuth client whose redirect is `<site>/api/auth/callback/google` (development needs `http://localhost:3400/api/auth/callback/google` on it too) |
 | `NEXT_PUBLIC_SITE_URL` | This site's address |
 | `ZUNO_URL`, `NOMA_URL`, `AUREN_URL`, `PELLO_URL` | Where each template zone is deployed |
 | `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | Send to GitHub. An OAuth app whose callback is `<site>/api/github/callback` |
 | `BD_SESSION_SECRET` | Seals the GitHub token in its httpOnly cookie. Required in production |
 | `BD_EXPORT_OPEN` | Lets a production deployment hand out template code before purchases are connected. Leave it off in public |
 | `NEXT_PUBLIC_POSTHOG_KEY`, `NEXT_PUBLIC_GA_ID` | Analytics, production only. Public ids |
+| `CONVEX_DEPLOYMENT` | Only until the move is done: `scripts/convex-to-supabase.mjs` reads Convex with it |
 
-On the Convex deployment (`npx convex env set NAME value`), where Better Auth runs:
-
-| Variable | For |
-| --- | --- |
-| `SITE_URL` | This site's address, which Better Auth trusts |
-| `BETTER_AUTH_SECRET` | Signs sessions. Any long random string |
-| `BETTER_AUTH_API_KEY` | Better Auth's dashboard (the `dash` plugin) and the email service that sends sign-in codes |
-| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Optional: Continue with Google. Callback `<site>/api/auth/callback/google` |
-| `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | Optional: Continue with GitHub. Callback `<site>/api/auth/callback/github` |
-| `RESEND_API_KEY`, `EMAIL_FROM`, `EMAIL_REPLY_TO` | basedraft's emails, sent through Resend from `hello@basedraft.site` |
-| `WHOP_API_KEY`, `WHOP_WEBHOOK_SECRET` | Whop checkout, and its webhook at `<deployment>.convex.site/whop/webhook` |
-| `WHOP_PLAN_ZUNO`, `WHOP_PLAN_NOMA`, `WHOP_PLAN_AUREN`, `WHOP_PLAN_PELLO`, `WHOP_PLAN_PRO`, `WHOP_PLAN_TEAM` | Each product's Whop plan id |
-| `BD_PREVIEW_ALLOWED` | `1` on a development deployment only: lets "Preview Pro" make a team without the Team plan |
-
-To connect the Better Auth dashboard, give it the deployment's site address (`https://qualified-snake-29.convex.site`) with the base path `/api/auth`: that's where Better Auth answers.
+Development and the live site share the one Supabase project. To preview the Team plan without buying it ("Preview Pro" on `/team`), a separate development project needs `insert into settings values ('preview_allowed', '1')`; never on the live one.
 
 ## Deploying
 
-basedraft runs on Cloudflare Workers, on the free plan, at https://basedraft.emmahxyz.workers.dev, with Convex's production deployment (`charming-giraffe-71`) behind it. One command builds and deploys everything (Node 22, for wrangler):
+basedraft runs on Cloudflare Workers, on the free plan, at https://basedraft.site, with the Supabase project `rgrnoosyaistemnmmiwl` behind it. One command builds and deploys everything (Node 22, for wrangler):
 
     node scripts/cf-deploy.mjs            # build and deploy
     node scripts/cf-deploy.mjs --dry-run  # build, and check the worker's size (the free plan allows 3 MB gzipped)
@@ -128,7 +120,7 @@ basedraft runs on Cloudflare Workers, on the free plan, at https://basedraft.emm
 
 Two workarounds in the script, until OpenNext catches up with Next 16.4: it adds `preview-props.json` to the manifests OpenNext inlines, and makes the instrumentation hook load (basedraft has none) resolve to nothing.
 
-Settings: public ones are in `wrangler.jsonc` `vars` (and built in from `.env.cloudflare`); secrets go in with `npx wrangler secret put` (`BD_SESSION_SECRET`, and `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` once Send to GitHub's OAuth app exists, with its callback at `<site>/api/github/callback`). The Convex production deployment has its own (`npx convex env list --prod`); deploy its functions with `npx convex deploy`.
+Settings: public ones are in `wrangler.jsonc` `vars` (and built in from `.env.cloudflare`); secrets go in with `npx wrangler secret put`: `BD_SESSION_SECRET`, `SUPABASE_SECRET_KEY`, `SEND_EMAIL_HOOK_SECRET`, `RESEND_API_KEY`, `WHOP_API_KEY`, `WHOP_WEBHOOK_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` once Send to GitHub's OAuth app exists, with its callback at `<site>/api/github/callback`. The plain ones (`EMAIL_FROM`, `WHOP_PLAN_*`) are in `vars`. A change to the database is a new file in `supabase/migrations`, applied with `supabase db push`.
 
 Locally, each template is its own Next app (`next start` on 4101 to 4103) and `next.config.ts` rewrites `/live/<slug>` to it.
 
@@ -147,36 +139,54 @@ Locally, each template is its own Next app (`next start` on 4101 to 4103) and `n
 
 The chrome is set in **Söhne** (Klim Type Foundry) from `public/fonts/sohne/`. Those files are Klim's trial cuts, personal use only, and git-ignored on purpose. **Buy a Söhne web license before launch.** Söhne is never part of anything sold; the templates use free fonts.
 
-## Accounts (Better Auth on Convex)
+## Accounts and data (Supabase)
 
-Better Auth runs inside Convex (`convex/auth.ts`), with its users, sessions and sign-in codes in the Better Auth component's tables. The site's `/api/auth` passes every request through to it (`src/lib/auth-server.ts`), so the session cookie is the site's own, and `ConvexBetterAuthProvider` (`src/site/convex.tsx`) signs Convex in as the same person, so queries know who's asking (`auth:getCurrentUser`).
+Supabase holds the accounts (Supabase Auth), the data (Postgres), the live channels Studio works together on (Realtime) and the images people put in templates (Storage). It's all in one migration, `supabase/migrations/20261020000000_basedraft.sql`:
 
-- **Sign in:** an email and a 6-digit code (Better Auth's email OTP, sent by its email service), or Google and GitHub once their keys are set. A first sign in makes the account; signing up also saves your name.
-- **In the UI:** `src/site/auth.tsx` keeps the same card, modal (`openAuth()`), `/sign-in` and `/sign-up` pages and `useAuth()` shape as before, now backed by `authClient`.
-- **Still samples:** drafts, saved sections and shared pages in the Library. They're next to move into Convex.
+- **The functions are the API.** Every table has row level security on and no policies, so the browser can't read or write one; it calls the functions in the `public` schema (`supabase.rpc()`), which decide who may do what, as whoever is signed in. `src/lib/api.ts` types each one. In the browser, `src/site/db.ts` runs them: `useRpc` shows one's result, shared by every component asking, and fetched again after a change, on sign in and out, when the tab comes back, and when a live channel says so; `change` makes a change and says what it changes. The server calls them as the signed-in person from the session cookie (`src/server/supabase.ts`), and as basedraft itself, with the secret key, only for Whop's webhook.
+- **Live channels.** Each project has a private channel, `project:<id>`, that only people who may view it can join (a policy on `realtime.messages`). Triggers announce each save (its rev and the tab that made it), share, version and comment there, and Studio fetches what changed. Pointers and faces go on the same channel from each Studio; they're never stored.
+- **Images** go in the public `images` bucket, each account in a folder of its own id; Storage turns away anything that isn't a JPEG, PNG or WebP under 8 MB.
+
+**Sign in:** an email and a 6-digit code, or Google (and GitHub, once it's turned on). A first sign in makes the account; signing up puts your name on it as it's made. Supabase asks the site to send each code (the Send Email hook, `src/app/api/auth/email`), so it goes out in basedraft's own email through Resend; Google comes back through `/api/auth/callback/google`, GitHub and the links in emails through `/api/auth/callback`. The session is a cookie on this site, kept fresh by the browser, so the server reads the same one. `src/site/auth.tsx` keeps the same card, modal (`openAuth()`), `/sign-in` and `/sign-up` pages and `useAuth()` shape.
+
+Settings in the Supabase dashboard (Authentication):
+
+- **Email:** OTP length 6, OTP expiry 600 seconds (both set).
+- **URL configuration:** site URL `https://basedraft.site`; redirect URLs `http://localhost:3400/**` and `https://basedraft.site/**` (both set).
+- **Hooks, Send Email:** HTTPS, `https://basedraft.site/api/auth/email`, with the secret in `SEND_EMAIL_HOOK_SECRET` (set, and off until the site that answers it is live: until then Supabase sends its own email, with a sign-in link, and only to the project's team). Then raise the email rate limit under Rate Limits.
+- **Sign In / Providers, Google:** on, with the site's Google client id and secret. Google sign in goes through the site, not Supabase's address (`src/server/google.ts`): Google sends people back to `<site>/api/auth/callback/google`, the address its OAuth client already allows (and the one its consent screen names), and the site hands Supabase Google's ID token (`signInWithIdToken`). So the site needs `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` too.
+- **Sign In / Providers, GitHub:** off. Turned on, it uses Supabase's own flow, with `https://rgrnoosyaistemnmmiwl.supabase.co/auth/v1/callback` as the GitHub OAuth app's callback.
+
+### Moving from Convex
+
+The code has moved; the data moves once, just before the new site goes live:
+
+1. Set the Worker's secrets and vars (see Deploying), copying the values that were on Convex (`npx convex env list --prod`): Resend, Whop and the plan ids.
+2. `node scripts/convex-to-supabase.mjs --prod --dry-run`, then without `--dry-run` (Node 22). It copies accounts (same emails, confirmed: people sign in with a code as before), purchases, teams, projects with their shares, versions and comments, saved sections, and moves images to the bucket. Projects keep their Convex ids, so old links still open them.
+3. `node scripts/cf-deploy.mjs`, then turn the Send Email hook on, point Whop's webhook at `https://basedraft.site/api/whop/webhook`, and give the Google and GitHub OAuth apps Supabase's callback.
 
 ## Selling and delivery (Whop)
 
-Payments run on Whop; what someone owns lives in Convex (`purchases`), tied to their basedraft account.
+Payments run on Whop; what someone owns lives in Supabase (`purchases`), tied to their basedraft account.
 
-1. **Buy:** every Buy and Get Pro button goes to `/checkout?product=<zuno|auren|pro|team>`. Signed out, that's sign up first and straight back. Then `checkout:start` (Convex) opens a Whop checkout for the product's plan, with the buyer's basedraft id and email as metadata, and sends them to it.
-2. **Paid:** Whop's `payment.succeeded` webhook lands at `<deployment>.convex.site/whop/webhook`, signed per Standard Webhooks and checked in `convex/whop.ts`. It records the purchase (each event once, however often Whop delivers it), and `refund.created` or an ended membership takes it away again.
-3. **Delivered:** the purchase schedules the order email (`convex/delivery.ts`): download the site as a zip, or send it to GitHub. Both links go to `/purchases`, which lists everything the buyer owns, updates the moment a payment lands, and runs the download or GitHub flow from the email's link. Purchases match by account and by email, so buying before signing up works.
+1. **Buy:** every Buy and Get Pro button goes to `/checkout?product=<zuno|auren|pro|team>`. Signed out, that's sign up first and straight back. Then the route opens a Whop checkout (`src/server/whop.ts`) for the product's plan, with the buyer's basedraft id and email as metadata, and sends them to it.
+2. **Paid:** Whop's `payment.succeeded` webhook lands at `<site>/api/whop/webhook`, signed per Standard Webhooks (`src/server/webhooks.ts`). It records the purchase (each event once, however often Whop delivers it), and `refund.created` or an ended membership takes it away again.
+3. **Delivered:** the order email goes out once the webhook has its answer (`src/server/mail.ts`): download the site as a zip, or send it to GitHub. Both links go to `/purchases`, which lists everything the buyer owns, keeps asking after a checkout until the payment lands, and runs the download or GitHub flow from the email's link. Purchases match by account and by email, so buying before signing up works.
 4. **Gated:** see below.
 
 ### What's gated
 
 - **Pro only (signed in, with Pro or Team):** Copy for Figma, Copy for Paper, Download SVG, the whole site to Figma, and section code on the component pages.
-- **Pro, or owning the template:** code export in Studio, Download project and Send to GitHub. `/api/export` and `/api/github/push` check it on the server (`purchases:owns`), in development too.
+- **Pro, or owning the template:** code export in Studio, Download project and Send to GitHub. `/api/export` and `/api/github/push` check it on the server (`purchases_mine`, in `src/server/guard.ts`), in development too.
 - **Free for everyone:** Studio itself, with every template and section to try, and JSON export. Every template is paid: $79 each, or all of them with Pro.
-- **Signed out is always Free.** Pro comes only from a purchase in Convex (`src/site/plan.ts`).
+- **Signed out is always Free.** Pro comes only from a purchase in Supabase (`src/site/plan.ts`).
 - **Previewing Pro, development only:** the switch on the Pro page (or in the Pro card) turns Pro on for a signed-in account without buying it, shows "Pro preview" in the top bar and Studio, and sends an `x-bd-preview` header the server honors only outside production. `BD_EXPORT_OPEN=1` opens code export on a deployment, for a private preview.
 
-To connect Whop: make a product and plan for each of Zuno, Noma, Auren, Pro and Team, set their plan ids, `WHOP_API_KEY` and the webhook's `WHOP_WEBHOOK_SECRET` on the Convex deployment, and subscribe the webhook to `payment.succeeded` and `refund.created`.
+To connect Whop: make a product and plan for each of Zuno, Noma, Auren, Pro and Team, set their plan ids, `WHOP_API_KEY` and the webhook's `WHOP_WEBHOOK_SECRET` in the site's settings, and subscribe the webhook at `<site>/api/whop/webhook` to `payment.succeeded`, `refund.created` and the membership events.
 
 ## Email (Resend)
 
-Templates are in `convex/emails/templates.ts`: the sign-in code, the welcome email (sent 20 seconds after an account is made, so it has the name), the order email for a template or for Pro, a team invite and a shared draft. They're tables and inline styles with a dark mode, and their two images (the mark and the dithered band) are served by the deployment at content-hashed addresses, written by `node scripts/email-assets.mjs`. See them all at `/dev/email` in development.
+Templates are in `src/server/emails/templates.ts`: the sign-in code, the welcome email (once per account, after its first sign in), the order email for a template or for Pro, a team invite and a shared draft. They're tables and inline styles with a dark mode, and their two images (the mark and the dithered band) are served from `public/email` at content-hashed addresses on the live site, written by `node scripts/email-assets.mjs`. See them all at `/dev/email` in development.
 
 ## License
 

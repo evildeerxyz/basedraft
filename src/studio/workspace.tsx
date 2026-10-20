@@ -1,23 +1,22 @@
 "use client";
 
-import { api } from "@convex/_generated/api";
-import type { Id } from "@convex/_generated/dataModel";
 import { BookmarkSimpleIcon, BooksIcon, ClockCounterClockwiseIcon, GlobeHemisphereWestIcon, LinkSimpleIcon, LockSimpleIcon, PlusIcon, TrashIcon, UsersThreeIcon, XIcon } from "@phosphor-icons/react/ssr";
-import { useMutation, useQuery } from "convex/react";
-import type { FunctionReturnType } from "convex/server";
 import { LayoutGroup, motion } from "motion/react";
 import Image from "next/image";
 import { useState, type FormEvent, type ReactNode } from "react";
+import type { Draft, Role } from "@/lib/api";
 import { Input } from "@/ui/field";
 import { Select } from "@/ui/select";
 import { cn } from "@/lib/utils";
 import { Avatar, displayName, type User } from "@/site/auth";
+import { change, refresh, useRpc } from "@/site/db";
 import { Dialog, DialogClose } from "@/site/dialog";
 import { BaseDraftMark } from "@/site/logo";
 import { IconTile } from "@/site/plan-parts";
 import { btn } from "@/site/sheet";
 import { toast } from "@/site/toast";
 import { isFree, sectionOf, sectionShot, templateOf, templateShot, type TemplateSlug } from "@/site/live";
+import { useProjectChannel } from "./channel";
 import { ago } from "./collab";
 import { idOf, type Page, type Project } from "./state";
 import { Tool } from "./ui";
@@ -30,7 +29,22 @@ import { track } from "@/site/analytics";
  * in your account.
  */
 
-const why = (e: unknown) => (e instanceof Error ? e.message.replace(/^.*Uncaught Error: /, "").split("\n")[0] : "Something went wrong.");
+const why = (e: unknown) => (e instanceof Error ? e.message : "Something went wrong.");
+
+const setRole = change("projects_set_role", "projects_people");
+const unshare = change("projects_unshare", "projects_people");
+const setLink = change("projects_set_link", "projects_people");
+const setTeam = change("projects_set_team", "projects_people");
+const removeDraft = change("projects_remove", "projects_list");
+const unsave = change("saved_remove", "saved_list");
+const keep = change("versions_save", "versions_list");
+
+/** Shares a project through the site, which emails them a link to it. */
+async function share(body: { id: string; email: string; role: Role }) {
+  const r = await fetch("/api/share", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  if (!r.ok) throw new Error(((await r.json().catch(() => ({}))) as { error?: string }).error ?? "That didn't go through. Try again.");
+  refresh("projects_people");
+}
 
 /* ---------- share ---------- */
 
@@ -43,13 +57,12 @@ const ACCESS = [
   { value: "view", label: "Anyone with the link can view" },
 ];
 
-export function ShareDialog({ open, onClose, name, user, projectId }: { open: boolean; onClose: () => void; name: string; user: User | null; projectId: Id<"projects"> | null }) {
-  const people = useQuery(api.projects.people, open && projectId ? { id: projectId } : "skip");
-  const invite = useMutation(api.projects.invite);
-  const setRole = useMutation(api.projects.setRole);
-  const unshare = useMutation(api.projects.unshare);
-  const setLink = useMutation(api.projects.setLink);
-  const setTeam = useMutation(api.projects.setTeam);
+export function ShareDialog({ open, onClose, name, user, projectId }: { open: boolean; onClose: () => void; name: string; user: User | null; projectId: string | null }) {
+  const people = useRpc("projects_people", open && projectId ? { id: projectId } : "skip");
+  // Who has it can change in another tab, or by its owner while you look.
+  useProjectChannel(open ? projectId : null, (event) => {
+    if (event === "access" || event === "project") refresh("projects_people");
+  });
   const [email, setEmail] = useState("");
   const [role, setNewRole] = useState("edit");
   const [problem, setProblem] = useState("");
@@ -65,7 +78,7 @@ export function ShareDialog({ open, onClose, name, user, projectId }: { open: bo
     setProblem("");
     setBusy(true);
     try {
-      await invite({ id: projectId, email: em, role: role as "edit" | "view" });
+      await share({ id: projectId, email: em, role: role as Role });
       track("project_shared", { role });
       setEmail("");
       toast(`Shared with ${em}`, { detail: `We emailed them a link. They ${role === "edit" ? "can edit" : "can view"} ${name}.` });
@@ -173,8 +186,8 @@ export function ShareDialog({ open, onClose, name, user, projectId }: { open: bo
             </span>
             {manage ? (
               <>
-                <Select id={`role-${p.id}`} size="sm" value={p.role} onChange={(r) => void run(setRole({ memberId: p.id, role: r as "edit" | "view" }))} options={ROLES} className="w-[110px] shrink-0 [&>button]:h-8 [&>button]:border-transparent [&>button]:bg-transparent [&>button]:px-2" />
-                <Tool label={`Remove ${p.email}`} onClick={() => void run(unshare({ memberId: p.id }))}>
+                <Select id={`role-${p.id}`} size="sm" value={p.role} onChange={(r) => void run(setRole({ member_id: p.id, role: r as Role }))} options={ROLES} className="w-[110px] shrink-0 [&>button]:h-8 [&>button]:border-transparent [&>button]:bg-transparent [&>button]:px-2" />
+                <Tool label={`Remove ${p.email}`} onClick={() => void run(unshare({ member_id: p.id }))}>
                   <XIcon size={13} weight="bold" />
                 </Tool>
               </>
@@ -213,17 +226,14 @@ const TABS: Array<{ id: LibraryTab; label: string }> = [
   { id: "saved", label: "Saved sections" },
 ];
 
-type Draft = NonNullable<FunctionReturnType<typeof api.projects.list>>["mine"][number];
 
-export function LibraryDialog({ tab, onTab, onClose, page, currentId, pro, onOpen, onNewDraft, onInsert }: { tab: LibraryTab | null; onTab: (t: LibraryTab) => void; onClose: () => void; page: Page; currentId: Id<"projects"> | null; pro: boolean; onOpen: (id: Id<"projects">) => void; onNewDraft: () => void; onInsert: (id: string) => void }) {
+export function LibraryDialog({ tab, onTab, onClose, page, currentId, pro, onOpen, onNewDraft, onInsert }: { tab: LibraryTab | null; onTab: (t: LibraryTab) => void; onClose: () => void; page: Page; currentId: string | null; pro: boolean; onOpen: (id: string) => void; onNewDraft: () => void; onInsert: (id: string) => void }) {
   // Holds the tab while the dialog animates out.
   const [last, setLast] = useState<LibraryTab>("drafts");
   if (tab && tab !== last) setLast(tab);
   const shown = tab ?? last;
-  const drafts = useQuery(api.projects.list, tab ? {} : "skip");
-  const saved = useQuery(api.saved.list, tab ? {} : "skip");
-  const unsave = useMutation(api.saved.remove);
-  const remove = useMutation(api.projects.remove);
+  const drafts = useRpc("projects_list", tab ? {} : "skip");
+  const saved = useRpc("saved_list", tab ? {} : "skip");
   const [doomed, setDoomed] = useState<string | null>(null);
   const t = templateOf(page.template)!;
   const tile = "group relative flex w-full flex-col overflow-hidden rounded-[8px] bg-surface text-left shadow-[0_0_0_1px_rgb(var(--bd-ink)/0.08)] transition-shadow hover:shadow-[0_0_0_1px_rgb(var(--bd-ink)/0.16),0_10px_24px_-14px_rgb(var(--bd-shade)/0.4)]";
@@ -253,7 +263,7 @@ export function LibraryDialog({ tab, onTab, onClose, page, currentId, pro, onOpe
             onClick={() => {
               if (doomed !== d.id) return setDoomed(d.id);
               setDoomed(null);
-              remove({ id: d.id }).then(
+              removeDraft({ id: d.id }).then(
                 () => toast(`Deleted ${d.name}`),
                 (e) => toast("Couldn't delete it", { tone: "error", detail: why(e) }),
               );
@@ -477,9 +487,12 @@ function Row({ title, sub, current, named, who, onRestore }: { title: string; su
  * the versions kept in your account (ones you name, and one saved automatically every ten minutes
  * of editing).
  */
-export function HistoryPanel<T>({ past, current, describe, user, projectId, canSave, onRestore, onRestoreSaved, onClose }: { past: T[]; current: T; describe: (a: T, b: T) => string; user: User; projectId: Id<"projects"> | null; canSave: boolean; onRestore: (v: T) => void; onRestoreSaved: (id: Id<"versions">) => void; onClose: () => void }) {
-  const saved = useQuery(api.versions.list, projectId ? { projectId } : "skip");
-  const keep = useMutation(api.versions.save);
+export function HistoryPanel<T>({ past, current, describe, user, projectId, canSave, onRestore, onRestoreSaved, onClose }: { past: T[]; current: T; describe: (a: T, b: T) => string; user: User; projectId: string | null; canSave: boolean; onRestore: (v: T) => void; onRestoreSaved: (id: string) => void; onClose: () => void }) {
+  const saved = useRpc("versions_list", projectId ? { project_id: projectId } : "skip");
+  // Versions kept by anyone, and the automatic ones saving keeps.
+  useProjectChannel(projectId, (event) => {
+    if (event === "versions" || event === "joined") refresh("versions_list");
+  });
   const [naming, setNaming] = useState<string | null>(null);
   const versions = [...past, current];
   const n = versions.length - 1;
@@ -493,7 +506,7 @@ export function HistoryPanel<T>({ past, current, describe, user, projectId, canS
     e.preventDefault();
     if (!projectId || naming === null) return;
     try {
-      await keep({ projectId, name: naming.trim() || "Saved version" });
+      await keep({ project_id: projectId, name: naming.trim() || "Saved version" });
       toast("Version saved", { detail: "It's in your account, ready to go back to." });
       setNaming(null);
     } catch (err) {

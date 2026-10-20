@@ -1,6 +1,6 @@
-import { api } from "@convex/_generated/api";
 import type { NextRequest } from "next/server";
-import { fetchAuthQuery } from "@/lib/auth-server";
+import { unlocked } from "@/lib/products";
+import { asUser, call, SUPABASE_ON } from "./supabase";
 
 /*
  * Checks for the routes that hand out a template's code.
@@ -15,8 +15,10 @@ import { fetchAuthQuery } from "@/lib/auth-server";
 export async function mayExport(template: string, req?: NextRequest) {
   if (process.env.BD_EXPORT_OPEN === "1") return true;
   if (process.env.NODE_ENV !== "production" && req?.headers.get("x-bd-preview") === "pro") return true;
+  if (!SUPABASE_ON) return false;
   try {
-    return await fetchAuthQuery(api.purchases.owns, { template });
+    const mine = await call(await asUser(), "purchases_mine", {});
+    return unlocked(mine?.products ?? []).includes(template as never);
   } catch {
     return false;
   }

@@ -3,7 +3,6 @@ import { Geist, Geist_Mono, Instrument_Sans } from "next/font/google";
 import { Analytics } from "@/site/analytics";
 import { AuthModal, ProfileModal } from "@/site/auth";
 import { COLOR_MODE_SCRIPT } from "@/site/color-mode-script";
-import { ConvexClientProvider } from "@/site/convex";
 import { MotionConfig } from "@/site/motion";
 import { ProModal } from "@/site/pro-modal";
 import { Toaster } from "@/site/toast";
@@ -37,16 +36,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script dangerouslySetInnerHTML={{ __html: COLOR_MODE_SCRIPT }} />
       </head>
       <body>
-        <ConvexClientProvider>
-          <MotionConfig>
-            {children}
-            <Toaster />
-            <ProModal />
-            <AuthModal />
-            <ProfileModal />
-            <Analytics />
-          </MotionConfig>
-        </ConvexClientProvider>
+        <MotionConfig>
+          {children}
+          <Toaster />
+          <ProModal />
+          <AuthModal />
+          <ProfileModal />
+          <Analytics />
+        </MotionConfig>
       </body>
     </html>
   );

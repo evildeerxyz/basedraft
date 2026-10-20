@@ -1,15 +1,13 @@
 "use client";
 
-import { api } from "@convex/_generated/api";
-import type { Id } from "@convex/_generated/dataModel";
 import { ArrowClockwiseIcon, ArrowCounterClockwiseIcon, ArrowDownIcon, ArrowUpIcon, ArrowUpRightIcon, BookmarkSimpleIcon, BooksIcon, CaretDownIcon, CaretRightIcon, ChatCircleIcon, CheckIcon, ClockCounterClockwiseIcon, CloudArrowUpIcon, CloudCheckIcon, CloudSlashIcon, CodeIcon, CopyIcon, CursorIcon, DevicesIcon, DiamondIcon, DotsThreeIcon, DownloadSimpleIcon, EyeIcon, FigmaLogoIcon, FileHtmlIcon, FileIcon, FilesIcon, HandIcon, HouseIcon, LockSimpleIcon, MagnifyingGlassPlusIcon, PlayIcon, PlusIcon, QuestionIcon, SidebarSimpleIcon, SignOutIcon, SquaresFourIcon, SwapIcon, TrashIcon, UserCircleIcon, UsersThreeIcon, XIcon } from "@phosphor-icons/react";
-import { useMutation } from "convex/react";
 import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState, type ReactNode } from "react";
 import { cn, EASE_OUT } from "@/lib/utils";
 import { AccountHeader, Avatar, displayName, openAuth, openProfile, signedIn, signOut, useAuth } from "@/site/auth";
+import { change } from "@/site/db";
 import { ColorModeSwitch } from "@/site/color-mode";
 import { copyToDesign, prepareCopy, type CopyKind, type CopyTarget } from "@/site/design-copy";
 import { SectionGlyph } from "@/site/icons";
@@ -45,6 +43,8 @@ import { keepMode, modeIn, themeCss, type Mode, type Theme } from "@/site/theme"
 import { StylePanel } from "./style";
 import { Preloader } from "./preloader";
 import { PreviewView, type Viewport } from "./preview";
+
+const keepSection = change("saved_add", "saved_list");
 
 const NO_KEYS: string[] = [];
 const NO_REFS: TextRef[] = [];
@@ -437,10 +437,9 @@ export default function Studio() {
   const here = viewKey(view);
   const presence = usePresence(cloud.id, here, selected);
   const comments = useComments(cloud.id);
-  const keepSection = useMutation(api.saved.add);
   // Comment mode: clicks on the page place a comment; the inspector lists every thread.
   const [commenting, setCommenting] = useState(false);
-  const [thread, setThread] = useState<Id<"comments"> | null>(null);
+  const [thread, setThread] = useState<string | null>(null);
   const [draft, setDraft] = useState<Spot | null>(null);
   const [showResolved, setShowResolved] = useState(false);
   // Version history takes over the inspector, as in Figma.
@@ -756,10 +755,10 @@ export default function Studio() {
     dispatch({ type: "change", project: structuredClone(p) });
     toast("Restored that version", { detail: "{Cmd Z} takes you back." });
   };
-  const restoreSaved = (id: Id<"versions">) =>
+  const restoreSaved = (id: string) =>
     cloud.restoreVersion(id).then(restore, (e) => toast("Couldn't restore that version", { tone: "error", detail: e instanceof Error ? e.message : undefined }));
   const share = () => (user ? setSharing(true) : openAuth("sign-up", { reason: "share", then: () => setSharing(true) }));
-  const openDraft = (id: Id<"projects">) => {
+  const openDraft = (id: string) => {
     setLibrary(null);
     setThread(null);
     setDraft(null);
@@ -769,7 +768,7 @@ export default function Studio() {
     const s = sectionOf(project.template, idOf(key));
     if (!s) return;
     if (!user) return openAuth("sign-up", { reason: "library" });
-    keepSection({ template: project.template, sectionId: s.id }).then(
+    keepSection({ template: project.template, section_id: s.id }).then(
       () => toast(`Saved ${s.name} to your Library`, { detail: `It's there for any ${t.name} page.` }),
       () => toast("Couldn't save it", { tone: "error" }),
     );

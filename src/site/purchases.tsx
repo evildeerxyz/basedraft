@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { GitHubPanel } from "@/studio/github";
 import { newProject } from "@/studio/state";
 import { openAuth, useAuth } from "./auth";
+import { refresh } from "./db";
 import { Dialog, DialogClose } from "./dialog";
 import { TEMPLATES, templateOf, templateShot, type TemplateSlug } from "./live";
 import { previewHeaders, usePlan, usePurchases } from "./plan";
@@ -19,8 +20,8 @@ import { FrameworkSwitch, useFramework, type Framework } from "./framework";
 /*
  * What you've bought, and the two ways to take a template: the whole site as a zip, or a GitHub
  * repository made with it. The order email links here (?download=zuno, ?github=zuno), and Whop
- * sends people back here after checkout (?checkout=done), where the purchase shows up the moment
- * its webhook lands.
+ * sends people back here after checkout (?checkout=done), where the purchase shows up as soon as
+ * its webhook lands: until then, the page asks every few seconds.
  */
 
 const NAMES: Record<string, string> = { pro: "basedraft Pro", team: "basedraft Team" };
@@ -50,6 +51,12 @@ export function Purchases() {
   const unlocked = new Set<string>(plan === "pro" ? TEMPLATES.map((t) => t.slug) : (mine?.templates ?? []));
   const bought = q.get("checkout") === "done" ? q.get("product") : null;
   const arrived = bought ? Boolean(mine?.products.includes(bought)) : false;
+  const waiting = Boolean(bought && user && !arrived);
+  useEffect(() => {
+    if (!waiting) return;
+    const t = setInterval(() => refresh("purchases_mine"), 3000);
+    return () => clearInterval(t);
+  }, [waiting]);
 
   const take = async (slug: TemplateSlug, as: Framework = framework) => {
     setBusy(slug);

@@ -1,10 +1,10 @@
 /*
  * The images basedraft's emails use, as PNGs (email clients don't draw SVG), written into
- * convex/emails/assets.ts and served by the Convex deployment at /email/<name>.png.
+ * public/email/<name>-<hash>.png, served by the site, and listed in src/server/emails/assets.ts.
  *   node scripts/email-assets.mjs
  */
 import { createHash } from "node:crypto";
-import { readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import sharp from "sharp";
 
 const BAYER4 = [[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]].map((r) => r.map((v) => (v + 0.5) / 16));
@@ -32,9 +32,11 @@ const sky = await sharp(px, { raw: { width: W, height: H, channels: 4 } }).png({
 // Each file's name carries a hash of its bytes: mail apps and CDNs cache images for a long time,
 // so a changed image needs a new address.
 const files = { mark, "mark-light": markLight, sky };
-const entries = Object.entries(files).map(([name, buf]) => [name, `/email/${name}-${createHash("sha256").update(buf).digest("hex").slice(0, 10)}.png`, buf.toString("base64")]);
+const entries = Object.entries(files).map(([name, buf]) => [name, `/email/${name}-${createHash("sha256").update(buf).digest("hex").slice(0, 10)}.png`, buf]);
+mkdirSync("public/email", { recursive: true });
+for (const [, path, buf] of entries) writeFileSync(`public${path}`, buf);
 writeFileSync(
-  "convex/emails/assets.ts",
-  `/* Written by scripts/email-assets.mjs. The emails' images, each served at its path. */\nexport const ASSETS: Record<string, { path: string; data: string }> = {\n${entries.map(([n, path, data]) => `  ${JSON.stringify(n)}: { path: "${path}", data: "${data}" },`).join("\n")}\n};\n`,
+  "src/server/emails/assets.ts",
+  `/* Written by scripts/email-assets.mjs. The emails' images, each in public/ at its path. */\nexport const ASSETS: Record<string, { path: string }> = {\n${entries.map(([n, path]) => `  ${JSON.stringify(n)}: { path: "${path}" },`).join("\n")}\n};\n`,
 );
 console.log("mark", mark.length, "bytes; sky", sky.length, "bytes");

@@ -1,21 +1,22 @@
 "use client";
 
-import { api } from "@convex/_generated/api";
-import type { Id } from "@convex/_generated/dataModel";
 import { ArrowUpIcon, ChatCircleIcon, CheckCircleIcon, CheckIcon, TrashIcon, XIcon } from "@phosphor-icons/react";
-import { useMutation, useQuery } from "convex/react";
-import type { FunctionReturnType } from "convex/server";
-import { useCallback, useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import type { CommentRow } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { displayName, useAuth } from "@/site/auth";
+import { refresh, rpc, useRpc } from "@/site/db";
 import { toast } from "@/site/toast";
 import { DEVICE_LABEL, steady, type CanvasDevice, type Spot } from "./canvas";
+import { send, useProjectChannel } from "./channel";
 import type { View } from "./state";
 import { Tool } from "./ui";
 
 /*
  * Working on a project together: who else is in it and where their pointer is, and comments
- * pinned to the page. Pointers go out a few times a second while they move, and every few
- * seconds otherwise, so a quiet tab still shows as here.
+ * pinned to the page. Pointers go out on the project's live channel (./channel) a few times a
+ * second while they move, and every few seconds otherwise, so a quiet tab still shows as here;
+ * someone not heard from for a while has left.
  */
 
 export const viewKey = (v: View) => (v.kind === "page" ? `page:${v.id}` : `route:${v.path}`);
@@ -50,47 +51,78 @@ export function Face({ name, color, size = 24, className }: { name: string; colo
 
 /* ---------- presence ---------- */
 
-export type Person = FunctionReturnType<typeof api.presence.list>[number];
+/** Someone else in the project, and where they are in it. */
+export type Person = { userId: string; name: string; color: string; view: string; device: string | null; x: number | null; y: number | null; selected: string | null; at: number };
 const FRESH = 20_000;
 const EVERY = 100;
 
-export function usePresence(projectId: Id<"projects"> | null, view: string, selected: string | null) {
-  const others = useQuery(api.presence.list, projectId ? { projectId } : "skip");
-  const update = useMutation(api.presence.update);
-  const leave = useMutation(api.presence.leave);
+/** A steady color per person, for their cursor and comment pins. */
+const COLORS = ["#9747ff", "#0d99ff", "#14ae5c", "#f24822", "#ff8c00", "#e33bb0", "#00a3a3", "#6b5cff"];
+export function colorFor(id: string) {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+  return COLORS[h % COLORS.length];
+}
+
+export function usePresence(projectId: string | null, view: string, selected: string | null) {
+  const { user } = useAuth();
+  // Who's been heard from, in this project.
+  const [heard, setHeard] = useState<{ projectId: string | null; people: Record<string, Person> }>({ projectId: null, people: {} });
   const point = useRef<Spot | null>(null);
-  const now = useRef({ projectId, view, selected });
+  const now = useRef({ projectId, view, selected, user });
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const sent = useRef(0);
 
+  // Signed in, this tab says where it is. Signed out, it only watches.
   const flush = useCallback(() => {
     timer.current = null;
-    const { projectId: id, view: v, selected: sel } = now.current;
-    if (!id) return;
+    const { projectId: id, view: v, selected: sel, user: me } = now.current;
+    if (!id || !me) return;
     sent.current = Date.now();
     const p = point.current;
-    update({ projectId: id, view: v, device: p?.device, x: p?.x, y: p?.y, selected: sel ?? undefined }).catch(() => {});
-  }, [update]);
+    send(id, "here", { userId: me.id, name: displayName(me), color: colorFor(me.id), view: v, device: p?.device ?? null, x: p?.x ?? null, y: p?.y ?? null, selected: sel ?? null });
+  }, []);
   const soon = useCallback(() => {
     if (timer.current !== null) return;
     timer.current = setTimeout(flush, Math.max(0, EVERY - (Date.now() - sent.current)));
   }, [flush]);
 
+  useProjectChannel(projectId, (event, said) => {
+    const who = typeof said.userId === "string" ? said.userId : null;
+    if (event === "here" && who && who !== now.current.user?.id) {
+      const person = { ...(said as Person), at: Date.now() };
+      setHeard((h) => ({ projectId, people: { ...(h.projectId === projectId ? h.people : {}), [who]: person } }));
+    } else if (event === "gone" && who) {
+      setHeard((h) => {
+        const people = { ...(h.projectId === projectId ? h.people : {}) };
+        delete people[who];
+        return { projectId, people };
+      });
+    } else if (event === "joined" || event === "hello") {
+      // Just here: everyone else says where they are now, rather than at their next beat.
+      if (event === "joined" && projectId) send(projectId, "hello", {});
+      soon();
+    }
+  });
+
   useEffect(() => {
-    now.current = { projectId, view, selected };
+    now.current = { projectId, view, selected, user };
     soon();
-  }, [projectId, view, selected, soon]);
+  }, [projectId, view, selected, user, soon]);
   useEffect(() => {
     if (!projectId) return;
     const beat = setInterval(soon, 8000);
-    const bye = () => void leave({ projectId }).catch(() => {});
+    const bye = () => {
+      const me = now.current.user;
+      if (me) send(projectId, "gone", { userId: me.id });
+    };
     window.addEventListener("pagehide", bye);
     return () => {
       clearInterval(beat);
       window.removeEventListener("pagehide", bye);
       bye();
     };
-  }, [projectId, soon, leave]);
+  }, [projectId, soon]);
 
   const onPointer = useCallback(
     (s: Spot | null) => {
@@ -106,7 +138,7 @@ export function usePresence(projectId: Id<"projects"> | null, view: string, sele
     const t = setInterval(() => setClock(Date.now()), 5000);
     return () => clearInterval(t);
   }, []);
-  const people = (others ?? []).filter((o) => !clock || o.at > clock - FRESH);
+  const people = Object.values(heard.projectId === projectId ? heard.people : {}).filter((o) => !clock || o.at > clock - FRESH);
   return { people, onPointer };
 }
 
@@ -135,24 +167,28 @@ export function Cursors({ people, view, place }: { people: Person[]; view: strin
 
 /* ---------- comments ---------- */
 
-export type Comment = FunctionReturnType<typeof api.comments.list>[number];
+export type Comment = CommentRow & { color: string };
+type NewComment = { projectId: string; view: string; device?: string; anchor?: string; x: number; y: number; body: string; parentId?: string };
 export const spotOf = (c: Pick<Comment, "device" | "x" | "y" | "anchor">): Spot => ({ device: (c.device ?? "desktop") as CanvasDevice, x: c.x, y: c.y, anchor: c.anchor });
 
-export function useComments(projectId: Id<"projects"> | null) {
-  const list = useQuery(api.comments.list, projectId ? { projectId } : "skip");
-  const create = useMutation(api.comments.create);
-  const resolve = useMutation(api.comments.resolve);
-  const remove = useMutation(api.comments.remove);
+export function useComments(projectId: string | null) {
+  const list = useRpc("comments_list", projectId ? { project_id: projectId } : "skip");
+  // Anyone's comment, as it's posted, resolved or deleted.
+  useProjectChannel(projectId, (event) => {
+    if (event === "comments" || event === "joined") refresh("comments_list");
+  });
+  const all = useMemo(() => (list ?? []).map((c) => ({ ...c, color: colorFor(c.authorId ?? "") })), [list]);
   const fail = (what: string) => (e: unknown) => {
-    toast(`Couldn't ${what}`, { tone: "error", detail: e instanceof Error ? e.message.replace(/^.*Uncaught Error: /, "").split("\n")[0] : undefined });
+    toast(`Couldn't ${what}`, { tone: "error", detail: e instanceof Error ? e.message : undefined });
     return null;
   };
+  const done = <T,>(p: Promise<T>) => p.then((r) => (refresh("comments_list"), r));
   return {
-    all: list ?? [],
+    all,
     loaded: list !== undefined,
-    create: (a: Parameters<typeof create>[0]) => create(a).catch(fail("post that comment")),
-    resolve: (id: Id<"comments">, resolved: boolean) => resolve({ id, resolved }).catch(fail(resolved ? "resolve it" : "reopen it")),
-    remove: (id: Id<"comments">) => remove({ id }).catch(fail("delete it")),
+    create: (a: NewComment) => done(rpc("comments_create", { project_id: a.projectId, view: a.view, device: a.device, anchor: a.anchor, x: a.x, y: a.y, body: a.body, parent_id: a.parentId })).catch(fail("post that comment")),
+    resolve: (id: string, resolved: boolean) => done(rpc("comments_resolve", { id, resolved })).catch(fail(resolved ? "resolve it" : "reopen it")),
+    remove: (id: string) => done(rpc("comments_remove", { id })).catch(fail("delete it")),
   };
 }
 
@@ -286,14 +322,14 @@ export function CommentLayer({
   comments: Comment[];
   view: string;
   place: (s: Spot) => { left: number; top: number } | null;
-  open: Id<"comments"> | null;
+  open: string | null;
   draft: Spot | null;
   me: string | null;
   myName: string;
   myColor: string;
   isOwner: boolean;
   showResolved: boolean;
-  onOpen: (id: Id<"comments"> | null) => void;
+  onOpen: (id: string | null) => void;
   onPost: (body: string) => Promise<unknown>;
   onReply: (root: Comment, body: string) => Promise<unknown>;
   onResolve: (root: Comment) => void;
@@ -329,7 +365,7 @@ export function CommentLayer({
 }
 
 /** Every thread in the project, in the inspector while commenting: click one to go to it. */
-export function CommentsPanel({ comments, loaded, labelOf, open, showResolved, onShowResolved, onGo, onClose, signedIn }: { comments: Comment[]; loaded: boolean; labelOf: (view: string) => string; open: Id<"comments"> | null; showResolved: boolean; onShowResolved: (v: boolean) => void; onGo: (c: Comment) => void; onClose: () => void; signedIn: boolean }) {
+export function CommentsPanel({ comments, loaded, labelOf, open, showResolved, onShowResolved, onGo, onClose, signedIn }: { comments: Comment[]; loaded: boolean; labelOf: (view: string) => string; open: string | null; showResolved: boolean; onShowResolved: (v: boolean) => void; onGo: (c: Comment) => void; onClose: () => void; signedIn: boolean }) {
   const roots = comments.filter((c) => !c.parentId && (showResolved || !c.resolved)).sort((a, b) => b.at - a.at);
   const resolved = comments.filter((c) => !c.parentId && c.resolved).length;
   return (

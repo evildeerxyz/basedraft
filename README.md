@@ -153,17 +153,16 @@ Settings in the Supabase dashboard (Authentication):
 
 - **Email:** OTP length 6, OTP expiry 600 seconds (both set).
 - **URL configuration:** site URL `https://basedraft.site`; redirect URLs `http://localhost:3400/**` and `https://basedraft.site/**` (both set).
-- **Hooks, Send Email:** HTTPS, `https://basedraft.site/api/auth/email`, with the secret in `SEND_EMAIL_HOOK_SECRET` (set, and off until the site that answers it is live: until then Supabase sends its own email, with a sign-in link, and only to the project's team). Then raise the email rate limit under Rate Limits.
+- **Hooks, Send Email:** on: HTTPS, `https://basedraft.site/api/auth/email`, with the secret in `SEND_EMAIL_HOOK_SECRET`. Turned off, Supabase sends its own email instead, with a sign-in link (which `/api/auth/callback` also takes), and only to the project's team.
+- **Rate limits:** 100 emails an hour.
 - **Sign In / Providers, Google:** on, with the site's Google client id and secret. Google sign in goes through the site, not Supabase's address (`src/server/google.ts`): Google sends people back to `<site>/api/auth/callback/google`, the address its OAuth client already allows (and the one its consent screen names), and the site hands Supabase Google's ID token (`signInWithIdToken`). So the site needs `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` too.
 - **Sign In / Providers, GitHub:** off. Turned on, it uses Supabase's own flow, with `https://rgrnoosyaistemnmmiwl.supabase.co/auth/v1/callback` as the GitHub OAuth app's callback.
 
-### Moving from Convex
+### Moved from Convex (October 20, 2026)
 
-The code has moved; the data moves once, just before the new site goes live:
+Everything moved: the code, the settings (the Worker's secrets and vars), and the data, copied by `scripts/convex-to-supabase.mjs --prod` (4 accounts, 3 purchases, 8 projects with their versions, comments and share, and an image). Accounts kept their emails, already confirmed, so people sign in with a code as before; they're signed out once, since Better Auth's sessions don't carry over. Projects kept their Convex ids, so old links still open them.
 
-1. Set the Worker's secrets and vars (see Deploying), copying the values that were on Convex (`npx convex env list --prod`): Resend, Whop and the plan ids.
-2. `node scripts/convex-to-supabase.mjs --prod --dry-run`, then without `--dry-run` (Node 22). It copies accounts (same emails, confirmed: people sign in with a code as before), purchases, teams, projects with their shares, versions and comments, saved sections, and moves images to the bucket. Projects keep their Convex ids, so old links still open them.
-3. `node scripts/cf-deploy.mjs`, then turn the Send Email hook on, point Whop's webhook at `https://basedraft.site/api/whop/webhook`, and give the Google and GitHub OAuth apps Supabase's callback.
+One thing still runs on Convex: Whop's webhook points at `https://charming-giraffe-71.convex.site/whop/webhook`, and Convex's production deployment now passes each delivery, untouched, to `https://basedraft.site/api/whop/webhook` (the last Convex code, `735d8e7`, with `convex/whop.ts` forwarding). Whop's API key can't change webhooks, so this is left to do by hand: in Whop's dashboard (Developer, Webhooks), point the webhook at `https://basedraft.site/api/whop/webhook`, keeping its secret. Then the Convex project can be deleted; its free plan is over its limits, so do it soon.
 
 ## Selling and delivery (Whop)
 

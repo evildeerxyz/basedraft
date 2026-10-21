@@ -15,7 +15,6 @@ import {
   ImageSquareIcon,
   MagnetIcon,
   MonitorIcon,
-  SparkleIcon,
   TextTIcon,
   TrashIcon,
 } from "@phosphor-icons/react";
@@ -37,6 +36,7 @@ import { Switch } from "./ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Textarea } from "./ui/textarea";
 import { Tooltip } from "./ui/tooltip";
+import { ClaudeMark } from "@/site/claude-mark";
 
 /*
  * Each component in a small moment from basedraft's world: publishing a site to GitHub, a Studio
@@ -102,7 +102,7 @@ function TextareaDemo() {
   return (
     <div className="grid w-full max-w-[350px] gap-2">
       <p className="flex items-center gap-1.5 text-xs font-medium text-[var(--bd-muted)]">
-        <SparkleIcon size={13} weight="duotone" /> Tell Claude Code what to change
+        <ClaudeMark size={13} /> Tell Claude Code what to change
       </p>
       <Textarea maxLength={160} showCount defaultValue="Make the hero about tax-loss harvesting, and keep the headline to two lines." aria-label="What to change" />
     </div>

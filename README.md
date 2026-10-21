@@ -135,6 +135,7 @@ Locally, each template is its own Next app (`next start` on 4101 to 4103) and `n
 - **Around every page:** an announcement strip (closed for good once you close it; `announce-script.ts` keeps it from flashing), then the header: a plain bar at the top that gathers into a frosted capsule as you scroll. On the docs pages (`/components`, `/blocks`) it stays a plain full-width bar with a hairline, the way a docs site is laid out, and those pages have no footer. Elsewhere the footer is one big light card, ending in the name drawn as a live GPU dither the way Zuno draws its own (`src/site/wordmark.tsx`).
 - **Copy:** US English, plain words, no em dashes.
 - **Thumbnails** are real renders: `npm run shots` (or `shots -- studio | sections | templates`) while the app runs.
+- **Share cards** are real renders too: every page's 1200 by 630 card, the hero's light with the page's icon, name and a line, drawn at `/dev/og` and saved by `node scripts/og.mjs` (while the app runs) into `public/og`. `src/site/og.ts` points each page at its own; released templates only.
 
 ## Accounts and data (Supabase)
 

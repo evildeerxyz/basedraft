@@ -19,7 +19,6 @@ import {
   MagnifyingGlassIcon,
   MoonIcon,
   SlidersHorizontalIcon,
-  SparkleIcon,
   SquaresFourIcon,
   StackIcon,
   SunIcon,
@@ -39,6 +38,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { COMPONENTS, componentOf, GROUPS, installCommand, themeCommand, type ComponentMeta } from "@/registry";
 import { DEMOS } from "@/registry/demos";
+import { ClaudeMark, CLAUDE_COLOR } from "./claude-mark";
 import { CodeBlock, usesWord } from "./code";
 import { useColorMode, type ColorMode } from "./color-mode";
 import { Dock, DockPill, PieceMenu, TILE, TileArrow, useBackToTop } from "./library";
@@ -281,7 +281,7 @@ export function ClaudeCodeButton({ prompt, label = "Copy for Claude Code", small
     <button type="button" onClick={() => copy(prompt)} className={cn("btn-metal inline-flex shrink-0 items-center gap-2 rounded-full font-medium", small ? "h-9 px-3.5 text-[12.5px]" : "h-12 px-6 text-ui")}>
       <AnimatePresence mode="popLayout" initial={false}>
         <motion.span key={copied ? "done" : "copy"} initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.6, opacity: 0 }} transition={{ type: "spring", stiffness: 600, damping: 30 }} className="grid place-items-center">
-          {copied ? <CheckIcon size={15} weight="regular" /> : <SparkleIcon size={15} weight="duotone" />}
+          {copied ? <CheckIcon size={15} weight="regular" /> : <ClaudeMark size={15} />}
         </motion.span>
       </AnimatePresence>
       {copied ? "Prompt copied" : label}
@@ -392,7 +392,7 @@ function FileCard({ icon: I, file, note, href, command, lead }: { icon: Icon; fi
 
 const TAKE = [
   { id: "download", label: "Download", icon: DownloadSimpleIcon },
-  { id: "claude", label: "Claude Code", icon: SparkleIcon },
+  { id: "claude", label: "Claude Code", icon: ClaudeMark },
   { id: "code", label: "Copy the code", icon: CodeIcon },
 ] as const;
 type Take = (typeof TAKE)[number]["id"];
@@ -478,8 +478,8 @@ export function TakeComponent({ name, title, deps, source, prompt }: { name: str
               {way === "claude" && (
                 <>
                   <div className="flex gap-3">
-                    <span className="grid size-9 shrink-0 place-items-center rounded-full bg-fg text-canvas">
-                      <SparkleIcon size={16} weight="duotone" />
+                    <span className="grid size-9 shrink-0 place-items-center rounded-full" style={{ background: `color-mix(in oklab, ${CLAUDE_COLOR} 14%, transparent)` }}>
+                      <ClaudeMark size={18} />
                     </span>
                     <p className="min-w-0 flex-1 rounded-[18px] rounded-tl-[6px] bg-fg/[0.04] px-4 py-3.5 text-[14px] leading-[1.65] text-fg">{prompt}</p>
                   </div>

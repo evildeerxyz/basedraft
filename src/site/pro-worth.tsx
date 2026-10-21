@@ -1,4 +1,4 @@
-import { ArrowRightIcon, CodeIcon, FigmaLogoIcon, PenNibIcon, ShieldCheckIcon, SparkleIcon } from "@phosphor-icons/react/ssr";
+import { ArrowRightIcon, CodeIcon, FigmaLogoIcon, PenNibIcon, ShieldCheckIcon } from "@phosphor-icons/react/ssr";
 import type { Icon } from "@phosphor-icons/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { CHANGELOG } from "./changelog";
 import { SECTIONS, TEMPLATES, templateLogo } from "./live";
 import { ShellLine } from "./shell-line";
+import { ClaudeMark } from "./claude-mark";
 
 /*
  * What Pro pays for, as a grid of what's really in it: the templates and their sections, Studio,
@@ -16,7 +17,7 @@ import { ShellLine } from "./shell-line";
 
 const CARD = "flex flex-col rounded-[28px] border border-line bg-surface p-6 sm:p-7";
 
-function Tile({ icon: I, title, children, className, foot }: { icon: Icon; title: string; children: ReactNode; className?: string; foot?: ReactNode }) {
+function Tile({ icon: I, title, children, className, foot }: { icon: Icon | typeof ClaudeMark; title: string; children: ReactNode; className?: string; foot?: ReactNode }) {
   return (
     <li className={cn(CARD, className)}>
       <span className="grid size-10 place-items-center rounded-[12px] bg-brand-soft text-brand-ink">
@@ -83,7 +84,7 @@ export function ProWorth() {
       <Tile icon={CodeIcon} title="The code, your way" foot={<div className="overflow-x-auto rounded-[14px] bg-surface-2 px-3.5 py-2.5 no-scrollbar"><ShellLine command="npm install && npm run dev" className="whitespace-nowrap text-[12px]" /></div>}>
         Next.js 16 or Astro 7. Download the project, or send it to GitHub as a new repository or a pull request.
       </Tile>
-      <Tile icon={SparkleIcon} title="Ready for Claude Code" foot={<div className="overflow-x-auto rounded-[14px] bg-surface-2 px-3.5 py-2.5 no-scrollbar"><ShellLine command="curl https://basedraft.site/llms.txt" className="whitespace-nowrap text-[12px]" /></div>}>
+      <Tile icon={ClaudeMark} title="Ready for Claude Code" foot={<div className="overflow-x-auto rounded-[14px] bg-surface-2 px-3.5 py-2.5 no-scrollbar"><ShellLine command="curl https://basedraft.site/llms.txt" className="whitespace-nowrap text-[12px]" /></div>}>
         A prompt that sets a template up in Claude Code, components that download as single files, and /llms.txt for AI tools.
       </Tile>
       {/* Every update after today, with the latest few to show it's real. */}

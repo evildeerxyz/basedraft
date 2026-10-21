@@ -13,6 +13,7 @@ import { TemplateBuy, TemplatePrice } from "@/site/template-buy";
 import { TemplateLogo } from "@/site/template-parts";
 import { TakeHome, TemplateLive } from "@/site/template-preview";
 import { COLORS, SLOT_LABEL, SLOTS } from "@/site/theme";
+import { withCard } from "@/site/og";
 
 export function generateStaticParams() {
   return TEMPLATES.map((t) => ({ slug: t.slug }));
@@ -20,7 +21,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps<"/templates/[slug]">): Promise<Metadata> {
   const t = templateOf((await params).slug);
-  return t ? { title: `${t.name} template`, description: t.description } : {};
+  return t ? withCard(`template-${t.slug}`, { title: `${t.name} template`, description: t.description }) : {};
 }
 
 /*

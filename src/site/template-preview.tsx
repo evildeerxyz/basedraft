@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckIcon, CopyIcon, DownloadSimpleIcon, GithubLogoIcon, TerminalWindowIcon } from "@phosphor-icons/react";
+import { CheckIcon, CopyIcon, DownloadSimpleIcon, GithubLogoIcon } from "@phosphor-icons/react";
 import { LayoutGroup, motion } from "motion/react";
 import Link from "next/link";
 import { useEffect, useId, useState, type ReactNode } from "react";
@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { DeviceFrame } from "./frames";
 import { composeUrl, liveUrl, templateOf, viewUrl } from "./live";
 import { ShellLine } from "./shell-line";
+import { ClaudeMark } from "./claude-mark";
 
 const SLIDE = { type: "spring", stiffness: 520, damping: 42 } as const;
 
@@ -88,7 +89,7 @@ export function CopyCommand({ command }: { command: string }) {
 const WAYS = [
   { id: "download", label: "Download", icon: DownloadSimpleIcon },
   { id: "github", label: "GitHub", icon: GithubLogoIcon },
-  { id: "claude", label: "Claude Code", icon: TerminalWindowIcon },
+  { id: "claude", label: "Claude Code", icon: ClaudeMark },
 ] as const;
 type Way = (typeof WAYS)[number]["id"];
 

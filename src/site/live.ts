@@ -93,6 +93,8 @@ const ALL: LiveTemplate[] = [load(zuno as Manifest), load(noma as Manifest), loa
 // A template that isn't out yet (marked in scripts/zones.mjs) is only here in development.
 const UNRELEASED = new Set<string>(ZONES.filter((z) => "unreleased" in z && z.unreleased).map((z) => z.slug));
 export const TEMPLATES: LiveTemplate[] = process.env.NODE_ENV === "production" ? ALL.filter((t) => !UNRELEASED.has(t.slug)) : ALL;
+/** The released templates only, in development too, for what is drawn ahead of a deploy, like the share cards (scripts/og.mjs). */
+export const RELEASED_TEMPLATES: LiveTemplate[] = ALL.filter((t) => !UNRELEASED.has(t.slug));
 export const SECTIONS: LiveSection[] = TEMPLATES.flatMap((t) => t.sections);
 
 export const templateOf = (slug: string) => TEMPLATES.find((t) => t.slug === slug);

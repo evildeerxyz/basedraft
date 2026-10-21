@@ -10,11 +10,9 @@ import { ProWorth } from "@/site/pro-worth";
 import { wrap } from "@/site/sheet";
 import { SectionHeading } from "@/site/showcase";
 import { cn } from "@/lib/utils";
+import { withCard } from "@/site/og";
 
-export const metadata: Metadata = {
-  title: "basedraft Pro",
-  description: "Every template and all their sections, copy to Figma and Paper, the code in Next.js or Astro downloaded or sent to GitHub, and every future update, for one payment.",
-};
+export const metadata: Metadata = withCard("pro", { title: "basedraft Pro", description: "Every template and all their sections, copy to Figma and Paper, the code in Next.js or Astro downloaded or sent to GitHub, and every future update, for one payment." });
 
 /*
  * Pricing, top to bottom: the plans, what Pro pays for, a way to work out your own price (one

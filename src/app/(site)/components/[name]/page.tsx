@@ -8,6 +8,7 @@ import { SOURCES } from "@/registry/sources";
 import { FactPill, PieceHead, PieceNav, PiecePart } from "@/site/library";
 import { LIB_WRAP } from "@/site/library-css";
 import { ComponentGlyph, ComponentMenu, MoreComponents, TakeComponent, UsageCard, Workbench } from "@/site/ui-library";
+import { withCard } from "@/site/og";
 
 /* Packages a component can need beyond React, by how its source imports them. */
 const PACKAGES = ["motion", "@phosphor-icons/react"];
@@ -19,7 +20,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps<"/components/[name]">): Promise<Metadata> {
   const c = componentOf((await params).name);
-  return c ? { title: `${c.title} component`, description: `${c.description} Part of basedraft UI: free, one file to copy or download.` } : {};
+  return c ? withCard(`component-${c.name}`, { title: `${c.title} component`, description: `${c.description} Part of basedraft UI: free, one file to copy or download.` }) : {};
 }
 
 /* Prerendered for every component; the name is read inside Suspense so the route's shell stays instant. */

@@ -8,6 +8,7 @@ import { MotionConfig } from "@/site/motion";
 import { ProModal } from "@/site/pro-modal";
 import { Toaster } from "@/site/toast";
 import "./globals.css";
+import { shareCard } from "@/site/og";
 
 /* basedraft's own faces, the ones the first paint needs: Instrument Sans for the big type, Inter for text. Templates bring theirs. */
 const instrument = Instrument_Sans({ variable: "--font-instrument", subsets: ["latin"] });
@@ -20,6 +21,8 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://basedraft.site"),
   title: { default: "basedraft | Landing pages that look finished", template: "%s | basedraft" },
   description: "Finished landing sites, in Next.js and Astro, and every section in them, to arrange in Studio, copy into Figma and ship as code.",
+  // Every page shares with this card unless it has its own (src/site/og.ts).
+  ...shareCard("home", "basedraft | Landing pages that look finished", "Finished landing sites, in Next.js and Astro, and every section in them, to arrange in Studio, copy into Figma and ship as code."),
 };
 
 export const viewport: Viewport = {

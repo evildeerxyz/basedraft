@@ -6,11 +6,9 @@ import { BlocksBrowser, HeroFacts, LibraryHero, NextUp } from "@/site/library";
 import { LIB_WRAP } from "@/site/library-css";
 import { SECTIONS, TEMPLATES, USED_KINDS } from "@/site/live";
 import { btnLg } from "@/site/sheet";
+import { withCard } from "@/site/og";
 
-export const metadata: Metadata = {
-  title: "Blocks",
-  description: "Every section from the basedraft templates, live, at any width, with its code and a copy for Figma.",
-};
+export const metadata: Metadata = withCard("blocks", { title: "Blocks", description: "Every section from the basedraft templates, live, at any width, with its code and a copy for Figma." });
 
 /* Blocks: a light card that says what they are, then every section, a group per kind, which the dock filters. */
 export default function BlocksPage() {

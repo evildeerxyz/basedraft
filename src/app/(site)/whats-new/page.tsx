@@ -4,11 +4,9 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { CHANGELOG, dayLabel, type ChangeTag } from "@/site/changelog";
 import { wrap } from "@/site/sheet";
+import { withCard } from "@/site/og";
 
-export const metadata: Metadata = {
-  title: "What's new",
-  description: "What's changed in basedraft: new templates, components, blocks and Studio updates, newest first.",
-};
+export const metadata: Metadata = withCard("whats-new", { title: "What's new", description: "What's changed in basedraft: new templates, components, blocks and Studio updates, newest first." });
 
 /*
  * What's new, newest first: each day on the left, pinned as you read, and its changes on the right

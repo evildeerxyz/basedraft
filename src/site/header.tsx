@@ -67,15 +67,19 @@ const under = (path: string, href: string) => path === href || path.startsWith(`
 function NavTabs() {
   const path = usePathname();
   const id = useId();
+  // The link under the pointer: a soft pill glides behind it from one link to the next.
+  const [hover, setHover] = useState<string | null>(null);
   return (
     <LayoutGroup id={id}>
-      <nav aria-label="Main" className="flex items-center gap-0.5 rounded-full bg-surface-2 p-1">
+      <nav aria-label="Main" className="flex items-center" onMouseLeave={() => setHover(null)}>
         {NAV.map((n) => {
           const on = under(path, n.href);
           return (
-            <Link key={n.href} href={n.href} aria-current={on ? "page" : undefined} className={cn("relative flex h-8 items-center rounded-full px-4 text-ui transition-colors", on ? "text-fg" : "text-muted hover:text-fg")}>
-              {on && <motion.span layoutId="nav" className="absolute inset-0 rounded-full bg-raised shadow-[var(--bd-shadow-resting),inset_0_0_0_1px_var(--bd-line-subtle)]" transition={{ type: "spring", stiffness: 520, damping: 42 }} />}
+            <Link key={n.href} href={n.href} aria-current={on ? "page" : undefined} onMouseEnter={() => setHover(n.href)} onFocus={() => setHover(n.href)} onBlur={() => setHover(null)} className={cn("relative flex h-9 items-center px-3.5 text-ui transition-colors duration-200", on ? "font-medium text-fg" : "text-muted hover:text-fg")}>
+              {hover === n.href && <motion.span layoutId="nav-hover" aria-hidden className="absolute inset-0 rounded-full bg-fg/[0.05]" transition={{ type: "spring", stiffness: 520, damping: 44 }} />}
               <span className="relative">{n.label}</span>
+              {/* Where you are: a short ink line under the name, springing from page to page. */}
+              {on && <motion.span layoutId="nav-mark" aria-hidden className="absolute bottom-0.5 left-1/2 h-[2px] w-4 -translate-x-1/2 rounded-full bg-fg" transition={{ type: "spring", stiffness: 420, damping: 34 }} />}
             </Link>
           );
         })}

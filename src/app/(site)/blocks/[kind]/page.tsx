@@ -8,6 +8,7 @@ import { LIB_WRAP } from "@/site/library-css";
 import { SECTIONS, TEMPLATES, templateLogo, USED_KINDS } from "@/site/live";
 import { LiveSectionShowcase } from "@/site/section-showcase";
 import { glowAt } from "@/site/stage";
+import { withCard } from "@/site/og";
 
 const kindOf = (id: string) => USED_KINDS.find((k) => k.id === id);
 const count = (id: string) => SECTIONS.filter((s) => s.kind === id).length;
@@ -20,7 +21,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps<"/blocks/[kind]">): Promise<Metadata> {
   const k = kindOf((await params).kind);
-  return k ? { title: `${k.label} sections`, description: `${k.blurb} From the basedraft templates, live.` } : {};
+  return k ? withCard(`blocks-${k.id}`, { title: `${k.label} sections`, description: `${k.blurb} From the basedraft templates, live.` }) : {};
 }
 
 /* Prerendered for every kind; the kind is read inside Suspense so the route's shell stays instant. */

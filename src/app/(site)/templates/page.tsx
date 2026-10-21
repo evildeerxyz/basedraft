@@ -9,11 +9,9 @@ import { TextLink } from "@/site/showcase";
 import { GLOW, glowAt } from "@/site/stage";
 import { TemplatePrice } from "@/site/template-buy";
 import { TemplateLogo } from "@/site/template-parts";
+import { withCard } from "@/site/og";
 
-export const metadata: Metadata = {
-  title: "Templates",
-  description: "Finished sites in Next.js and Astro, for fintech, AI, HR and developer tools, with every page a real product needs.",
-};
+export const metadata: Metadata = withCard("templates", { title: "Templates", description: "Finished sites in Next.js and Astro, each with every page a real product needs." });
 
 /* Small pills that sit over a card's link, so they go somewhere of their own. */
 const PILL = "relative z-10 inline-flex h-8 items-center gap-1.5 rounded-full bg-paper/70 px-3 text-meta font-medium text-paper-ink shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--bd-paper-ink)_9%,transparent)] backdrop-blur transition-colors hover:bg-paper";

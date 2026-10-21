@@ -9,7 +9,7 @@ import { downloadFile, EXPORT_GUTTER, EXPORT_WIDTH, figmaCopyFor, figmaSvgFor, p
 import { prepareLive, type LiveCopy } from "./live-export";
 import { usePlan } from "./plan";
 import { openPro } from "./pro-modal";
-import { btn, btnSm } from "./sheet";
+import { btnSm } from "./sheet";
 import { toast } from "./toast";
 import { track } from "./analytics";
 
@@ -158,12 +158,12 @@ export function DesignCopyMenu({ targets, size = "sm", align = "right" }: { targ
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={id}
-        className={size === "sm" ? btnSm.quiet : btn.quiet}
+        className={cn("inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-surface font-medium text-fg shadow-[var(--bd-shadow-resting),inset_0_0_0_1px_var(--bd-line)] transition-colors hover:bg-surface-2", size === "sm" ? "h-8 px-3 text-[13px]" : "h-9 px-3.5 text-ui")}
       >
-        <FigmaLogoIcon size={size === "sm" ? 13 : 15} weight="duotone" className="text-accent" />
+        <FigmaLogoIcon size={size === "sm" ? 13 : 15} weight="duotone" className="text-muted" />
         Copy to design
-        {!pro && <LockSimpleIcon size={11} weight="bold" className="text-subtle" />}
-        <CaretDownIcon size={10} weight="bold" className="text-subtle" />
+        {!pro && <LockSimpleIcon size={11} weight="duotone" className="text-subtle" />}
+        <CaretDownIcon size={10} weight="regular" className="text-subtle" />
       </button>
       {pos &&
         createPortal(
@@ -179,7 +179,7 @@ export function DesignCopyMenu({ targets, size = "sm", align = "right" }: { targ
                 exit={{ opacity: 0, y: pos.top !== undefined ? -4 : 4, scale: 0.98 }}
                 transition={{ duration: 0.16, ease: EASE_OUT }}
                 style={pos}
-                className={cn("fixed z-[120] rounded-[10px] bg-surface p-1.5 shadow-[0_16px_48px_rgb(var(--bd-shade)/0.18),0_0_0_1px_rgb(var(--bd-ink)/0.06)]", pos.top !== undefined ? "origin-top" : "origin-bottom")}
+                className={cn("fixed z-[120] rounded-[var(--bd-r-sheet)] border border-line bg-surface/95 p-1.5 shadow-[var(--bd-shadow-float)] backdrop-blur-xl", pos.top !== undefined ? "origin-top" : "origin-bottom")}
               >
                 {pro ? (
                   targets.map((t, ti) => (
@@ -197,9 +197,9 @@ export function DesignCopyMenu({ targets, size = "sm", align = "right" }: { targ
                             role="menuitem"
                             type="button"
                             onClick={() => run(o.kind, t)}
-                            className="flex w-full items-center gap-2.5 rounded-[7px] px-2.5 py-2 text-left outline-none transition-colors hover:bg-fg/[0.05] focus-visible:bg-fg/[0.06]"
+                            className="flex w-full items-center gap-2.5 rounded-[var(--bd-r-inset)] px-2.5 py-2 text-left outline-none transition-colors hover:bg-surface-2 focus-visible:bg-surface-2"
                           >
-                            <I size={17} weight="duotone" className="shrink-0 text-accent" />
+                            <I size={17} weight="duotone" className="shrink-0 text-muted" />
                             <span>
                               <span className="block text-[13px] font-medium">{o.label}</span>
                               <span className="block text-[12px] text-muted">{o.hint}</span>
@@ -213,9 +213,9 @@ export function DesignCopyMenu({ targets, size = "sm", align = "right" }: { targ
                 {pro ? null : (
                   <div className="p-3">
                     <div className="flex items-center gap-2 text-ui font-medium">
-                      <LockSimpleIcon size={15} weight="duotone" className="text-accent" /> A Pro feature
+                      <LockSimpleIcon size={15} weight="duotone" className="text-muted" /> A Pro feature
                     </div>
-                    <p className="mt-1 text-meta text-muted">Copy any section, page or whole site into Figma with auto layout and components, or into Paper as named HTML layers.</p>
+                    <p className="mt-1 text-meta text-muted">Copy any section or page into Figma with auto layout and components, or into Paper as named HTML layers.</p>
                     <button
                       ref={(el) => {
                         items.current[0] = el;

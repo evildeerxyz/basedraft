@@ -16,9 +16,9 @@ export function BaseDraftMark({ size = 24, className }: { size?: number; classNa
 
 export function BaseDraftLogo() {
   return (
-    <span className="inline-flex items-center gap-1.5">
-      <BaseDraftMark size={28} />
-      <span className="text-[19px] font-semibold leading-none tracking-[-0.02em]">basedraft</span>
+    <span className="inline-flex h-[26px] items-center gap-2">
+      <BaseDraftMark size={24} />
+      <span className="text-[16px] font-medium leading-none tracking-[-0.03em]">basedraft</span>
     </span>
   );
 }

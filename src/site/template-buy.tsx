@@ -1,8 +1,7 @@
 "use client";
 
-import { DownloadSimpleIcon } from "@phosphor-icons/react";
+import { ArrowRightIcon, DownloadSimpleIcon } from "@phosphor-icons/react";
 import Link from "next/link";
-import { ICON } from "./icons";
 import { templateOf, type TemplateSlug } from "./live";
 import { usePlan, usePurchases } from "./plan";
 
@@ -23,6 +22,7 @@ export function TemplatePrice({ slug, className }: { slug: TemplateSlug; classNa
 /*
  * A template page's main action: buy it, or, for someone who already has it (with Pro, or bought
  * on its own), download it. Drawn as Buy on the server, and as what's true once the account is known.
+ * The words lead and the icon follows, as on every button that goes somewhere.
  */
 export function TemplateBuy({ slug, className }: { slug: TemplateSlug; className: string }) {
   const t = templateOf(slug)!;
@@ -30,15 +30,13 @@ export function TemplateBuy({ slug, className }: { slug: TemplateSlug; className
   if (owned)
     return (
       <Link href="/purchases" className={className}>
-        <DownloadSimpleIcon size={16} weight="bold" />
-        Download
+        Download <DownloadSimpleIcon weight="duotone" size={15} />
       </Link>
     );
   const free = t.price === "free";
   return (
     <Link href={free && t.repo ? t.repo : `/checkout?product=${slug}`} prefetch={false} className={className}>
-      <ICON.pro size={16} weight="duotone" />
-      {free ? "Get it on GitHub" : `Buy for $${t.price}`}
+      {free ? "Get it on GitHub" : `Buy for $${t.price}`} <ArrowRightIcon weight="regular" size={15} />
     </Link>
   );
 }

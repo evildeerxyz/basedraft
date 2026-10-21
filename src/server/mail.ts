@@ -1,8 +1,8 @@
 import type { SupabaseClient, User } from "@supabase/supabase-js";
-import type { InviteMail, Result, ShareMail } from "@/lib/api";
+import type { InviteMail, Result } from "@/lib/api";
 import { PRODUCTS, type Product } from "@/lib/products";
 import { brand, sendEmail } from "./emails/send";
-import { projectShared, purchaseReady, teamInvite, welcome } from "./emails/templates";
+import { purchaseReady, teamInvite, welcome } from "./emails/templates";
 import { call } from "./supabase";
 
 /*
@@ -25,8 +25,6 @@ export async function deliver(p: NonNullable<Result<"record_purchase">>) {
 }
 
 export const sendTeamInvite = (m: InviteMail) => sendEmail(m.email, teamInvite(brand(), { team: m.team, inviter: m.inviter, inviterEmail: m.inviterEmail, token: m.token }));
-
-export const sendShared = (m: ShareMail) => sendEmail(m.email, projectShared(brand(), { project: m.project, inviter: m.inviter, role: m.role, id: m.id }));
 
 /** For after(): a failed send is logged, not thrown at a response that's already gone. */
 export const later = (send: () => Promise<unknown>) => () => send().catch((e) => console.error("Email not sent:", e instanceof Error ? e.message : e));

@@ -1,63 +1,52 @@
-import { ArrowRightIcon } from "@phosphor-icons/react/ssr";
+import { DownloadSimpleIcon, FileTsxIcon, LayoutIcon, PackageIcon, RobotIcon, SquaresFourIcon, StackIcon } from "@phosphor-icons/react/ssr";
 import type { Metadata } from "next";
-import Image from "next/image";
-import Link from "next/link";
-import { PageHead } from "@/site/heads";
-import { SECTION_ICON } from "@/site/icons";
-import { isFree, KINDS, SECTIONS, sectionShot, TEMPLATES, templateOf } from "@/site/live";
-import { btn } from "@/site/sheet";
+import { claudePromptAll, COMPONENTS } from "@/registry";
+import { HeroFacts, LibraryHero, NextUp } from "@/site/library";
+import { LIB_WRAP } from "@/site/library-css";
+import { SECTIONS, TEMPLATES } from "@/site/live";
+import { btnLg } from "@/site/sheet";
+import { ClaudeCodeButton, ComponentsBrowser } from "@/site/ui-library";
 
 export const metadata: Metadata = {
   title: "Components",
-  description: "Every section from the basedraft templates, live, at any width, with its code and a copy for Figma.",
+  description: "basedraft UI: our own React components, free. Each one is a single file to copy or download, sharing one theme in light and dark.",
 };
 
+/* The components: a light card that says what they are, then every one of them, live, in a gallery the dock filters. */
 export default function ComponentsPage() {
-  const kinds = KINDS.filter((k) => SECTIONS.some((s) => s.kind === k.id));
   return (
     <main id="main">
-      <PageHead title="Components" lead={`All ${SECTIONS.length} sections from the ${TEMPLATES.length} templates, sorted by what they do. Each one is the template's own code, live, at any width, with a copy for Figma.`} />
-      <div className="space-y-14">
-        {kinds.map((k) => {
-          const list = SECTIONS.filter((s) => s.kind === k.id);
-          const Icon = SECTION_ICON[k.id];
-          return (
-            <section key={k.id} aria-labelledby={`kind-${k.id}`} className="bd-reveal">
-              <div className="mb-4 flex flex-wrap items-end justify-between gap-x-6 gap-y-2 px-1">
-                <div className="min-w-0">
-                  <h2 id={`kind-${k.id}`} className="flex items-center gap-2 text-heading">
-                    <Icon size={17} weight="duotone" className="text-subtle" />
-                    {k.label}
-                    <span className="text-ui font-normal tabular-nums text-subtle">{list.length}</span>
-                  </h2>
-                  <p className="mt-1 text-body text-muted">{k.blurb}</p>
-                </div>
-                <Link href={`/components/${k.id}`} className={btn.link}>
-                  See them live <ArrowRightIcon size={13} weight="bold" />
-                </Link>
-              </div>
-              <ul className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                {list.map((s, i) => (
-                  // A lone last one on a phone's two columns takes the row.
-                  <li key={s.key} className={list.length % 2 && i === list.length - 1 ? "max-md:col-span-2" : undefined}>
-                    <Link href={`/components/${k.id}#${s.template}-${s.id}`} className="group block">
-                      <span className="relative block aspect-[16/10] overflow-hidden rounded-[8px] bg-surface shadow-[0_0_0_1px_rgb(var(--bd-ink)/0.08)]">
-                        <Image src={sectionShot(s)} alt="" fill sizes="(min-width: 768px) 240px, 50vw" className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.04]" />
-                      </span>
-                      <span className="mt-2 flex items-center gap-1.5 px-0.5 text-ui">
-                        <span aria-hidden className="size-1.5 shrink-0 rounded-full" style={{ background: templateOf(s.template)!.accent }} />
-                        <span className="truncate">
-                          {templateOf(s.template)!.name} {s.name.toLowerCase()}
-                        </span>
-                        {!isFree(s) && <span className="ml-auto shrink-0 rounded-[5px] bg-fg/[0.06] px-1.5 py-0.5 text-meta font-medium text-muted">Pro</span>}
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          );
-        })}
+      <LibraryHero
+        facts={
+          <HeroFacts
+            items={[
+              { icon: <StackIcon weight="duotone" size={14} />, value: COMPONENTS.length, label: "components" },
+              { icon: <PackageIcon weight="duotone" size={14} />, value: "Free", label: "to copy" },
+              { icon: <FileTsxIcon weight="duotone" size={14} />, value: "One file", label: "each" },
+            ]}
+          />
+        }
+        title="Components that move well"
+        lead="basedraft UI: our own React components, made to be touched. Each is one file to copy or download, and they share one theme, light and dark."
+        actions={
+          <>
+            <ClaudeCodeButton prompt={claudePromptAll} />
+            <a href="/ui/basedraft.css" download className={btnLg.onPaperOutline}>
+              <DownloadSimpleIcon weight="duotone" size={15} /> Download the theme
+            </a>
+          </>
+        }
+      />
+      <ComponentsBrowser />
+      <div className={LIB_WRAP}>
+        <NextUp
+          title="Bigger pieces"
+          items={[
+            { href: "/blocks", label: "Blocks", count: SECTIONS.length, lead: "Whole sections from the templates, live at any width, with a copy for Figma.", icon: <SquaresFourIcon size={20} weight="duotone" /> },
+            { href: "/templates", label: "Templates", count: TEMPLATES.length, lead: "Complete sites, every page written and wired, in Next.js and Astro.", icon: <LayoutIcon size={20} weight="duotone" /> },
+            { href: "/llms.txt", label: "llms.txt", lead: "This library written out for Claude Code and other AI tools, with a command for each component.", icon: <RobotIcon size={20} weight="duotone" /> },
+          ]}
+        />
       </div>
     </main>
   );

@@ -1,0 +1,152 @@
+/*
+ * basedraft UI's theme: the colors, shadows and materials every component reads.
+ * Put this file next to your global stylesheet and import it once, after Tailwind:
+ *   @import "./basedraft.css";
+ * Dark mode follows a .dark class or data-theme="dark" on any element above the components.
+ * Change a token here and every component follows. https://basedraft.site/components
+ */
+
+:root,
+.light {
+  --bd-bg: oklch(99.6% 0.002 265);
+  --bd-well: oklch(95.6% 0.005 265);
+  --bd-surface: oklch(100% 0 0);
+  --bd-surface-2: oklch(97.3% 0.004 265);
+  --bd-raised: oklch(100% 0 0);
+  --bd-fg: oklch(18% 0.012 265);
+  --bd-muted: oklch(47% 0.014 265);
+  --bd-subtle: oklch(60% 0.012 265);
+  --bd-line: oklch(92.6% 0.006 265);
+  --bd-line-subtle: oklch(95.6% 0.005 265);
+  --bd-line-strong: oklch(84% 0.008 265);
+  --bd-accent: oklch(18% 0.012 265);
+  --bd-on-accent: oklch(99.6% 0.002 265);
+  --bd-paper: oklch(98.8% 0.005 265);
+  --bd-paper-ink: oklch(18% 0.012 265);
+  --bd-paper-muted: oklch(45% 0.016 265);
+  --bd-glow-blue: oklch(86% 0.075 262 / 0.5);
+  --bd-glow-lilac: oklch(89% 0.055 305 / 0.45);
+  --bd-glow-mint: oklch(92% 0.05 172 / 0.45);
+  --bd-ink: 20 22 30;
+  --bd-shade: 16 18 28;
+  --bd-shadow-resting: 0 1px 2px oklch(20% 0.02 265 / 0.05);
+  --bd-shadow-raised: 0 8px 24px -6px oklch(20% 0.03 265 / 0.1), 0 1px 3px oklch(20% 0.02 265 / 0.05);
+  --bd-shadow-float: 0 24px 56px -12px oklch(20% 0.04 265 / 0.18), 0 4px 12px oklch(20% 0.02 265 / 0.06);
+  --bd-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dark,
+[data-theme="dark"] {
+  --bd-bg: oklch(19% 0 0);
+  --bd-well: oklch(16% 0 0);
+  --bd-surface: oklch(21.5% 0 0);
+  --bd-surface-2: oklch(26% 0 0);
+  --bd-raised: oklch(24% 0 0);
+  --bd-fg: oklch(96% 0 0);
+  --bd-muted: oklch(77% 0 0);
+  --bd-subtle: oklch(64% 0 0);
+  --bd-line: oklch(29% 0 0);
+  --bd-line-subtle: oklch(25% 0 0);
+  --bd-line-strong: oklch(40% 0 0);
+  --bd-accent: oklch(96% 0 0);
+  --bd-on-accent: oklch(19% 0 0);
+  --bd-paper: oklch(23.5% 0 0);
+  --bd-paper-ink: oklch(96% 0 0);
+  --bd-paper-muted: oklch(77% 0 0);
+  --bd-glow-blue: oklch(45% 0.06 262 / 0.2);
+  --bd-glow-lilac: oklch(45% 0.05 300 / 0.15);
+  --bd-glow-mint: oklch(48% 0.04 175 / 0.1);
+  --bd-ink: 255 255 255;
+  --bd-shade: 0 0 0;
+  --bd-shadow-resting: 0 1px 2px oklch(0% 0 0 / 0.25);
+  --bd-shadow-raised: 0 10px 28px -6px oklch(0% 0 0 / 0.45);
+  --bd-shadow-float: 0 28px 64px -12px oklch(0% 0 0 / 0.6);
+  --bd-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  color-scheme: dark;
+}
+
+/*
+ * basedraft UI's materials, beside the theme's tokens: ink, the brushed-metal edge, the paper
+ * light with its fine dots, the bead a knob is made of, and the wells controls sit in. Components
+ * read them as variables, so a theme can change a material in one place.
+ */
+:root,
+.bd-light {
+  /* Ink: a soft vertical near-black, light catching its top edge. */
+  --bd-ui-ink: linear-gradient(180deg, oklch(32% 0.004 265), oklch(18% 0.004 265));
+  --bd-ui-ink-text: oklch(99% 0 0);
+  /* Metal: a charcoal fill inside a brushed edge. The same in light and dark, so it reads the same anywhere. */
+  --bd-ui-metal-fill: linear-gradient(180deg, oklch(31% 0.003 265), oklch(17% 0.003 265));
+  --bd-ui-metal-edge: linear-gradient(135deg, oklch(97% 0 0) 0%, oklch(62% 0.004 265) 24%, oklch(92% 0.002 265) 48%, oklch(50% 0.004 265) 74%, oklch(88% 0.002 265) 100%);
+  /* Fine faint dots, for paper. */
+  --bd-ui-dots: radial-gradient(circle, rgb(var(--bd-ink) / 0.1) 0.6px, transparent 1px) 0 0 / 6px 6px;
+  /* The bead a knob or a thumb is made of (bead-on sits on an ink track), and the light along a raised surface's top. */
+  --bd-ui-bead: linear-gradient(180deg, oklch(100% 0 0), oklch(95.5% 0.003 265));
+  --bd-ui-bead-on: linear-gradient(180deg, oklch(100% 0 0), oklch(95.5% 0.003 265));
+  /* A raised face: a segment's thumb, a keycap. */
+  --bd-ui-raised: linear-gradient(180deg, oklch(100% 0 0), oklch(97.6% 0.003 265));
+  /* Ink as one color, for a tooltip's caret. */
+  --bd-ui-ink-solid: oklch(19% 0.004 265);
+  --bd-ui-lift: inset 0 1px 0 rgb(255 255 255 / 0.75), 0 1px 2px rgb(var(--bd-shade) / 0.1), 0 4px 10px -4px rgb(var(--bd-shade) / 0.16);
+  /* A well: what a field or a track is pressed into. */
+  --bd-ui-well: inset 0 1px 2px rgb(var(--bd-shade) / 0.09), inset 0 0 0 1px rgb(var(--bd-ink) / 0.07);
+  /* Focus, in ink rather than a color. */
+  --bd-ui-focus: rgb(var(--bd-ink) / 0.32);
+  /* Status dots: quiet, so a badge never shouts. */
+  --bd-ui-ok: oklch(64% 0.15 152);
+  --bd-ui-wait: oklch(74% 0.14 75);
+  --bd-ui-stop: oklch(60% 0.18 27);
+}
+
+.dark,
+[data-theme="dark"] {
+  /* In dark, ink turns to a soft near-white, so it stays the strongest thing on screen. */
+  --bd-ui-ink: linear-gradient(180deg, oklch(98% 0 0), oklch(86% 0 0));
+  --bd-ui-ink-text: oklch(17% 0 0);
+  --bd-ui-dots: radial-gradient(circle, rgb(255 255 255 / 0.07) 0.6px, transparent 1px) 0 0 / 6px 6px;
+  --bd-ui-bead: linear-gradient(180deg, oklch(90% 0 0), oklch(76% 0 0));
+  --bd-ui-bead-on: linear-gradient(180deg, oklch(32% 0 0), oklch(22% 0 0));
+  --bd-ui-raised: linear-gradient(180deg, oklch(37% 0 0), oklch(31% 0 0));
+  --bd-ui-ink-solid: oklch(87% 0 0);
+  --bd-ui-lift: inset 0 1px 0 rgb(255 255 255 / 0.08), 0 1px 2px rgb(0 0 0 / 0.35), 0 6px 14px -6px rgb(0 0 0 / 0.6);
+  --bd-ui-well: inset 0 1px 2px rgb(0 0 0 / 0.45), inset 0 0 0 1px rgb(255 255 255 / 0.06);
+  --bd-ui-focus: rgb(255 255 255 / 0.4);
+  --bd-ui-ok: oklch(74% 0.15 152);
+  --bd-ui-wait: oklch(80% 0.13 75);
+  --bd-ui-stop: oklch(70% 0.16 27);
+}
+
+/*
+ * Paper: a near-white face under the fine dots, with only a breath of the hero's light in one
+ * corner, so it reads as paper rather than as a gradient. Use it as a background. It's set again
+ * wherever light or dark is, so a dark card on a light page gets dark paper.
+ */
+:root,
+.bd-light,
+.dark,
+[data-theme="dark"] {
+  --bd-ui-paper: var(--bd-ui-dots), radial-gradient(70% 90% at 0% 0%, color-mix(in oklab, var(--bd-glow-blue) 30%, transparent), transparent 100%), var(--bd-paper);
+}
+
+/* An ordered-dither dot pulsing, for loading and the meter's leading edge. */
+@keyframes bd-ui-dither {
+  0%,
+  100% {
+    opacity: 0.12;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* A live dot's ring, spreading and fading. */
+@keyframes bd-ui-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}

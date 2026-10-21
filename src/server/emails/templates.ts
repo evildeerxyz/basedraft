@@ -273,28 +273,3 @@ Sign in with this email to join: the invite only works for it, and only once.
 basedraft. ${brand.site}`,
   };
 }
-
-/** Someone shared a draft with you, to edit or to look at. */
-export function projectShared(brand: Brand, o: { project: string; inviter: string; role: "edit" | "view"; id: string }): Email {
-  const link = `${brand.site}/studio?p=${o.id}`;
-  const can = o.role === "edit" ? "edit" : "view";
-  return {
-    subject: `${o.inviter} shared ${o.project} with you`,
-    html: layout(brand, {
-      preview: `You can ${can} it in basedraft Studio.`,
-      body: `${h1(`${esc(o.project)}`)}
-${p(`${esc(o.inviter)} shared a draft with you. You can ${can} it${o.role === "edit" ? ", comment on it, and see who else is in it as you work" : " and comment on it"}.`)}
-<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-top:24px;">
-  <tr><td>${button(link, "Open in Studio")}</td></tr>
-</table>
-${note("Sign in with this email to open it. Not expecting it? You can ignore it.")}`,
-    }),
-    text: `${o.inviter} shared ${o.project} with you
-
-You can ${can} it in basedraft Studio: ${link}
-
-Sign in with this email to open it.
-
-basedraft. ${brand.site}`,
-  };
-}

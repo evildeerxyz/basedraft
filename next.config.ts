@@ -29,6 +29,11 @@ const nextConfig: NextConfig = {
       { source: "/ingest/:path*", destination: "https://us.i.posthog.com/:path*" },
     ];
   },
+  // The template sections moved from /components to /blocks when /components became the copy-and-paste library; old links follow them.
+  async redirects() {
+    const kinds = ["nav", "hero", "logos", "story", "features", "steps", "interactive", "stats", "testimonials", "security", "pricing", "faq", "changelog", "cta", "divider", "footer"];
+    return kinds.map((k) => ({ source: `/components/${k}`, destination: `/blocks/${k}`, permanent: true }));
+  },
   // PostHog's API paths end in a slash; redirecting them would drop the events.
   skipTrailingSlashRedirect: true,
   // Text and data mining is reserved (the EU's TDM opt-out, also in /.well-known/tdmrep.json),

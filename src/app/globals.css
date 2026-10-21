@@ -2,18 +2,8 @@
 /* The template zones build their own CSS. */
 @source not "../../templates";
 
-/* Dark mode follows the switch, not the system: <html data-theme="dark">, set before first paint. */
+/* Dark mode is <html data-theme="dark">, set before first paint from your pick or, until you pick, the system. */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
-
-/*
- * Söhne (Klim Type Foundry) for basedraft's own chrome. The files in
- * public/fonts/sohne are trial cuts with letters and numbers only, so symbols
- * fall back to Instrument Sans. Replace them with licensed files before launch.
- */
-@font-face { font-family: "Sohne"; src: url("/fonts/sohne/sohne-buch.otf") format("opentype"); font-weight: 400; font-display: swap; }
-@font-face { font-family: "Sohne"; src: url("/fonts/sohne/sohne-kraftig.otf") format("opentype"); font-weight: 500; font-display: swap; }
-@font-face { font-family: "Sohne"; src: url("/fonts/sohne/sohne-halbfett.otf") format("opentype"); font-weight: 600; font-display: swap; }
-@font-face { font-family: "Sohne"; src: url("/fonts/sohne/sohne-dreiviertelfett.otf") format("opentype"); font-weight: 700; font-display: swap; }
 
 /*
  * The kit never hard-codes a color. Sections use these names; a theme
@@ -24,6 +14,7 @@
   --color-well: var(--bd-well);
   --color-select: var(--bd-select);
   --color-surface: var(--bd-surface);
+  /* The quiet fill things are set on: a track, a row, a well. */
   --color-surface-2: var(--bd-surface-2);
   /* The selected piece of a segmented control, or a row lifted out of a list: white on light, a step up on dark. */
   --color-raised: var(--bd-raised);
@@ -31,11 +22,24 @@
   --color-muted: var(--bd-muted);
   --color-subtle: var(--bd-subtle);
   --color-line: var(--bd-line);
+  /* The faintest hairline, around things already set apart by their fill. */
+  --color-line-subtle: var(--bd-line-subtle);
   --color-accent: var(--bd-accent);
   --color-on-accent: var(--bd-on-accent);
+  /* A firmer hairline, for outlined controls. */
+  --color-line-strong: var(--bd-line-strong);
+  /* basedraft's one color: draft blue, for Pro, focus and the odd mark. Soft is its tint behind a label. */
+  --color-brand: var(--bd-brand);
+  --color-brand-soft: var(--bd-brand-soft);
+  --color-brand-ink: var(--bd-brand-ink);
+  /* The hero's surface and the ink on it: light in light mode, deep blue-black in dark. */
+  --color-paper: var(--bd-paper);
+  --color-paper-ink: var(--bd-paper-ink);
+  --color-paper-muted: var(--bd-paper-muted);
   --radius-card: var(--bd-radius);
   --radius-control: var(--bd-radius-sm);
-  --font-sans: var(--bd-font), var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--bd-font), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--bd-display-font), var(--bd-font), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 
@@ -43,67 +47,110 @@
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 
   /*
-   * basedraft's own type scale, set in Instrument Sans. One size per job:
-   * display 52, title 30, heading 17, lead 17, body 15, ui 14, meta 13.
+   * basedraft's type scale. The big sizes are Instrument Sans at 500, drawn tight; everything else
+   * is Inter. One size per job, fluid from a phone to a wide screen: display 72 (a page's title),
+   * headline 48 (a part of a page), title 32 (a smaller part), heading 18 (a question, a card's
+   * name), lead 18, body 16, ui 14, meta 12.
    */
-  --text-display: clamp(2.4rem, 4.4vw, 3.25rem);
-  --text-display--line-height: 1.04;
-  --text-display--letter-spacing: -0.028em;
-  --text-display--font-weight: 600;
-  --text-title: clamp(1.6rem, 2.6vw, 1.875rem);
+  --text-display: clamp(2.5rem, 1.6rem + 3.6vw, 4.5rem);
+  --text-display--line-height: 1.02;
+  --text-display--letter-spacing: -0.042em;
+  --text-display--font-weight: 500;
+  --text-headline: clamp(2rem, 1.55rem + 1.6vw, 3rem);
+  --text-headline--line-height: 1.06;
+  --text-headline--letter-spacing: -0.035em;
+  --text-headline--font-weight: 500;
+  --text-title: clamp(1.5rem, 1.3rem + 0.6vw, 2rem);
   --text-title--line-height: 1.12;
-  --text-title--letter-spacing: -0.022em;
-  --text-title--font-weight: 600;
-  --text-heading: 1.0625rem;
+  --text-title--letter-spacing: -0.028em;
+  --text-title--font-weight: 500;
+  --text-heading: 1.125rem;
   --text-heading--line-height: 1.35;
   --text-heading--letter-spacing: -0.012em;
-  --text-heading--font-weight: 600;
-  --text-lead: 1.0625rem;
-  --text-lead--line-height: 1.55;
-  --text-body: 0.9375rem;
-  --text-body--line-height: 1.6;
+  --text-heading--font-weight: 500;
+  --text-lead: 1.125rem;
+  --text-lead--line-height: 1.6;
+  --text-body: 1rem;
+  --text-body--line-height: 1.65;
   --text-ui: 0.875rem;
-  --text-ui--line-height: 1.4;
-  --text-meta: 0.8125rem;
-  --text-meta--line-height: 1.4;
+  --text-ui--line-height: 1.45;
+  --text-meta: 0.75rem;
+  --text-meta--line-height: 1.45;
 }
 
-/* basedraft's own theme, used by the site chrome. Templates override inside a .bd-scope. */
-:root {
-  /* basedraft's own chrome: neutral grays with no hue in them, and ink as the only highlight. */
-  --bd-bg: #ffffff;
+/*
+ * basedraft's own theme, used by the site chrome. Templates override inside a .bd-scope. The same
+ * light values hold inside .bd-light, for the hero and the footer, which stay light paper on a
+ * dark page.
+ */
+:root,
+.bd-light {
+  /* Cool, quiet grays with the faintest blue in them, white pages, and ink as the strongest thing on screen. */
+  --bd-bg: oklch(99.6% 0.002 265);
   /* Studio's canvas: a gray table so white pages read as pages. */
-  --bd-well: #ebebeb;
-  --bd-surface: #ffffff;
-  --bd-surface-2: #f5f5f5;
-  --bd-raised: #ffffff;
-  --bd-fg: #141414;
-  --bd-muted: #5e5e5e;
-  --bd-subtle: #8c8c8c;
-  --bd-line: #e5e5e5;
-  --bd-accent: #141414;
-  --bd-on-accent: #ffffff;
+  --bd-well: oklch(95.6% 0.005 265);
+  --bd-surface: oklch(100% 0 0);
+  --bd-surface-2: oklch(97.3% 0.004 265);
+  --bd-raised: oklch(100% 0 0);
+  --bd-fg: oklch(18% 0.012 265);
+  --bd-muted: oklch(47% 0.014 265);
+  --bd-subtle: oklch(60% 0.012 265);
+  --bd-line: oklch(92.6% 0.006 265);
+  --bd-line-subtle: oklch(95.6% 0.005 265);
+  --bd-line-strong: oklch(84% 0.008 265);
+  --bd-accent: oklch(18% 0.012 265);
+  --bd-on-accent: oklch(99.6% 0.002 265);
+  /* basedraft's mark color: a slate with only a hint of blue, and its tint, so the marks stay quiet. */
+  --bd-brand: oklch(52% 0.05 262);
+  --bd-brand-soft: oklch(95.6% 0.008 262);
+  --bd-brand-ink: oklch(36% 0.035 262);
+  /* The hero and every frame like it: near white, lit softly in draft blue, lilac and mint. */
+  --bd-paper: oklch(98.8% 0.005 265);
+  --bd-paper-ink: oklch(18% 0.012 265);
+  --bd-paper-muted: oklch(45% 0.016 265);
+  /* Cards and stages everywhere else: a flat, quiet gray a step off the page, with no light in it. */
+  --bd-panel: oklch(97.9% 0.0015 265);
+  --bd-glow-blue: oklch(86% 0.075 262 / 0.5);
+  --bd-glow-lilac: oklch(89% 0.055 305 / 0.45);
+  --bd-glow-mint: oklch(92% 0.05 172 / 0.45);
+  /* The glow along a dialog's head, as it's always been: blue, rose and sand. */
+  --bd-blue: #afc7f6;
+  --bd-rose: #e9babb;
+  --bd-sand: #e8d9ad;
+  /* The dot field's marks, lit under the pointer. */
+  --bd-dot-glow: oklch(62% 0.1 258);
+  /* The fine dots every gradient surface wears: faint ink in light mode, faint white in dark. */
+  --bd-dots-fine: image-set(url("/textures/dots-fine.png") 1x, url("/textures/dots-fine@2x.png") 2x);
   /* Studio's selection, Figma's purple for components: every section on the canvas is one. */
   --bd-select: #9747ff;
-  --bd-radius: 8px;
-  --bd-radius-sm: 7px;
-  --bd-font: "Sohne", var(--font-instrument);
-  --bd-display-weight: 600;
-  --bd-display-tracking: -0.02em;
+  /* Cards 20px, controls round; frames are larger (--bd-r-stage). */
+  --bd-radius: 20px;
+  --bd-radius-sm: 14px;
+  --bd-font: var(--font-inter);
+  --bd-display-font: var(--font-instrument);
+  --bd-display-weight: 500;
+  --bd-display-tracking: -0.042em;
   --bd-dither: #141414;
   /*
    * Channels for hairlines and shadows, so one class works in both modes: ink is the color a
    * hairline ring is drawn in, paper the one drawn on an ink surface, shade a drop shadow's.
    */
-  --bd-ink: 20 20 20;
-  --bd-paper: 255 255 255;
-  --bd-shade: 20 20 20;
+  --bd-ink: 20 22 30;
+  --bd-paper-rgb: 255 255 255;
+  --bd-shade: 16 18 28;
   /*
-   * Corners, kept tight: sheets, the pricing tray and dialogs are 12px, anything set inside one of
-   * them (frames, stages, code, plan cards) 6px, cards 8px and controls 7px.
+   * Corners: a stage (the frame something is shown in) is 28px, a card or dialog 20px, and
+   * anything set inside one 14px, so nested corners share a center.
    */
-  --bd-r-sheet: 12px;
-  --bd-r-inset: 6px;
+  --bd-r-stage: 28px;
+  --bd-r-sheet: 20px;
+  --bd-r-inset: 14px;
+  /* Shadows for things that sit on the page, lift off it, or float over it. */
+  --bd-shadow-resting: 0 1px 2px oklch(20% 0.02 265 / 0.05);
+  --bd-shadow-raised: 0 8px 24px -6px oklch(20% 0.03 265 / 0.1), 0 1px 3px oklch(20% 0.02 265 / 0.05);
+  --bd-shadow-float: 0 24px 56px -12px oklch(20% 0.04 265 / 0.18), 0 4px 12px oklch(20% 0.02 265 / 0.06);
+  /* Where things that stick under the header stop: the floating capsule (12px down, 56px tall) and a gap. */
+  --bd-header-h: 80px;
   /* Motion's one curve: a long ease out, so things settle rather than stop. */
   --bd-ease: cubic-bezier(0.16, 1, 0.3, 1);
   /* Code, colored as an editor colors it: GitHub's light theme here, its dark one below. */
@@ -119,27 +166,42 @@
   color-scheme: light;
 }
 
-/*
- * The same chrome in dark: neutral grays with no hue, sheets a step lighter than the page and
- * wells a step darker, and ink turned to near white, so everything drawn "in ink" (the main
- * button, the Pro card, the poster, icon tiles, the logo) reads as the strongest thing on screen.
- */
+/* The same chrome in dark: blue-black grays, cards a step lighter than the page, ink turned near white, and the hero gone deep. */
 [data-theme="dark"] {
-  --bd-bg: #0f0f0f;
-  --bd-well: #0a0a0a;
-  --bd-surface: #161616;
-  --bd-surface-2: #0b0b0b;
-  --bd-raised: #2a2a2a;
-  --bd-fg: #ededed;
-  --bd-muted: #a3a3a3;
-  --bd-subtle: #737373;
-  --bd-line: #262626;
-  --bd-accent: #ededed;
-  --bd-on-accent: #0f0f0f;
+  /* Neutral grays with no hue: the page, frames a step up, cards and wells. Light blue stays for small marks. */
+  --bd-bg: oklch(19% 0 0);
+  --bd-well: oklch(16% 0 0);
+  --bd-surface: oklch(21.5% 0 0);
+  --bd-surface-2: oklch(26% 0 0);
+  --bd-raised: oklch(24% 0 0);
+  --bd-fg: oklch(96% 0 0);
+  --bd-muted: oklch(77% 0 0);
+  --bd-subtle: oklch(64% 0 0);
+  --bd-line: oklch(29% 0 0);
+  --bd-line-subtle: oklch(25% 0 0);
+  --bd-line-strong: oklch(40% 0 0);
+  --bd-accent: oklch(96% 0 0);
+  --bd-on-accent: oklch(19% 0 0);
+  --bd-brand: oklch(72% 0.04 260);
+  --bd-brand-soft: oklch(29% 0.006 260);
+  --bd-brand-ink: oklch(88% 0.02 260);
+  /* Frames are a gray a step above the page, with only a whisper of the hero's light. */
+  --bd-paper: oklch(23.5% 0 0);
+  --bd-paper-ink: oklch(96% 0 0);
+  --bd-paper-muted: oklch(77% 0 0);
+  --bd-panel: oklch(23% 0 0);
+  --bd-glow-blue: oklch(45% 0.06 262 / 0.2);
+  --bd-glow-lilac: oklch(45% 0.05 300 / 0.15);
+  --bd-glow-mint: oklch(48% 0.04 175 / 0.1);
+  --bd-dot-glow: oklch(78% 0.09 262);
+  --bd-dots-fine: image-set(url("/textures/dots-fine-dark.png") 1x, url("/textures/dots-fine-dark@2x.png") 2x);
   --bd-dither: #ededed;
   --bd-ink: 255 255 255;
-  --bd-paper: 16 16 16;
+  --bd-paper-rgb: 32 32 32;
   --bd-shade: 0 0 0;
+  --bd-shadow-resting: 0 1px 2px oklch(0% 0 0 / 0.25);
+  --bd-shadow-raised: 0 10px 28px -6px oklch(0% 0 0 / 0.45);
+  --bd-shadow-float: 0 28px 64px -12px oklch(0% 0 0 / 0.6);
   --code-text: #e6edf3;
   --code-comment: #8b949e;
   --code-key: #79c0ff;
@@ -153,29 +215,251 @@
 }
 
 /*
- * The primary button: an ink bar lit from above. Gradient #3e3d3c to #0a0a0a, a soft drop shadow
- * (0 14 26, spread -12, #353332 at 80%) and a 1px white highlight along the top edge at 35%.
+ * The important action: a charcoal fill inside a brushed-metal edge, light catching its top. The
+ * same in light and dark, so the button that matters reads the same on any page.
  */
-@utility btn-ink {
-  color: #ffffff;
-  background-image: linear-gradient(180deg, #3e3d3c 0%, #0a0a0a 100%);
-  box-shadow: 0 14px 26px -12px rgb(53 51 50 / 0.8), inset 0 1px 0 rgb(255 255 255 / 0.35);
-  transition: filter 0.2s, box-shadow 0.2s, transform 0.1s;
+@utility btn-metal {
+  color: oklch(98% 0 0);
+  border: 1.5px solid transparent;
+  background:
+    linear-gradient(180deg, oklch(31% 0.003 265), oklch(17% 0.003 265)) padding-box,
+    linear-gradient(135deg, oklch(97% 0 0) 0%, oklch(62% 0.004 265) 24%, oklch(92% 0.002 265) 48%, oklch(50% 0.004 265) 74%, oklch(88% 0.002 265) 100%) border-box;
+  box-shadow: inset 0 1px 0 oklch(100% 0 0 / 0.16), 0 1px 2px oklch(0% 0 0 / 0.18), 0 8px 20px -10px oklch(0% 0 0 / 0.45);
+  transition: filter 0.2s, scale 0.15s, box-shadow 0.2s;
   &:hover {
-    filter: brightness(1.15);
+    filter: brightness(1.14);
   }
   &:active {
-    transform: translateY(1px);
-    box-shadow: 0 8px 16px -10px rgb(53 51 50 / 0.8), inset 0 1px 0 rgb(255 255 255 / 0.25);
+    scale: 0.98;
   }
-  /* In dark, the same bar in near white, lit from above, so it stays the strongest thing on screen. */
+}
+
+/* The primary button: flat ink, nothing drawn on it. In dark it turns near white, so it stays the strongest thing on screen. */
+@utility btn-ink {
+  color: var(--bd-on-accent);
+  background-color: var(--bd-accent);
+  transition: background-color 0.2s, color 0.2s, scale 0.15s;
+  &:hover {
+    background-color: color-mix(in oklab, var(--bd-accent) 86%, var(--bd-bg));
+  }
+  &:active {
+    scale: 0.98;
+  }
+}
+
+/*
+ * The quiet surface for cards and stages: flat neutral gray, a step off the page, nothing lit in it.
+ * The hero's light below is kept for the few places that open something: the heroes, the footer,
+ * the announcement and the plans.
+ */
+@utility bd-panel {
+  color: var(--bd-fg);
+  background-color: var(--bd-panel);
+}
+
+/*
+ * The hero's light: a near-white surface lit draft blue, lilac and mint, with fine faint dots over
+ * it. In dark mode the surface goes deep blue-black, the same light glows in it and the dots turn
+ * white. Every frame on the site wears it, arranged one of four ways (bd-paper alone, or with
+ * glow-b, glow-c or glow-d) so no two neighbors match.
+ */
+@utility bd-paper {
+  color: var(--bd-paper-ink);
+  background-color: var(--bd-paper);
+  background-image:
+    var(--bd-dots-fine),
+    radial-gradient(48% 62% at var(--glow-1, 8% 0%), var(--bd-glow-blue), transparent 100%),
+    radial-gradient(40% 55% at var(--glow-2, 94% 6%), var(--bd-glow-lilac), transparent 100%),
+    radial-gradient(46% 52% at var(--glow-3, 78% 108%), var(--bd-glow-mint), transparent 100%);
+  background-size: 240px 240px, 100% 100%, 100% 100%, 100% 100%;
+  background-repeat: repeat, no-repeat, no-repeat, no-repeat;
+}
+@utility glow-b {
+  --glow-1: 96% 100%;
+  --glow-2: 4% 6%;
+  --glow-3: 36% 112%;
+}
+@utility glow-c {
+  --glow-1: 92% 0%;
+  --glow-2: 58% 112%;
+  --glow-3: 2% 96%;
+}
+@utility glow-d {
+  --glow-1: 50% -12%;
+  --glow-2: 100% 100%;
+  --glow-3: 0% 100%;
+}
+
+/* A light blue sheen that travels slowly around a card's border: the plan we'd pick for you. */
+@property --bd-sheen-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+@utility bd-sheen {
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: conic-gradient(from var(--bd-sheen-angle), transparent 0deg, color-mix(in oklab, var(--bd-brand) 70%, transparent) 50deg, transparent 110deg, transparent 360deg);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: bd-sheen 7s linear infinite;
+    pointer-events: none;
+  }
+}
+@keyframes bd-sheen {
+  to {
+    --bd-sheen-angle: 360deg;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bd-sheen::before {
+    animation: none;
+  }
+}
+
+/* The announcement strip: the hero's light stretched thin. A closed one stays closed (<html data-announce="off">). */
+@utility bd-strip {
+  color: var(--bd-paper-ink);
+  background-color: var(--bd-paper);
+  background-image:
+    radial-gradient(30% 220% at 8% 0%, var(--bd-glow-blue), transparent 100%),
+    radial-gradient(28% 220% at 92% 100%, var(--bd-glow-lilac), transparent 100%),
+    radial-gradient(30% 220% at 55% 120%, var(--bd-glow-mint), transparent 100%);
+}
+[data-announce="off"] .bd-announce {
+  display: none;
+}
+
+/* The same light as a thin band along a card's top edge: the head of a dialog. */
+@utility bd-glow {
+  background-image:
+    radial-gradient(55% 100% at 92% 0%, color-mix(in oklab, var(--bd-blue) 70%, transparent), transparent 72%),
+    radial-gradient(50% 100% at 8% 0%, color-mix(in oklab, var(--bd-rose) 55%, transparent), transparent 72%),
+    radial-gradient(45% 90% at 50% 0%, color-mix(in oklab, var(--bd-sand) 45%, transparent), transparent 72%);
   &:where([data-theme="dark"] *) {
-    color: #111111;
-    background-image: linear-gradient(180deg, #ffffff 0%, #d4d4d4 100%);
-    box-shadow: 0 14px 26px -12px rgb(0 0 0 / 0.9), inset 0 -1px 0 rgb(0 0 0 / 0.14);
+    background-image:
+      radial-gradient(55% 100% at 92% 0%, oklch(55% 0.08 260 / 0.32), transparent 72%),
+      radial-gradient(50% 100% at 8% 0%, oklch(58% 0.07 15 / 0.2), transparent 72%),
+      radial-gradient(45% 90% at 50% 0%, oklch(62% 0.06 90 / 0.16), transparent 72%);
   }
-  &:where([data-theme="dark"] *):hover {
-    filter: brightness(0.94);
+  /* The hero's fine dots over the glow, faint, and fading out down the head as the glow does. */
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: var(--bd-dots-fine);
+    background-size: 240px 240px;
+    mask-image: linear-gradient(180deg, #000 0%, rgb(0 0 0 / 0.45) 45%, transparent 92%);
+    opacity: 0.6;
+    pointer-events: none;
+  }
+}
+
+/*
+ * The dot field: basedraft's texture. Square marks on a 6px grid, each its own weight, about a
+ * third of them missing (public/textures/dots.png, from scripts/textures.mjs). A color is painted
+ * through the tile, so its alpha says where each mark is and how strong, and through a fade
+ * (--dot-fade), so it clears where words sit. Light falls on the same marks through dots-lit.png,
+ * the tile at full strength. See src/site/dot-field.tsx.
+ *
+ * Never resampled: the squares are drawn at their final size, and a smoothed tile turns them into
+ * blurry dots. The tile is 240px everywhere, and anything laid over the field lines its own tile
+ * up with the field's, or its marks land in the gaps.
+ */
+.bd-dots,
+.bd-dots-spot,
+.bd-dots-blink {
+  position: absolute;
+  pointer-events: none;
+  image-rendering: pixelated;
+}
+.bd-dots {
+  inset: 0;
+  background-color: var(--dot-color, currentColor);
+  -webkit-mask-image: url("/textures/dots.png"), var(--dot-fade, linear-gradient(#000, #000));
+  mask-image: url("/textures/dots.png"), var(--dot-fade, linear-gradient(#000, #000));
+  -webkit-mask-size: 240px 240px, 100% 100%;
+  mask-size: 240px 240px, 100% 100%;
+  -webkit-mask-repeat: repeat, no-repeat;
+  mask-repeat: repeat, no-repeat;
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+
+/*
+ * Under the pointer the marks light up in non-photo blue: the light, through the lit tile, cut by
+ * a circle that follows the pointer and by the field's own fade (so it never lights marks the
+ * field has faded out).
+ */
+.bd-dots-spot {
+  inset: 0;
+  background-color: var(--dot-glow, var(--bd-dot-glow));
+  --spot: radial-gradient(circle var(--spot-r, 180px) at var(--spot-x, -1000px) var(--spot-y, -1000px), #000 0%, #000 30%, transparent 76%);
+  -webkit-mask-image: var(--spot), var(--dot-fade, linear-gradient(#000, #000)), url("/textures/dots-lit.png");
+  mask-image: var(--spot), var(--dot-fade, linear-gradient(#000, #000)), url("/textures/dots-lit.png");
+  -webkit-mask-size: 100% 100%, 100% 100%, 240px 240px;
+  mask-size: 100% 100%, 100% 100%, 240px 240px;
+  -webkit-mask-repeat: no-repeat, no-repeat, repeat;
+  mask-repeat: no-repeat, no-repeat, repeat;
+  -webkit-mask-composite: source-in, source-in;
+  mask-composite: intersect, intersect;
+  opacity: 0;
+  transition: opacity 220ms var(--bd-ease);
+}
+[data-spot-lit] .bd-dots-spot {
+  opacity: 1;
+}
+
+/*
+ * A patch of the field that flickers on in non-photo blue, then rests. Several, each on its own
+ * rhythm and starting point, so light moves around the field rather than pulsing all at once.
+ * Small boxes, so the GPU fades each one without repainting the page.
+ */
+.bd-dots-blink {
+  background-color: var(--dot-glow, var(--bd-dot-glow));
+  --disc: radial-gradient(circle closest-side, #000 0%, #000 30%, transparent 100%);
+  -webkit-mask-image: var(--disc), url("/textures/dots-lit.png");
+  mask-image: var(--disc), url("/textures/dots-lit.png");
+  -webkit-mask-size: 100% 100%, 240px 240px;
+  mask-size: 100% 100%, 240px 240px;
+  -webkit-mask-repeat: no-repeat, repeat;
+  mask-repeat: no-repeat, repeat;
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+  opacity: 0;
+  will-change: opacity;
+  animation: bd-dot-blink var(--blink-for, 7s) ease-in-out var(--blink-delay, 0s) infinite;
+}
+/* A flicker (on, a dip, on again), then dark for the rest of the cycle. */
+@keyframes bd-dot-blink {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+  }
+  9% {
+    opacity: 0.3;
+  }
+  13% {
+    opacity: 0.9;
+  }
+  22% {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bd-dots-blink {
+    animation: none;
+  }
+  .bd-dots-spot {
+    display: none;
   }
 }
 
@@ -207,17 +491,27 @@
   body {
     background: var(--bd-bg);
     color: var(--bd-fg);
-    font-family: var(--bd-font), var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+    font-family: var(--bd-font), ui-sans-serif, system-ui, sans-serif;
+    font-size: 1rem;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
     overflow-x: clip;
   }
 
+  /* The big sizes are Instrument Sans; a font utility on the same element still wins. */
+  .text-display,
+  .text-headline,
+  .text-title,
+  .font-display {
+    font-family: var(--bd-display-font), var(--bd-font), ui-sans-serif, system-ui, sans-serif;
+  }
+
   ::selection {
-    background: var(--bd-accent);
-    color: var(--bd-on-accent);
+    background: color-mix(in oklab, var(--bd-brand) 24%, transparent);
   }
 
   :focus-visible {
-    outline: 2px solid var(--bd-accent);
+    outline: 2px solid var(--bd-brand);
     outline-offset: 2px;
   }
 }
@@ -225,7 +519,7 @@
 .bd-scope {
   background: var(--bd-bg);
   color: var(--bd-fg);
-  font-family: var(--bd-font), var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--bd-font), ui-sans-serif, system-ui, sans-serif;
 }
 
 /* Headlines take the brand's weight and tracking from the theme. */

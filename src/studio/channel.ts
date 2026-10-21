@@ -6,11 +6,10 @@ import { getSession, SUPABASE_ON, subscribeSession, supabase } from "@/lib/supab
 
 /*
  * A project's live channel ("project:<id>"), one per project however many parts of Studio listen.
- * The database announces each change on it (to the project, its comments, its versions, and who
- * it's shared with: see the triggers in supabase/migrations), and open Studios send where their
- * pointer is. Anyone who may view the project can listen; only signed-in people can send.
- * "joined" is heard each time the channel connects, or connects again after a drop: whatever was
- * missed meanwhile is fetched then.
+ * The database announces each change on it (to the project, and to who it's shared with: see the
+ * triggers in supabase/migrations), so a draft open in two tabs stays one draft. Anyone who may
+ * view the project can listen. "joined" is heard each time the channel connects, or connects
+ * again after a drop: whatever was missed meanwhile is fetched then.
  */
 
 export type Heard = (event: string, payload: Record<string, unknown>) => void;
@@ -42,12 +41,6 @@ export function listen(id: string, heard: Heard) {
       void supabase().removeChannel(room.channel);
     }, 2000);
   };
-}
-
-/** Says something to everyone else on the channel, once it's connected. */
-export function send(id: string, event: string, payload: Record<string, unknown>) {
-  const room = rooms.get(id);
-  if (room?.channel.state === "joined") void room.channel.send({ type: "broadcast", event, payload });
 }
 
 /** Hears a project's channel while `id` is set. */

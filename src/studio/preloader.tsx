@@ -19,12 +19,11 @@ const BACK = "M28.6015 10.8973L16.0958 17.0783L16.0698 17.0949C15.1656 17.6727 1
 
 const TIPS = [
   "Click any text on the page to change it.",
-  "{C} leaves a comment anywhere on the page.",
   "Hold {Space} and drag to move around the canvas.",
   "{Cmd D} duplicates the section you've selected.",
-  "Every breakpoint sits side by side, at its real width.",
+  "Desktop, tablet and phone are one click apart, in the toolbar.",
   "Copy any section into Figma, with auto layout.",
-  "{?} shows every shortcut.",
+  "{Shift P} shows the page as it ships.",
 ];
 
 /** Where the line got to, so the next screen starts there. */

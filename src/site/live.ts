@@ -98,6 +98,8 @@ export const SECTIONS: LiveSection[] = TEMPLATES.flatMap((t) => t.sections);
 export const templateOf = (slug: string) => TEMPLATES.find((t) => t.slug === slug);
 export const sectionOf = (template: string, id: string) => templateOf(template)?.sections.find((s) => s.id === id);
 export const sectionsOfKind = (kind: SectionKind) => SECTIONS.filter((s) => s.kind === kind);
+/** The kinds that have sections, in the order a page runs. */
+export const USED_KINDS = KINDS.filter((k) => SECTIONS.some((s) => s.kind === k.id));
 
 /** A free template's sections are free to take; every template is paid today, so these come with Pro or their template. */
 export const isFree = (s: Pick<LiveSection, "template">) => templateOf(s.template)?.price === "free";
@@ -110,4 +112,6 @@ export const sectionUrl = (s: Pick<LiveSection, "template" | "id">) => `/live/${
 export const composeUrl = (slug: string, keys: string[]) => `/live/${slug}/bd/compose?s=${keys.map(encodeURIComponent).join(",")}`;
 /** Screenshots made by scripts/shots.mjs. */
 export const templateShot = (slug: string) => `/shots/${slug}.jpg`;
+/** A template's own app icon, copied from its project (public/logos). */
+export const templateLogo = (slug: string) => `/logos/${slug}.svg`;
 export const sectionShot = (s: Pick<LiveSection, "template" | "id">) => `/shots/sections/${s.template}-${s.id}.jpg`;

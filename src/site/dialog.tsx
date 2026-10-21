@@ -4,7 +4,7 @@ import { XIcon } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, type ReactNode, type RefObject } from "react";
 import { cn } from "@/lib/utils";
-import { DitherSky } from "./plan-parts";
+import { Glow } from "./plan-parts";
 
 /*
  * basedraft's one modal: a white card lifted over a dimmed page. Pro, accounts, sharing and the
@@ -13,6 +13,10 @@ import { DitherSky } from "./plan-parts";
  */
 
 export const DIALOG_CARD = "relative isolate w-full overflow-hidden rounded-[var(--bd-r-sheet)] bg-surface text-fg shadow-[0_30px_80px_-20px_rgb(var(--bd-shade)/0.45),0_0_0_1px_rgb(var(--bd-ink)/0.06)]";
+
+/** A dialog's title and the line under it, as the Pro dialog sets them. */
+export const DIALOG_TITLE = "text-title";
+export const DIALOG_BODY = "mt-2 text-body text-muted";
 
 export function Dialog({
   open,
@@ -90,7 +94,7 @@ export function Dialog({
             transition={{ type: "spring", stiffness: 480, damping: 38 }}
             className={cn(DIALOG_CARD, "max-w-[460px]", className)}
           >
-            <DitherSky className="-z-10" />
+            <Glow className="-z-10" />
             {children}
           </motion.div>
         </motion.div>
@@ -102,7 +106,7 @@ export function Dialog({
 export function DialogClose({ onClose }: { onClose: () => void }) {
   return (
     <button type="button" data-dialog-close onClick={onClose} aria-label="Close" className="absolute right-3 top-3 z-10 grid size-8 place-items-center rounded-[8px] text-muted transition-colors hover:bg-fg/[0.06] hover:text-fg">
-      <XIcon size={15} weight="bold" />
+      <XIcon size={15} weight="regular" />
     </button>
   );
 }

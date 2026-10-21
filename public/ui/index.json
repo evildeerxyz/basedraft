@@ -1,0 +1,205 @@
+{
+  "name": "basedraft-ui",
+  "homepage": "https://basedraft.site/components",
+  "theme": "https://basedraft.site/ui/basedraft.css",
+  "requires": [
+    "react@19",
+    "tailwindcss@4"
+  ],
+  "components": [
+    {
+      "name": "button",
+      "title": "Button",
+      "group": "Actions",
+      "description": "A pill in ink, metal, paper, glass, outline or ghost, with a field of dithered dots while it loads.",
+      "file": "https://basedraft.site/ui/button.tsx",
+      "path": "components/basedraft/button.tsx",
+      "dependencies": [],
+      "docs": "https://basedraft.site/components/button"
+    },
+    {
+      "name": "hold-button",
+      "title": "Hold button",
+      "group": "Actions",
+      "description": "Press and hold to confirm: ink fills it as you hold, and letting go early cancels.",
+      "file": "https://basedraft.site/ui/hold-button.tsx",
+      "path": "components/basedraft/hold-button.tsx",
+      "dependencies": [
+        "motion",
+        "@phosphor-icons/react"
+      ],
+      "docs": "https://basedraft.site/components/hold-button"
+    },
+    {
+      "name": "copy-button",
+      "title": "Copy button",
+      "group": "Actions",
+      "description": "Copies a piece of text, its icon turning over into a check as a ring spreads from it.",
+      "file": "https://basedraft.site/ui/copy-button.tsx",
+      "path": "components/basedraft/copy-button.tsx",
+      "dependencies": [
+        "motion",
+        "@phosphor-icons/react"
+      ],
+      "docs": "https://basedraft.site/components/copy-button"
+    },
+    {
+      "name": "command-line",
+      "title": "Command line",
+      "group": "Actions",
+      "description": "A shell command on a small ink terminal, colored, with a copy button and a switch between package managers.",
+      "file": "https://basedraft.site/ui/command-line.tsx",
+      "path": "components/basedraft/command-line.tsx",
+      "dependencies": [
+        "motion",
+        "@phosphor-icons/react"
+      ],
+      "docs": "https://basedraft.site/components/command-line"
+    },
+    {
+      "name": "input",
+      "title": "Input",
+      "group": "Forms",
+      "description": "A text field pressed into the page that lifts to a white face as you type, with room for an icon or a suffix.",
+      "file": "https://basedraft.site/ui/input.tsx",
+      "path": "components/basedraft/input.tsx",
+      "dependencies": [],
+      "docs": "https://basedraft.site/components/input"
+    },
+    {
+      "name": "textarea",
+      "title": "Textarea",
+      "group": "Forms",
+      "description": "A longer field that grows as you type, with a small ring that counts toward its limit.",
+      "file": "https://basedraft.site/ui/textarea.tsx",
+      "path": "components/basedraft/textarea.tsx",
+      "dependencies": [],
+      "docs": "https://basedraft.site/components/textarea"
+    },
+    {
+      "name": "switch",
+      "title": "Switch",
+      "group": "Forms",
+      "description": "A recessed track that fills with ink, and a bead for a knob that stretches while you press it.",
+      "file": "https://basedraft.site/ui/switch.tsx",
+      "path": "components/basedraft/switch.tsx",
+      "dependencies": [
+        "motion"
+      ],
+      "docs": "https://basedraft.site/components/switch"
+    },
+    {
+      "name": "segmented",
+      "title": "Segmented control",
+      "group": "Forms",
+      "description": "One choice of a few in a machined track, the chosen one on a raised thumb that slides.",
+      "file": "https://basedraft.site/ui/segmented.tsx",
+      "path": "components/basedraft/segmented.tsx",
+      "dependencies": [
+        "motion"
+      ],
+      "docs": "https://basedraft.site/components/segmented"
+    },
+    {
+      "name": "slider",
+      "title": "Slider",
+      "group": "Forms",
+      "description": "A value along an ink track: a bead to drag, a bubble that says the value, and marked stops under it.",
+      "file": "https://basedraft.site/ui/slider.tsx",
+      "path": "components/basedraft/slider.tsx",
+      "dependencies": [
+        "motion"
+      ],
+      "docs": "https://basedraft.site/components/slider"
+    },
+    {
+      "name": "tabs",
+      "title": "Tabs",
+      "group": "Navigation",
+      "description": "A quiet row of names, the selected one inked on a pill that slides, its panel rising in.",
+      "file": "https://basedraft.site/ui/tabs.tsx",
+      "path": "components/basedraft/tabs.tsx",
+      "dependencies": [
+        "motion"
+      ],
+      "docs": "https://basedraft.site/components/tabs"
+    },
+    {
+      "name": "accordion",
+      "title": "Accordion",
+      "group": "Navigation",
+      "description": "Numbered questions on one card, each answer springing open as its plus turns into a cross.",
+      "file": "https://basedraft.site/ui/accordion.tsx",
+      "path": "components/basedraft/accordion.tsx",
+      "dependencies": [
+        "motion",
+        "@phosphor-icons/react"
+      ],
+      "docs": "https://basedraft.site/components/accordion"
+    },
+    {
+      "name": "badge",
+      "title": "Badge",
+      "group": "Display",
+      "description": "A small stamp in ink, gray, outline, paper or metal, with a status dot that can pulse.",
+      "file": "https://basedraft.site/ui/badge.tsx",
+      "path": "components/basedraft/badge.tsx",
+      "dependencies": [],
+      "docs": "https://basedraft.site/components/badge"
+    },
+    {
+      "name": "card",
+      "title": "Card",
+      "group": "Display",
+      "description": "A card on a plain surface or on paper, with an optional brushed-metal edge.",
+      "file": "https://basedraft.site/ui/card.tsx",
+      "path": "components/basedraft/card.tsx",
+      "dependencies": [],
+      "docs": "https://basedraft.site/components/card"
+    },
+    {
+      "name": "avatar",
+      "title": "Avatar",
+      "group": "Display",
+      "description": "Initials on a stone tint drawn from the name, a status dot, and a group that fans out when you point at it.",
+      "file": "https://basedraft.site/ui/avatar.tsx",
+      "path": "components/basedraft/avatar.tsx",
+      "dependencies": [],
+      "docs": "https://basedraft.site/components/avatar"
+    },
+    {
+      "name": "kbd",
+      "title": "Kbd",
+      "group": "Display",
+      "description": "A keycap that goes down when you press its key on your keyboard.",
+      "file": "https://basedraft.site/ui/kbd.tsx",
+      "path": "components/basedraft/kbd.tsx",
+      "dependencies": [],
+      "docs": "https://basedraft.site/components/kbd"
+    },
+    {
+      "name": "tooltip",
+      "title": "Tooltip",
+      "group": "Display",
+      "description": "An ink bubble with a caret, carrying the action's shortcut on small caps.",
+      "file": "https://basedraft.site/ui/tooltip.tsx",
+      "path": "components/basedraft/tooltip.tsx",
+      "dependencies": [
+        "motion"
+      ],
+      "docs": "https://basedraft.site/components/tooltip"
+    },
+    {
+      "name": "meter",
+      "title": "Meter",
+      "group": "Feedback",
+      "description": "Progress drawn in dots, its edge dissolving through an ordered dither and springing as it moves.",
+      "file": "https://basedraft.site/ui/meter.tsx",
+      "path": "components/basedraft/meter.tsx",
+      "dependencies": [
+        "motion"
+      ],
+      "docs": "https://basedraft.site/components/meter"
+    }
+  ]
+}

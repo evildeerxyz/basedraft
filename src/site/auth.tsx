@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import { Dialog, DIALOG_CARD, DialogClose } from "./dialog";
 import { BaseDraftLogo, BaseDraftMark } from "./logo";
 import { ColorModeSwitch } from "./color-mode";
-import { CardNote, DitherSky, IconTile } from "./plan-parts";
+import { CardNote, Glow, IconTile } from "./plan-parts";
 import { btn } from "./sheet";
 import { toast } from "./toast";
 import { track } from "./analytics";
@@ -37,7 +37,7 @@ export interface User {
 }
 
 export type AuthMode = "sign-in" | "sign-up";
-export type AuthReason = "share" | "history" | "library" | "save" | "comment" | "team";
+export type AuthReason = "library" | "save" | "team";
 
 /* ---------- the signed-in user ---------- */
 
@@ -138,7 +138,7 @@ const closeAuth = () => {
 
 const welcome = (u: User, fresh: boolean) => {
   if (fresh) track("signed_up");
-  return fresh ? toast(`Welcome to basedraft, ${u.firstName ?? displayName(u)}`, { detail: "Your drafts, versions and Library now save to your account." }) : toast(`Signed in as ${u.email}`);
+  return fresh ? toast(`Welcome to basedraft, ${u.firstName ?? displayName(u)}`, { detail: "Your drafts now save to your account." }) : toast(`Signed in as ${u.email}`);
 };
 
 export function AuthModal() {
@@ -167,11 +167,8 @@ export function AuthModal() {
 /* ---------- the card ---------- */
 
 const WHY: Record<AuthReason, string> = {
-  share: "Create a free account to share this page with a link and invite people to edit it.",
-  history: "Create a free account to keep every version of your page and go back to any of them.",
-  library: "Create a free account to keep your drafts and saved sections in one Library.",
+  library: "Create a free account to keep all your drafts in one place.",
   save: "Create a free account so your drafts are there on every device.",
-  comment: "Create a free account to leave comments on the page and reply to your team's.",
   team: "Create a free account with the email your invite went to, then join the team.",
 };
 
@@ -259,7 +256,7 @@ function CodeInput({ value, onChange, onComplete, invalid }: { value: string; on
 
 /**
  * Sign up and sign in in one card: Google or GitHub in a click, or an email and a 6-digit code.
- * Signing up also asks for a name, so people you share with know who sent it.
+ * Signing up also asks for a name, so your team knows who is who.
  */
 export function AuthCard({ initialMode, reason, onDone, onModeChange, page }: { initialMode: AuthMode; reason?: AuthReason; onDone: (u: User, fresh: boolean) => void; onModeChange?: (m: AuthMode) => void; page?: boolean }) {
   const [mode, setMode] = useState(initialMode);
@@ -318,7 +315,7 @@ export function AuthCard({ initialMode, reason, onDone, onModeChange, page }: { 
   const sendCode = async (e: FormEvent) => {
     e.preventDefault();
     const em = email.trim().toLowerCase();
-    if (up && !name.trim()) return setProblem({ field: "name", text: "Add your name so people you share with know it's you." });
+    if (up && !name.trim()) return setProblem({ field: "name", text: "Add your name so we know what to call you." });
     if (!EMAIL.test(em)) return setProblem({ field: "email", text: "That doesn't look like an email address." });
     setProblem(null);
     setBusy("email");
@@ -379,7 +376,7 @@ export function AuthCard({ initialMode, reason, onDone, onModeChange, page }: { 
             What should we call you?
           </H>
           <p id="auth-body" className="mt-2 text-body text-muted">
-            Your name shows on your comments, in your team and on the pages you share. You can change it any time.
+            Your name shows on your account and to your team. You can change it any time.
           </p>
         </div>
         <div className="px-6">
@@ -457,7 +454,7 @@ export function AuthCard({ initialMode, reason, onDone, onModeChange, page }: { 
           {up ? "Create your account" : "Welcome back"}
         </H>
         <p id="auth-body" className="mt-2 text-body text-muted">
-          {up ? (reason ? WHY[reason] : "Save your drafts, see every edit and share pages with a link. Free, no card needed.") : "Pick up your drafts, versions and Library right where you left them."}
+          {up ? (reason ? WHY[reason] : "Save your drafts and pick them up on any device. Free, no card needed.") : "Pick up your drafts right where you left them."}
         </p>
       </div>
 
@@ -476,10 +473,10 @@ export function AuthCard({ initialMode, reason, onDone, onModeChange, page }: { 
             className="flex w-full items-center gap-3 rounded-[4px] px-3 py-2.5 text-left transition-[background-color,box-shadow] hover:bg-surface hover:shadow-[0_1px_2px_rgb(var(--bd-shade)/0.08),0_0_0_1px_rgb(var(--bd-ink)/0.05)] disabled:opacity-60"
           >
             <span className="grid size-8 shrink-0 place-items-center rounded-[6px] bg-fg/[0.05]">
-              <I size={16} weight="bold" />
+              <I size={16} weight="duotone" />
             </span>
             <span className="flex-1 text-ui font-medium">{label}</span>
-            {busy === p ? <Spinner /> : <ArrowRightIcon size={14} weight="bold" className="text-fg/40" />}
+            {busy === p ? <Spinner /> : <ArrowRightIcon size={14} weight="regular" className="text-fg/40" />}
           </button>
         ))}
       </div>
@@ -544,7 +541,7 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
       </header>
       <main id="main" className="grid flex-1 place-items-center px-4 pb-14 pt-2">
         <div className={cn(DIALOG_CARD, "max-w-[460px]")}>
-          <DitherSky className="-z-10" />
+          <Glow className="-z-10" />
           {loading ? (
             <div className="h-[520px]" />
           ) : user && !done ? (
@@ -590,7 +587,7 @@ const onProfile = (cb: () => void) => {
   profileListeners.add(cb);
   return () => profileListeners.delete(cb);
 };
-/** Opens the profile card: the display name people see on your comments, team and shared pages. */
+/** Opens the profile card: the display name your team sees. */
 export function openProfile() {
   profileOpen = true;
   profileListeners.forEach((l) => l());
@@ -633,7 +630,7 @@ function ProfileForm({ user }: { user: User }) {
           Your profile
         </h2>
         <p id="profile-body" className="mt-2 text-body text-muted">
-          Signed in as {user.email}. Your display name shows on your comments, in your team and on the pages you share.
+          Signed in as {user.email}. Your display name shows to your team.
         </p>
       </div>
       <div className="px-6">

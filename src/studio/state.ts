@@ -50,11 +50,9 @@ export interface StudioState {
 export type Action =
   | { type: "change"; project: Project }
   | { type: "replace"; project: Project }
-  /** The same edit, still going (dragging a color): it changes the last undo step instead of adding one. */
-  | { type: "amend"; project: Project }
-  /** Another project opened (from the Library, a link, or your account): a fresh start, no undo back. */
+  /** Another project opened (from your drafts, a link, or your account): a fresh start, no undo back. */
   | { type: "load"; project: Project }
-  /** Someone else's save, merged in: no undo step of its own, and undo never takes it back out. */
+  /** A save made elsewhere (another tab, or someone it was shared with), merged in: no undo step of its own, and undo never takes it back out. */
   | { type: "sync"; project: Project }
   | { type: "view"; view: View }
   | { type: "select"; key: string | null }
@@ -88,8 +86,6 @@ export function reducer(s: StudioState, a: Action): StudioState {
       const keys = a.project.pages[0].keys;
       return { ...s, project: a.project, view, past: [...s.past, s.project].slice(-LIMIT), future: [], selected: keys[1] ?? keys[0] ?? null };
     }
-    case "amend":
-      return { ...s, project: a.project, future: [] };
     case "load": {
       const view = keepView(a.project, s.view);
       return { ...s, project: a.project, view, past: [], future: [], selected: keepSelection(a.project, view, s.selected) };

@@ -9,12 +9,11 @@ import { useProjectChannel } from "./channel";
 import { idOf, merge3, validProject, type Action, type Project } from "./state";
 
 /*
- * A signed-in person's project lives in their account, and everyone it's shared with works on
- * the same one. Studio keeps its own copy and saves the whole project a moment after each change,
- * if the account still has the version that change was made on. When someone else saved first,
- * their save arrives here (the project's live channel says it's there), is merged with what you
- * changed since (see merge3), and yours goes after it. Signed out, the project stays in this
- * browser, as before.
+ * A signed-in person's project lives in their account. Studio keeps its own copy and saves the
+ * whole project a moment after each change, if the account still has the version that change was
+ * made on. When another tab (or someone it was shared with before) saved first, their save
+ * arrives here (the project's live channel says it's there), is merged with what you changed
+ * since (see merge3), and yours goes after it. Signed out, the project stays in this browser.
  */
 
 export type CloudAccess = "owner" | "edit" | "view";
@@ -83,7 +82,7 @@ export function useCloud({ user, loading, project, dispatch, fresh }: { user: Us
   const access: CloudAccess | null = remote && !remote.denied ? remote.access : null;
   const canEdit = access === "owner" || access === "edit";
 
-  /** Opens another project, from the Library or a link. */
+  /** Opens another project, from your drafts or a link. */
   const open = useCallback(
     (next: string) => {
       setBase(null);
@@ -230,12 +229,6 @@ export function useCloud({ user, loading, project, dispatch, fresh }: { user: Us
     return () => clearTimeout(t);
   }, [project, dirty, canEdit, busy, client, setBase]);
 
-  const restoreVersion = useCallback(async (versionId: string) => {
-    const v = await rpc("versions_get", { id: versionId });
-    if (!v || !validProject(v.data)) throw new Error("That version can't be opened.");
-    return v.data as Project;
-  }, []);
-
   const status: CloudStatus = !asking ? (user || loading ? "loading" : "local") : remote === undefined ? "loading" : remote === null ? "missing" : remote.denied ? "denied" : busy || (dirty && canEdit) ? "saving" : "saved";
   return {
     id: projectId,
@@ -247,6 +240,5 @@ export function useCloud({ user, loading, project, dispatch, fresh }: { user: Us
     open,
     startNew,
     leave,
-    restoreVersion,
   };
 }

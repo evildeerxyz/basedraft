@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { projectShared, purchaseReady, signInCode, teamInvite, welcome } from "@/server/emails/templates";
+import { purchaseReady, signInCode, teamInvite, welcome } from "@/server/emails/templates";
 
 /*
  * basedraft's emails, as they render, in light and dark: a page for working on them. They're sent
@@ -14,7 +14,6 @@ export default function EmailPreview() {
     { name: "Template bought", email: purchaseReady(brand, { product: "zuno", name: "Zuno", template: true, order: "pay_EXAMPLE", amount: 79, currency: "usd" }) },
     { name: "Pro bought", email: purchaseReady(brand, { product: "pro", name: "basedraft Pro", template: false, order: "pay_EXAMPLE", amount: 149, currency: "usd" }) },
     { name: "Team invite", email: teamInvite(brand, { team: "Parker Studio", inviter: "Riley Parker", inviterEmail: "riley@example.com", token: "example" }) },
-    { name: "Draft shared", email: projectShared(brand, { project: "Spring launch", inviter: "Riley Parker", role: "edit", id: "example" }) },
   ];
   return (
     <main className="min-h-dvh bg-surface-2 p-8">

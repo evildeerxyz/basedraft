@@ -179,7 +179,7 @@ export function Select({
       >
         <span className={cn("truncate", current ? "text-fg" : "text-subtle")}>{current?.label ?? placeholder}</span>
         <motion.span animate={{ rotate: open ? 180 : 0 }} transition={{ type: "spring", stiffness: 400, damping: 28 }} className="shrink-0 text-muted">
-          <CaretDownIcon size={sm ? 13 : 18} weight="bold" />
+          <CaretDownIcon size={sm ? 13 : 18} weight="regular" />
         </motion.span>
       </button>
 
@@ -224,7 +224,7 @@ export function Select({
                     <span className="block">{o.label}</span>
                     {o.hint && <span className={cn("mt-0.5 block text-muted", sm ? "text-[12px]" : "text-[14px]")}>{o.hint}</span>}
                   </span>
-                  <span className="relative w-5 shrink-0 text-accent">{isSel && <CheckIcon size={sm ? 13 : 18} weight="bold" />}</span>
+                  <span className="relative w-5 shrink-0 text-accent">{isSel && <CheckIcon size={sm ? 13 : 18} weight="duotone" />}</span>
                 </li>
               );
             })}

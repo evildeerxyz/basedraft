@@ -1,5 +1,6 @@
 import { after, NextResponse, type NextRequest } from "next/server";
 import { later, welcomeOnce } from "@/server/mail";
+import { signInFailed } from "@/server/google";
 import { asUser, SUPABASE_ON } from "@/server/supabase";
 
 /*
@@ -14,7 +15,8 @@ export async function GET(req: NextRequest) {
   const code = q.get("code");
   if (code && SUPABASE_ON) {
     const db = await asUser();
-    const { data } = await db.auth.exchangeCodeForSession(code);
+    const { data, error } = await db.auth.exchangeCodeForSession(code);
+    if (error) return NextResponse.redirect(signInFailed(req, to.pathname + to.search, "failed", `the code didn't become a session: ${error.message}`));
     const user = data.user;
     if (user && Date.now() - new Date(user.created_at).getTime() < 120_000) after(later(() => welcomeOnce(db, user)));
   }

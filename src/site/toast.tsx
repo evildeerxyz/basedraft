@@ -26,7 +26,7 @@ const subscribe = (l: () => void) => {
   return () => listeners.delete(l);
 };
 
-/** Top-center confirmations, clear of Studio's toolbar, announced to screen readers. */
+/** Top-center confirmations, clear of Studio's toolbar, announced to screen readers: a small white card with a hairline, floating. */
 export function Toaster() {
   const list = useSyncExternalStore(subscribe, () => toasts, () => toasts);
   return (
@@ -40,16 +40,16 @@ export function Toaster() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.98, transition: { duration: 0.18, ease: EASE_OUT } }}
             transition={{ type: "spring", stiffness: 420, damping: 32 }}
-            className="flex max-w-[420px] items-start gap-2.5 rounded-card bg-fg px-3.5 py-2.5 text-canvas shadow-[0_12px_40px_rgb(var(--bd-shade)/0.3)]"
+            className="flex max-w-[420px] items-start gap-2.5 rounded-[var(--bd-r-inset)] border border-line bg-surface px-4 py-3 text-fg shadow-[var(--bd-shadow-float)]"
           >
-            {t.tone === "ok" ? <CheckCircleIcon size={18} weight="duotone" className="mt-px shrink-0 text-canvas/70" /> : <WarningCircleIcon size={18} weight="duotone" className="mt-px shrink-0 text-[#ff8a80]" />}
+            {t.tone === "ok" ? <CheckCircleIcon size={18} weight="duotone" className="mt-px shrink-0 text-[oklch(0.62_0.17_150)]" /> : <WarningCircleIcon size={18} weight="duotone" className="mt-px shrink-0 text-[#d92d20] dark:text-[#ff8a80]" />}
             <div>
               <div className="text-[13px] font-medium">
-                <WithKeys text={t.text} dark />
+                <WithKeys text={t.text} />
               </div>
               {t.detail && (
-                <div className="mt-0.5 text-[12px] leading-[1.6] text-canvas/65">
-                  <WithKeys text={t.detail} dark />
+                <div className="mt-0.5 text-meta leading-[1.6] text-muted">
+                  <WithKeys text={t.detail} />
                 </div>
               )}
             </div>

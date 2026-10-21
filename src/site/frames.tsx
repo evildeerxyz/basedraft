@@ -10,18 +10,19 @@ export type Device = "desktop" | "tablet" | "phone";
 export const DEVICE_WIDTH: Record<Device, number> = { desktop: 1280, tablet: 820, phone: 390 };
 const ICONS = { desktop: DesktopIcon, tablet: DeviceTabletIcon, phone: DeviceMobileIcon };
 
+/** Desktop, tablet or phone: a pill track with the width you picked raised on it. */
 export function DevicePicker({ value, onChange, widths = DEVICE_WIDTH }: { value: Device; onChange: (d: Device) => void; widths?: Record<Device, number> }) {
   const id = useId();
   return (
     <LayoutGroup id={id}>
-      <div role="group" aria-label="Preview width" className="inline-flex rounded-control bg-fg/[0.06] p-0.5">
+      <div role="group" aria-label="Preview width" className="inline-flex rounded-full bg-surface-2 p-1">
         {(Object.keys(widths) as Device[]).map((d) => {
           const Icon = ICONS[d];
           const on = value === d;
           return (
-            <button key={d} onClick={() => onChange(d)} aria-pressed={on} aria-label={`${d[0].toUpperCase()}${d.slice(1)}, ${widths[d]} pixels`} title={`${widths[d]} px`} className={cn("relative grid h-7 w-8 place-items-center rounded-[5px] transition-colors", on ? "text-fg" : "text-muted hover:text-fg")}>
-              {on && <motion.span layoutId="device" className="absolute inset-0 rounded-[5px] bg-raised shadow-[0_1px_2px_rgb(var(--bd-shade)/0.12)]" transition={{ type: "spring", stiffness: 500, damping: 38 }} />}
-              <Icon size={16} weight={on ? "duotone" : "regular"} className={cn("relative", on && "text-accent")} />
+            <button key={d} type="button" onClick={() => onChange(d)} aria-pressed={on} aria-label={`${d[0].toUpperCase()}${d.slice(1)}, ${widths[d]} pixels`} title={`${widths[d]} px`} className={cn("relative grid h-7 w-8 place-items-center rounded-full transition-colors", on ? "text-fg" : "text-subtle hover:text-fg")}>
+              {on && <motion.span layoutId="device" className="absolute inset-0 rounded-full bg-raised shadow-[var(--bd-shadow-resting),inset_0_0_0_1px_var(--bd-line-subtle)]" transition={{ type: "spring", stiffness: 500, damping: 38 }} />}
+              <Icon weight="duotone" size={15} className="relative" />
             </button>
           );
         })}
@@ -64,21 +65,21 @@ export function DeviceFrame({ src, full = src, title, height = 760, device: init
   const scale = Math.min(1, avail / w);
   return (
     <div>
-      <div className="mb-3 flex items-center justify-between gap-3">
+      <div className="mb-2 flex items-center justify-between gap-3 sm:mb-3">
         <DevicePicker value={device} onChange={setDevice} />
         {/* Phones have no room for the size; the picker already says which device it is. */}
-        <span className="hidden whitespace-nowrap font-mono text-meta text-subtle sm:inline">
+        <span className="hidden whitespace-nowrap rounded-full bg-surface-2/80 px-2.5 py-1 text-meta tabular-nums text-subtle backdrop-blur sm:inline">
           {w} × {Math.round(height / scale)}
         </span>
         <div className="flex shrink-0 items-center gap-1 sm:gap-4">
           {copy && <DesignCopyMenu targets={[copy]} />}
-          <a href={full} target="_blank" rel="noreferrer" aria-label="Open full screen" className="inline-flex size-9 items-center justify-center gap-1.5 whitespace-nowrap rounded-control text-ui text-muted transition-colors hover:bg-fg/[0.05] hover:text-fg sm:size-auto sm:hover:bg-transparent">
-            <span className="hidden sm:inline">Open full screen</span> <ArrowUpRightIcon size={14} />
+          <a href={full} target="_blank" rel="noreferrer" aria-label="Open full screen" className="inline-flex size-8 items-center justify-center gap-1.5 whitespace-nowrap rounded-full text-meta text-subtle transition-colors hover:bg-surface-2 hover:text-fg sm:w-auto sm:px-3">
+            <span className="hidden sm:inline">Open full screen</span> <ArrowUpRightIcon weight="regular" size={13} />
           </a>
         </div>
       </div>
-      <div ref={box} className="overflow-hidden rounded-[var(--bd-r-inset)]" style={{ height }}>
-        <div className="mx-auto h-full overflow-hidden shadow-[0_0_0_1px_rgb(var(--bd-ink)/0.08)] transition-[width] duration-500" style={{ width: w * scale }}>
+      <div ref={box} className="overflow-hidden rounded-[14px]" style={{ height }}>
+        <div className="mx-auto h-full overflow-hidden rounded-[14px] border border-line transition-[width] duration-500" style={{ width: w * scale }}>
           <div style={{ width: w, height: height / scale, transform: `scale(${scale})`, transformOrigin: "0 0" }}>
             <iframe ref={frame} src={src} title={title} className="h-full w-full border-0 bg-white" loading="lazy" />
           </div>
@@ -118,7 +119,7 @@ export function LiveSectionFrame({ src, title, device, viewport = 900 }: { src: 
   };
   return (
     <div ref={box}>
-      <div className="mx-auto overflow-hidden rounded-[var(--bd-r-inset)] bg-surface shadow-[0_0_0_1px_rgb(var(--bd-ink)/0.08)] transition-[width,height] duration-500" style={{ width: w * scale, height: height * scale }}>
+      <div className="mx-auto overflow-hidden rounded-[var(--bd-r-inset)] bg-surface shadow-[var(--bd-shadow-float),0_0_0_1px_var(--bd-line)] transition-[width,height] duration-500" style={{ width: w * scale, height: height * scale }}>
         <div style={{ width: w, height, transform: `scale(${scale})`, transformOrigin: "0 0" }}>
           <iframe
             ref={frame}

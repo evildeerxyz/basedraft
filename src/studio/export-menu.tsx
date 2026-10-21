@@ -1,19 +1,19 @@
 "use client";
 
-import { ArrowRightIcon, BracketsCurlyIcon, CaretDownIcon, CodeIcon, DownloadSimpleIcon, FigmaLogoIcon, FileHtmlIcon, GithubLogoIcon, StackIcon, type Icon } from "@phosphor-icons/react";
+import { ArrowRightIcon, CaretDownIcon, CodeIcon, FigmaLogoIcon, GithubLogoIcon } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { EASE_OUT } from "@/lib/utils";
-import { copyToDesign, prepareCopy, type CopyKind, type CopyTarget } from "@/site/design-copy";
+import { copyToDesign, prepareCopy, type CopyTarget } from "@/site/design-copy";
 import { openPro } from "@/site/pro-modal";
 import { btnSm } from "@/site/sheet";
 import { Segments } from "./ui";
 
 /**
- * Everything that leaves Studio, in one place: design tools first, code second.
- * When a section is selected you choose whether to take just it or the whole page.
+ * Everything that leaves Studio, in one place: Figma first, then the code. When a section is
+ * selected you choose whether to take just it or the whole page to Figma.
  */
-export function ExportMenu({ page, section, pro, code, onCode, onSite, pages }: { page: CopyTarget; section: CopyTarget | null; pro: boolean; code: boolean; onCode: (tab: "react" | "json" | "github") => void; onSite: () => void; pages: number }) {
+export function ExportMenu({ page, section, pro, code, onCode }: { page: CopyTarget; section: CopyTarget | null; pro: boolean; code: boolean; onCode: (view: "files" | "github") => void }) {
   const [open, setOpen] = useState(false);
   const [scope, setScope] = useState<"section" | "page">("page");
   const root = useRef<HTMLDivElement>(null);
@@ -26,11 +26,6 @@ export function ExportMenu({ page, section, pro, code, onCode, onSite, pages }: 
   }, [open]);
 
   const target = scope === "section" && section ? section : page;
-  const design: Array<{ kind: CopyKind; label: string; hint: string; icon: Icon }> = [
-    { kind: "figma", label: "Copy for Figma", hint: "Desktop, tablet and phone, as variants", icon: FigmaLogoIcon },
-    { kind: "paper", label: "Copy for Paper", hint: "One responsive frame", icon: FileHtmlIcon },
-    { kind: "svg", label: "Download SVG", hint: "Desktop, as one file", icon: DownloadSimpleIcon },
-  ];
   const proTag = <span className="rounded-[6px] bg-fg/[0.07] px-1.5 py-px text-[11px] font-semibold text-muted">Pro</span>;
 
   const onKey = (e: KeyboardEvent) => {
@@ -82,7 +77,7 @@ export function ExportMenu({ page, section, pro, code, onCode, onSite, pages }: 
               <div className="px-1 pb-2 pt-1">
                 <Segments
                   full
-                  label="What to export"
+                  label="What to copy"
                   value={scope}
                   onChange={setScope}
                   options={[
@@ -93,63 +88,21 @@ export function ExportMenu({ page, section, pro, code, onCode, onSite, pages }: 
               </div>
             )}
             <div className="truncate px-2.5 pb-1 pt-1 text-[12px] text-subtle">{target.name}</div>
-            {design.map((d) => {
-              const I = d.icon;
-              const body = (
-                <>
-                  <I size={16} weight="duotone" className="mt-0.5 shrink-0 self-start text-accent" />
-                  <span className="min-w-0 flex-1">
-                    <span className="block">{d.label}</span>
-                    <span className="block text-[12px] text-muted">{d.hint}</span>
-                  </span>
-                  {!pro && proTag}
-                </>
-              );
-              // Free: the same three actions, each one click from seeing what Pro adds.
-              return pro ? (
-                <button
-                  key={d.kind}
-                  role="menuitem"
-                  type="button"
-                  className={row}
-                  onClick={() => {
-                    setOpen(false);
-                    void copyToDesign(d.kind, target);
-                  }}
-                >
-                  {body}
-                </button>
-              ) : (
-                <button
-                  key={d.kind}
-                  role="menuitem"
-                  type="button"
-                  className={row}
-                  onClick={() => {
-                    setOpen(false);
-                    openPro(d.kind);
-                  }}
-                >
-                  {body}
-                </button>
-              );
-            })}
-            <div className="my-1 h-px bg-line" />
-            {/* The whole site at once: every page, every breakpoint, one paste. */}
+            {/* Free: the same action, one click from seeing what Pro adds. */}
             <button
               role="menuitem"
               type="button"
               className={row}
               onClick={() => {
                 setOpen(false);
-                if (pro) onSite();
+                if (pro) void copyToDesign("figma", target);
                 else openPro("figma");
               }}
             >
-              <StackIcon size={16} weight="duotone" className="mt-0.5 shrink-0 self-start text-accent" />
+              <FigmaLogoIcon size={16} weight="duotone" className="mt-0.5 shrink-0 self-start text-accent" />
               <span className="min-w-0 flex-1">
-                <span className="block">Whole site to Figma</span>
-                <span className="block text-[12px] text-muted">{pages} of your pages and the template&apos;s own</span>
+                <span className="block">Copy for Figma</span>
+                <span className="block text-[12px] text-muted">Desktop, tablet and phone, as variants</span>
               </span>
               {!pro && proTag}
             </button>
@@ -160,12 +113,12 @@ export function ExportMenu({ page, section, pro, code, onCode, onSite, pages }: 
               className={row}
               onClick={() => {
                 setOpen(false);
-                if (code) onCode("react");
+                if (code) onCode("files");
                 else openPro("react");
               }}
             >
               <CodeIcon size={16} weight="duotone" className="text-muted" />
-              <span className="flex-1">Code for every page</span>
+              <span className="flex-1">Download the code</span>
               {!code && proTag}
             </button>
             <button
@@ -181,18 +134,6 @@ export function ExportMenu({ page, section, pro, code, onCode, onSite, pages }: 
               <GithubLogoIcon size={16} weight="fill" className="text-muted" />
               <span className="flex-1">Send to GitHub</span>
               {!code && proTag}
-            </button>
-            <button
-              role="menuitem"
-              type="button"
-              className={row}
-              onClick={() => {
-                setOpen(false);
-                onCode("json");
-              }}
-            >
-              <BracketsCurlyIcon size={16} weight="duotone" className="text-muted" />
-              JSON config
             </button>
             {!pro && (
               <button

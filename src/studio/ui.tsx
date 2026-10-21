@@ -32,21 +32,6 @@ export function Group({ title, icon: Icon, aside, children, defaultOpen = true }
   );
 }
 
-/** A label above a control, in the inspector's 12px voice. */
-export function Row({ label, htmlFor, aside, children }: { label: string; htmlFor?: string; aside?: ReactNode; children: ReactNode }) {
-  return (
-    <div>
-      <div className="mb-1.5 flex items-center justify-between gap-2">
-        <label htmlFor={htmlFor} id={htmlFor ? `${htmlFor}-label` : undefined} className="text-[12px] text-muted">
-          {label}
-        </label>
-        {aside}
-      </div>
-      {children}
-    </div>
-  );
-}
-
 /** An icon button with a tooltip naming it, and its shortcut as keys when it has one. */
 export function Tool({ label, keys, onClick, disabled, children, active, className, side = "bottom" }: { label: string; keys?: string; onClick: () => void; disabled?: boolean; children: ReactNode; active?: boolean; className?: string; side?: "top" | "bottom" }) {
   return (
@@ -84,6 +69,3 @@ export function Segments<T extends string | number>({ value, onChange, options, 
     </LayoutGroup>
   );
 }
-
-/** Thin keyboard hint, e.g. ⌘Z. */
-export { Key as Kbd } from "@/site/keys";

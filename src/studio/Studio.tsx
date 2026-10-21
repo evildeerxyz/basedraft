@@ -1,16 +1,15 @@
 "use client";
 
-import { ArrowClockwiseIcon, ArrowCounterClockwiseIcon, ArrowDownIcon, ArrowUpIcon, ArrowUpRightIcon, BookmarkSimpleIcon, BooksIcon, CaretDownIcon, CaretRightIcon, ChatCircleIcon, CheckIcon, ClockCounterClockwiseIcon, CloudArrowUpIcon, CloudCheckIcon, CloudSlashIcon, CodeIcon, CopyIcon, CursorIcon, DevicesIcon, DiamondIcon, DotsThreeIcon, DownloadSimpleIcon, EyeIcon, FigmaLogoIcon, FileHtmlIcon, FileIcon, FilesIcon, HandIcon, HouseIcon, LockSimpleIcon, MagnifyingGlassPlusIcon, PlayIcon, PlusIcon, QuestionIcon, SidebarSimpleIcon, SignOutIcon, SquaresFourIcon, SwapIcon, TrashIcon, UserCircleIcon, UsersThreeIcon, XIcon } from "@phosphor-icons/react";
+import { ArrowClockwiseIcon, ArrowCounterClockwiseIcon, ArrowDownIcon, ArrowUpIcon, ArrowUpRightIcon, CaretDownIcon, CaretRightIcon, CloudArrowUpIcon, CloudCheckIcon, CloudSlashIcon, CopyIcon, DesktopIcon, DeviceMobileIcon, DeviceTabletIcon, DiamondIcon, EyeIcon, FigmaLogoIcon, FileIcon, FilesIcon, HouseIcon, LockSimpleIcon, MagnifyingGlassPlusIcon, PlayIcon, PlusIcon, SidebarSimpleIcon, SignOutIcon, SquaresFourIcon, SwapIcon, TrashIcon, XIcon } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState, type ReactNode } from "react";
 import { cn, EASE_OUT } from "@/lib/utils";
-import { AccountHeader, Avatar, displayName, openAuth, openProfile, signedIn, signOut, useAuth } from "@/site/auth";
-import { change } from "@/site/db";
-import { ColorModeSwitch } from "@/site/color-mode";
-import { copyToDesign, prepareCopy, type CopyKind, type CopyTarget } from "@/site/design-copy";
+import { AccountHeader, Avatar, displayName, openAuth, signedIn, signOut, useAuth } from "@/site/auth";
+import { copyToDesign, prepareCopy, type CopyTarget } from "@/site/design-copy";
 import { SectionGlyph } from "@/site/icons";
+import { swapsOf } from "@/site/images";
 import { Tip, WithKeys } from "@/site/keys";
 import { composeUrl, isFree, liveUrl, sectionOf, sectionShot, sectionUrl, templateOf, type LiveSection, type TemplateSlug } from "@/site/live";
 import { BaseDraftMark } from "@/site/logo";
@@ -20,45 +19,43 @@ import { useOwnsCode, usePlan } from "@/site/plan";
 import { openPro } from "@/site/pro-modal";
 import { btn, btnSm } from "@/site/sheet";
 import { withEdit, type TextEdit } from "@/site/text-edits";
+import { keepMode, modeIn, themeCss, type Mode, type Theme } from "@/site/theme";
 import { toast } from "@/site/toast";
-import { Canvas, CANVAS_WIDTH, DEVICE_LABEL, type Block, type CanvasDevice, type CanvasHandle, type PageText, type Spot, type TextRef, type Zoom } from "./canvas";
+import { Canvas, CANVAS_WIDTH, DEVICE_LABEL, type Block, type CanvasDevice, type CanvasHandle, type Zoom } from "./canvas";
 import { useCloud } from "./cloud";
-import { CommentLayer, CommentsPanel, Cursors, Face, spotOf, useComments, usePresence, viewKey, viewOf, type Comment } from "./collab";
+import { ColorsGroup } from "./colors";
 import { ExportDialog } from "./export";
 import { ExportMenu } from "./export-menu";
-import { ImagePanel, useImageUpload } from "./image-panel";
-import { BlockPanel, PagePanel, RoutePanel, SectionPanel, TextPanel } from "./inspector";
-import { BlockLayers, InsertGrid, Layers, PagesPanel, StartFrom } from "./sidebar";
-import { SiteExportDialog } from "./site-export";
-import { HelpPanel, HintLine, Tour, useGuide, type TourStep } from "./guide";
-import { layersOf, layerWith, textLayersIn, type Layer, type TextLayer } from "./text-layers";
-import { ROLE_LABEL, ROLE_PLURAL } from "./text-roles";
-import type { TextTree } from "./text-tree";
-import { blankPage, copyPage, idOf, initialState, instance, newProject, pageOf, pathFor, reducer, save, withPage, type Project, type SitePage, type View } from "./state";
-import { Tool } from "./ui";
-import { describeProject, HistoryPanel, LibraryDialog, ShareDialog, type LibraryTab } from "./workspace";
-import { track } from "@/site/analytics";
-import { swapsOf } from "@/site/images";
-import { keepMode, modeIn, themeCss, type Mode, type Theme } from "@/site/theme";
-import { StylePanel } from "./style";
+import { BlockPanel, PagePanel, RoutePanel, SectionPanel } from "./inspector";
 import { Preloader } from "./preloader";
 import { PreviewView, type Viewport } from "./preview";
+import { BlockLayers, InsertGrid, Layers, PagesPanel, StartFrom } from "./sidebar";
+import { blankPage, copyPage, idOf, initialState, instance, newProject, pageOf, pathFor, reducer, save, withPage, type Project, type SitePage, type View } from "./state";
+import { Tool } from "./ui";
+import { DraftsDialog } from "./workspace";
 
-const keepSection = change("saved_add", "saved_list");
+/*
+ * Studio: a template's site, one page at a time, at one breakpoint at a time. Pick a template, lay
+ * out your pages from its sections, click any text to rewrite it, then take it to Figma or
+ * download the code. Signed in, the draft is kept in your account as you go.
+ */
 
 const NO_KEYS: string[] = [];
-const NO_REFS: TextRef[] = [];
 const ZOOMS: Array<{ value: Zoom; label: string; keys?: string }> = [
   { value: "fit", label: "Zoom to fit", keys: "⇧1" },
-  { value: "all", label: "Fit all breakpoints" },
   { value: 0.25, label: "25%" },
   { value: 0.5, label: "50%" },
   { value: 0.75, label: "75%" },
   { value: 1, label: "100%", keys: "⇧0" },
 ];
 
-const isTyping = (t: EventTarget | null) =>
-  t instanceof HTMLElement && (t.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(t.tagName) || t.getAttribute("role") === "slider" || t.getAttribute("role") === "combobox");
+const DEVICES: Array<{ id: CanvasDevice; icon: typeof DesktopIcon }> = [
+  { id: "desktop", icon: DesktopIcon },
+  { id: "tablet", icon: DeviceTabletIcon },
+  { id: "phone", icon: DeviceMobileIcon },
+];
+
+const isTyping = (t: EventTarget | null) => t instanceof HTMLElement && (t.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(t.tagName) || t.getAttribute("role") === "combobox");
 
 /* ---------- motion ---------- */
 
@@ -73,7 +70,7 @@ const PANEL = "rounded-[16px] bg-surface shadow-[0_0_0_0.5px_rgb(var(--bd-ink)/0
 const ICON_BTN = "grid size-8 shrink-0 place-items-center rounded-[11px] text-fg/80 transition-colors hover:bg-fg/[0.06] hover:text-fg disabled:pointer-events-none disabled:opacity-30";
 
 /** A toolbar button that opens its panel above the toolbar. One open at a time. */
-function ToolPop({ id, open, setOpen, label, button, children, width, tour }: { id: string; open: string | null; setOpen: (v: string | null) => void; label: string; button: ReactNode; children: ReactNode; width: number; tour?: string }) {
+function ToolPop({ id, open, setOpen, label, button, children, width }: { id: string; open: string | null; setOpen: (v: string | null) => void; label: string; button: ReactNode; children: ReactNode; width: number }) {
   const on = open === id;
   const root = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -92,7 +89,7 @@ function ToolPop({ id, open, setOpen, label, button, children, width, tour }: { 
     };
   }, [on, setOpen]);
   return (
-    <div ref={root} className="relative" data-tour={tour}>
+    <div ref={root} className="relative">
       <Tip label={label}>
         <motion.button whileTap={PRESS} type="button" aria-expanded={on} aria-haspopup="dialog" aria-label={label} onClick={() => setOpen(on ? null : id)} className={cn("flex h-8 min-w-8 shrink-0 items-center justify-center gap-1 rounded-[11px] px-2 text-fg/80 transition-colors hover:bg-fg/[0.06] hover:text-fg", on && "bg-fg/[0.08] text-fg")}>
           {button}
@@ -120,101 +117,76 @@ function ToolPop({ id, open, setOpen, label, button, children, width, tour }: { 
 
 /* ---------- the selection's toolbar ---------- */
 
-const MORE: Array<{ kind: CopyKind | "react" | "save"; label: string; icon: typeof FigmaLogoIcon }> = [
-  { kind: "save", label: "Save to Library", icon: BookmarkSimpleIcon },
-  { kind: "paper", label: "Copy for Paper", icon: FileHtmlIcon },
-  { kind: "svg", label: "Download SVG", icon: DownloadSimpleIcon },
-  { kind: "react", label: "React code", icon: CodeIcon },
-];
+const BAR = "relative flex h-[36px] shrink-0 items-center gap-0.5 rounded-[14px] bg-surface p-[3px] shadow-[0_6px_20px_-4px_rgb(var(--bd-shade)/0.18),0_0_0_1px_rgb(var(--bd-ink)/0.08)]";
+const BAR_TOOL = "grid size-[30px] place-items-center rounded-[10px] text-fg/75 transition-colors hover:bg-fg/[0.07] hover:text-fg disabled:opacity-30";
+// Copy carries a label, so it gets its own width rather than the icon buttons' square.
+const BAR_WIDE = "flex h-[30px] shrink-0 items-center gap-1.5 whitespace-nowrap rounded-[10px] px-2 text-[12.5px] font-medium text-fg/75 transition-colors hover:bg-fg/[0.07] hover:text-fg";
+const CHIP = "flex h-[26px] min-w-0 items-center gap-1.5 rounded-[9px] bg-select px-2 text-[12px] font-medium text-white shadow-[0_2px_8px_rgba(151,71,255,0.35)]";
+
+/** Copy for Figma, or for a free account, the same button with a word on Pro. */
+function CopyButton({ pro, tight, onCopy, onPrepare }: { pro: boolean; tight: boolean; onCopy: () => void; onPrepare: () => void }) {
+  return (
+    <Tip label={pro ? "Copy for Figma" : "Copy for Figma is in Pro"}>
+      <button type="button" className={BAR_WIDE} onPointerEnter={onPrepare} onFocus={onPrepare} onClick={() => (pro ? onCopy() : openPro("figma"))} aria-label={pro ? "Copy for Figma" : "Copy for Figma, a Pro feature"}>
+        <FigmaLogoIcon size={14} /> {!tight && "Copy"}
+        {!pro && <span className="rounded-[6px] bg-fg/[0.07] px-1 py-px text-[10.5px] font-semibold text-muted">Pro</span>}
+      </button>
+    </Tip>
+  );
+}
 
 /*
  * Sits just above the selected section, outside it, so it never covers what you're looking at:
- * the name in selection purple, then swapping, arranging, and taking the section elsewhere.
+ * the name in selection purple, then swapping, arranging, and taking the section to Figma.
  */
-function SelectionBar({ section, index, count, pro, width, kin, onSwap, onMove, onDuplicate, onRemove, onInsert, onCopy, onSave, onPrepare }: { section: LiveSection; index: number; count: number; pro: boolean; width: number; kin: LiveSection[]; onSwap: (id: string) => void; onMove: (d: 1 | -1) => void; onDuplicate: () => void; onRemove: () => void; onInsert: () => void; onCopy: (k: CopyKind | "react") => void; onSave: () => void; onPrepare: () => void }) {
+function SelectionBar({ section, index, count, pro, width, kin, onSwap, onMove, onDuplicate, onRemove, onCopy, onPrepare }: { section: LiveSection; index: number; count: number; pro: boolean; width: number; kin: LiveSection[]; onSwap: (id: string) => void; onMove: (d: 1 | -1) => void; onDuplicate: () => void; onRemove: () => void; onCopy: () => void; onPrepare: () => void }) {
   const [swap, setSwap] = useState(false);
-  const [more, setMore] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (!swap && !more) return;
-    const close = (e: PointerEvent) => {
-      if (root.current?.contains(e.target as Node)) return;
-      setSwap(false);
-      setMore(false);
-    };
+    if (!swap) return;
+    const close = (e: PointerEvent) => !root.current?.contains(e.target as Node) && setSwap(false);
     document.addEventListener("pointerdown", close);
     return () => document.removeEventListener("pointerdown", close);
-  }, [swap, more]);
-  const tight = width < 560;
-  const tool = "grid size-[30px] place-items-center rounded-[10px] text-fg/75 transition-colors hover:bg-fg/[0.07] hover:text-fg disabled:opacity-30";
-  // Copy carries a label, so it gets its own width rather than the icon buttons' square.
-  const wide = "flex h-[30px] shrink-0 items-center gap-1.5 whitespace-nowrap rounded-[10px] px-2 text-[12.5px] font-medium text-fg/75 transition-colors hover:bg-fg/[0.07] hover:text-fg";
+  }, [swap]);
   return (
     <>
-      <span className="flex h-[26px] min-w-0 items-center gap-1.5 rounded-[9px] bg-select px-2 text-[12px] font-medium text-white shadow-[0_2px_8px_rgba(151,71,255,0.35)]">
+      <span className={CHIP}>
         <SectionGlyph kind={section.kind} size={13} />
         <span className="truncate">{section.name}</span>
       </span>
-      <div ref={root} role="toolbar" aria-label={`${section.name} tools`} className="relative flex h-[36px] shrink-0 items-center gap-0.5 rounded-[14px] bg-surface p-[3px] shadow-[0_6px_20px_-4px_rgb(var(--bd-shade)/0.18),0_0_0_1px_rgb(var(--bd-ink)/0.08)]">
+      <div ref={root} role="toolbar" aria-label={`${section.name} tools`} className={BAR}>
         {kin.length > 1 && (
           <>
             <Tip label={`Swap for another ${section.kind === "faq" ? "FAQ" : "one of its kind"}`}>
-              <button type="button" className={cn(tool, swap && "bg-fg/[0.08] text-fg")} onClick={() => setSwap((s) => !s)} aria-label="Swap section" aria-expanded={swap}>
+              <button type="button" className={cn(BAR_TOOL, swap && "bg-fg/[0.08] text-fg")} onClick={() => setSwap((s) => !s)} aria-label="Swap section" aria-expanded={swap}>
                 <SwapIcon size={15} />
               </button>
             </Tip>
             <span aria-hidden className="mx-0.5 h-4 w-px bg-line" />
           </>
         )}
-        {!tight && (
-          <>
-            <Tip label="Insert below">
-              <button type="button" className={tool} onClick={onInsert} aria-label="Insert below">
-                <PlusIcon size={15} weight="bold" />
-              </button>
-            </Tip>
-            <Tip label="Move up" keys="Alt ArrowUp">
-              <button type="button" className={tool} onClick={() => onMove(-1)} disabled={index === 0} aria-label="Move up">
-                <ArrowUpIcon size={15} />
-              </button>
-            </Tip>
-            <Tip label="Move down" keys="Alt ArrowDown">
-              <button type="button" className={tool} onClick={() => onMove(1)} disabled={index === count - 1} aria-label="Move down">
-                <ArrowDownIcon size={15} />
-              </button>
-            </Tip>
-            <Tip label="Duplicate" keys="Cmd D">
-              <button type="button" className={tool} onClick={onDuplicate} aria-label="Duplicate">
-                <CopyIcon size={15} />
-              </button>
-            </Tip>
-            <Tip label="Delete" keys="Del">
-              <button type="button" className={cn(tool, "hover:bg-[#d92d20]/10 hover:text-[#d92d20]")} onClick={onRemove} aria-label="Delete">
-                <TrashIcon size={15} />
-              </button>
-            </Tip>
-            <span aria-hidden className="mx-0.5 h-4 w-px bg-line" />
-          </>
-        )}
-        {pro ? (
-          <Tip label="Copy for Figma">
-            <button type="button" className={wide} onPointerEnter={onPrepare} onFocus={onPrepare} onClick={() => onCopy("figma")} aria-label="Copy for Figma">
-              <FigmaLogoIcon size={14} /> {!tight && "Copy"}
-            </button>
-          </Tip>
-        ) : (
-          <Tip label="Copy for Figma is in Pro">
-            <button type="button" onClick={() => openPro("figma")} className={wide} aria-label="Copy for Figma, a Pro feature">
-              <FigmaLogoIcon size={14} /> {!tight && "Copy"}
-              <span className="rounded-[6px] bg-fg/[0.07] px-1 py-px text-[10.5px] font-semibold text-muted">Pro</span>
-            </button>
-          </Tip>
-        )}
-        <Tip label="More">
-          <button type="button" className={cn(tool, more && "bg-fg/[0.08] text-fg")} onPointerEnter={() => pro && onPrepare()} onClick={() => setMore((m) => !m)} aria-label="More actions" aria-haspopup="menu" aria-expanded={more}>
-            <DotsThreeIcon size={16} weight="bold" />
+        <Tip label="Move up" keys="Alt ArrowUp">
+          <button type="button" className={BAR_TOOL} onClick={() => onMove(-1)} disabled={index === 0} aria-label="Move up">
+            <ArrowUpIcon size={15} />
           </button>
         </Tip>
+        <Tip label="Move down" keys="Alt ArrowDown">
+          <button type="button" className={BAR_TOOL} onClick={() => onMove(1)} disabled={index === count - 1} aria-label="Move down">
+            <ArrowDownIcon size={15} />
+          </button>
+        </Tip>
+        <Tip label="Duplicate" keys="Cmd D">
+          <button type="button" className={BAR_TOOL} onClick={onDuplicate} aria-label="Duplicate">
+            <CopyIcon size={15} />
+          </button>
+        </Tip>
+        <Tip label="Delete" keys="Del">
+          <button type="button" className={cn(BAR_TOOL, "hover:bg-[#d92d20]/10 hover:text-[#d92d20]")} onClick={onRemove} aria-label="Delete">
+            <TrashIcon size={15} />
+          </button>
+        </Tip>
+        <span aria-hidden className="mx-0.5 h-4 w-px bg-line" />
+        <CopyButton pro={pro} tight={width < 480} onCopy={onCopy} onPrepare={onPrepare} />
 
         <AnimatePresence>
           {swap && (
@@ -244,52 +216,6 @@ function SelectionBar({ section, index, count, pro, width, kin, onSwap, onMove, 
               </div>
             </motion.div>
           )}
-          {more && (
-            <motion.div role="menu" aria-label="More actions" initial={{ opacity: 0, y: -4, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -4, scale: 0.98 }} transition={{ duration: 0.16, ease: EASE_OUT }} className="absolute right-0 top-full z-20 mt-1.5 w-[220px] origin-top-right rounded-[16px] bg-surface p-1.5 shadow-[0_16px_48px_rgb(var(--bd-shade)/0.18),0_0_0_1px_rgb(var(--bd-ink)/0.06)]">
-              {tight && (
-                <>
-                  {[
-                    { label: "Insert below", icon: PlusIcon, run: onInsert },
-                    { label: "Move up", icon: ArrowUpIcon, run: () => onMove(-1) },
-                    { label: "Move down", icon: ArrowDownIcon, run: () => onMove(1) },
-                    { label: "Duplicate", icon: CopyIcon, run: onDuplicate },
-                    { label: "Delete", icon: TrashIcon, run: onRemove },
-                  ].map((m) => (
-                    <button
-                      key={m.label}
-                      role="menuitem"
-                      type="button"
-                      onClick={() => {
-                        setMore(false);
-                        m.run();
-                      }}
-                      className="flex h-9 w-full items-center gap-2.5 rounded-[10px] px-2.5 text-left text-[13px] hover:bg-fg/[0.05]"
-                    >
-                      <m.icon size={15} className="text-muted" /> {m.label}
-                    </button>
-                  ))}
-                  <div className="mx-1 my-1 h-px bg-line" />
-                </>
-              )}
-              {MORE.map((m) => (
-                <button
-                  key={m.kind}
-                  role="menuitem"
-                  type="button"
-                  onClick={() => {
-                    setMore(false);
-                    if (m.kind === "save") onSave();
-                    else onCopy(m.kind);
-                  }}
-                  className="flex h-9 w-full items-center gap-2.5 rounded-[10px] px-2.5 text-left text-[13px] hover:bg-fg/[0.05]"
-                >
-                  <m.icon size={15} className="text-muted" />
-                  <span className="flex-1">{m.label}</span>
-                  {!pro && m.kind !== "save" && <span className="rounded-[6px] bg-fg/[0.07] px-1.5 py-px text-[11px] font-semibold text-muted">Pro</span>}
-                </button>
-              ))}
-            </motion.div>
-          )}
         </AnimatePresence>
       </div>
     </>
@@ -300,7 +226,7 @@ function SelectionBar({ section, index, count, pro, width, kin, onSwap, onMove, 
 function SaveState({ status, access, owner }: { status: string; access: string | null; owner: string | null }) {
   if (access === "view")
     return (
-      <Tip label={`${owner ? `${owner}'s project. ` : ""}You can look and comment; your changes aren't saved to it.`} side="bottom">
+      <Tip label={`${owner ? `${owner}'s project. ` : ""}You can look; your changes aren't saved to it.`} side="bottom">
         <span className="flex h-6 shrink-0 items-center gap-1 rounded-[6px] bg-fg/[0.06] px-1.5 text-[11.5px] font-semibold text-muted">
           <EyeIcon size={12} weight="bold" /> View only
         </span>
@@ -312,7 +238,7 @@ function SaveState({ status, access, owner }: { status: string; access: string |
       : status === "saving"
         ? [CloudArrowUpIcon, "Saving to your account"]
         : status === "saved"
-          ? [CloudCheckIcon, owner ? `Saved. ${owner}'s project, shared with you.` : "Saved to your account"]
+          ? [CloudCheckIcon, owner ? `Saved. ${owner}'s project.` : "Saved to your account"]
           : [CloudArrowUpIcon, "Connecting to your account"];
   return (
     <Tip label={label} side="bottom">
@@ -325,69 +251,22 @@ function SaveState({ status, access, owner }: { status: string; access: string |
 
 /*
  * The same toolbar for a block of one of the template's own pages. Those pages are the template's
- * code as written, so their blocks keep their order; what you can do is take one elsewhere.
+ * code as written, so their blocks keep their order; what you can do is take one to Figma.
  */
-function BlockBar({ name, pro, width, onCopy, onPrepare }: { name: string; pro: boolean; width: number; onCopy: (k: CopyKind) => void; onPrepare: () => void }) {
-  const [more, setMore] = useState(false);
-  const root = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!more) return;
-    const close = (e: PointerEvent) => !root.current?.contains(e.target as Node) && setMore(false);
-    document.addEventListener("pointerdown", close);
-    return () => document.removeEventListener("pointerdown", close);
-  }, [more]);
-  const tight = width < 420;
-  const tool = "grid size-[30px] place-items-center rounded-[10px] text-fg/75 transition-colors hover:bg-fg/[0.07] hover:text-fg";
-  const wide = "flex h-[30px] shrink-0 items-center gap-1.5 whitespace-nowrap rounded-[10px] px-2 text-[12.5px] font-medium text-fg/75 transition-colors hover:bg-fg/[0.07] hover:text-fg";
+function BlockBar({ name, pro, width, onCopy, onPrepare }: { name: string; pro: boolean; width: number; onCopy: () => void; onPrepare: () => void }) {
   return (
     <>
-      <span className="flex h-[26px] min-w-0 items-center gap-1.5 rounded-[9px] bg-select px-2 text-[12px] font-medium text-white shadow-[0_2px_8px_rgba(151,71,255,0.35)]">
+      <span className={CHIP}>
         <span className="truncate">{name}</span>
       </span>
-      <div ref={root} role="toolbar" aria-label={`${name} tools`} className="relative flex h-[36px] shrink-0 items-center gap-0.5 rounded-[14px] bg-surface p-[3px] shadow-[0_6px_20px_-4px_rgb(var(--bd-shade)/0.18),0_0_0_1px_rgb(var(--bd-ink)/0.08)]">
+      <div role="toolbar" aria-label={`${name} tools`} className={BAR}>
         <Tip label="This page is the template's own: its blocks keep their order. Arrange sections on your pages.">
-          <span className={cn(tool, "cursor-default")} aria-label="Why this block can't move">
+          <span className={cn(BAR_TOOL, "cursor-default")} aria-label="Why this block can't move">
             <LockSimpleIcon size={14} />
           </span>
         </Tip>
         <span aria-hidden className="mx-0.5 h-4 w-px bg-line" />
-        <Tip label={pro ? "Copy for Figma" : "Copy for Figma is in Pro"}>
-          <button type="button" className={wide} onPointerEnter={onPrepare} onFocus={onPrepare} onClick={() => (pro ? onCopy("figma") : openPro("figma"))} aria-label="Copy for Figma">
-            <FigmaLogoIcon size={14} /> {!tight && "Copy"}
-            {!pro && <span className="rounded-[6px] bg-fg/[0.07] px-1 py-px text-[10.5px] font-semibold text-muted">Pro</span>}
-          </button>
-        </Tip>
-        <Tip label="More">
-          <button type="button" className={cn(tool, more && "bg-fg/[0.08] text-fg")} onPointerEnter={onPrepare} onClick={() => setMore((m) => !m)} aria-label="More actions" aria-haspopup="menu" aria-expanded={more}>
-            <DotsThreeIcon size={16} weight="bold" />
-          </button>
-        </Tip>
-        <AnimatePresence>
-          {more && (
-            <motion.div role="menu" aria-label="More actions" initial={{ opacity: 0, y: -4, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -4, scale: 0.98 }} transition={{ duration: 0.16, ease: EASE_OUT }} className="absolute right-0 top-full z-20 mt-1.5 w-[220px] origin-top-right rounded-[16px] bg-surface p-1.5 shadow-[0_16px_48px_rgb(var(--bd-shade)/0.18),0_0_0_1px_rgb(var(--bd-ink)/0.06)]">
-              {[
-                { kind: "paper" as const, label: "Copy for Paper", icon: FileHtmlIcon },
-                { kind: "svg" as const, label: "Download SVG", icon: DownloadSimpleIcon },
-              ].map((m) => (
-                <button
-                  key={m.kind}
-                  role="menuitem"
-                  type="button"
-                  onClick={() => {
-                    setMore(false);
-                    if (pro) onCopy(m.kind);
-                    else openPro(m.kind);
-                  }}
-                  className="flex h-9 w-full items-center gap-2.5 rounded-[10px] px-2.5 text-left text-[13px] hover:bg-fg/[0.05]"
-                >
-                  <m.icon size={15} className="text-muted" />
-                  <span className="flex-1">{m.label}</span>
-                  {!pro && <span className="rounded-[6px] bg-fg/[0.07] px-1.5 py-px text-[11px] font-semibold text-muted">Pro</span>}
-                </button>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <CopyButton pro={pro} tight={width < 360} onCopy={onCopy} onPrepare={onPrepare} />
       </div>
     </>
   );
@@ -395,7 +274,6 @@ function BlockBar({ name, pro, width, onCopy, onPrepare }: { name: string; pro: 
 
 /* ---------- the app ---------- */
 
-const DEVICES: CanvasDevice[] = ["desktop", "tablet", "phone"];
 type LeftTab = "pages" | "layers" | "sections";
 
 export default function Studio() {
@@ -405,48 +283,25 @@ export default function Studio() {
   const t = templateOf(project.template)!;
   const route = view.kind === "route" ? (t.pages.find((p) => p.path === view.path) ?? { label: view.path, path: view.path }) : null;
   const canvas = useRef<CanvasHandle>(null);
-  const [devices, setDevices] = useState<CanvasDevice[]>(DEVICES);
+  const [device, setDevice] = useState<CanvasDevice>("desktop");
   const [zoomMode, setZoomMode] = useState<Zoom>("fit");
   const [zoom, setZoom] = useState(1);
-  const [hand, setHand] = useState(false);
   const [tab, setTab] = useState<LeftTab>("layers");
   const [blocks, setBlocks] = useState<Block[]>([]);
-  // The words in every section (or block) open in Layers, and the selected one: null while it's drawn.
-  const [texts, setTexts] = useState<Record<string, PageText[] | null>>({});
-  // Layer rows opened (true) or closed (false) by hand; the rest follow the selection.
-  const [unfolded, setUnfolded] = useState<Record<string, boolean>>({});
-  // The text layer picked, by the section (or block) it's in and one of its parts.
-  const [picked, setPicked] = useState<{ key: string; ref: TextRef } | null>(null);
-  // Bumped to put the cursor in the picked text's first field (Enter); 0 leaves it where it is.
-  const [focusText, setFocusText] = useState(0);
   const [pop, setPop] = useState<string | null>(null);
   const [panels, setPanels] = useState({ left: true, right: true });
   // Back from connecting GitHub, the export dialog opens where you left it.
-  const [exporting, setExporting] = useState<"react" | "json" | "github" | null>(() => (new URLSearchParams(window.location.search).get("export") === "github" ? "github" : null));
-  const [site, setSite] = useState(false);
-  const [guide, setGuide] = useGuide();
-  const [touring, setTouring] = useState(false);
+  const [exporting, setExporting] = useState<"files" | "github" | null>(() => (new URLSearchParams(window.location.search).get("export") === "github" ? "github" : null));
   const [plan, { preview }] = usePlan();
   const pro = plan === "pro";
-  // Code (export, download, GitHub) is Pro's, or comes with buying this template.
+  // Code (download, GitHub) is Pro's, or comes with buying this template.
   const code = useOwnsCode(project.template);
   const { user, loading } = useAuth();
   // Arriving from a template's page starts a new draft with it.
   const [fresh] = useState(() => new URLSearchParams(window.location.search).has("template"));
   const cloud = useCloud({ user, loading, project, dispatch, fresh });
-  const here = viewKey(view);
-  const presence = usePresence(cloud.id, here, selected);
-  const comments = useComments(cloud.id);
-  // Comment mode: clicks on the page place a comment; the inspector lists every thread.
-  const [commenting, setCommenting] = useState(false);
-  const [thread, setThread] = useState<string | null>(null);
-  const [draft, setDraft] = useState<Spot | null>(null);
-  const [showResolved, setShowResolved] = useState(false);
-  // Version history takes over the inspector, as in Figma.
-  const [inspect, setInspect] = useState<"inspect" | "history">("inspect");
-  const [sharing, setSharing] = useState(false);
   // The site's account menu links here as /studio#library.
-  const [library, setLibrary] = useState<LibraryTab | null>(() => (window.location.hash === "#library" ? "drafts" : null));
+  const [drafts, setDrafts] = useState(() => window.location.hash === "#library");
   // A link that opened a template here has done its job; the address goes back to plain /studio.
   useEffect(() => {
     const q = new URLSearchParams(window.location.search);
@@ -492,20 +347,10 @@ export default function Studio() {
     const t = setTimeout(() => setBooted(true), 350);
     return () => clearTimeout(t);
   }, [drawnOnce, booted]);
-  // The first time here, a short tour, once Studio is open; it never comes back on its own.
-  useEffect(() => {
-    if (guide.toured || !booted) return;
-    const id = setTimeout(() => setTouring(true), 900);
-    return () => clearTimeout(id);
-  }, [guide.toured, booted]);
-  const endTour = () => {
-    setTouring(false);
-    setGuide({ toured: true });
-  };
   useEffect(() => {
     if (window.location.hash !== "#library") return;
     window.history.replaceState(null, "", "/studio");
-    void signedIn().then((yes) => !yes && openAuth("sign-in", { reason: "library", then: () => setLibrary("drafts") }));
+    void signedIn().then((yes) => !yes && openAuth("sign-in", { reason: "library", then: () => setDrafts(true) }));
   }, []);
 
   useEffect(() => {
@@ -514,37 +359,14 @@ export default function Studio() {
   }, [project]);
 
   const change = useCallback((p: Project) => dispatch({ type: "change", project: p }), []);
-  // A new selection drops a text picked in another one.
-  const select = useCallback((key: string | null) => {
-    setPicked((p) => (p && p.key === key ? p : null));
-    dispatch({ type: "select", key });
-  }, []);
+  const select = useCallback((key: string | null) => dispatch({ type: "select", key }), []);
   const go = useCallback((v: View) => dispatch({ type: "view", view: v }), []);
 
   /** Changes the page on show, when it's one made of sections. */
   const setPage = (p: SitePage) => change(withPage(project, p));
-  // Images in place of the template's: sent to every page, kept with the project.
+  // Images a draft put in place of the template's (Studio once let you swap them): still drawn and exported.
   const swaps = useMemo(() => swapsOf(project.images), [project.images]);
-  const upload = useImageUpload();
-  const now = useRef(project);
-  useEffect(() => {
-    now.current = project;
-  });
-  /** Puts an image in place of one of the template's files, once it's uploaded (other changes made meanwhile kept). */
-  const replaceImage = async (file: string, f: File) => {
-    const swap = await upload(f, file);
-    const p = now.current;
-    change({ ...p, images: { ...p.images, [file]: swap } });
-    toast("Your image is in", { detail: "Drawn the template's way, wherever it uses that file." });
-  };
-  const resetImage = (file: string) => {
-    const rest = { ...project.images };
-    delete rest[file];
-    const next: Project = { ...project, images: rest };
-    if (!Object.keys(rest).length) delete next.images;
-    change(next);
-  };
-  /** One edit, or several as one change (a text layer reset in full is one undo). */
+  /** One edit, or several as one change (a headline rewritten word by word is one undo). */
   const edit = useCallback(
     (e: TextEdit | TextEdit[]) => {
       // An edit takes its decorative copies along (a marquee's repeated cards), so they still match.
@@ -553,15 +375,10 @@ export default function Studio() {
     },
     [change, project],
   );
-  // A color dragged across the picker (or a slider) is one change, not one per frame: changes
-  // within a moment of the last one amend it.
-  const colorAt = useRef(0);
   const restyle = (theme: Theme | undefined) => {
     const next = { ...project, theme };
     if (!theme) delete next.theme;
-    const now = Date.now();
-    dispatch({ type: now - colorAt.current < 800 && state.past.length ? "amend" : "change", project: next });
-    colorAt.current = now;
+    change(next);
   };
 
   // A template with a dark mode is drawn in the one its own switch last kept here (or the system's);
@@ -578,90 +395,6 @@ export default function Studio() {
   const index = selected && page ? page.keys.indexOf(selected) : -1;
   const section = selected && page ? (sectionOf(project.template, idOf(selected)) ?? null) : null;
   const block = view.kind === "route" && selected ? blocks.find((b) => b.key === selected) : undefined;
-
-  /* ---------- text layers ---------- */
-
-  // A layer row is open on its text when it was opened by hand, or, unless closed by hand, when it's selected.
-  const isOpen = useCallback((k: string) => unfolded[k] ?? k === selected, [unfolded, selected]);
-  const layerKeys = page ? page.keys : blocks.map((b) => b.key);
-  const reading = [...new Set([...layerKeys.filter(isOpen), ...(selected ? [selected] : [])])].join("\n");
-  const routeScope = view.kind === "route" ? `route:${view.path}` : null;
-  // What the open rows were last read with: an edit, a fresh draw or another page reads them all
-  // again; a row just opened, only it (its layers show at once from last time while it's read).
-  const readWith = useRef({ sig: "", route: null as string | null, keys: new Set<string>() });
-  useEffect(() => {
-    const keys = reading ? reading.split("\n") : [];
-    const sig = `${routeScope}|${JSON.stringify(project.edits)}|${drawnOnce}|${blocks.length}`;
-    const was = readWith.current;
-    const fresh = was.route !== routeScope;
-    if (was.sig !== sig) readWith.current = { sig, route: routeScope, keys: new Set() };
-    const want = keys.filter((k) => !readWith.current.keys.has(k));
-    const read = (which: string[], replace = false) => {
-      if (!which.length) return;
-      // Only once it's really read does a row count as read: a read cut short by the next change isn't.
-      for (const k of which) readWith.current.keys.add(k);
-      const next = Object.fromEntries(which.map((k) => [k, canvas.current?.texts(routeScope ?? k, routeScope ? k : undefined) ?? null]));
-      setTexts((now) => {
-        const merged = replace ? next : { ...now, ...next };
-        return JSON.stringify(now) === JSON.stringify(merged) ? now : merged;
-      });
-    };
-    // Once now, and again once the frame has caught up with an edit or a fresh load; then now and
-    // then for the selected one, so a counter or a ticker, which moves on by itself, is told from copy.
-    const now = setTimeout(() => read(want, fresh), 0);
-    const later = setTimeout(() => read(want), 600);
-    const often = selected ? setInterval(() => read([selected]), 2500) : undefined;
-    return () => {
-      clearTimeout(now);
-      clearTimeout(later);
-      clearInterval(often);
-    };
-    // Again once the first page is drawn: on Cloudflare the canvas's page draws its sections after it loads.
-  }, [reading, routeScope, project.edits, drawnOnce, blocks, selected]);
-  const layersBy = useMemo(() => Object.fromEntries(Object.entries(texts).map(([k, list]) => [k, list ? layersOf(list) : undefined])) as Record<string, Layer[] | undefined>, [texts]);
-  const textLayers = useMemo(() => (selected ? textLayersIn(layersBy[selected] ?? []) : []), [layersBy, selected]);
-  const pickedLayer = picked && picked.key === selected ? layerWith(layersBy[selected] ?? [], picked.ref) : undefined;
-  // The same array until the text is read again: the layers are kept as they're read.
-  const pickedRefs: TextRef[] = pickedLayer?.parts ?? NO_REFS;
-  /** Picks a text layer: its section selected, it outlined and brought into view, the inspector on it. */
-  const pickText = useCallback(
-    (key: string, l: TextLayer, focus = false) => {
-      select(key);
-      setPicked({ key, ref: l.parts[0] });
-      setFocusText((n) => (focus ? n + 1 : 0));
-      canvas.current?.revealText(l.parts);
-    },
-    [select],
-  );
-  const stepText = (by: 1 | -1) => {
-    const i = textLayers.findIndex((l) => l.id === pickedLayer?.id);
-    const next = textLayers[i + by];
-    if (selected && next) pickText(selected, next);
-  };
-  const onPickText = useCallback((key: string, ref: TextRef) => {
-    setPicked({ key, ref });
-    setFocusText(0);
-  }, []);
-  const hoverText = useCallback((l: TextLayer | null) => canvas.current?.mark(l ? l.parts : null), []);
-  /** Back from a text layer to the section (or block) it's in. */
-  const unpick = useCallback(() => setPicked(null), []);
-  /** A section (or block) picked in Layers: itself, not a text in it. */
-  const selectLayer = useCallback(
-    (k: string) => {
-      setPicked(null);
-      select(k);
-    },
-    [select],
-  );
-  const textTree: TextTree = {
-    open: isOpen,
-    onToggle: (k) => setUnfolded((u) => ({ ...u, [k]: !isOpen(k) })),
-    layers: layersBy,
-    picked: pickedLayer && selected ? { key: selected, id: pickedLayer.id } : null,
-    // A click on a text layer puts the cursor in its words, ready to type.
-    onPick: (k, l) => pickText(k, l, true),
-    onHover: hoverText,
-  };
 
   const insert = (id: string) => {
     const s = sectionOf(project.template, id);
@@ -714,10 +447,10 @@ export default function Studio() {
   };
   const start = (slug: TemplateSlug) => {
     setPop(null);
-    // Signed in, a template starts a new draft and the last one stays in your Library.
+    // Signed in, a template starts a new draft and the last one stays in your drafts.
     if (user)
       return void cloud.startNew(newProject(slug)).then(
-        () => toast(`Started a new draft from ${templateOf(slug)?.name}`, { detail: "Your last one is in your Library." }),
+        () => toast(`Started a new draft from ${templateOf(slug)?.name}`, { detail: "Your last one is in your drafts." }),
         () => toast("Couldn't start a new draft", { tone: "error" }),
       );
     dispatch({ type: "replace", project: newProject(slug) });
@@ -747,89 +480,11 @@ export default function Studio() {
     change({ ...project, pages: project.pages.filter((x) => x.id !== id), edits: project.edits.filter((e) => !p.keys.includes(e.scope)) });
     toast(`Deleted ${p.name}`, { detail: "{Cmd Z} brings it back." });
   };
-  const openHistory = () => {
-    setPanels((p) => ({ ...p, right: true }));
-    setInspect("history");
-  };
-  const restore = (p: Project) => {
-    dispatch({ type: "change", project: structuredClone(p) });
-    toast("Restored that version", { detail: "{Cmd Z} takes you back." });
-  };
-  const restoreSaved = (id: string) =>
-    cloud.restoreVersion(id).then(restore, (e) => toast("Couldn't restore that version", { tone: "error", detail: e instanceof Error ? e.message : undefined }));
-  const share = () => (user ? setSharing(true) : openAuth("sign-up", { reason: "share", then: () => setSharing(true) }));
   const openDraft = (id: string) => {
-    setLibrary(null);
-    setThread(null);
-    setDraft(null);
+    setDrafts(false);
     cloud.open(id);
   };
-  const saveSection = (key: string) => {
-    const s = sectionOf(project.template, idOf(key));
-    if (!s) return;
-    if (!user) return openAuth("sign-up", { reason: "library" });
-    keepSection({ template: project.template, section_id: s.id }).then(
-      () => toast(`Saved ${s.name} to your Library`, { detail: `It's there for any ${t.name} page.` }),
-      () => toast("Couldn't save it", { tone: "error" }),
-    );
-  };
 
-  /* ---------- comments ---------- */
-
-  const comment = (on: boolean) => {
-    if (on && !user) return openAuth("sign-up", { reason: "comment", then: () => setCommenting(true) });
-    setCommenting(on);
-    setThread(null);
-    setDraft(null);
-    if (on) {
-      setHand(false);
-      select(null);
-      setPanels((p) => ({ ...p, right: true }));
-    }
-  };
-  const place = (s: Spot | null) => {
-    // A click away from an open thread closes it; the next click places a comment.
-    if (thread || draft) {
-      setThread(null);
-      setDraft(null);
-      return;
-    }
-    if (s && cloud.id) setDraft(s);
-  };
-  const post = async (body: string) => {
-    if (!draft || !cloud.id) return null;
-    const id = await comments.create({ projectId: cloud.id, view: here, device: draft.device, anchor: draft.anchor ?? undefined, x: draft.x, y: draft.y, body });
-    if (id) {
-      setDraft(null);
-      setThread(id);
-      track("comment_posted");
-    }
-    return id;
-  };
-  const reply = (root: Comment, body: string) => (cloud.id ? comments.create({ projectId: cloud.id, view: root.view, device: root.device ?? undefined, anchor: root.anchor ?? undefined, x: root.x, y: root.y, body, parentId: root.id }) : Promise.resolve(null));
-  const removeComment = (c: Comment) => {
-    if (!c.parentId) setThread(null);
-    void comments.remove(c.id);
-  };
-  /** Goes to a thread: its page, its breakpoint, and the pin in view. */
-  const goToComment = (c: Comment) => {
-    const v = viewOf(c.view);
-    if (viewKey(v) !== here && (v.kind === "route" || project.pages.some((p) => p.id === v.id))) go(v);
-    const d = (c.device ?? "desktop") as CanvasDevice;
-    if (!devices.includes(d)) setDevices((now) => DEVICES.filter((x) => now.includes(x) || x === d));
-    setDraft(null);
-    setThread(c.id);
-    setTimeout(() => canvas.current?.revealSpot(spotOf(c)), viewKey(v) === here ? 0 : 900);
-  };
-  const labelOf = (key: string) => {
-    const v = viewOf(key);
-    return v.kind === "page" ? (project.pages.find((p) => p.id === v.id)?.name ?? "A deleted page") : (t.pages.find((p) => p.path === v.path)?.label ?? v.path);
-  };
-  const openThreads = comments.all.filter((c) => !c.parentId && !c.resolved).length;
-  const me = user ? displayName(user) : "";
-  const others = presence.people;
-  const peers = others.filter((p) => p.view === here && p.selected).map((p) => ({ key: p.selected!, color: p.color, name: p.name }));
-  const proUsed = !pro && project.pages.some((p) => p.keys.some((k) => !isFree(sectionOf(project.template, idOf(k)) ?? { template: project.template })));
   const names = Object.fromEntries(t.sections.map((s) => [s.id, `${t.name} / ${s.name}`]));
   // The project's colors as CSS, laid over the template's in the canvas and in every copy.
   const colors = themeCss(project.template, project.theme);
@@ -848,22 +503,23 @@ export default function Studio() {
     ? { name: `${project.name} / ${page.name}`, get: () => null, live: { url: composeUrl(project.template, page.keys), names, edits: project.edits, theme: colors, images: swaps } }
     : { name: `${project.name} / ${route?.label}`, get: () => null, live: { url: liveUrl(project.template, view.kind === "route" ? view.path : "/"), names, edits: project.edits, theme: colors, images: swaps } };
   const togglePanels = () => setPanels((p) => (p.left || p.right ? { left: false, right: false } : { left: true, right: true }));
-  // Preview mode: the page as it ships, over Studio, at a viewport's width. Esc comes back.
+  // Preview mode: the page as it ships, over Studio, at the breakpoint on the canvas. Esc comes back.
   const [previewing, setPreviewing] = useState<{ view: View; viewport: Viewport } | null>(null);
-  // Back from the preview, the canvas's pages are measured and painted again.
+  // Back from the preview, the canvas's page is measured and painted again.
   const [resync, setResync] = useState(0);
   const closePreview = () => {
     setPreviewing(null);
     setResync((n) => n + 1);
   };
-  const openPreview = (device: CanvasDevice = devices[0]) => setPreviewing({ view, viewport: device });
+  const openPreview = () => setPreviewing({ view, viewport: device });
 
   const zoomRef = useRef(zoom);
   const viewRef = useRef(view);
-  const devicesRef = useRef(devices);
+  const deviceRef = useRef(device);
   useEffect(() => {
+    zoomRef.current = zoom;
     viewRef.current = view;
-    devicesRef.current = devices;
+    deviceRef.current = device;
   });
   // Mid pinch the canvas reports its zoom straight into the readout, so Studio doesn't render every frame.
   const zoomText = useRef<HTMLSpanElement>(null);
@@ -871,14 +527,10 @@ export default function Studio() {
     const t = zoomText.current?.firstChild;
     if (t) t.nodeValue = `${Math.round(z * 100)}%`;
   }, []);
-  useEffect(() => {
-    zoomRef.current = zoom;
-  });
   // Shortcuts, heard in Studio and inside the canvas alike. Ignored while typing.
-  const text = { picked: pickedLayer, first: textLayers.find((l) => !l.live), pick: pickText, step: stepText };
-  const keys = useRef({ selected, remove, duplicate, move, togglePanels, comment, commenting, thread, draft, previewing, text });
+  const keys = useRef({ selected, remove, duplicate, move, togglePanels, previewing });
   useEffect(() => {
-    keys.current = { selected, remove, duplicate, move, togglePanels, comment, commenting, thread, draft, previewing, text };
+    keys.current = { selected, remove, duplicate, move, togglePanels, previewing };
   });
   const onKey = useCallback(
     (e: KeyboardEvent) => {
@@ -905,46 +557,11 @@ export default function Studio() {
         });
         return;
       }
-      if (e.key === "?") return setPop((p) => (p === "help" ? null : "help"));
-      if (e.shiftKey && e.key.toLowerCase() === "p") return setPreviewing({ view: viewRef.current, viewport: devicesRef.current[0] });
+      if (e.shiftKey && e.key.toLowerCase() === "p") return setPreviewing({ view: viewRef.current, viewport: deviceRef.current });
       if (e.shiftKey && e.key === "!") return setZoomMode("fit");
       if (e.shiftKey && e.key === ")") return setZoomMode(1);
-      if (!mod && e.key.toLowerCase() === "h") {
-        keys.current.comment(false);
-        return setHand(true);
-      }
-      if (!mod && e.key.toLowerCase() === "v") {
-        keys.current.comment(false);
-        return setHand(false);
-      }
-      if (!mod && !e.altKey && e.key.toLowerCase() === "c") return keys.current.comment(!keys.current.commenting);
-      if (e.key === "Escape" && keys.current.commenting) {
-        if (keys.current.thread || keys.current.draft) {
-          setThread(null);
-          setDraft(null);
-        } else keys.current.comment(false);
-        return;
-      }
-      const { selected: k, remove: rm, duplicate: dup, move: mv, text: tx } = keys.current;
+      const { selected: k, remove: rm, duplicate: dup, move: mv } = keys.current;
       if (!k) return;
-      // Keys for text layers, as in Figma, when nothing else has the focus (or a text layer's row does).
-      const free = e.target === document.body || (e.target as Node).ownerDocument !== document || Boolean((e.target as Element).closest?.("[data-text-layer]"));
-      if (tx.picked) {
-        if (e.key === "Escape") return setPicked(null);
-        // A template's words can be changed, not deleted: Delete leaves the section where it is.
-        if (e.key === "Delete" || e.key === "Backspace") return;
-        if (e.key === "Enter" && free && !mod) {
-          e.preventDefault();
-          return setFocusText((n) => n + 1);
-        }
-        if (e.key === "Tab" && free && !mod) {
-          e.preventDefault();
-          return tx.step(e.shiftKey ? -1 : 1);
-        }
-      } else if (e.key === "Enter" && free && !mod && !e.shiftKey && tx.first) {
-        e.preventDefault();
-        return tx.pick(k, tx.first, true);
-      }
       if (e.key === "Delete" || e.key === "Backspace") {
         e.preventDefault();
         rm(k);
@@ -956,16 +573,16 @@ export default function Studio() {
         mv(k, e.key === "ArrowUp" ? -1 : 1);
       } else if (e.key === "Escape") select(null);
     },
-    [select],
+    [select, setZoomMode, setPreviewing],
   );
   useEffect(() => {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [onKey]);
-  const onBlocks = useCallback((b: Block[]) => setBlocks((now) => (JSON.stringify(now) === JSON.stringify(b) ? now : b)), []);
+  const onBlocks = useCallback((b: Block[]) => setBlocks((now) => (JSON.stringify(now) === JSON.stringify(b) ? now : b)), [setBlocks]);
+  const onReady = useCallback(() => setDrawnOnce(true), [setDrawnOnce]);
 
-  const exportMenu = <ExportMenu pro={pro} code={code} page={pageTarget} section={selected && page ? sectionTarget(selected) : null} onCode={setExporting} onSite={() => setSite(true)} pages={project.pages.length} />;
-  // Who's signed in, with everything an account adds; or a way to sign in.
+  // Who's signed in, with your drafts and Pro; or a way to sign in.
   const account = user ? (
     <Menu
       label="Account"
@@ -974,11 +591,7 @@ export default function Studio() {
       button={<Avatar name={displayName(user)} size={26} />}
       header={<AccountHeader user={user} plan={plan} />}
       items={[
-        { label: "Profile", icon: UserCircleIcon, onSelect: openProfile },
-        { label: "Your drafts", icon: FilesIcon, onSelect: () => setLibrary("drafts") },
-        { label: "Library", icon: BooksIcon, onSelect: () => setLibrary("saved") },
-        { label: "Version history", icon: ClockCounterClockwiseIcon, onSelect: openHistory },
-        { label: "Team", icon: UsersThreeIcon, href: "/team" },
+        { label: "Your drafts", icon: FilesIcon, onSelect: () => setDrafts(true) },
         pro ? { label: "Pro is on", icon: DiamondIcon, onSelect: () => openPro("plan") } : { label: "Get Pro", icon: DiamondIcon, hint: "$149 once", onSelect: () => openPro("plan") },
         { label: "Back to basedraft.site", icon: ArrowUpRightIcon, href: "/" },
         "divider",
@@ -991,27 +604,7 @@ export default function Studio() {
     </motion.button>
   );
   const zoomLabel = `${Math.round(zoom * 100)}%`;
-  // What you can do right now, in a line above the toolbar.
-  const hint = commenting
-    ? "Click anywhere on the page to leave a comment. {Esc} to stop."
-    : hand
-    ? "Drag to move around. Pinch or {Cmd} scroll to zoom."
-    : !page
-      ? selected
-        ? "Click any text to change it. This page's sections are the template's own."
-        : "Click any text to change it, or anywhere else in a section to select it."
-      : page.keys.length <= 2
-        ? "A blank page. Add sections with {+} below, or from Sections."
-        : selected
-          ? "Click any text to edit it. {Alt Up} {Alt Down} moves the section, {Cmd D} duplicates it, {Delete} removes it. {Alt} click uses the page."
-          : "Click any text to edit it, or anywhere else in a section to select it.";
-  const tourSteps: TourStep[] = [
-    { at: "panel", side: "right", title: "Pages and layers", body: "Every section on the page is a layer. Click one to select it, or drag its handle to reorder. Your pages and the template's own are under Pages." },
-    { at: "canvas", side: "center", title: "Edit right on the page", body: "Click any text to change it. It changes at every breakpoint at once, and in everything you export." },
-    ...(page ? [{ at: "insert", side: "top" as const, title: "Add sections", body: "This template's sections, ready to drop in below whatever you have selected." }] : []),
-    { at: "export", side: "bottom-end", title: "Take it anywhere", body: "Copy a section, a page or the whole site into Figma. Download the code, or send it to GitHub." },
-  ];
-  const insertTitle = section ? `Insert below ${section.name}` : page ? `Insert into ${page.name}` : "Sections";
+  const insertTitle = section ? `Add below ${section.name}` : page ? `Add to ${page.name}` : "Sections";
   const tabs: Array<{ id: LeftTab; label: string }> = [
     { id: "pages", label: "Pages" },
     { id: "layers", label: "Layers" },
@@ -1029,7 +622,7 @@ export default function Studio() {
           </span>
           <h1 className="mt-5 text-title">Studio needs a bigger screen</h1>
           <p className="mt-2 text-body text-muted">Your pages, the canvas and its settings sit side by side. Open Studio on a laptop or desktop.</p>
-          <Link href="/components" className={cn(btn.ink, "mt-6")}>
+          <Link href="/blocks" className={cn(btn.ink, "mt-6")}>
             Browse components
           </Link>
         </div>
@@ -1037,19 +630,19 @@ export default function Studio() {
 
       <div ref={root} className="relative hidden h-dvh overflow-hidden overscroll-none bg-well text-fg lg:block">
         {/* Its own layer, so nothing on the canvas (the selection toolbar included) rises over Studio's panels and menus. */}
-        <main id="main" data-tour="canvas" className="absolute inset-0 isolate">
+        <main id="main" className="absolute inset-0 isolate">
           <Canvas
-            key={`${project.template}|${view.kind === "page" ? view.id : view.path}`}
+            key={`${project.template}|${view.kind === "page" ? view.id : view.path}|${device}`}
             ref={canvas}
             template={project.template}
             view={view}
             keys={keysOf}
-            devices={devices}
+            device={device}
             edits={project.edits}
             theme={colors}
+            images={swaps}
             selected={selected}
             zoom={zoomMode}
-            hand={hand}
             insets={{ left: panels.left ? 284 : 32, right: panels.right ? 336 : 32 }}
             onSelect={select}
             onZoom={setZoom}
@@ -1058,57 +651,15 @@ export default function Studio() {
             onEdit={edit}
             onBlocks={onBlocks}
             onKey={onKey}
-            commenting={commenting}
-            onPointer={cloud.id ? presence.onPointer : undefined}
-            onPlace={place}
-            peers={peers}
-            onReady={(d) => d === devices[0] && setDrawnOnce(true)}
-            onPreview={openPreview}
+            onReady={onReady}
             paused={previewing !== null}
             resync={resync}
-            picked={pickedRefs}
-            images={swaps}
-            onPickText={onPickText}
-            overlay={(at) => (
-              <>
-                {commenting && user && (
-                  <CommentLayer
-                    comments={comments.all}
-                    view={here}
-                    place={at}
-                    open={thread}
-                    draft={draft}
-                    me={user.id}
-                    myName={me}
-                    myColor="#141414"
-                    isOwner={cloud.access === "owner"}
-                    showResolved={showResolved}
-                    onOpen={(id) => {
-                      setDraft(null);
-                      setThread(id);
-                    }}
-                    onPost={post}
-                    onReply={reply}
-                    onResolve={(c) => {
-                      void comments.resolve(c.id, !c.resolved);
-                      if (!c.resolved) setThread(null);
-                    }}
-                    onRemove={removeComment}
-                    onCancel={() => {
-                      setThread(null);
-                      setDraft(null);
-                    }}
-                  />
-                )}
-                <Cursors people={others} view={here} place={at} />
-              </>
-            )}
             bar={(key, width) => {
               if (!page) {
                 const b = blocks.find((x) => x.key === key);
                 if (!b) return null;
                 const target = blockTarget(key, b.name);
-                return <BlockBar name={b.name} pro={pro} width={width} onCopy={(kind) => void copyToDesign(kind, target)} onPrepare={() => pro && prepareCopy(target)} />;
+                return <BlockBar name={b.name} pro={pro} width={width} onCopy={() => void copyToDesign("figma", target)} onPrepare={() => pro && prepareCopy(target)} />;
               }
               const s = sectionOf(project.template, idOf(key));
               if (!s) return null;
@@ -1124,9 +675,7 @@ export default function Studio() {
                   onMove={(d) => move(key, d)}
                   onDuplicate={() => duplicate(key)}
                   onRemove={() => remove(key)}
-                  onInsert={() => setPop("insert")}
-                  onCopy={(kind) => (kind === "react" ? setExporting("react") : pro ? void copyToDesign(kind, sectionTarget(key)) : openPro(kind))}
-                  onSave={() => saveSection(key)}
+                  onCopy={() => void copyToDesign("figma", sectionTarget(key))}
                   // The copy is read as the pointer reaches Copy, so it's usually ready by the click.
                   onPrepare={() => pro && prepareCopy(sectionTarget(key))}
                 />
@@ -1136,7 +685,7 @@ export default function Studio() {
         </main>
 
         {/* Left: the project, then its pages, layers and sections, as in Framer. */}
-        <section data-tour="panel" aria-label="Project" className={cn(PANEL, "absolute left-3 top-3 z-30 flex w-[260px] flex-col")} style={{ maxHeight: "calc(100% - 24px)" }}>
+        <section aria-label="Project" className={cn(PANEL, "absolute left-3 top-3 z-30 flex w-[260px] flex-col")} style={{ maxHeight: "calc(100% - 24px)" }}>
           <div className="flex h-12 shrink-0 items-center gap-1 pl-2 pr-1.5">
             <Link href="/" aria-label="basedraft home" title="Back to basedraft" className="grid size-8 shrink-0 place-items-center rounded-[11px] hover:bg-fg/[0.06]">
               <BaseDraftMark size={20} />
@@ -1153,7 +702,7 @@ export default function Studio() {
                 {preview ? "Pro preview" : pro ? "Pro" : "Free"}
               </button>
             </Tip>
-            <Tip label={panels.left ? "Hide panel" : "Show panel"} side="bottom">
+            <Tip label={panels.left ? "Hide panel" : "Show panel"} keys="Cmd \\" side="bottom">
               <button type="button" onClick={() => setPanels((p) => ({ ...p, left: !p.left }))} aria-label={panels.left ? "Hide panel" : "Show panel"} aria-expanded={panels.left} className={ICON_BTN}>
                 <SidebarSimpleIcon size={16} />
               </button>
@@ -1183,7 +732,7 @@ export default function Studio() {
                         </Tool>
                       )}
                     </div>
-                    {page ? <Layers template={project.template} keys={page.keys} selected={selected} onSelect={selectLayer} onRemove={remove} onDuplicate={duplicate} onReorder={(keys) => setPage({ ...page, keys })} text={textTree} /> : <BlockLayers blocks={blocks} selected={selected} onSelect={selectLayer} text={textTree} />}
+                    {page ? <Layers template={project.template} keys={page.keys} selected={selected} onSelect={select} onRemove={remove} onDuplicate={duplicate} onReorder={(keys) => setPage({ ...page, keys })} /> : <BlockLayers blocks={blocks} selected={selected} onSelect={select} />}
                   </>
                 )}
                 {tab === "sections" && (
@@ -1208,195 +757,93 @@ export default function Studio() {
         {/* Right: the inspector. Collapsed, it keeps its full width and folds down to its header, like the left panel. */}
         <aside aria-label="Inspector" className={cn(PANEL, "absolute right-3 top-3 z-30 flex w-[312px] flex-col")}>
           <div className="flex h-12 shrink-0 items-center gap-1 pl-1.5 pr-2">
-            <Tip label={panels.right ? "Hide inspector" : "Show inspector"} side="bottom">
+            <Tip label={panels.right ? "Hide inspector" : "Show inspector"} keys="Cmd \\" side="bottom">
               <motion.button whileTap={PRESS} type="button" onClick={() => setPanels((p) => ({ ...p, right: !p.right }))} aria-label={panels.right ? "Hide inspector" : "Show inspector"} aria-expanded={panels.right} className={cn(ICON_BTN, "-scale-x-100")}>
                 <SidebarSimpleIcon size={16} />
               </motion.button>
             </Tip>
             <span className="flex-1" />
-            <ColorModeSwitch className="mr-1" />
-            <div data-tour="export">{exportMenu}</div>
+            <ExportMenu pro={pro} code={code} page={pageTarget} section={selected && page ? sectionTarget(selected) : null} onCode={setExporting} />
           </div>
           <AnimatePresence initial={false}>
             {panels.right && (
               <motion.div key="inspector-body" initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={SPRING} className="overflow-hidden rounded-b-[16px]">
                 {/* The open panel runs to the bottom of the window: header and margins aside. */}
                 <div className="flex flex-col" style={{ height: "calc(100dvh - 72px)" }}>
-                  {commenting ? (
-                    <CommentsPanel comments={comments.all} loaded={comments.loaded} labelOf={labelOf} open={thread} showResolved={showResolved} onShowResolved={setShowResolved} onGo={goToComment} onClose={() => comment(false)} signedIn={Boolean(user)} />
-                  ) : inspect === "history" && user ? (
-                    <HistoryPanel past={state.past} current={project} describe={describeProject} user={user} projectId={cloud.id} canSave={cloud.canEdit} onRestore={restore} onRestoreSaved={(id) => void restoreSaved(id)} onClose={() => setInspect("inspect")} />
-                  ) : (
-                    <>
-                      {/* No tabs: a selection shows itself, nothing selected shows the page. */}
-                      <div className="flex h-10 shrink-0 items-center gap-1.5 border-t border-line pl-4 pr-2 text-[13px]">
-                        {selected && (section || block) ? (
-                          <>
-                            <Tip label="Page" keys={pickedLayer ? undefined : "Esc"} side="bottom">
-                              <button type="button" onClick={() => select(null)} className="shrink-0 truncate text-muted transition-colors hover:text-fg">
-                                {viewName}
-                              </button>
-                            </Tip>
-                            <CaretRightIcon size={10} weight="bold" className="shrink-0 text-subtle" />
-                            {section && <SectionGlyph kind={section.kind} size={14} className="shrink-0 text-muted" />}
-                            {pickedLayer ? (
-                              <>
-                                <Tip label={section ? "Section" : "Block"} keys="Esc" side="bottom">
-                                  <button type="button" onClick={unpick} className="min-w-0 truncate text-muted transition-colors hover:text-fg">
-                                    {section?.name ?? block?.name}
-                                  </button>
-                                </Tip>
-                                <CaretRightIcon size={10} weight="bold" className="shrink-0 text-subtle" />
-                                <span className="min-w-0 truncate font-semibold">{pickedLayer.items ? ROLE_PLURAL[pickedLayer.role] : ROLE_LABEL[pickedLayer.role]}</span>
-                              </>
-                            ) : (
-                              <span className="truncate font-semibold">{section?.name ?? block?.name}</span>
-                            )}
-                            <span className="flex-1" />
-                            <Tool label="Deselect" keys="Esc" onClick={() => select(null)}>
-                              <XIcon size={13} weight="bold" />
-                            </Tool>
-                          </>
+                  {/* No tabs: a selection shows itself, nothing selected shows the page. */}
+                  <div className="flex h-10 shrink-0 items-center gap-1.5 border-t border-line pl-4 pr-2 text-[13px]">
+                    {selected && (section || block) ? (
+                      <>
+                        <Tip label="Page" keys="Esc" side="bottom">
+                          <button type="button" onClick={() => select(null)} className="shrink-0 truncate text-muted transition-colors hover:text-fg">
+                            {viewName}
+                          </button>
+                        </Tip>
+                        <CaretRightIcon size={10} weight="bold" className="shrink-0 text-subtle" />
+                        {section && <SectionGlyph kind={section.kind} size={14} className="shrink-0 text-muted" />}
+                        <span className="truncate font-semibold">{section?.name ?? block?.name}</span>
+                        <span className="flex-1" />
+                        <Tool label="Deselect" keys="Esc" onClick={() => select(null)}>
+                          <XIcon size={13} weight="bold" />
+                        </Tool>
+                      </>
+                    ) : (
+                      <>
+                        <span className="truncate font-semibold">{viewName}</span>
+                        <span className="truncate text-subtle">· {page ? `${page.path}` : t.name}</span>
+                      </>
+                    )}
+                  </div>
+                  <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden border-t border-line">
+                    <AnimatePresence mode="wait" initial={false}>
+                      <motion.div key={`${view.kind === "page" ? view.id : view.path}|${selected ?? "page"}`} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} transition={{ duration: 0.14, ease: EASE_OUT }}>
+                        {section && selected ? (
+                          <SectionPanel section={section} pro={pro} onSwap={(id) => swap(selected, id)} />
+                        ) : block ? (
+                          <BlockPanel name={block.name} />
                         ) : (
                           <>
-                            <span className="truncate font-semibold">{viewName}</span>
-                            <span className="truncate text-subtle">· {page ? `${page.path}` : t.name}</span>
+                            <ColorsGroup template={project.template} theme={project.theme} mode={mode} onMode={switchMode} onChange={restyle} />
+                            {route ? (
+                              <RoutePanel template={project.template} label={route.label} path={route.path} edits={project.edits.filter((e) => e.scope === `route:${route.path}`).length} />
+                            ) : (
+                              <PagePanel template={project.template} count={keysOf.length} onReset={() => dispatch({ type: "replace", project: { ...newProject(project.template), name: project.name, ...(project.theme ? { theme: project.theme } : {}) } })} />
+                            )}
                           </>
                         )}
-                      </div>
-                      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden border-t border-line">
-                        <AnimatePresence mode="wait" initial={false}>
-                          <motion.div key={`${view.kind === "page" ? view.id : view.path}|${selected ?? "page"}|${pickedLayer?.id ?? ""}`} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} transition={{ duration: 0.14, ease: EASE_OUT }}>
-                            {pickedLayer && selected && pickedLayer.parts[0]?.kind === "image" ? (
-                              <ImagePanel
-                                layer={pickedLayer}
-                                file={pickedLayer.parts[0].from}
-                                original={`/live/${project.template}${pickedLayer.parts[0].from}`}
-                                swap={project.images?.[pickedLayer.parts[0].from]}
-                                signedIn={Boolean(user)}
-                                place={{ at: textLayers.findIndex((l) => l.id === pickedLayer.id) + 1, of: textLayers.length }}
-                                onStep={stepText}
-                                onReplace={(f) => replaceImage(pickedLayer.parts[0].from, f)}
-                                onReset={() => resetImage(pickedLayer.parts[0].from)}
-                                onShow={() => canvas.current?.revealText(pickedLayer.parts)}
-                              />
-                            ) : pickedLayer && selected ? (
-                              <TextPanel
-                                layer={pickedLayer}
-                                place={{ at: textLayers.findIndex((l) => l.id === pickedLayer.id) + 1, of: textLayers.length }}
-                                focus={focusText}
-                                focusRef={picked?.ref}
-                                onStep={stepText}
-                                onEdit={edit}
-                                onPreview={(t, v) => canvas.current?.preview(t, v)}
-                                onShow={() => canvas.current?.revealText(pickedLayer.parts)}
-                              />
-                            ) : section && selected ? (
-                              <SectionPanel section={section} pro={pro} onSwap={(id) => swap(selected, id)} layers={textLayers} onPick={(l) => pickText(selected, l, true)} />
-                            ) : block && selected ? (
-                              <BlockPanel name={block.name} layers={textLayers} onPick={(l) => pickText(selected, l, true)} />
-                            ) : route ? (
-                              <>
-                                <StylePanel template={project.template} theme={project.theme} mode={mode} onMode={switchMode} onChange={restyle} />
-                                <RoutePanel template={project.template} label={route.label} path={route.path} edits={project.edits.filter((e) => e.scope === `route:${route.path}`).length} />
-                              </>
-                            ) : (
-                              <>
-                                <StylePanel template={project.template} theme={project.theme} mode={mode} onMode={switchMode} onChange={restyle} />
-                                <PagePanel template={project.template} count={keysOf.length} onReset={() => dispatch({ type: "replace", project: { ...newProject(project.template), name: project.name, ...(project.theme ? { theme: project.theme } : {}) } })} />
-                              </>
-                            )}
-                          </motion.div>
-                        </AnimatePresence>
-                      </div>
-                    </>
-                  )}
+                      </motion.div>
+                    </AnimatePresence>
+                  </div>
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
         </aside>
 
-        {/* Top center: you and the people you share with. Signed out, a way in. */}
+        {/* Top center: you and your drafts. Signed out, a way in. */}
         <motion.div
           role="toolbar"
-          aria-label="Account and sharing"
+          aria-label="Account"
           initial={{ opacity: 0, y: -16, x: "-50%" }}
           animate={{ opacity: 1, y: 0, x: "-50%" }}
           transition={{ ...SPRING, delay: 0.1 }}
           className={cn(PANEL, "absolute left-1/2 top-3 z-40 flex items-center gap-0.5 p-1.5")}
         >
           {account}
-          {others.length > 0 && (
-            <div className="ml-1 flex items-center -space-x-1.5" aria-label={`Also here: ${others.map((p) => p.name).join(", ")}`}>
-              {others.slice(0, 4).map((p) => (
-                <Tip key={p.userId} label={`${p.name}, on ${labelOf(p.view)}`} side="bottom">
-                  <span className="rounded-full ring-2 ring-surface">
-                    <Face name={p.name} color={p.color} size={26} />
-                  </span>
-                </Tip>
-              ))}
-              {others.length > 4 && <span className="grid size-[26px] place-items-center rounded-full bg-fg/[0.08] text-[11px] font-semibold ring-2 ring-surface">+{others.length - 4}</span>}
-            </div>
-          )}
           {user && (
             <>
               <span aria-hidden className="mx-1 h-5 w-px bg-line" />
-              <Tool label="Version history" active={inspect === "history"} onClick={() => (inspect === "history" ? setInspect("inspect") : openHistory())}>
-                <ClockCounterClockwiseIcon size={16} />
+              <Tool label="Your drafts" active={drafts} onClick={() => setDrafts(true)}>
+                <FilesIcon size={16} />
               </Tool>
-              <Tool label="Library" active={library !== null} onClick={() => setLibrary("drafts")}>
-                <BooksIcon size={16} />
-              </Tool>
-              <span aria-hidden className="mx-1 h-5 w-px bg-line" />
             </>
           )}
-          <motion.button whileTap={PRESS} type="button" onClick={share} className={btnSm.quiet}>
-            Share
-          </motion.button>
         </motion.div>
 
         {/* Bottom center: the tools. Each opens its own panel above it. */}
         <motion.div role="toolbar" aria-label="Studio tools" initial={{ opacity: 0, y: 16, x: "-50%" }} animate={{ opacity: 1, y: 0, x: "-50%" }} transition={{ ...SPRING, delay: 0.1 }} className={cn(PANEL, "absolute bottom-4 left-1/2 z-40 flex items-center gap-0.5 p-1.5")}>
-          <Tip label="Select" keys="V">
-            <motion.button
-              whileTap={PRESS}
-              type="button"
-              aria-pressed={!hand && !commenting}
-              aria-label="Select"
-              onClick={() => {
-                comment(false);
-                setHand(false);
-              }}
-              className={cn(ICON_BTN, !hand && !commenting && "bg-fg/[0.08] text-fg")}
-            >
-              <CursorIcon size={16} weight={hand || commenting ? "regular" : "fill"} />
-            </motion.button>
-          </Tip>
-          <Tip label="Hand, or hold Space" keys="H">
-            <motion.button
-              whileTap={PRESS}
-              type="button"
-              aria-pressed={hand}
-              aria-label="Hand"
-              onClick={() => {
-                comment(false);
-                setHand(true);
-              }}
-              className={cn(ICON_BTN, hand && "bg-fg/[0.08] text-fg")}
-            >
-              <HandIcon size={16} weight={hand ? "fill" : "regular"} />
-            </motion.button>
-          </Tip>
-          <Tip label="Comment" keys="C">
-            <motion.button whileTap={PRESS} type="button" aria-pressed={commenting} aria-label={`Comment${openThreads ? `, ${openThreads} open` : ""}`} onClick={() => comment(!commenting)} className={cn(ICON_BTN, "relative", commenting && "bg-fg/[0.08] text-fg")}>
-              <ChatCircleIcon size={16} weight={commenting ? "fill" : "regular"} />
-              {openThreads > 0 && !commenting && <span className="absolute right-0.5 top-0.5 grid h-3.5 min-w-3.5 place-items-center rounded-full bg-select px-0.5 text-[9.5px] font-bold leading-none text-white">{openThreads > 9 ? "9+" : openThreads}</span>}
-            </motion.button>
-          </Tip>
-          <span aria-hidden className="mx-1 h-5 w-px bg-line" />
           {page && (
-            <ToolPop id="insert" tour="insert" open={pop} setOpen={setPop} label={insertTitle} width={600} button={<PlusIcon size={17} weight="bold" />}>
+            <ToolPop id="insert" open={pop} setOpen={setPop} label={insertTitle} width={600} button={<PlusIcon size={17} weight="bold" />}>
               <div className="flex h-11 shrink-0 items-center border-b border-line px-4 text-[13px] font-semibold">{insertTitle}</div>
               <div className="min-h-0 overflow-y-auto p-4">
                 <InsertGrid template={project.template} pro={pro} onInsert={insert} cols={3} />
@@ -1413,42 +860,19 @@ export default function Studio() {
             </div>
           </ToolPop>
           <span aria-hidden className="mx-1 h-5 w-px bg-line" />
-          <ToolPop
-            id="breakpoints"
-            open={pop}
-            setOpen={setPop}
-            label="Breakpoints"
-            width={232}
-            button={
-              <>
-                <DevicesIcon size={16} />
-                <span className="text-[12px] font-medium tabular-nums">{devices.length}</span>
-              </>
-            }
-          >
-            <div className="p-1">
-              {DEVICES.map((d) => {
-                const on = devices.includes(d);
-                return (
-                  <button
-                    key={d}
-                    type="button"
-                    role="checkbox"
-                    aria-checked={on}
-                    disabled={on && devices.length === 1}
-                    onClick={() => setDevices((now) => (on ? now.filter((x) => x !== d) : DEVICES.filter((x) => now.includes(x) || x === d)))}
-                    className="flex h-8 w-full items-center justify-between rounded-[9px] px-2.5 text-[13px] hover:bg-fg/[0.05] disabled:opacity-50"
-                  >
-                    <span className="flex items-center gap-2">
-                      <span className={cn("grid size-4 place-items-center rounded-[5px]", on ? "bg-fg text-canvas" : "shadow-[inset_0_0_0_1.5px_rgb(var(--bd-ink)/0.25)]")}>{on && <CheckIcon size={10} weight="bold" />}</span>
-                      {DEVICE_LABEL[d]}
-                    </span>
-                    <span className="tabular-nums text-subtle">{CANVAS_WIDTH[d]}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </ToolPop>
+          {/* One breakpoint on the canvas at a time: a click moves to another. */}
+          <div role="radiogroup" aria-label="Breakpoint" className="flex items-center gap-0.5">
+            {DEVICES.map(({ id, icon: Icon }) => {
+              const on = device === id;
+              return (
+                <Tip key={id} label={`${DEVICE_LABEL[id]}, ${CANVAS_WIDTH[id]}`}>
+                  <motion.button whileTap={PRESS} type="button" role="radio" aria-checked={on} aria-label={DEVICE_LABEL[id]} onClick={() => setDevice(id)} className={cn(ICON_BTN, on && "bg-fg/[0.08] text-fg")}>
+                    <Icon size={16} weight={on ? "fill" : "regular"} />
+                  </motion.button>
+                </Tip>
+              );
+            })}
+          </div>
           <ToolPop
             id="zoom"
             open={pop}
@@ -1482,8 +906,9 @@ export default function Studio() {
               ))}
             </div>
           </ToolPop>
+          <span aria-hidden className="mx-1 h-5 w-px bg-line" />
           <Tip label="Preview" keys="Shift P">
-            <motion.button whileTap={PRESS} type="button" onClick={() => openPreview()} aria-label="Preview" className={ICON_BTN}>
+            <motion.button whileTap={PRESS} type="button" onClick={openPreview} aria-label="Preview" className={ICON_BTN}>
               <PlayIcon size={16} />
             </motion.button>
           </Tip>
@@ -1498,25 +923,7 @@ export default function Studio() {
               <ArrowClockwiseIcon size={16} />
             </motion.button>
           </Tip>
-          <span aria-hidden className="mx-1 h-5 w-px bg-line" />
-          <Tip label={panels.left || panels.right ? "Hide panels" : "Show panels"} keys="Cmd \\">
-            <motion.button whileTap={PRESS} type="button" className={cn(ICON_BTN, !(panels.left || panels.right) && "bg-fg/[0.08]")} onClick={togglePanels} aria-pressed={!(panels.left || panels.right)} aria-label="Hide panels">
-              <SidebarSimpleIcon size={16} weight={panels.left || panels.right ? "regular" : "fill"} />
-            </motion.button>
-          </Tip>
-          <ToolPop id="help" open={pop} setOpen={setPop} label="Help and shortcuts" width={300} button={<QuestionIcon size={16} />}>
-            <HelpPanel
-              hints={guide.hints}
-              onHints={(hints) => setGuide({ hints })}
-              onTour={() => {
-                setPop(null);
-                setTouring(true);
-              }}
-            />
-          </ToolPop>
         </motion.div>
-        <HintLine text={hint} show={guide.hints && !pop && !touring} />
-        <Tour key={touring ? "on" : "off"} open={touring} steps={tourSteps} onClose={endTour} />
 
         <AnimatePresence>
           {previewing && (
@@ -1530,28 +937,21 @@ export default function Studio() {
             <motion.div key="preloader" initial={false} exit={{ opacity: 0, scale: 1.01, transition: { duration: 0.32, ease: EASE_OUT } }} className="fixed inset-0 z-[300]">
               <Preloader
                 title={project.name}
-                stage={cloud.status === "loading" ? "Opening your draft" : drawnOnce ? "Ready" : `Drawing ${DEVICE_LABEL[devices[0]].toLowerCase()} at ${CANVAS_WIDTH[devices[0]]}`}
+                stage={cloud.status === "loading" ? "Opening your draft" : drawnOnce ? "Ready" : `Drawing ${DEVICE_LABEL[device].toLowerCase()} at ${CANVAS_WIDTH[device]}`}
                 progress={cloud.status === "loading" ? 0.4 : drawnOnce ? 1 : 0.68}
               />
             </motion.div>
           )}
         </AnimatePresence>
-        <ShareDialog open={sharing && user !== null} onClose={() => setSharing(false)} name={project.name} user={user} projectId={cloud.id} />
-        <LibraryDialog
-          tab={user ? library : null}
-          onTab={setLibrary}
-          onClose={() => setLibrary(null)}
-          page={page ?? project.pages[0]}
+        <DraftsDialog
+          open={drafts && user !== null}
+          onClose={() => setDrafts(false)}
+          template={project.template}
           currentId={cloud.id}
-          pro={pro}
           onOpen={openDraft}
           onNewDraft={() => {
-            setLibrary(null);
+            setDrafts(false);
             start(project.template);
-          }}
-          onInsert={(id) => {
-            setLibrary(null);
-            insert(id);
           }}
         />
         {cloud.status === "denied" && (
@@ -1559,16 +959,16 @@ export default function Studio() {
             <div className={cn(PANEL, "w-[400px] p-6")}>
               <LockSimpleIcon size={22} weight="duotone" className="text-muted" />
               <h2 id="denied-title" className="mt-3 text-[17px] font-semibold">
-                {cloud.deniedSignedIn ? "This project isn't shared with you" : "Sign in to open this project"}
+                {cloud.deniedSignedIn ? "This project isn't yours to open" : "Sign in to open this project"}
               </h2>
-              <p className="mt-1.5 text-[13.5px] leading-relaxed text-muted">{cloud.deniedSignedIn ? `Ask its owner to share it with ${user?.email ?? "you"}, or open one of your own drafts.` : "It's shared with people by email. Sign in with the email it was shared with."}</p>
+              <p className="mt-1.5 text-[13.5px] leading-relaxed text-muted">{cloud.deniedSignedIn ? `It belongs to another account than ${user?.email ?? "yours"}. Open one of your own drafts instead.` : "It's saved to an account. Sign in with the email it belongs to."}</p>
               <div className="mt-5 flex gap-2">
                 {cloud.deniedSignedIn ? (
                   <button type="button" onClick={cloud.leave} className={btnSm.ink}>
                     Go to your drafts
                   </button>
                 ) : (
-                  <button type="button" onClick={() => openAuth("sign-in", { reason: "share" })} className={btnSm.ink}>
+                  <button type="button" onClick={() => openAuth("sign-in")} className={btnSm.ink}>
                     Sign in
                   </button>
                 )}
@@ -1579,8 +979,7 @@ export default function Studio() {
             </div>
           </div>
         )}
-        <ExportDialog key={exporting ?? "closed"} open={exporting !== null} initialTab={exporting === "json" ? "json" : "react"} initialView={exporting === "github" ? "github" : "files"} onClose={() => setExporting(null)} project={project} pageId={page?.id ?? null} pro={code} proUsed={proUsed} />
-        <SiteExportDialog open={site} onClose={() => setSite(false)} project={project} />
+        <ExportDialog key={exporting ?? "closed"} open={exporting !== null} initialView={exporting === "github" ? "github" : "files"} onClose={() => setExporting(null)} project={project} pro={code} />
       </div>
     </>
   );

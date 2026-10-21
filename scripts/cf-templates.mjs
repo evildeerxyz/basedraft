@@ -34,10 +34,11 @@ function walk(dir, test, out = []) {
 }
 
 // An unreleased template isn't built, and nothing of it is left from an earlier build: not its
-// preview, and not its screenshots (public/shots, which the app's build copied in).
+// preview, not its screenshots (public/shots, which the app's build copied in), and not its logo.
 for (const z of ZONES.filter((z) => !RELEASED.includes(z))) {
   rmSync(path.join(dest, "live", z.slug), { recursive: true, force: true });
   rmSync(path.join(dest, "shots", `${z.slug}.jpg`), { force: true });
+  rmSync(path.join(dest, "logos", `${z.slug}.svg`), { force: true });
   const sections = path.join(dest, "shots", "sections");
   if (existsSync(sections)) for (const f of readdirSync(sections).filter((f) => f.startsWith(`${z.slug}-`))) rmSync(path.join(sections, f));
 }

@@ -5,7 +5,8 @@ Finished websites you make your own. basedraft.site sells three complete Next.js
 | | What it is | Where |
 | --- | --- | --- |
 | **Templates** | The three sites, live, with every page | `/templates`, `/templates/[slug]` |
-| **Components** | All 39 sections, live at any width, with code and a copy for Figma | `/components`, `/components/[kind]` |
+| **Components** | basedraft UI, our own free components: each one file at `/ui/<name>.tsx`, sharing the theme `/ui/basedraft.css` | `/components`, `/components/[name]` |
+| **Blocks** | Every section from the templates, live at any width, with code and a copy for Figma (moved from `/components`, which redirects) | `/blocks`, `/blocks/[kind]` |
 | **Studio** | A Framer style canvas over the real site | `/studio` |
 | **Pro** | One payment: every template, every export, every update | `/pro` |
 
@@ -29,10 +30,10 @@ basedraft's own wiring lives beside each template's code, never inside it:
 src/
   app/(site)/        the site: home, templates, components, pro
   app/studio/        Studio
-  app/api/           auth/* (sign-in callback, code emails, welcome), whop/webhook, share, team/invite, export (the site as a zip), github/* (connect, repos, push)
+  app/api/           auth/* (sign-in callback, code emails, welcome), whop/webhook, team/invite, export (the site as a zip), github/* (connect, repos, push)
   server/            site.ts builds a project's whole site, github.ts sends it, guard.ts gates both; supabase.ts, whop.ts, mail.ts and emails/
   site/              chrome, page blocks, live.ts (the catalog), and the Figma and Paper exporters
-  studio/            Studio: canvas, panels, export dialogs, the tour and hints (guide.tsx)
+  studio/            Studio: canvas, panels, the drafts dialog and export
   lib/               zip, rewrite-text (writing text edits into source), supabase.ts (the browser's client), api.ts (the database's functions, typed)
 supabase/            migrations/: the tables, the functions that are the API, live channels and image storage
 templates/           zuno, noma, auren, pello
@@ -41,23 +42,21 @@ scripts/             run.mjs (all apps), zones.mjs (ports), template-source.mjs 
 
 ### Studio
 
-- **Canvas** (`src/studio/canvas.tsx`): every breakpoint side by side at full page height, drawn by the template itself in same-origin frames. A camera moves over the board: panning and pinching move one GPU layer every frame without rendering React, and the pages are drawn again at the new size once a zoom comes to rest. Anything sized to the window (a 100vh hero) is pinned at a real window's height first (`src/site/frame-fit.ts`).
-- **Text edits** (`src/site/text-edits.ts`): double-click any text. An edit is "in this scope, the nth text reading X now reads Y", laid over the page wherever it's drawn, so the template's code never changes until you export.
+Studio is kept small on purpose: pick a template, arrange its pages and sections, rewrite its words, then preview it and take it to Figma or the code.
+
+- **Canvas** (`src/studio/canvas.tsx`): one breakpoint at a time (Desktop, Tablet or Phone, switched in the toolbar) at full page height, drawn by the template itself in a same-origin frame. A camera moves over it: panning (Space-drag or the trackpad) and pinching move one GPU layer every frame without rendering React, and the page is drawn again at the new size once a zoom comes to rest. Anything sized to the window (a 100vh hero) is pinned at a real window's height first (`src/site/frame-fit.ts`).
+- **Text edits** (`src/site/text-edits.ts`): click any text and type; Enter keeps it, Esc puts it back. An edit is "in this scope, the nth text reading X now reads Y", laid over the page wherever it's drawn, so the template's code never changes until you export.
 - **Pages:** the template's home to start, pages you add (blank or copied), and the template's own pages, editable too.
-- **Colors** (`src/site/theme.ts`, `src/studio/colors.tsx`): six palettes made for each template, and its four colors (accent, page, cards, text) to change one by one. The template's other shades follow from those four, mixed the way it mixes its own. The colors are laid over the template's CSS variables in the canvas, the preview, Figma copies and the code you download (added to the end of its `globals.css`; Zuno's JS palette gets them too). A few rules cover places a template writes a color into a class (Noma's button hovers and text on the accent). Shaders and canvases read colors when they're made, so basedraft's wiring in each template (`bd/frame.tsx` in its root layout, `bd/compose.tsx`, `bd/themed.tsx`) draws the page again with new colors, releasing its WebGL contexts first; the download takes the wiring out of the layout.
+- **Sections:** add one from the template's sections, reorder, duplicate, delete, or swap it for another of its kind, from the Layers tab or the bar over the selected section.
+- **Colors** (`src/site/theme.ts`, `src/studio/colors.tsx`): six palettes made for each template, one click each, and the template's light or dark mode where it has both. A palette is laid over the template's CSS variables in the canvas, the preview, Figma copies and the code you download (added to the end of its `globals.css`; Zuno's JS palette gets them too). Shaders and canvases read colors when they're made, so basedraft's wiring in each template (`bd/frame.tsx` in its root layout, `bd/compose.tsx`, `bd/themed.tsx`) draws the page again with new colors, releasing its WebGL contexts first; the download takes the wiring out of the layout.
 - **Preview** (`src/studio/preview.tsx`): Play opens the page as it ships, over Studio, at Desktop, Laptop, Tablet, Phone or the window's width (keys 1 to 5), with a page switcher, reload (R) and a way to a tab of its own. Esc comes back. `/studio/preview` is the same in a tab, following Studio's saves.
-- **Speed:** the template pages share Studio's main thread, so a breakpoint out of view (or under a panel, or behind the preview) is paused with `content-visibility` and costs nothing until it's back. Copies are read as the pointer reaches Copy.
-- **Help:** a four-step tour the first time, a hint line above the toolbar that follows what you're doing, and every shortcut under `?`. A preloader covers Studio until its first page is drawn.
+- **Speed:** the template page shares Studio's main thread, so while it's out of view (behind the preview, say) it's paused with `content-visibility` and costs nothing. Copies are read as the pointer reaches Copy. A preloader covers Studio until its first page is drawn.
 
-### Working together
+### Saving
 
-Signed in, a project lives in Supabase (`projects_*` in `supabase/migrations`) and its address is `/studio?p=<id>`. Studio saves the whole project a moment after each change, if the account still has the version the change was made on; when someone else saved first, the project's live channel says so, their save arrives, is merged with yours page by page and edit by edit (`merge3` in `src/studio/state.ts`, also used so undo never takes out a teammate's change), and yours saves after it (`src/studio/cloud.ts`).
+Signed out, a project is kept in the browser. Signed in, it lives in Supabase (`projects_*` in `supabase/migrations`) and its address is `/studio?p=<id>`. Studio saves the whole project a moment after each change, if the account still has the version the change was made on; when another tab saved first, the project's live channel says so, that save arrives, is merged with yours page by page and edit by edit (`merge3` in `src/studio/state.ts`), and yours saves after it (`src/studio/cloud.ts`). Your drafts open from the account menu, or `/studio#library`.
 
-- **Sharing:** with people by email (edit or view), with your whole team, or as a view-only link. Invites are emailed.
 - **Teams** (`/team`, `teams_*`): the Team plan's ten seats. The owner invites by email (`/invite/<token>`, a link that works once, for that address), resends, cancels and removes; anyone can leave. Everyone on a team whose owner has Team has Pro while they're on it.
-- **Live:** everyone's cursor on the page they're on, their faces in the top bar, and their selections in their colors, sent on the project's live channel (`src/studio/collab.tsx`, `src/studio/channel.ts`).
-- **Comments** (C): a pin on any section at any breakpoint, with replies, resolve and delete, listed in the inspector while commenting (`comments_*`).
-- **Library and history:** your drafts, your team's, the ones shared with you and your saved sections; versions you name, and one kept every ten minutes of editing.
 
 ### Exports
 
@@ -67,7 +66,7 @@ Signed in, a project lives in Supabase (`projects_*` in `supabase/migrations`) a
 ### The site
 
 - **Template view** (`/view/<slug>`): a template full window, every page clickable, with a card bottom right: its price, Buy, and Open in Studio. The site's "Open full screen" links go here.
-- **Analytics** (`src/instrumentation-client.ts`, `src/site/analytics.tsx`): PostHog, through `/ingest` on the site's own address, and Google Analytics, in production only. Signed-in people are identified by their account; a handful of named events mark the moments that matter (copies, downloads, GitHub sends, sign-ups, comments, invites, shares).
+- **Analytics** (`src/instrumentation-client.ts`, `src/site/analytics.tsx`): PostHog, through `/ingest` on the site's own address, and Google Analytics, in production only. Signed-in people are identified by their account; a handful of named events mark the moments that matter (copies, downloads, GitHub sends, sign-ups, team invites).
 
 ## Astro versions
 
@@ -126,26 +125,25 @@ Locally, each template is its own Next app (`next start` on 4101 to 4103) and `n
 
 ## basedraft's own design
 
-- **Neutral and quiet.** White, pure grays with no hue, ink (`#141414`) as the only highlight; light and dark modes. Templates keep their own colors.
-- **Words on the page, things in boxes.** Headings sit open on the page (`PageHead`, `SectionHead` in `src/site/heads.tsx`); boxes are for what you look at or use: a live site, a card, a code block.
-- **Tight corners.** Sheets and dialogs 12px, anything inside them 6px, cards 8px, controls 7px (`--bd-r-sheet`, `--bd-r-inset`, `--bd-radius`, `--bd-radius-sm`).
-- **One type scale.** display 52, title 30, heading 17, lead 17, body 15, ui 14, meta 13. Studio runs at tool density.
+- **Quiet grays, a trace of blue.** Cool near-white pages in light mode; uiarc-style neutral grays with no hue in dark (`globals.css`), and light or dark follows the system until you pick (`src/site/color-mode.tsx`). Blue is kept to a trace: small marks use a near-neutral tint with slate ink (`bg-brand-soft`, `text-brand-ink`), and active states lean on ink and grays. Templates keep their own colors.
+- **Type.** Instrument Sans for the big sizes, Inter for text, Geist Mono for code, all through `next/font/google` (`src/app/layout.tsx`). One scale in `@theme`: display 72, headline 48, title 32, heading 18, lead 18, body 16, ui 14, meta 12.
+- **The hero's light, and quiet cards.** Heroes, stages, scenes and feature panels wear one soft surface (`bd-paper`) lit blue, lilac and mint, arranged one of four ways (`glow-b`, `glow-c`, `glow-d`; `Stage`, `Scene`, `glowAt`). In dark mode the hero, the footer and the announcement stay light paper (`.bd-light` re-applies the light tokens inside them). Gallery cards (components, blocks, templates) are a flat, very light neutral gray instead (`bd-panel`), so a page of them stays calm. Gradient surfaces wear fine, faint dots (`public/textures/dots-fine*.png`); the hero carries the animated dot field (`src/site/dot-field.tsx`). Textures come from `node scripts/textures.mjs`.
+- **Buttons.** Every button is a pill. The important action is charcoal inside a brushed-metal edge (`btn-metal`; `btn.ink`, `btnLg.ink`, `btnLg.onPaper` in `src/site/sheet.tsx`).
+- **Code is colored.** Commands go through `ShellLine` (`src/site/shell-line.tsx`) and code blocks through the `--code-*` colors; never plain black text.
+- **Icons.** Phosphor's duotone (the default across the site, `SiteShell`), with arrows, carets, crosses and pluses in outline. Templates are shown by their own app icons (`public/logos`, `templateLogo`).
+- **The mark** is two sheets in ink, the one behind a little lighter (`src/site/logo.tsx`, `src/app/icon.svg`, `public/mark.svg`).
+- **Around every page:** an announcement strip (closed for good once you close it; `announce-script.ts` keeps it from flashing), then the header: a plain bar at the top that gathers into a frosted capsule as you scroll. On the docs pages (`/components`, `/blocks`) it stays a plain full-width bar with a hairline, the way a docs site is laid out, and those pages have no footer. Elsewhere the footer is one big light card, ending in the name drawn as a live GPU dither the way Zuno draws its own (`src/site/wordmark.tsx`).
 - **Copy:** US English, plain words, no em dashes.
-- **The mark** is two sheets, one laid over the other (`src/site/logo.tsx`, `src/app/icon.svg`), drawn in ink so it turns light in dark mode.
-- **Around every page:** the rail (where you go), a top bar (search with Cmd K, the templates at a glance, resources, pricing, your account), and on desktop the Pro poster as a card in the bottom right corner.
 - **Thumbnails** are real renders: `npm run shots` (or `shots -- studio | sections | templates`) while the app runs.
-
-### Fonts
-
-The chrome is set in **Söhne** (Klim Type Foundry) from `public/fonts/sohne/`. Those files are Klim's trial cuts, personal use only, and git-ignored on purpose. **Buy a Söhne web license before launch.** Söhne is never part of anything sold; the templates use free fonts.
 
 ## Accounts and data (Supabase)
 
-Supabase holds the accounts (Supabase Auth), the data (Postgres), the live channels Studio works together on (Realtime) and the images people put in templates (Storage). It's all in one migration, `supabase/migrations/20261020000000_basedraft.sql`:
+Supabase holds the accounts (Supabase Auth), the data (Postgres), the live channel each project saves through (Realtime) and the images older drafts put in templates (Storage). It's all in one migration, `supabase/migrations/20261020000000_basedraft.sql`:
 
 - **The functions are the API.** Every table has row level security on and no policies, so the browser can't read or write one; it calls the functions in the `public` schema (`supabase.rpc()`), which decide who may do what, as whoever is signed in. `src/lib/api.ts` types each one. In the browser, `src/site/db.ts` runs them: `useRpc` shows one's result, shared by every component asking, and fetched again after a change, on sign in and out, when the tab comes back, and when a live channel says so; `change` makes a change and says what it changes. The server calls them as the signed-in person from the session cookie (`src/server/supabase.ts`), and as basedraft itself, with the secret key, only for Whop's webhook.
-- **Live channels.** Each project has a private channel, `project:<id>`, that only people who may view it can join (a policy on `realtime.messages`). Triggers announce each save (its rev and the tab that made it), share, version and comment there, and Studio fetches what changed. Pointers and faces go on the same channel from each Studio; they're never stored.
-- **Images** go in the public `images` bucket, each account in a folder of its own id; Storage turns away anything that isn't a JPEG, PNG or WebP under 8 MB.
+- **Live channels.** Each project has a private channel, `project:<id>`, that only people who may view it can join (a policy on `realtime.messages`). Triggers announce each save there (its rev and the tab that made it), and Studio fetches what changed.
+- **Images** are in the public `images` bucket, each account in a folder of its own id. Studio no longer uploads them; drafts that swapped an image before still show and export it.
+- **Left from the bigger Studio:** sharing (`projects_people`, `projects_invite` and the rest), versions (`versions_*`, and the one `projects_save` keeps every ten minutes), comments (`comments_*`) and saved sections (`saved_*`) are still in the database, unused by the site.
 
 **Sign in:** an email and a 6-digit code, or Google (and GitHub, once it's turned on). A first sign in makes the account; signing up puts your name on it as it's made. Supabase asks the site to send each code (the Send Email hook, `src/app/api/auth/email`), so it goes out in basedraft's own email through Resend; Google comes back through `/api/auth/callback/google`, GitHub and the links in emails through `/api/auth/callback`. The session is a cookie on this site, kept fresh by the browser, so the server reads the same one. `src/site/auth.tsx` keeps the same card, modal (`openAuth()`), `/sign-in` and `/sign-up` pages and `useAuth()` shape.
 
@@ -175,9 +173,9 @@ Payments run on Whop; what someone owns lives in Supabase (`purchases`), tied to
 
 ### What's gated
 
-- **Pro only (signed in, with Pro or Team):** Copy for Figma, Copy for Paper, Download SVG, the whole site to Figma, and section code on the component pages.
+- **Pro only (signed in, with Pro or Team):** Copy for Figma (in Studio and on the component pages), Copy for Paper and Download SVG (on the component pages), and section code on the component pages.
 - **Pro, or owning the template:** code export in Studio, Download project and Send to GitHub. `/api/export` and `/api/github/push` check it on the server (`purchases_mine`, in `src/server/guard.ts`), in development too.
-- **Free for everyone:** Studio itself, with every template and section to try, and JSON export. Every template is paid: $79 each, or all of them with Pro.
+- **Free for everyone:** Studio itself, with every template and section to try, and drafts saved to your account. Every template is paid: $79 each, or all of them with Pro.
 - **Signed out is always Free.** Pro comes only from a purchase in Supabase (`src/site/plan.ts`).
 - **Previewing Pro, development only:** the switch on the Pro page (or in the Pro card) turns Pro on for a signed-in account without buying it, shows "Pro preview" in the top bar and Studio, and sends an `x-bd-preview` header the server honors only outside production. `BD_EXPORT_OPEN=1` opens code export on a deployment, for a private preview.
 
@@ -185,7 +183,7 @@ To connect Whop: make a product and plan for each of Zuno, Noma, Auren, Pro and 
 
 ## Email (Resend)
 
-Templates are in `src/server/emails/templates.ts`: the sign-in code, the welcome email (once per account, after its first sign in), the order email for a template or for Pro, a team invite and a shared draft. They're tables and inline styles with a dark mode, and their two images (the mark and the dithered band) are served from `public/email` at content-hashed addresses on the live site, written by `node scripts/email-assets.mjs`. See them all at `/dev/email` in development.
+Templates are in `src/server/emails/templates.ts`: the sign-in code, the welcome email (once per account, after its first sign in), the order email for a template or for Pro, and a team invite. They're tables and inline styles with a dark mode, and their two images (the mark and the dithered band) are served from `public/email` at content-hashed addresses on the live site, written by `node scripts/email-assets.mjs`. See them all at `/dev/email` in development.
 
 ## License
 

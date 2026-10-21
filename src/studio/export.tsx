@@ -1,27 +1,24 @@
 "use client";
 
-import { DownloadSimpleIcon, ExportIcon, FileCodeIcon, FileZipIcon, GithubLogoIcon, LockSimpleIcon } from "@phosphor-icons/react";
+import { ExportIcon, FileCodeIcon, FileIcon, FileZipIcon, GithubLogoIcon, HouseIcon, LockSimpleIcon, PaletteIcon, TextTIcon } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { templateOf } from "@/site/live";
 import { openPro } from "@/site/pro-modal";
 import { cn, EASE_OUT } from "@/lib/utils";
-import { CodeBlock } from "@/site/code";
 import { DialogClose } from "@/site/dialog";
-import { DitherSky, IconTile, Note } from "@/site/plan-parts";
+import { Glow, IconTile, Note } from "@/site/plan-parts";
 import { btnSm } from "@/site/sheet";
 import { toast } from "@/site/toast";
 import { previewHeaders } from "@/site/plan";
 import { GitHubPanel } from "./github";
-import { colorsCss, editList, EDITS_SCRIPT, pageCode, pageFile, projectFiles } from "./project-files";
-import { COLORS } from "@/site/theme";
+import { editList } from "./project-files";
 import type { Project } from "./state";
 import { track } from "@/site/analytics";
 import { FRAMEWORK_LABEL, FrameworkSwitch, useFramework, type Framework } from "@/site/framework";
-import { zipBytes } from "@/lib/zip";
 
-function download(name: string, text: string | Blob, type: string) {
-  const url = URL.createObjectURL(typeof text === "string" ? new Blob([text], { type }) : text);
+function download(name: string, blob: Blob) {
+  const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
   a.download = name;
@@ -34,15 +31,16 @@ async function downloadSite(project: Project, framework: Framework) {
   const r = await fetch(`/api/export?framework=${framework}`, { method: "POST", headers: { "Content-Type": "application/json", ...previewHeaders() }, body: JSON.stringify(project) });
   if (!r.ok) throw new Error(((await r.json().catch(() => ({}))) as { error?: string }).error ?? "The download didn't start");
   const name = /filename="([^"]+)"/.exec(r.headers.get("Content-Disposition") ?? "")?.[1] ?? "site.zip";
-  download(name, await r.blob(), "application/zip");
+  download(name, await r.blob());
 }
 
-export function ExportDialog({ open, onClose, project, pageId, pro, proUsed, initialTab = "react", initialView = "files" }: { open: boolean; onClose: () => void; project: Project; pageId: string | null; pro: boolean; proUsed: boolean; initialTab?: "react" | "json" | "edits" | "colors"; initialView?: "files" | "github" }) {
-  const [tab, setTab] = useState<"react" | "json" | "edits" | "colors">(initialTab);
+/**
+ * The whole site, ready to run, in one zip or one repository: what's in it, which framework, and
+ * the two ways to take it. Code is Pro's, or comes with buying the template.
+ */
+export function ExportDialog({ open, onClose, project, pro, initialView = "files" }: { open: boolean; onClose: () => void; project: Project; pro: boolean; initialView?: "files" | "github" }) {
   const [view, setView] = useState<"files" | "github">(initialView);
   const [packing, setPacking] = useState(false);
-  const [which, setWhich] = useState(pageId ?? project.pages[0].id);
-  const page = project.pages.find((p) => p.id === which) ?? project.pages[0];
   const panel = useRef<HTMLDivElement>(null);
   const opener = useRef<Element | null>(null);
   // Held in a ref, so the key listener below stays put while Studio re-renders around the dialog.
@@ -84,28 +82,9 @@ export function ExportDialog({ open, onClose, project, pageId, pro, proUsed, ini
   }, [open]);
 
   const [framework, setFramework] = useFramework();
-  // A page's Astro files are made by the server, from the whole site, so they're exactly what the download has.
-  const [astro, setAstro] = useState<{ key: string; files: Record<string, string> } | null>(null);
-  const astroKey = `${page.id}|${JSON.stringify(project)}`;
-  useEffect(() => {
-    if (!open || framework !== "astro" || tab !== "react" || !pro || astro?.key === astroKey) return;
-    let gone = false;
-    fetch(`/api/export?framework=astro&page=${encodeURIComponent(page.id)}`, { method: "POST", headers: { "Content-Type": "application/json", ...previewHeaders() }, body: JSON.stringify(project) })
-      .then((r) => (r.ok ? (r.json() as Promise<{ files: Record<string, string> }>) : Promise.reject(new Error())))
-      .then((r) => !gone && setAstro({ key: astroKey, files: r.files }))
-      .catch(() => !gone && setAstro({ key: astroKey, files: { "": "// The Astro files didn't load. Close this and open it again." } }));
-    return () => {
-      gone = true;
-    };
-  }, [open, framework, tab, pro, astroKey, astro?.key, page.id, project]);
-  const astroFiles = framework === "astro" && astro?.key === astroKey ? astro.files : null;
-  const code = framework === "astro" ? (astroFiles ? Object.entries(astroFiles).map(([f, c]) => (f ? `// ${f}\n${c}` : c)).join("\n\n") : "// Making the Astro files…") : pageCode(page);
   const edits = editList(project.edits);
-  const json = projectFiles(project)["basedraft/project.json"];
-  const t = templateOf(page.template)!;
-  const locked = tab !== "json" && !pro;
-  const colors = colorsCss(project);
-  const shown = tab === "react" ? code : tab === "colors" ? colors : tab === "edits" ? `// basedraft/edits.json\n${JSON.stringify(edits, null, 2)}\n\n// basedraft/apply-edits.mjs\n${EDITS_SCRIPT}` : json;
+  const t = templateOf(project.template)!;
+  const colored = Boolean(project.theme);
 
   return (
     <AnimatePresence>
@@ -121,9 +100,9 @@ export function ExportDialog({ open, onClose, project, pageId, pro, proUsed, ini
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.98 }}
             transition={{ duration: 0.3, ease: EASE_OUT }}
-            className="relative isolate w-full max-w-[760px] overflow-hidden rounded-[var(--bd-r-sheet)] bg-surface shadow-[0_24px_80px_rgb(var(--bd-shade)/0.25),0_0_0_1px_rgb(var(--bd-ink)/0.06)]"
+            className="relative isolate w-full max-w-[600px] overflow-hidden rounded-[var(--bd-r-sheet)] bg-surface shadow-[0_24px_80px_rgb(var(--bd-shade)/0.25),0_0_0_1px_rgb(var(--bd-ink)/0.06)]"
           >
-            <DitherSky className="-z-10" />
+            <Glow className="-z-10" />
             {/* The same head as every other dialog: an ink tile, the title, a line on what it's for. */}
             <div className="relative px-6 pb-1 pt-6">
               <IconTile icon={ExportIcon} tone="ink" />
@@ -139,42 +118,39 @@ export function ExportDialog({ open, onClose, project, pageId, pro, proUsed, ini
               <GitHubPanel project={project} framework={framework} onBack={() => setView("files")} />
             ) : (
               <>
-            <div className="flex flex-wrap items-center gap-2 px-6 pt-4">
-              <div role="tablist" aria-label="Format" className="inline-flex rounded-control bg-fg/[0.06] p-0.5">
-                {[
-                  { k: "react" as const, l: "Pages" },
-                  { k: "edits" as const, l: `Text edits${edits.length ? ` ${edits.length}` : ""}` },
-                  ...(colors ? [{ k: "colors" as const, l: "Colors" }] : []),
-                  { k: "json" as const, l: "JSON" },
-                ].map((t) => (
-                  <button key={t.k} role="tab" aria-selected={tab === t.k} onClick={() => setTab(t.k)} className={cn("h-7 rounded-[8px] px-2.5 text-meta font-medium transition-colors", tab === t.k ? "bg-raised text-fg shadow-[0_1px_2px_rgb(var(--bd-shade)/0.12)]" : "text-muted hover:text-fg")}>
-                    {t.l}
-                  </button>
-                ))}
-              </div>
-              {/* Which page's file to show, when there's more than one. */}
-              {tab === "react" && project.pages.length > 1 && (
-                <div role="tablist" aria-label="Page" className="inline-flex max-w-full flex-wrap gap-1">
-                  {project.pages.map((p) => (
-                    <button key={p.id} role="tab" aria-selected={p.id === page.id} onClick={() => setWhich(p.id)} className={cn("h-7 rounded-[8px] px-2.5 text-meta font-medium transition-colors", p.id === page.id ? "bg-fg/[0.08] text-fg" : "text-muted hover:bg-fg/[0.04] hover:text-fg")}>
-                      {p.name}
-                    </button>
-                  ))}
-                </div>
-              )}
-              {/* The same site, in Next.js or as its Astro version: for the code here, the download and GitHub. */}
-              <FrameworkSwitch value={framework} onChange={setFramework} className="ml-auto" />
+            {/* What the download holds, and the framework it's written in: for the zip and GitHub alike. */}
+            <div className="flex items-center justify-between gap-3 px-6 pt-5">
+              <span className="text-[12.5px] font-medium text-muted">In the download</span>
+              <FrameworkSwitch value={framework} onChange={setFramework} />
             </div>
-            {tab === "react" && <p className="px-6 pt-2 font-mono text-[12px] text-subtle">{framework === "astro" ? (astroFiles ? Object.keys(astroFiles).join(", ") : "src/pages, src/islands, src/routes") : pageFile(page)}</p>}
-            {tab === "colors" && <p className="px-6 pt-2 text-[12px] text-subtle">Add to the end of <span className="font-mono">{COLORS[project.template].globals}</span>. Downloads and GitHub do this for you.</p>}
-            <div className="relative bg-surface-2 p-3 mt-3">
-              <CodeBlock code={tab === "edits" && !edits.length ? "// No text edits yet. Click any text on the canvas to change it." : shown} maxHeight={400} className={cn(locked && "pointer-events-none select-none blur-[6px]")} />
-              {locked && (
+            {/* Locked, the list sits blurred under the lock, with room for it however short the list is. */}
+            <div className={cn("relative mx-6 mb-5 mt-3", !pro && "min-h-[228px]")}>
+              <ul className={cn("divide-y divide-line overflow-hidden rounded-[12px] bg-surface-2 text-[13px]", !pro && "pointer-events-none select-none blur-[5px]")}>
+                {project.pages.map((p) => (
+                  <li key={p.id} className="flex h-10 items-center gap-2.5 px-3.5">
+                    {p.path === "/" ? <HouseIcon size={14} className="shrink-0 text-muted" /> : <FileIcon size={14} className="shrink-0 text-muted" />}
+                    <span className="min-w-0 flex-1 truncate">{p.name}</span>
+                    <span className="shrink-0 font-mono text-[11.5px] text-subtle">{p.path}</span>
+                  </li>
+                ))}
+                <li className="flex h-10 items-center gap-2.5 px-3.5 text-muted">
+                  <FileCodeIcon size={14} className="shrink-0" />
+                  <span className="min-w-0 flex-1 truncate">The rest of {t.name}, its own pages included</span>
+                  <span className="shrink-0 text-[12px] text-subtle">{t.pages.length} pages</span>
+                </li>
+                {(edits.length > 0 || colored) && (
+                  <li className="flex h-10 items-center gap-2.5 px-3.5 text-muted">
+                    {edits.length > 0 ? <TextTIcon size={14} className="shrink-0" /> : <PaletteIcon size={14} className="shrink-0" />}
+                    <span className="min-w-0 flex-1 truncate">{[edits.length > 0 && `${edits.length} text ${edits.length === 1 ? "edit" : "edits"}`, colored && "your colors"].filter(Boolean).join(" and ")}, written in</span>
+                  </li>
+                )}
+              </ul>
+              {!pro && (
                 <div className="absolute inset-0 grid place-items-center">
                   <div className="max-w-[320px] rounded-card bg-surface p-5 text-center shadow-[0_8px_30px_rgb(var(--bd-shade)/0.12),0_0_0_1px_rgb(var(--bd-ink)/0.06)]">
                     <LockSimpleIcon size={22} weight="duotone" className="mx-auto text-accent" />
                     <p className="mt-2 text-heading">Code export is in Pro</p>
-                    <p className="mt-1 text-ui text-muted">The JSON config is free and loads back into Studio any time.</p>
+                    <p className="mt-1 text-ui text-muted">Or buy {t.name} on its own, and its code is yours.</p>
                     <button type="button" onClick={() => openPro("react")} className="btn-ink mt-4 inline-flex h-9 items-center rounded-control px-3.5 text-ui font-medium">
                       See Pro
                     </button>
@@ -183,25 +159,10 @@ export function ExportDialog({ open, onClose, project, pageId, pro, proUsed, ini
               )}
             </div>
             <div className="flex flex-wrap items-center justify-between gap-4 border-t border-line px-4 py-3">
-              <Note icon={proUsed && !pro ? LockSimpleIcon : FileCodeIcon} className="text-meta text-muted">
-                {proUsed && !pro ? `This project uses ${t.name}'s sections. They preview free; exporting them needs Pro or the template.` : `${project.pages.length} ${project.pages.length === 1 ? "page" : "pages"}${edits.length ? `, ${edits.length} text ${edits.length === 1 ? "edit" : "edits"}` : ""}, in ${t.name}'s ${FRAMEWORK_LABEL[framework]} code.`}
+              <Note icon={FileCodeIcon} className="text-meta text-muted">
+                In {FRAMEWORK_LABEL[framework]}, ready to run
               </Note>
               <div className="flex items-center gap-2">
-                <button
-                  disabled={locked}
-                  onClick={() =>
-                    tab === "json"
-                      ? download("project.json", json, "application/json")
-                      : tab === "colors"
-                        ? download("colors.css", colors, "text/css")
-                        : framework === "astro" && astroFiles
-                          ? download(`${page.path === "/" ? "home" : page.path.slice(1).replace(/\//g, "-")}-astro.zip`, new Blob([zipBytes(astroFiles) as BlobPart], { type: "application/zip" }), "application/zip")
-                          : download("page.tsx", code, "text/plain")
-                  }
-                  className={cn(btnSm.quiet, "disabled:opacity-30")}
-                >
-                  <DownloadSimpleIcon size={15} weight="duotone" /> {tab === "json" ? "project.json" : tab === "colors" ? "colors.css" : "This page"}
-                </button>
                 <button type="button" onClick={() => (pro ? setView("github") : openPro("react"))} className={btnSm.quiet}>
                   <GithubLogoIcon size={15} weight="fill" /> Send to GitHub
                 </button>

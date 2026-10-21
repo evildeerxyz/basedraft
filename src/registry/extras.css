@@ -1,0 +1,85 @@
+/*
+ * basedraft UI's materials, beside the theme's tokens: ink, the brushed-metal edge, the paper
+ * light with its fine dots, the bead a knob is made of, and the wells controls sit in. Components
+ * read them as variables, so a theme can change a material in one place.
+ */
+:root,
+.bd-light {
+  /* Ink: a soft vertical near-black, light catching its top edge. */
+  --bd-ui-ink: linear-gradient(180deg, oklch(32% 0.004 265), oklch(18% 0.004 265));
+  --bd-ui-ink-text: oklch(99% 0 0);
+  /* Metal: a charcoal fill inside a brushed edge. The same in light and dark, so it reads the same anywhere. */
+  --bd-ui-metal-fill: linear-gradient(180deg, oklch(31% 0.003 265), oklch(17% 0.003 265));
+  --bd-ui-metal-edge: linear-gradient(135deg, oklch(97% 0 0) 0%, oklch(62% 0.004 265) 24%, oklch(92% 0.002 265) 48%, oklch(50% 0.004 265) 74%, oklch(88% 0.002 265) 100%);
+  /* Fine faint dots, for paper. */
+  --bd-ui-dots: radial-gradient(circle, rgb(var(--bd-ink) / 0.1) 0.6px, transparent 1px) 0 0 / 6px 6px;
+  /* The bead a knob or a thumb is made of (bead-on sits on an ink track), and the light along a raised surface's top. */
+  --bd-ui-bead: linear-gradient(180deg, oklch(100% 0 0), oklch(95.5% 0.003 265));
+  --bd-ui-bead-on: linear-gradient(180deg, oklch(100% 0 0), oklch(95.5% 0.003 265));
+  /* A raised face: a segment's thumb, a keycap. */
+  --bd-ui-raised: linear-gradient(180deg, oklch(100% 0 0), oklch(97.6% 0.003 265));
+  /* Ink as one color, for a tooltip's caret. */
+  --bd-ui-ink-solid: oklch(19% 0.004 265);
+  --bd-ui-lift: inset 0 1px 0 rgb(255 255 255 / 0.75), 0 1px 2px rgb(var(--bd-shade) / 0.1), 0 4px 10px -4px rgb(var(--bd-shade) / 0.16);
+  /* A well: what a field or a track is pressed into. */
+  --bd-ui-well: inset 0 1px 2px rgb(var(--bd-shade) / 0.09), inset 0 0 0 1px rgb(var(--bd-ink) / 0.07);
+  /* Focus, in ink rather than a color. */
+  --bd-ui-focus: rgb(var(--bd-ink) / 0.32);
+  /* Status dots: quiet, so a badge never shouts. */
+  --bd-ui-ok: oklch(64% 0.15 152);
+  --bd-ui-wait: oklch(74% 0.14 75);
+  --bd-ui-stop: oklch(60% 0.18 27);
+}
+
+.dark,
+[data-theme="dark"] {
+  /* In dark, ink turns to a soft near-white, so it stays the strongest thing on screen. */
+  --bd-ui-ink: linear-gradient(180deg, oklch(98% 0 0), oklch(86% 0 0));
+  --bd-ui-ink-text: oklch(17% 0 0);
+  --bd-ui-dots: radial-gradient(circle, rgb(255 255 255 / 0.07) 0.6px, transparent 1px) 0 0 / 6px 6px;
+  --bd-ui-bead: linear-gradient(180deg, oklch(90% 0 0), oklch(76% 0 0));
+  --bd-ui-bead-on: linear-gradient(180deg, oklch(32% 0 0), oklch(22% 0 0));
+  --bd-ui-raised: linear-gradient(180deg, oklch(37% 0 0), oklch(31% 0 0));
+  --bd-ui-ink-solid: oklch(87% 0 0);
+  --bd-ui-lift: inset 0 1px 0 rgb(255 255 255 / 0.08), 0 1px 2px rgb(0 0 0 / 0.35), 0 6px 14px -6px rgb(0 0 0 / 0.6);
+  --bd-ui-well: inset 0 1px 2px rgb(0 0 0 / 0.45), inset 0 0 0 1px rgb(255 255 255 / 0.06);
+  --bd-ui-focus: rgb(255 255 255 / 0.4);
+  --bd-ui-ok: oklch(74% 0.15 152);
+  --bd-ui-wait: oklch(80% 0.13 75);
+  --bd-ui-stop: oklch(70% 0.16 27);
+}
+
+/*
+ * Paper: a near-white face under the fine dots, with only a breath of the hero's light in one
+ * corner, so it reads as paper rather than as a gradient. Use it as a background. It's set again
+ * wherever light or dark is, so a dark card on a light page gets dark paper.
+ */
+:root,
+.bd-light,
+.dark,
+[data-theme="dark"] {
+  --bd-ui-paper: var(--bd-ui-dots), radial-gradient(70% 90% at 0% 0%, color-mix(in oklab, var(--bd-glow-blue) 30%, transparent), transparent 100%), var(--bd-paper);
+}
+
+/* An ordered-dither dot pulsing, for loading and the meter's leading edge. */
+@keyframes bd-ui-dither {
+  0%,
+  100% {
+    opacity: 0.12;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* A live dot's ring, spreading and fading. */
+@keyframes bd-ui-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}

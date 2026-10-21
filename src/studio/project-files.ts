@@ -52,7 +52,7 @@ export const editList = (edits: TextEdit[]) => [...new Map(edits.map((e) => [`${
  * It changes text only where it reads exactly as the template wrote it, in a string or between
  * tags, and says where each change landed.
  */
-export const EDITS_SCRIPT = String.raw`#!/usr/bin/env node
+const EDITS_SCRIPT = String.raw`#!/usr/bin/env node
 /*
  * Text you changed in basedraft Studio, written into this project's code.
  * From the project's root:  node basedraft/apply-edits.mjs
@@ -98,7 +98,7 @@ for (const e of edits) {
 `;
 
 /** The project's style (colors, type, corners) as CSS for the end of the template's globals.css, or "" when it has the template's own. */
-export function colorsCss(project: Project) {
+function colorsCss(project: Project) {
   const css = themeCss(project.template, project.theme, "code");
   if (!css) return "";
   const c = COLORS[project.template];

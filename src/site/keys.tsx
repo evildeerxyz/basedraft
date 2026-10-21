@@ -18,7 +18,7 @@ export function Key({ children, dark }: { children: ReactNode; dark?: boolean })
     <kbd
       className={cn(
         "inline-grid h-[19px] min-w-[19px] place-items-center rounded-[5px] px-1 align-[1px] font-sans text-[11px] font-medium leading-none",
-        dark ? "bg-canvas/[0.12] text-canvas shadow-[inset_0_0_0_1px_rgb(var(--bd-paper)/0.18)]" : "bg-surface text-fg shadow-[inset_0_-1px_0_rgb(var(--bd-shade)/0.12),0_0_0_1px_rgb(var(--bd-ink)/0.14)]",
+        dark ? "bg-canvas/[0.12] text-canvas shadow-[inset_0_0_0_1px_rgb(var(--bd-paper-rgb)/0.18)]" : "bg-surface text-fg shadow-[inset_0_-1px_0_rgb(var(--bd-shade)/0.12),0_0_0_1px_rgb(var(--bd-ink)/0.14)]",
       )}
     >
       {children}

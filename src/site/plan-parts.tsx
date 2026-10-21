@@ -1,7 +1,6 @@
 import { ArrowsClockwiseIcon, BriefcaseIcon, CheckIcon, CodeIcon, CreditCardIcon, DiamondIcon, FigmaLogoIcon, FileHtmlIcon, InfinityIcon, LayoutIcon, LifebuoyIcon, PenNibIcon, ShieldCheckIcon, SquaresFourIcon, UserIcon, UsersThreeIcon } from "@phosphor-icons/react/ssr";
 import type { Icon } from "@phosphor-icons/react";
 import type { ReactNode } from "react";
-import { ditherStyle } from "@/lib/dither";
 import { cn } from "@/lib/utils";
 import type { FeatureIcon, NoteKind, PlanFeature } from "./content";
 
@@ -54,43 +53,17 @@ export function Note({ icon, className, children }: { icon: Icon; className?: st
 }
 
 /*
- * Dithered bands that thin out from the top edge: the texture on the rail poster, plan cards and
- * dialogs. On a surface the dots are ink in light mode and white in dark; on an ink card, which
- * turns light in dark mode, the other way round. Inside an `isolate` card, pass `-z-10` to set it
- * behind the content without wrapping it.
+ * The aura as a soft band along a card's top edge: lavender, rose and butter fading down into the
+ * card. The head of every dialog has one. Inside an `isolate` card, pass `-z-10` to set it behind
+ * the content without wrapping it.
  */
-const SKY = {
-  surface: ["rgba(20,20,20,0.14)", "rgba(255,255,255,0.09)"],
-  ink: ["rgba(255,255,255,0.2)", "rgba(20,20,20,0.16)"],
-} as const;
-const SKY_LEVELS = [0.5, 0.3125, 0.1875, 0.0625];
-const skies = new Map<string, Array<ReturnType<typeof ditherStyle>>>();
-
-function Bands({ color, className }: { color: string; className: string }) {
-  let bands = skies.get(color);
-  if (!bands) skies.set(color, (bands = SKY_LEVELS.map((level) => ditherStyle(color, level, 2))));
-  return (
-    <div aria-hidden className={cn("pointer-events-none absolute inset-x-0 top-0", className)}>
-      {bands.map((style, i) => (
-        <span key={i} className="block h-3" style={style} />
-      ))}
-    </div>
-  );
-}
-
-export function DitherSky({ tone = "surface", className }: { tone?: keyof typeof SKY; className?: string }) {
-  const [light, dark] = SKY[tone];
-  return (
-    <>
-      <Bands color={light} className={cn("dark:hidden", className)} />
-      <Bands color={dark} className={cn("hidden dark:block", className)} />
-    </>
-  );
+export function Glow({ className }: { className?: string }) {
+  return <div aria-hidden className={cn("bd-glow pointer-events-none absolute inset-x-0 top-0 h-36", className)} />;
 }
 
 /*
  * The tile an icon sits in: soft on white cards, ink at the head of a dialog, white on an ink card.
- * Soft is solid, not see-through, so the dithered sky behind a card's header doesn't show in it.
+ * Soft is solid, not see-through, so the glow behind a card's header doesn't show in it.
  */
 const TILE = {
   soft: "bg-[color-mix(in_srgb,var(--bd-fg)_5%,var(--bd-surface))] text-fg",
@@ -100,7 +73,7 @@ const TILE = {
 
 export function IconTile({ icon: I, tone = "soft", className }: { icon: Icon; tone?: keyof typeof TILE; className?: string }) {
   return (
-    <span className={cn("grid size-11 shrink-0 place-items-center rounded-[8px]", TILE[tone], className)}>
+    <span className={cn("grid size-11 shrink-0 place-items-center rounded-[14px]", TILE[tone], className)}>
       <I size={22} weight="duotone" />
     </span>
   );
@@ -109,20 +82,20 @@ export function IconTile({ icon: I, tone = "soft", className }: { icon: Icon; to
 /** What a plan includes. A row can be lifted out to show it's the one you reached for. */
 export function FeatureList({ items, hit, dark, className }: { items: PlanFeature[]; hit?: FeatureIcon | null; dark?: boolean; className?: string }) {
   return (
-    <ul className={cn("space-y-0.5 rounded-[8px] p-1.5", dark ? "bg-canvas/[0.06]" : "bg-fg/[0.03]", className)}>
+    <ul className={cn("space-y-0.5 rounded-[var(--bd-r-inset)] p-1.5", dark ? "bg-canvas/[0.06]" : "bg-fg/[0.03]", className)}>
       {items.map((f) => {
         const on = hit === f.icon;
         const I = FEATURE_ICON[f.icon];
         return (
-          <li key={f.t} className={cn("flex items-center gap-3 rounded-[4px] px-3 py-2.5", on && (dark ? "bg-canvas/[0.08]" : "bg-raised shadow-[0_1px_2px_rgb(var(--bd-shade)/0.08),0_0_0_1px_rgb(var(--bd-ink)/0.05)]"))}>
-            <span className={cn("grid size-8 shrink-0 place-items-center rounded-[6px]", on ? (dark ? "bg-canvas text-fg" : "bg-fg text-canvas") : dark ? "bg-canvas/[0.08] text-canvas" : "bg-fg/[0.05] text-fg")}>
+          <li key={f.t} className={cn("flex items-center gap-3 rounded-[12px] px-3 py-2.5", on && (dark ? "bg-canvas/[0.08]" : "bg-raised shadow-[0_1px_2px_rgb(var(--bd-shade)/0.08),0_0_0_1px_rgb(var(--bd-ink)/0.05)]"))}>
+            <span className={cn("grid size-8 shrink-0 place-items-center rounded-[10px]", on ? (dark ? "bg-canvas text-fg" : "bg-fg text-canvas") : dark ? "bg-canvas/[0.08] text-canvas" : "bg-fg/[0.05] text-fg")}>
               <I size={16} weight="duotone" />
             </span>
             <span className="min-w-0 flex-1">
               <span className="block text-ui font-medium">{f.t}</span>
               <span className={cn("block text-meta", dark ? "text-canvas/60" : "text-muted")}>{f.b}</span>
             </span>
-            <CheckIcon size={14} weight="bold" className={cn("shrink-0", dark ? "text-canvas/50" : "text-fg/40")} />
+            <CheckIcon size={14} weight="duotone" className={cn("shrink-0", dark ? "text-canvas/50" : "text-fg/40")} />
           </li>
         );
       })}

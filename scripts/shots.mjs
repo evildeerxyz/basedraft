@@ -166,14 +166,13 @@ if (run("sections")) {
  * The home page shows it in a window on a dithered stage (src/site/studio-stage.tsx).
  */
 if (run("studio")) {
+  // Studio as it opens on a fresh template, with nothing left from an earlier visit.
   await page.evaluateOnNewDocument(() => {
     localStorage.removeItem("bd-studio-page");
     localStorage.removeItem("bd-studio-project");
-    // Studio as someone who's been here before: no first-run tour, no hints.
-    localStorage.setItem("bd-studio-guide", JSON.stringify({ toured: true, hints: false }));
   });
   await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 2 });
-  // Studio as it opens: the hero selected, its layers on the left and its words in the inspector.
+  // Studio as it opens: the hero selected, its sections on the left and the inspector on the right.
   const STEPS = {
     // The live balance in Zuno's hero rolls its digits every few seconds, on springs run in script:
     // shoot when no digit column has moved for a few frames.
@@ -200,7 +199,7 @@ if (run("studio")) {
     },
   };
 
-  // Once per color mode, so the tour shows Studio as you're seeing the site.
+  // Once per color mode, so the home page shows Studio as you're seeing the site.
   for (const mode of ["light", "dark"]) {
     const { identifier } = await page.evaluateOnNewDocument((m) => localStorage.setItem("bd-theme", m), mode);
     for (const [name, act] of Object.entries(STEPS)) {

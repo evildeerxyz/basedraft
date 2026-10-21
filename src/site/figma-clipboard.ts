@@ -750,31 +750,6 @@ async function sceneFor(views: View[]) {
   return { scene: s, made: count, kind: "page" as const };
 }
 
-/**
- * A whole site in one paste: a row per page, its Desktop, Tablet and Mobile frames side by side
- * under the page's name, every layer the same auto layout a single copy gets.
- */
-async function siteScene(pages: Array<{ name: string; views: View[] }>) {
-  const s = new Scene();
-  s.add({ guid: DOCUMENT, phase: "CREATED", type: "DOCUMENT", name: "Document", visible: true, opacity: 1, transform: at(0, 0) });
-  s.add({ guid: CANVAS, phase: "CREATED", parentIndex: { guid: DOCUMENT, position: "!" }, type: "CANVAS", name: "Page 1", visible: true, opacity: 1, transform: at(0, 0), backgroundColor: { r: 0.96, g: 0.96, b: 0.96, a: 1 }, backgroundOpacity: 1, backgroundEnabled: true });
-  let y = 0;
-  let i = 0;
-  for (const p of pages) {
-    let x = 0;
-    let tallest = 0;
-    for (const v of p.views) {
-      nameLayers(v.tree);
-      const tree = { ...v.tree, name: `${p.name} / ${v.name}`, x, y, sizeH: "FIXED" as const, sizeV: v.tree.layout ? ("HUG" as const) : ("FIXED" as const) };
-      await frame(s, tree, CANVAS, i++, null);
-      x += v.tree.w + 200;
-      tallest = Math.max(tallest, v.tree.h);
-    }
-    y += tallest + 400;
-  }
-  return s;
-}
-
 async function encode(scene: Scene) {
   const { kiwi, schema } = await codec();
   const pasteID = Math.floor(Math.random() * 2 ** 30);
@@ -794,11 +769,6 @@ async function encode(scene: Scene) {
   const data = archive([schema, await pipe(message, new CompressionStream("deflate-raw"))]);
   const meta = btoa(JSON.stringify({ fileKey: FILE_KEY, pasteID, dataType: "scene" }));
   return `<meta charset="utf-8" /><meta charset="utf-8" /><span data-metadata="<!--(figmeta)${meta}(/figmeta)-->"></span><span data-buffer="<!--(figma)${base64(data)}(/figma)-->"></span><span style="white-space: pre-wrap"></span>`;
-}
-
-/** Every page of a site, for one paste into Figma. */
-export async function figmaSiteHtml(pages: Array<{ name: string; views: View[] }>) {
-  return encode(await siteScene(pages));
 }
 
 /** The HTML Figma writes to the clipboard, carrying the scene for every viewport's tree. */

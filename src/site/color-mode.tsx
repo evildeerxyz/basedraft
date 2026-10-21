@@ -126,12 +126,30 @@ export function ColorModeSwitch({ className }: { className?: string }) {
               onClick={(e) => setColorMode(value, centerOf(e.currentTarget))}
               className={cn("relative grid h-7 w-7 place-items-center rounded-[5px] transition-colors", on ? "text-fg" : "text-subtle hover:text-fg")}
             >
-              {on && <motion.span layoutId="mode" className="absolute inset-0 rounded-[5px] bg-raised shadow-[0_1px_2px_rgb(var(--bd-shade)/0.16),0_0_0_1px_rgb(var(--bd-ink)/0.06)]" transition={{ type: "spring", stiffness: 520, damping: 36 }} />}
+              {on && <motion.span layoutId="mode" className="absolute inset-0 rounded-[6px] bg-raised shadow-[0_1px_2px_rgb(var(--bd-shade)/0.16),0_0_0_1px_rgb(var(--bd-ink)/0.06)]" transition={{ type: "spring", stiffness: 520, damping: 36 }} />}
               <I size={15} weight="duotone" className="relative" />
             </button>
           );
         })}
       </div>
     </LayoutGroup>
+  );
+}
+
+/** One button: the sun in dark mode, the moon in light, switching to the other. For the site's header. */
+export function ColorModeToggle({ className }: { className?: string }) {
+  const mode = useColorMode();
+  const next = mode === "dark" ? "light" : "dark";
+  const I = mode === "dark" ? SunIcon : MoonIcon;
+  return (
+    <button
+      type="button"
+      onClick={(e) => setColorMode(next, centerOf(e.currentTarget))}
+      aria-label={`Switch to ${next} mode`}
+      title={`${next[0].toUpperCase()}${next.slice(1)} mode`}
+      className={cn("grid size-9 shrink-0 place-items-center rounded-full text-muted transition-colors hover:bg-surface-2 hover:text-fg", className)}
+    >
+      <I weight="duotone" size={17} />
+    </button>
   );
 }

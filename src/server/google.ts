@@ -14,6 +14,17 @@ export const googleRedirect = (origin: string) => `${process.env.NEXT_PUBLIC_SIT
 /** Only ever a page of this site. */
 export const safeNext = (next: string | null) => (next && next.startsWith("/") && !next.startsWith("//") ? next : "/");
 
+/**
+ * Back to the page someone set out from, after a sign in that didn't happen: `signin` says which
+ * way it failed, so the page can say so (SignInNotice in shell.tsx), and the log says why.
+ */
+export function signInFailed(req: Request, next: string, why: "google-off" | "failed", detail: string) {
+  console.error(`Sign in didn't happen (${why}): ${detail}`);
+  const to = new URL(next, req.url);
+  to.searchParams.set("signin", why);
+  return to;
+}
+
 const b64url = (bytes: ArrayBuffer | Uint8Array) => btoa(String.fromCharCode(...new Uint8Array(bytes))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 const random = (n = 32) => b64url(crypto.getRandomValues(new Uint8Array(n)));
 

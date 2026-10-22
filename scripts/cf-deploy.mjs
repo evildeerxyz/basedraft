@@ -55,6 +55,12 @@ try {
   const loads = code.match(load)?.length ?? 0;
   if (loads) writeFileSync(handler, code.replace(load, "cachedInstrumentationModule=null"));
   console.log(`instrumentation hook loads made static: ${loads}`);
+  // The pages behind /components/<name>, /templates/<slug> and /blocks/<kind> that exist, as the
+  // build prerendered them, for the Worker to turn any other name away with a real 404.
+  const prerendered = Object.keys(JSON.parse(readFileSync(path.join(root, ".next/prerender-manifest.json"), "utf8")).routes);
+  const known = prerendered.filter((r) => /^\/(components|templates|blocks)\/[^/]+$/.test(r)).sort();
+  writeFileSync(path.join(root, "cloudflare/known.json"), JSON.stringify({ paths: known }, null, 2) + "\n");
+  console.log(`known pages under the dynamic routes: ${known.length}`);
   // 2. The templates, as files.
   run("node scripts/cf-templates.mjs .open-next/assets");
 } finally {

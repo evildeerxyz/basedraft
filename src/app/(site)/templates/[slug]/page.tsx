@@ -14,12 +14,6 @@ import { TakeHome, TemplateLive } from "@/site/template-preview";
 import { COLORS, SLOT_LABEL, SLOTS } from "@/site/theme";
 import { withCard } from "@/site/og";
 
-/*
- * The whole page is static, built for every template. Any other address waits for its render
- * instead of being sent the shell first, so notFound() answers with a real 404, not a 200.
- */
-export const ensureStatic = "navigation";
-
 export function generateStaticParams() {
   return TEMPLATES.map((t) => ({ slug: t.slug }));
 }

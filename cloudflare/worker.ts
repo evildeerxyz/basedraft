@@ -8,6 +8,8 @@ import { NO_AI, previewRedirect } from "../src/lib/preview-guard";
 import { RELEASED } from "../scripts/zones.mjs";
 // @ts-ignore: made by `opennextjs-cloudflare build`
 import { default as next } from "../.open-next/worker.js";
+// The real pages under the dynamic routes, written by scripts/cf-deploy.mjs from the build.
+import known from "./known.json";
 
 interface Env {
   ASSETS: { fetch: (req: Request) => Promise<Response> };
@@ -15,6 +17,17 @@ interface Env {
   CANONICAL_HOST?: string;
 }
 type ExecutionContext = { waitUntil(promise: Promise<unknown>): void; passThroughOnException(): void };
+
+/*
+ * A component, template or kind of section that doesn't exist. Next can only say so after its page
+ * has started streaming, as a 200, so the Worker answers first: Next's own not-found page, as a 404.
+ */
+const KNOWN = new Set<string>(known.paths);
+const DYNAMIC = /^\/(components|templates|blocks)\/([^/]+)\/?$/;
+const unknownPage = (pathname: string) => {
+  const m = DYNAMIC.exec(pathname);
+  return !!m && !KNOWN.has(`/${m[1]}/${m[2]}`);
+};
 
 /**
  * Files a template's code asks for from the site's root, as it would on its own domain (Noma's
@@ -43,6 +56,10 @@ export default {
       const out = new Response(res.body, res);
       out.headers.set("X-Robots-Tag", NO_AI);
       return out;
+    }
+    if (unknownPage(url.pathname)) {
+      const missing = await next.fetch(new Request(new URL("/__missing", url), request), env, ctx);
+      return new Response(missing.body, { status: 404, headers: missing.headers });
     }
     if (!url.pathname.startsWith("/live/")) return next.fetch(request, env, ctx);
     const to = previewRedirect(request);

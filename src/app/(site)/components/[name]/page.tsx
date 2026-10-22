@@ -11,12 +11,6 @@ import { AccessCard, ComponentGlyph, ComponentMenu, ExampleList, GuideCard, More
 import { withCard } from "@/site/og";
 
 
-/*
- * The whole page is static, built for every component. A name that isn't one waits for its render
- * instead of being sent the shell first, so notFound() answers with a real 404, not a 200.
- */
-export const ensureStatic = "navigation";
-
 export function generateStaticParams() {
   return COMPONENTS.map((c) => ({ name: c.name }));
 }

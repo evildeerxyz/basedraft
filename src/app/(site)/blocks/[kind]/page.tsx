@@ -14,12 +14,6 @@ const count = (id: string) => SECTIONS.filter((s) => s.kind === id).length;
 /* A kind, for the arrows by the name. */
 const link = (k?: (typeof USED_KINDS)[number]) => k && { href: `/blocks/${k.id}`, label: k.label };
 
-/*
- * The whole page is static, built for every kind of section. Any other address waits for its render
- * instead of being sent the shell first, so notFound() answers with a real 404, not a 200.
- */
-export const ensureStatic = "navigation";
-
 export function generateStaticParams() {
   return USED_KINDS.map((k) => ({ kind: k.id }));
 }

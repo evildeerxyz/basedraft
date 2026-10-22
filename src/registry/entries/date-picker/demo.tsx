@@ -10,17 +10,23 @@ const fromToday = (n: number) => {
 };
 const weekend = (d: Date) => d.getDay() === 0 || d.getDay() === 6;
 
-/* These count from today, which only the browser knows: each one comes in once it's running there, in a space its own size. */
+/*
+ * These count from today, which only the browser knows: each one comes in once it's running there,
+ * in a space its own size. It takes a function, so not even the dates in its props are worked out
+ * while the page is built.
+ */
 const noop = () => () => {};
-function Later({ children, className }: { children: ReactNode; className: string }) {
+function Later({ children, className }: { children: () => ReactNode; className: string }) {
   const mounted = useSyncExternalStore(noop, () => true, () => false);
-  return mounted ? children : <div aria-hidden className={className} />;
+  return mounted ? children() : <div aria-hidden className={className} />;
 }
 
 export function Demo() {
   return (
     <Later className="h-[68px] w-full max-w-[280px]">
-      <PublishOn />
+      {() => (
+        <PublishOn />
+      )}
     </Later>
   );
 }
@@ -38,7 +44,9 @@ function PublishOn() {
 function Single() {
   return (
     <Later className="h-11 w-full max-w-[260px]">
-      <DatePicker label="Publish on" placeholder="Pick a day" min={fromToday(0)} className="max-w-[260px]" />
+      {() => (
+        <DatePicker label="Publish on" placeholder="Pick a day" min={fromToday(0)} className="max-w-[260px]" />
+      )}
     </Later>
   );
 }
@@ -46,7 +54,9 @@ function Single() {
 function Range() {
   return (
     <Later className="h-11 w-full max-w-[300px]">
-      <Trial />
+      {() => (
+        <Trial />
+      )}
     </Later>
   );
 }
@@ -59,7 +69,9 @@ function Trial() {
 function Limits() {
   return (
     <Later className="h-11 w-full max-w-[300px]">
-      <DatePicker label="Book a call" placeholder="A weekday in the next two weeks" min={fromToday(1)} max={fromToday(14)} isDisabled={weekend} weekStartsOn={1} className="max-w-[300px]" />
+      {() => (
+        <DatePicker label="Book a call" placeholder="A weekday in the next two weeks" min={fromToday(1)} max={fromToday(14)} isDisabled={weekend} weekStartsOn={1} className="max-w-[300px]" />
+      )}
     </Later>
   );
 }
@@ -67,9 +79,11 @@ function Limits() {
 function Inline() {
   return (
     <Later className="h-[330px] w-[304px]">
-      <div className="rounded-[20px] bg-[var(--bd-surface)] p-3 shadow-[0_0_0_1px_var(--bd-line),var(--bd-shadow-resting)]">
-        <Calendar mode="range" defaultValue={{ from: fromToday(2), to: fromToday(6) }} />
-      </div>
+      {() => (
+        <div className="rounded-[20px] bg-[var(--bd-surface)] p-3 shadow-[0_0_0_1px_var(--bd-line),var(--bd-shadow-resting)]">
+          <Calendar mode="range" defaultValue={{ from: fromToday(2), to: fromToday(6) }} />
+        </div>
+      )}
     </Later>
   );
 }
@@ -77,7 +91,9 @@ function Inline() {
 function Small() {
   return (
     <Later className="h-9 w-full max-w-[220px]">
-      <DatePicker size="sm" label="Due" placeholder="Due date" defaultValue={fromToday(7)} className="max-w-[220px]" />
+      {() => (
+        <DatePicker size="sm" label="Due" placeholder="Due date" defaultValue={fromToday(7)} className="max-w-[220px]" />
+      )}
     </Later>
   );
 }

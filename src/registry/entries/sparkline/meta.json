@@ -1,0 +1,7 @@
+{
+  "name": "sparkline",
+  "title": "Sparkline",
+  "group": "Data",
+  "description": "A trend in the space of a word: a smooth line that draws in, a wash under it that fades or thins as dots, and a dot on the latest value that can pulse while it's live.",
+  "order": 23
+}

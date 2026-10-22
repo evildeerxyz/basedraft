@@ -1,0 +1,8 @@
+{
+  "name": "dither-image",
+  "title": "Dither image",
+  "group": "Display",
+  "description": "Any picture printed as an ordered dither, in ink, as round halftone dots or in its own colors stepped down, that develops into view and shows the photo through a dissolve.",
+  "order": 55,
+  "pro": true
+}

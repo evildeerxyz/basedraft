@@ -23,6 +23,30 @@ export interface ChangeDay {
 
 export const CHANGELOG: ChangeDay[] = [
   {
+    date: "2026-10-23",
+    changes: [
+      {
+        tag: "New",
+        title: "13 more free components",
+        body: "Alert, Breadcrumb, Pagination, Table of contents, Timeline, Split button, Password field, Chips, Compare slider, Code block, Sparkline, Gauge and Bar list. Each one has full docs, works from the keyboard, and comes with examples.",
+        href: "/components",
+        link: "Browse components",
+      },
+      {
+        tag: "New",
+        title: "Seven new Pro components",
+        body: "Navigation menu, Tour, Funnel, Heatmap, Uptime, Tree and Dither image: the most involved pieces yet, for product sites and dashboards.",
+        href: "/components/navigation-menu",
+        link: "See Navigation menu",
+      },
+      {
+        tag: "Improved",
+        title: "Dither where it helps, with a switch",
+        body: "Alert, Gauge, Uptime, Sparkline and Funnel take a dither prop, so the dithered look is yours to turn on or off. The charts and Bar list keep their choice of fill.",
+      },
+    ],
+  },
+  {
     date: "2026-10-21",
     changes: [
       {

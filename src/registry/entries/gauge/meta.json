@@ -1,0 +1,7 @@
+{
+  "name": "gauge",
+  "title": "Gauge",
+  "group": "Data",
+  "description": "A reading against its limit as a dial of dots, filling in ink or in the tone of its zone, its edge dithered and springing to the value as the number counts along.",
+  "order": 21
+}

@@ -1,0 +1,8 @@
+{
+  "name": "funnel",
+  "title": "Funnel",
+  "group": "Data",
+  "description": "How many make it from step to step: bars that rise in turn, the ones lost dissolving above each through a dither or held as a faint wash, a band carrying the flow, and what each step kept.",
+  "order": 35,
+  "pro": true
+}

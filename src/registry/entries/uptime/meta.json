@@ -1,0 +1,8 @@
+{
+  "name": "uptime",
+  "title": "Uptime",
+  "group": "Data",
+  "description": "A service's days as slim bars, a bad day mixed amber or red through an ordered dither in proportion to how much went wrong, with its incidents a point away.",
+  "order": 34,
+  "pro": true
+}

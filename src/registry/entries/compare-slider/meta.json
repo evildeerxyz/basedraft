@@ -1,0 +1,7 @@
+{
+  "name": "compare-slider",
+  "title": "Compare slider",
+  "group": "Display",
+  "description": "Two versions of one thing split by a line you drag: press anywhere and it springs there, arrow keys step it, and each side's name steps aside as the line comes near.",
+  "order": 56
+}

@@ -3,27 +3,37 @@ import type { ComponentDoc, ComponentMeta } from "./types";
 import { doc as e_accordion } from "./entries/accordion/doc";
 import { doc as e_actionBar } from "./entries/action-bar/doc";
 import { doc as e_aiChat } from "./entries/ai-chat/doc";
+import { doc as e_alert } from "./entries/alert/doc";
 import { doc as e_appSidebar } from "./entries/app-sidebar/doc";
 import { doc as e_areaChart } from "./entries/area-chart/doc";
 import { doc as e_avatar } from "./entries/avatar/doc";
 import { doc as e_badge } from "./entries/badge/doc";
 import { doc as e_barChart } from "./entries/bar-chart/doc";
+import { doc as e_barList } from "./entries/bar-list/doc";
+import { doc as e_breadcrumb } from "./entries/breadcrumb/doc";
 import { doc as e_button } from "./entries/button/doc";
 import { doc as e_card } from "./entries/card/doc";
 import { doc as e_carousel } from "./entries/carousel/doc";
 import { doc as e_checkbox } from "./entries/checkbox/doc";
+import { doc as e_chips } from "./entries/chips/doc";
+import { doc as e_codeBlock } from "./entries/code-block/doc";
 import { doc as e_codeInput } from "./entries/code-input/doc";
 import { doc as e_combobox } from "./entries/combobox/doc";
 import { doc as e_command } from "./entries/command/doc";
 import { doc as e_commandLine } from "./entries/command-line/doc";
+import { doc as e_compareSlider } from "./entries/compare-slider/doc";
 import { doc as e_copyButton } from "./entries/copy-button/doc";
 import { doc as e_dataTable } from "./entries/data-table/doc";
 import { doc as e_datePicker } from "./entries/date-picker/doc";
 import { doc as e_dialog } from "./entries/dialog/doc";
+import { doc as e_ditherImage } from "./entries/dither-image/doc";
 import { doc as e_donutChart } from "./entries/donut-chart/doc";
 import { doc as e_emptyState } from "./entries/empty-state/doc";
 import { doc as e_field } from "./entries/field/doc";
 import { doc as e_fileDrop } from "./entries/file-drop/doc";
+import { doc as e_funnel } from "./entries/funnel/doc";
+import { doc as e_gauge } from "./entries/gauge/doc";
+import { doc as e_heatmap } from "./entries/heatmap/doc";
 import { doc as e_holdButton } from "./entries/hold-button/doc";
 import { doc as e_hoverCard } from "./entries/hover-card/doc";
 import { doc as e_inbox } from "./entries/inbox/doc";
@@ -34,9 +44,12 @@ import { doc as e_kbd } from "./entries/kbd/doc";
 import { doc as e_marquee } from "./entries/marquee/doc";
 import { doc as e_menu } from "./entries/menu/doc";
 import { doc as e_meter } from "./entries/meter/doc";
+import { doc as e_navigationMenu } from "./entries/navigation-menu/doc";
 import { doc as e_number } from "./entries/number/doc";
 import { doc as e_numberField } from "./entries/number-field/doc";
 import { doc as e_onboarding } from "./entries/onboarding/doc";
+import { doc as e_pagination } from "./entries/pagination/doc";
+import { doc as e_passwordField } from "./entries/password-field/doc";
 import { doc as e_popover } from "./entries/popover/doc";
 import { doc as e_pricingTable } from "./entries/pricing-table/doc";
 import { doc as e_radioGroup } from "./entries/radio-group/doc";
@@ -47,17 +60,24 @@ import { doc as e_sheet } from "./entries/sheet/doc";
 import { doc as e_skeleton } from "./entries/skeleton/doc";
 import { doc as e_slider } from "./entries/slider/doc";
 import { doc as e_sortableList } from "./entries/sortable-list/doc";
+import { doc as e_sparkline } from "./entries/sparkline/doc";
 import { doc as e_spinner } from "./entries/spinner/doc";
+import { doc as e_splitButton } from "./entries/split-button/doc";
 import { doc as e_stat } from "./entries/stat/doc";
 import { doc as e_stepper } from "./entries/stepper/doc";
 import { doc as e_switch } from "./entries/switch/doc";
+import { doc as e_tableOfContents } from "./entries/table-of-contents/doc";
 import { doc as e_tabs } from "./entries/tabs/doc";
 import { doc as e_tagInput } from "./entries/tag-input/doc";
 import { doc as e_textarea } from "./entries/textarea/doc";
 import { doc as e_themeToggle } from "./entries/theme-toggle/doc";
+import { doc as e_timeline } from "./entries/timeline/doc";
 import { doc as e_toast } from "./entries/toast/doc";
 import { doc as e_toolbar } from "./entries/toolbar/doc";
 import { doc as e_tooltip } from "./entries/tooltip/doc";
+import { doc as e_tour } from "./entries/tour/doc";
+import { doc as e_tree } from "./entries/tree/doc";
+import { doc as e_uptime } from "./entries/uptime/doc";
 import { doc as e_wizard } from "./entries/wizard/doc";
 
 export const ENTRY_META: ComponentMeta[] = [
@@ -82,6 +102,13 @@ export const ENTRY_META: ComponentMeta[] = [
     "group": "Patterns",
     "description": "An assistant thread: replies that stream in word by word, tool calls that open to show their work, and a composer that sends, attaches and stops.",
     "pro": true
+  },
+  {
+    "order": 1,
+    "name": "alert",
+    "title": "Alert",
+    "group": "Feedback",
+    "description": "A note in the flow of the page in four tones, washed with its tone or bleeding in from the edge through a dither, with actions, that folds away when closed."
   },
   {
     "order": 50,
@@ -122,6 +149,20 @@ export const ENTRY_META: ComponentMeta[] = [
     "pro": true
   },
   {
+    "order": 22,
+    "name": "bar-list",
+    "title": "Bar list",
+    "group": "Data",
+    "description": "The top few of something, ranked, each over a slim bar whose dots thin through an ordered dither to a hard edge at its value, growing in one by one and gliding when the ranking changes."
+  },
+  {
+    "order": 2,
+    "name": "breadcrumb",
+    "title": "Breadcrumb",
+    "group": "Navigation",
+    "description": "The path to the page, with a pill that glides from crumb to crumb, a long middle folded into one menu, and a caret that jumps to a level's siblings."
+  },
+  {
     "order": 0,
     "name": "button",
     "title": "Button",
@@ -150,6 +191,20 @@ export const ENTRY_META: ComponentMeta[] = [
     "description": "A box pressed into the page that fills with ink as its tick draws in, with a half-on state and a row that carries a label and a line."
   },
   {
+    "order": 56,
+    "name": "chips",
+    "title": "Chips",
+    "group": "Forms",
+    "description": "Filters as a row of chips that fill with ink as a check springs in, with counts, several or one at a time, a long tail folded into +N, and Clear once anything is on."
+  },
+  {
+    "order": 57,
+    "name": "code-block",
+    "title": "Code block",
+    "group": "Display",
+    "description": "Code on a card with its file's name or tabs for each package manager, colored in the theme's own hues, long lines wrapping on a hanging indent, marked lines, and a copy that turns to a check."
+  },
+  {
     "order": 53,
     "name": "code-input",
     "title": "Code input",
@@ -176,6 +231,13 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Command line",
     "group": "Actions",
     "description": "A shell command on a small ink terminal, colored, with a copy button and a switch between package managers."
+  },
+  {
+    "order": 56,
+    "name": "compare-slider",
+    "title": "Compare slider",
+    "group": "Display",
+    "description": "Two versions of one thing split by a line you drag: press anywhere and it springs there, arrow keys step it, and each side's name steps aside as the line comes near."
   },
   {
     "order": 2,
@@ -207,6 +269,14 @@ export const ENTRY_META: ComponentMeta[] = [
     "description": "A white card lifted over a dimmed page, the hero's light at its head, that holds focus until its question is answered."
   },
   {
+    "order": 55,
+    "name": "dither-image",
+    "title": "Dither image",
+    "group": "Display",
+    "description": "Any picture printed as an ordered dither, in ink, as round halftone dots or in its own colors stepped down, that develops into view and shows the photo through a dissolve.",
+    "pro": true
+  },
+  {
     "order": 32,
     "name": "donut-chart",
     "title": "Donut chart",
@@ -234,6 +304,29 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "File drop",
     "group": "Forms",
     "description": "A zone that wakes when files are dragged over the page and lifts to meet them, listing each with its kind, its progress, and why it failed or was turned away."
+  },
+  {
+    "order": 35,
+    "name": "funnel",
+    "title": "Funnel",
+    "group": "Data",
+    "description": "How many make it from step to step: bars that rise in turn, the ones lost dissolving above each through a dither or held as a faint wash, a band carrying the flow, and what each step kept.",
+    "pro": true
+  },
+  {
+    "order": 21,
+    "name": "gauge",
+    "title": "Gauge",
+    "group": "Data",
+    "description": "A reading against its limit as a dial of dots, filling in ink or in the tone of its zone, its edge dithered and springing to the value as the number counts along."
+  },
+  {
+    "order": 33,
+    "name": "heatmap",
+    "title": "Heatmap",
+    "group": "Data",
+    "description": "A year of activity a day at a time, each day's cell shaded by an ordered dither instead of a fade, fitting as many weeks as it has room for, with a card for any day by pointer or keys.",
+    "pro": true
   },
   {
     "order": 1,
@@ -308,6 +401,14 @@ export const ENTRY_META: ComponentMeta[] = [
     "description": "Progress drawn in dots, its edge dissolving through an ordered dither and springing as it moves."
   },
   {
+    "order": 6,
+    "name": "navigation-menu",
+    "title": "Navigation menu",
+    "group": "Navigation",
+    "description": "A site's top navigation with one panel that travels between its menus, gliding across and resizing to each one's content as it slides in the way you went, with a caret that follows.",
+    "pro": true
+  },
+  {
     "order": 50,
     "name": "number",
     "title": "Number",
@@ -328,6 +429,20 @@ export const ENTRY_META: ComponentMeta[] = [
     "group": "Patterns",
     "description": "A new account's first steps in a card that keeps count: a ring that fills, ticks that draw in, the next step opening on its own, a pill to fold it into, and a finish that blooms.",
     "pro": true
+  },
+  {
+    "order": 3,
+    "name": "pagination",
+    "title": "Pagination",
+    "group": "Navigation",
+    "description": "Pages of a long list, the current one inked on a pill that slides, a row that keeps its length as you go, and numbers that roll the way you went."
+  },
+  {
+    "order": 55,
+    "name": "password-field",
+    "title": "Password field",
+    "group": "Forms",
+    "description": "A password that helps as you type: an eye to show it, a four-step meter with a word for how strong, rules that tick as they're met, and a word when Caps Lock is on."
   },
   {
     "order": 3,
@@ -402,11 +517,25 @@ export const ENTRY_META: ComponentMeta[] = [
     "pro": true
   },
   {
+    "order": 23,
+    "name": "sparkline",
+    "title": "Sparkline",
+    "group": "Data",
+    "description": "A trend in the space of a word: a smooth line that draws in, a wash under it that fades or thins as dots, and a dot on the latest value that can pulse while it's live."
+  },
+  {
     "order": 50,
     "name": "spinner",
     "title": "Spinner",
     "group": "Feedback",
     "description": "A ring of dots with a crest that sweeps around it, its tail dissolving through an ordered dither."
+  },
+  {
+    "order": 4,
+    "name": "split-button",
+    "title": "Split button",
+    "group": "Actions",
+    "description": "One action and its alternatives, the way a merge button works: pick another from the caret and it takes the pill's place, its name rolling in, ready for the next press."
   },
   {
     "order": 20,
@@ -428,6 +557,13 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Switch",
     "group": "Forms",
     "description": "A recessed track that fills with ink, and a bead for a knob that stretches while you press it."
+  },
+  {
+    "order": 5,
+    "name": "table-of-contents",
+    "title": "Table of contents",
+    "group": "Navigation",
+    "description": "A long page's sections with an ink bar that slides to the one you're reading, the ones you've passed a shade darker, and links that glide there without a jump."
   },
   {
     "order": 0,
@@ -458,6 +594,13 @@ export const ENTRY_META: ComponentMeta[] = [
     "description": "Light and dark, switched with a circle of the new theme opening from the button, a sun that turns into a moon, and a System choice."
   },
   {
+    "order": 54,
+    "name": "timeline",
+    "title": "Timeline",
+    "group": "Display",
+    "description": "An activity log: times in a gutter, one rail through raised beads for what matters and small rings for the rest, days gathered, comments in bubbles, new events sliding in on top."
+  },
+  {
     "order": 6,
     "name": "toast",
     "title": "Toast",
@@ -479,6 +622,30 @@ export const ENTRY_META: ComponentMeta[] = [
     "description": "An ink bubble with a caret, carrying the action's shortcut on small caps."
   },
   {
+    "order": 61,
+    "name": "tour",
+    "title": "Tour",
+    "group": "Overlays",
+    "description": "A walk through a screen one thing at a time: the page dims, a window opens over the thing and glides to the next taking its shape, with a card that goes to the side with room.",
+    "pro": true
+  },
+  {
+    "order": 4,
+    "name": "tree",
+    "title": "Tree",
+    "group": "Navigation",
+    "description": "Folders that spring open beside a guide line, darker along the branch to the chosen row, which rides a pill that glides; run by the keyboard like a file tree.",
+    "pro": true
+  },
+  {
+    "order": 34,
+    "name": "uptime",
+    "title": "Uptime",
+    "group": "Data",
+    "description": "A service's days as slim bars, a bad day mixed amber or red through an ordered dither in proportion to how much went wrong, with its incidents a point away.",
+    "pro": true
+  },
+  {
     "order": 70,
     "name": "wizard",
     "title": "Wizard",
@@ -492,27 +659,37 @@ export const ENTRY_DOCS: Record<string, ComponentDoc> = {
   "accordion": e_accordion,
   "action-bar": e_actionBar,
   "ai-chat": e_aiChat,
+  "alert": e_alert,
   "app-sidebar": e_appSidebar,
   "area-chart": e_areaChart,
   "avatar": e_avatar,
   "badge": e_badge,
   "bar-chart": e_barChart,
+  "bar-list": e_barList,
+  "breadcrumb": e_breadcrumb,
   "button": e_button,
   "card": e_card,
   "carousel": e_carousel,
   "checkbox": e_checkbox,
+  "chips": e_chips,
+  "code-block": e_codeBlock,
   "code-input": e_codeInput,
   "combobox": e_combobox,
   "command": e_command,
   "command-line": e_commandLine,
+  "compare-slider": e_compareSlider,
   "copy-button": e_copyButton,
   "data-table": e_dataTable,
   "date-picker": e_datePicker,
   "dialog": e_dialog,
+  "dither-image": e_ditherImage,
   "donut-chart": e_donutChart,
   "empty-state": e_emptyState,
   "field": e_field,
   "file-drop": e_fileDrop,
+  "funnel": e_funnel,
+  "gauge": e_gauge,
+  "heatmap": e_heatmap,
   "hold-button": e_holdButton,
   "hover-card": e_hoverCard,
   "inbox": e_inbox,
@@ -523,9 +700,12 @@ export const ENTRY_DOCS: Record<string, ComponentDoc> = {
   "marquee": e_marquee,
   "menu": e_menu,
   "meter": e_meter,
+  "navigation-menu": e_navigationMenu,
   "number": e_number,
   "number-field": e_numberField,
   "onboarding": e_onboarding,
+  "pagination": e_pagination,
+  "password-field": e_passwordField,
   "popover": e_popover,
   "pricing-table": e_pricingTable,
   "radio-group": e_radioGroup,
@@ -536,16 +716,23 @@ export const ENTRY_DOCS: Record<string, ComponentDoc> = {
   "skeleton": e_skeleton,
   "slider": e_slider,
   "sortable-list": e_sortableList,
+  "sparkline": e_sparkline,
   "spinner": e_spinner,
+  "split-button": e_splitButton,
   "stat": e_stat,
   "stepper": e_stepper,
   "switch": e_switch,
+  "table-of-contents": e_tableOfContents,
   "tabs": e_tabs,
   "tag-input": e_tagInput,
   "textarea": e_textarea,
   "theme-toggle": e_themeToggle,
+  "timeline": e_timeline,
   "toast": e_toast,
   "toolbar": e_toolbar,
   "tooltip": e_tooltip,
+  "tour": e_tour,
+  "tree": e_tree,
+  "uptime": e_uptime,
   "wizard": e_wizard,
 };

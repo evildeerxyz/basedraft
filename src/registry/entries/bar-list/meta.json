@@ -1,0 +1,7 @@
+{
+  "name": "bar-list",
+  "title": "Bar list",
+  "group": "Data",
+  "description": "The top few of something, ranked, each over a slim bar whose dots thin through an ordered dither to a hard edge at its value, growing in one by one and gliding when the ranking changes.",
+  "order": 22
+}

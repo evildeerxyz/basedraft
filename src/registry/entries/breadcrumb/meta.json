@@ -1,0 +1,7 @@
+{
+  "name": "breadcrumb",
+  "title": "Breadcrumb",
+  "group": "Navigation",
+  "description": "The path to the page, with a pill that glides from crumb to crumb, a long middle folded into one menu, and a caret that jumps to a level's siblings.",
+  "order": 2
+}

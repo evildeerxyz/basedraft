@@ -1,0 +1,7 @@
+{
+  "name": "chips",
+  "title": "Chips",
+  "group": "Forms",
+  "description": "Filters as a row of chips that fill with ink as a check springs in, with counts, several or one at a time, a long tail folded into +N, and Clear once anything is on.",
+  "order": 56
+}

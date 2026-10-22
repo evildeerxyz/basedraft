@@ -1,0 +1,8 @@
+{
+  "name": "heatmap",
+  "title": "Heatmap",
+  "group": "Data",
+  "description": "A year of activity a day at a time, each day's cell shaded by an ordered dither instead of a fade, fitting as many weeks as it has room for, with a card for any day by pointer or keys.",
+  "order": 33,
+  "pro": true
+}

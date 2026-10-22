@@ -1,0 +1,8 @@
+{
+  "name": "tree",
+  "title": "Tree",
+  "group": "Navigation",
+  "description": "Folders that spring open beside a guide line, darker along the branch to the chosen row, which rides a pill that glides; run by the keyboard like a file tree.",
+  "order": 4,
+  "pro": true
+}

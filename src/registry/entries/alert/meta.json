@@ -1,0 +1,7 @@
+{
+  "name": "alert",
+  "title": "Alert",
+  "group": "Feedback",
+  "description": "A note in the flow of the page in four tones, washed with its tone or bleeding in from the edge through a dither, with actions, that folds away when closed.",
+  "order": 1
+}

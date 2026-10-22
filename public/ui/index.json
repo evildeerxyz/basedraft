@@ -57,6 +57,19 @@
       "docs": "https://basedraft.site/components/command-line"
     },
     {
+      "name": "split-button",
+      "title": "Split button",
+      "group": "Actions",
+      "description": "One action and its alternatives, the way a merge button works: pick another from the caret and it takes the pill's place, its name rolling in, ready for the next press.",
+      "file": "https://basedraft.site/ui/split-button.tsx",
+      "path": "components/basedraft/split-button.tsx",
+      "dependencies": [
+        "motion",
+        "@phosphor-icons/react"
+      ],
+      "docs": "https://basedraft.site/components/split-button"
+    },
+    {
       "name": "toolbar",
       "title": "Toolbar",
       "group": "Actions",
@@ -212,6 +225,32 @@
         "@phosphor-icons/react"
       ],
       "docs": "https://basedraft.site/components/field"
+    },
+    {
+      "name": "password-field",
+      "title": "Password field",
+      "group": "Forms",
+      "description": "A password that helps as you type: an eye to show it, a four-step meter with a word for how strong, rules that tick as they're met, and a word when Caps Lock is on.",
+      "file": "https://basedraft.site/ui/password-field.tsx",
+      "path": "components/basedraft/password-field.tsx",
+      "dependencies": [
+        "motion",
+        "@phosphor-icons/react"
+      ],
+      "docs": "https://basedraft.site/components/password-field"
+    },
+    {
+      "name": "chips",
+      "title": "Chips",
+      "group": "Forms",
+      "description": "Filters as a row of chips that fill with ink as a check springs in, with counts, several or one at a time, a long tail folded into +N, and Clear once anything is on.",
+      "file": "https://basedraft.site/ui/chips.tsx",
+      "path": "components/basedraft/chips.tsx",
+      "dependencies": [
+        "motion",
+        "@phosphor-icons/react"
+      ],
+      "docs": "https://basedraft.site/components/chips"
     },
     {
       "name": "combobox",
@@ -406,6 +445,44 @@
       "docs": "https://basedraft.site/components/accordion"
     },
     {
+      "name": "breadcrumb",
+      "title": "Breadcrumb",
+      "group": "Navigation",
+      "description": "The path to the page, with a pill that glides from crumb to crumb, a long middle folded into one menu, and a caret that jumps to a level's siblings.",
+      "file": "https://basedraft.site/ui/breadcrumb.tsx",
+      "path": "components/basedraft/breadcrumb.tsx",
+      "dependencies": [
+        "motion",
+        "@phosphor-icons/react"
+      ],
+      "docs": "https://basedraft.site/components/breadcrumb"
+    },
+    {
+      "name": "pagination",
+      "title": "Pagination",
+      "group": "Navigation",
+      "description": "Pages of a long list, the current one inked on a pill that slides, a row that keeps its length as you go, and numbers that roll the way you went.",
+      "file": "https://basedraft.site/ui/pagination.tsx",
+      "path": "components/basedraft/pagination.tsx",
+      "dependencies": [
+        "motion",
+        "@phosphor-icons/react"
+      ],
+      "docs": "https://basedraft.site/components/pagination"
+    },
+    {
+      "name": "table-of-contents",
+      "title": "Table of contents",
+      "group": "Navigation",
+      "description": "A long page's sections with an ink bar that slides to the one you're reading, the ones you've passed a shade darker, and links that glide there without a jump.",
+      "file": "https://basedraft.site/ui/table-of-contents.tsx",
+      "path": "components/basedraft/table-of-contents.tsx",
+      "dependencies": [
+        "motion"
+      ],
+      "docs": "https://basedraft.site/components/table-of-contents"
+    },
+    {
       "name": "badge",
       "title": "Badge",
       "group": "Display",
@@ -503,6 +580,44 @@
       "docs": "https://basedraft.site/components/empty-state"
     },
     {
+      "name": "timeline",
+      "title": "Timeline",
+      "group": "Display",
+      "description": "An activity log: times in a gutter, one rail through raised beads for what matters and small rings for the rest, days gathered, comments in bubbles, new events sliding in on top.",
+      "file": "https://basedraft.site/ui/timeline.tsx",
+      "path": "components/basedraft/timeline.tsx",
+      "dependencies": [
+        "motion"
+      ],
+      "docs": "https://basedraft.site/components/timeline"
+    },
+    {
+      "name": "compare-slider",
+      "title": "Compare slider",
+      "group": "Display",
+      "description": "Two versions of one thing split by a line you drag: press anywhere and it springs there, arrow keys step it, and each side's name steps aside as the line comes near.",
+      "file": "https://basedraft.site/ui/compare-slider.tsx",
+      "path": "components/basedraft/compare-slider.tsx",
+      "dependencies": [
+        "motion",
+        "@phosphor-icons/react"
+      ],
+      "docs": "https://basedraft.site/components/compare-slider"
+    },
+    {
+      "name": "code-block",
+      "title": "Code block",
+      "group": "Display",
+      "description": "Code on a card with its file's name or tabs for each package manager, colored in the theme's own hues, long lines wrapping on a hanging indent, marked lines, and a copy that turns to a check.",
+      "file": "https://basedraft.site/ui/code-block.tsx",
+      "path": "components/basedraft/code-block.tsx",
+      "dependencies": [
+        "motion",
+        "@phosphor-icons/react"
+      ],
+      "docs": "https://basedraft.site/components/code-block"
+    },
+    {
       "name": "resizable",
       "title": "Resizable panels",
       "group": "Display",
@@ -541,6 +656,42 @@
       "docs": "https://basedraft.site/components/stat"
     },
     {
+      "name": "gauge",
+      "title": "Gauge",
+      "group": "Data",
+      "description": "A reading against its limit as a dial of dots, filling in ink or in the tone of its zone, its edge dithered and springing to the value as the number counts along.",
+      "file": "https://basedraft.site/ui/gauge.tsx",
+      "path": "components/basedraft/gauge.tsx",
+      "dependencies": [
+        "motion"
+      ],
+      "docs": "https://basedraft.site/components/gauge"
+    },
+    {
+      "name": "bar-list",
+      "title": "Bar list",
+      "group": "Data",
+      "description": "The top few of something, ranked, each over a slim bar whose dots thin through an ordered dither to a hard edge at its value, growing in one by one and gliding when the ranking changes.",
+      "file": "https://basedraft.site/ui/bar-list.tsx",
+      "path": "components/basedraft/bar-list.tsx",
+      "dependencies": [
+        "motion"
+      ],
+      "docs": "https://basedraft.site/components/bar-list"
+    },
+    {
+      "name": "sparkline",
+      "title": "Sparkline",
+      "group": "Data",
+      "description": "A trend in the space of a word: a smooth line that draws in, a wash under it that fades or thins as dots, and a dot on the latest value that can pulse while it's live.",
+      "file": "https://basedraft.site/ui/sparkline.tsx",
+      "path": "components/basedraft/sparkline.tsx",
+      "dependencies": [
+        "motion"
+      ],
+      "docs": "https://basedraft.site/components/sparkline"
+    },
+    {
       "name": "meter",
       "title": "Meter",
       "group": "Feedback",
@@ -551,6 +702,19 @@
         "motion"
       ],
       "docs": "https://basedraft.site/components/meter"
+    },
+    {
+      "name": "alert",
+      "title": "Alert",
+      "group": "Feedback",
+      "description": "A note in the flow of the page in four tones, washed with its tone or bleeding in from the edge through a dither, with actions, that folds away when closed.",
+      "file": "https://basedraft.site/ui/alert.tsx",
+      "path": "components/basedraft/alert.tsx",
+      "dependencies": [
+        "motion",
+        "@phosphor-icons/react"
+      ],
+      "docs": "https://basedraft.site/components/alert"
     },
     {
       "name": "spinner",
@@ -574,6 +738,38 @@
     }
   ],
   "pro": [
+    {
+      "name": "tour",
+      "title": "Tour",
+      "group": "Overlays",
+      "description": "A walk through a screen one thing at a time: the page dims, a window opens over the thing and glides to the next taking its shape, with a card that goes to the side with room.",
+      "pro": true,
+      "docs": "https://basedraft.site/components/tour"
+    },
+    {
+      "name": "tree",
+      "title": "Tree",
+      "group": "Navigation",
+      "description": "Folders that spring open beside a guide line, darker along the branch to the chosen row, which rides a pill that glides; run by the keyboard like a file tree.",
+      "pro": true,
+      "docs": "https://basedraft.site/components/tree"
+    },
+    {
+      "name": "navigation-menu",
+      "title": "Navigation menu",
+      "group": "Navigation",
+      "description": "A site's top navigation with one panel that travels between its menus, gliding across and resizing to each one's content as it slides in the way you went, with a caret that follows.",
+      "pro": true,
+      "docs": "https://basedraft.site/components/navigation-menu"
+    },
+    {
+      "name": "dither-image",
+      "title": "Dither image",
+      "group": "Display",
+      "description": "Any picture printed as an ordered dither, in ink, as round halftone dots or in its own colors stepped down, that develops into view and shows the photo through a dissolve.",
+      "pro": true,
+      "docs": "https://basedraft.site/components/dither-image"
+    },
     {
       "name": "sortable-list",
       "title": "Sortable list",
@@ -613,6 +809,30 @@
       "description": "Parts of a whole that sweep around a ring, slide out to show their share in the middle, and a total that rolls up as it fills.",
       "pro": true,
       "docs": "https://basedraft.site/components/donut-chart"
+    },
+    {
+      "name": "heatmap",
+      "title": "Heatmap",
+      "group": "Data",
+      "description": "A year of activity a day at a time, each day's cell shaded by an ordered dither instead of a fade, fitting as many weeks as it has room for, with a card for any day by pointer or keys.",
+      "pro": true,
+      "docs": "https://basedraft.site/components/heatmap"
+    },
+    {
+      "name": "uptime",
+      "title": "Uptime",
+      "group": "Data",
+      "description": "A service's days as slim bars, a bad day mixed amber or red through an ordered dither in proportion to how much went wrong, with its incidents a point away.",
+      "pro": true,
+      "docs": "https://basedraft.site/components/uptime"
+    },
+    {
+      "name": "funnel",
+      "title": "Funnel",
+      "group": "Data",
+      "description": "How many make it from step to step: bars that rise in turn, the ones lost dissolving above each through a dither or held as a faint wash, a band carrying the flow, and what each step kept.",
+      "pro": true,
+      "docs": "https://basedraft.site/components/funnel"
     },
     {
       "name": "kanban-board",

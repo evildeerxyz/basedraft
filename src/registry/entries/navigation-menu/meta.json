@@ -1,0 +1,8 @@
+{
+  "name": "navigation-menu",
+  "title": "Navigation menu",
+  "group": "Navigation",
+  "description": "A site's top navigation with one panel that travels between its menus, gliding across and resizing to each one's content as it slides in the way you went, with a caret that follows.",
+  "order": 6,
+  "pro": true
+}

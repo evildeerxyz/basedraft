@@ -1,6 +1,6 @@
 {
   "name": "@basedraft/ui",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "basedraft UI: React components with a material of their own, ink, metal, paper and glass, that move with springs. One stylesheet, light and dark.",
   "type": "module",
   "sideEffects": [

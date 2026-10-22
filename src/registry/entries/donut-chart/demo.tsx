@@ -1,8 +1,9 @@
 "use client";
 
+import { CheckerboardIcon, DotsNineIcon, LineSegmentsIcon, SquareIcon } from "@phosphor-icons/react";
 import { useState, type ComponentType } from "react";
 import { DonutChart, type DonutPattern } from "../../pro-ui/donut-chart";
-import { Segmented } from "../../ui/segmented";
+import { Select } from "../../ui/select";
 
 /* October's sales by product: the plans bring in most of it, the templates the rest. */
 const SALES = [
@@ -15,10 +16,10 @@ const SALES = [
 
 /* The fills a visitor can try on the stage. */
 const FILLS = [
-  { value: "dither", label: "Dither" },
-  { value: "dots", label: "Dots" },
-  { value: "lines", label: "Lines" },
-  { value: "solid", label: "Solid" },
+  { value: "dither", label: "Dither", icon: <CheckerboardIcon weight="duotone" /> },
+  { value: "dots", label: "Dots", icon: <DotsNineIcon weight="duotone" /> },
+  { value: "lines", label: "Lines", icon: <LineSegmentsIcon weight="duotone" /> },
+  { value: "solid", label: "Solid", icon: <SquareIcon weight="duotone" /> },
 ];
 
 export function Demo() {
@@ -33,7 +34,7 @@ export function Demo() {
         <span className="mb-0.5 shrink-0 rounded-full bg-[var(--bd-ui-track)] px-2 py-0.5 text-xs font-medium tabular-nums text-[var(--bd-fg)]">+11%</span>
         {/* The fill switch shows on the component's own stage; a gallery tile shows the chart alone. */}
         <div className="hidden w-full justify-end [[data-bd-stage]_&]:flex">
-          <Segmented size="sm" label="Fill" options={FILLS} value={fill} onValueChange={(v) => setFill(v as typeof fill)} />
+          <Select size="sm" label="Fill" options={FILLS} value={fill} onValueChange={(v) => setFill(v as typeof fill)} className="w-[150px]!" />
         </div>
       </div>
       <DonutChart data={SALES} format="currency" size={200} centerLabel="Revenue" pattern={fill} title="Sales by product, October 2026" dataTable />

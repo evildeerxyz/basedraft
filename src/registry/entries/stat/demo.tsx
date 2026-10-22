@@ -1,9 +1,9 @@
 "use client";
 
-import { CurrencyDollarIcon, EyeIcon, ReceiptXIcon } from "@phosphor-icons/react";
+import { CheckerboardIcon, CurrencyDollarIcon, DotsNineIcon, EyeIcon, GradientIcon, LineSegmentsIcon, ProhibitIcon, ReceiptXIcon } from "@phosphor-icons/react";
 import { useState, type ComponentType } from "react";
-import { Segmented } from "../../ui/segmented";
 import { Stat, type ChartPattern } from "../../ui/stat";
+import { Select } from "../../ui/select";
 
 /* Two weeks of a store's revenue, a day a point, for the sparklines. */
 const DAYS = ["Oct 8", "Oct 9", "Oct 10", "Oct 11", "Oct 12", "Oct 13", "Oct 14", "Oct 15", "Oct 16", "Oct 17", "Oct 18", "Oct 19", "Oct 20", "Oct 21"];
@@ -14,11 +14,11 @@ const REFUNDS = [0.019, 0.017, 0.018, 0.016, 0.017, 0.015, 0.016, 0.014, 0.015, 
 /** A store's two figures side by side: revenue climbing, and refunds falling, which is the good news. */
 /* The fills a visitor can try on the stage. */
 const FILLS = [
-  { value: "dither", label: "Dither" },
-  { value: "dots", label: "Dots" },
-  { value: "lines", label: "Lines" },
-  { value: "gradient", label: "Gradient" },
-  { value: "none", label: "None" },
+  { value: "dither", label: "Dither", icon: <CheckerboardIcon weight="duotone" /> },
+  { value: "dots", label: "Dots", icon: <DotsNineIcon weight="duotone" /> },
+  { value: "lines", label: "Lines", icon: <LineSegmentsIcon weight="duotone" /> },
+  { value: "gradient", label: "Gradient", icon: <GradientIcon weight="duotone" /> },
+  { value: "none", label: "None", icon: <ProhibitIcon weight="duotone" /> },
 ];
 
 export function Demo() {
@@ -27,7 +27,7 @@ export function Demo() {
     <div className="grid w-full max-w-[340px] gap-3 [[data-bd-stage]_&]:max-w-[640px]">
       {/* The fill switch shows on the component's own stage; a gallery tile shows the figure alone. */}
       <div className="hidden justify-end [[data-bd-stage]_&]:flex">
-        <Segmented size="sm" label="Fill" options={FILLS} value={fill} onValueChange={(v) => setFill(v as ChartPattern)} />
+        <Select size="sm" label="Fill" options={FILLS} value={fill} onValueChange={(v) => setFill(v as ChartPattern)} className="w-[150px]!" />
       </div>
       <div className="grid gap-3 sm:[[data-bd-stage]_&]:grid-cols-2">
         <Stat label="Revenue" icon={<CurrencyDollarIcon weight="duotone" />} value={48210} format="currency" delta={0.124} deltaLabel="vs last month" data={REVENUE} points={DAYS} pattern={fill} />

@@ -1,8 +1,9 @@
 "use client";
 
+import { CheckerboardIcon, DotsNineIcon, GradientIcon, LineSegmentsIcon, SquareIcon } from "@phosphor-icons/react";
 import { useState, type ComponentType } from "react";
 import { BarChart, type ChartPattern } from "../../pro-ui/bar-chart";
-import { Segmented } from "../../ui/segmented";
+import { Select } from "../../ui/select";
 
 /* Templates sold each month over a year: a slow climb, a dip in the summer, and the Zuno launch in October. */
 const YEAR = [
@@ -23,11 +24,11 @@ const SALES = [
 
 /* The fills a visitor can try on the stage. */
 const FILLS = [
-  { value: "dither", label: "Dither" },
-  { value: "dots", label: "Dots" },
-  { value: "lines", label: "Lines" },
-  { value: "gradient", label: "Gradient" },
-  { value: "solid", label: "Solid" },
+  { value: "dither", label: "Dither", icon: <CheckerboardIcon weight="duotone" /> },
+  { value: "dots", label: "Dots", icon: <DotsNineIcon weight="duotone" /> },
+  { value: "lines", label: "Lines", icon: <LineSegmentsIcon weight="duotone" /> },
+  { value: "gradient", label: "Gradient", icon: <GradientIcon weight="duotone" /> },
+  { value: "solid", label: "Solid", icon: <SquareIcon weight="duotone" /> },
 ];
 
 /** A year of sales as bars on faint tracks, dithered, with a switch for the other fills. */
@@ -45,7 +46,7 @@ export function Demo() {
         </div>
         {/* The fill switch shows on the component's own stage; a gallery tile shows the chart alone. */}
         <div className="hidden [[data-bd-stage]_&]:block">
-          <Segmented size="sm" label="Fill" options={FILLS} value={fill} onValueChange={(v) => setFill(v as typeof fill)} />
+          <Select size="sm" label="Fill" options={FILLS} value={fill} onValueChange={(v) => setFill(v as typeof fill)} className="w-[150px]!" />
         </div>
       </div>
       <BarChart data={YEAR} x="month" series={[{ key: "sold", label: "Sold" }]} height={210} track pattern={fill} radius={4} grid={false} yAxis={false} title="Templates sold, last 12 months" dataTable />

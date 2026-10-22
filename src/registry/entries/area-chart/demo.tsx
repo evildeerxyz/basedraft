@@ -1,9 +1,11 @@
 "use client";
 
+import { CheckerboardIcon, DotsNineIcon, GradientIcon, LineSegmentsIcon, ProhibitIcon } from "@phosphor-icons/react";
 import { useState, type ComponentType } from "react";
 import { AreaChart, type ChartPattern } from "../../pro-ui/area-chart";
 import { RollingNumber } from "../../ui/number";
 import { Segmented } from "../../ui/segmented";
+import { Select } from "../../ui/select";
 
 /* The same numbers every time: a small seeded generator, so the server and each visit agree. */
 function seeded(seed: number) {
@@ -40,11 +42,11 @@ const RANGES = [
 ];
 /* The fills a visitor can try on the stage. */
 const FILLS = [
-  { value: "dither", label: "Dither" },
-  { value: "dots", label: "Dots" },
-  { value: "lines", label: "Lines" },
-  { value: "gradient", label: "Gradient" },
-  { value: "none", label: "None" },
+  { value: "dither", label: "Dither", icon: <CheckerboardIcon weight="duotone" /> },
+  { value: "dots", label: "Dots", icon: <DotsNineIcon weight="duotone" /> },
+  { value: "lines", label: "Lines", icon: <LineSegmentsIcon weight="duotone" /> },
+  { value: "gradient", label: "Gradient", icon: <GradientIcon weight="duotone" /> },
+  { value: "none", label: "None", icon: <ProhibitIcon weight="duotone" /> },
 ];
 const when = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
 
@@ -74,7 +76,7 @@ export function Demo() {
         <Segmented size="sm" label="Range" options={RANGES} value={range} onValueChange={(v) => (setRange(v), setAt(null))} />
         {/* The fill switch shows on the component's own stage; a gallery tile shows the chart alone. */}
         <div className="hidden w-full justify-end [[data-bd-stage]_&]:flex">
-          <Segmented size="sm" label="Fill" options={FILLS} value={fill} onValueChange={(v) => setFill(v as typeof fill)} />
+          <Select size="sm" label="Fill" options={FILLS} value={fill} onValueChange={(v) => setFill(v as typeof fill)} className="w-[150px]!" />
         </div>
       </div>
       <AreaChart

@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
 import { cn } from "@/lib/utils";
 import { isFree, kindOf, sectionOf, sectionShot, TEMPLATES, templateOf, viewUrl, type TemplateSlug } from "@/site/live";
 import { btnLg, ProBadge, Tick, wrap } from "@/site/sheet";
@@ -15,6 +14,12 @@ import { TakeHome, TemplateLive } from "@/site/template-preview";
 import { COLORS, SLOT_LABEL, SLOTS } from "@/site/theme";
 import { withCard } from "@/site/og";
 
+/*
+ * The whole page is static, built for every template. Any other address waits for its render
+ * instead of being sent the shell first, so notFound() answers with a real 404, not a 200.
+ */
+export const ensureStatic = "navigation";
+
 export function generateStaticParams() {
   return TEMPLATES.map((t) => ({ slug: t.slug }));
 }
@@ -24,16 +29,10 @@ export async function generateMetadata({ params }: PageProps<"/templates/[slug]"
   return t ? withCard(`template-${t.slug}`, { title: `${t.name} template`, description: t.description }) : {};
 }
 
-/*
- * Every template's page is prerendered from generateStaticParams. Reading the slug inside a
- * Suspense boundary keeps the route's shell instant for any other address too.
- */
-export default function TemplatePage({ params }: PageProps<"/templates/[slug]">) {
-  return (
-    <Suspense fallback={<main id="main" className="min-h-[80vh]" />}>
-      <Template params={params} />
-    </Suspense>
-  );
+/* Every template's page is prerendered. An unknown slug is turned away before anything is sent, so it's a real 404. */
+export default async function TemplatePage({ params }: PageProps<"/templates/[slug]">) {
+  if (!templateOf((await params).slug)) notFound();
+  return <Template params={params} />;
 }
 
 /* The code it's written in. */

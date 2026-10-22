@@ -1,7 +1,6 @@
 import { PackageIcon, StackIcon } from "@phosphor-icons/react/ssr";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
 import { claudePrompt, COMPONENTS, componentOf, PACKAGE } from "@/registry";
 import { DOCS } from "@/registry/docs";
 import { DEPS } from "@/registry/exports";
@@ -12,6 +11,12 @@ import { AccessCard, ComponentGlyph, ComponentMenu, ExampleList, GuideCard, More
 import { withCard } from "@/site/og";
 
 
+/*
+ * The whole page is static, built for every component. A name that isn't one waits for its render
+ * instead of being sent the shell first, so notFound() answers with a real 404, not a 200.
+ */
+export const ensureStatic = "navigation";
+
 export function generateStaticParams() {
   return COMPONENTS.map((c) => ({ name: c.name }));
 }
@@ -21,13 +26,11 @@ export async function generateMetadata({ params }: PageProps<"/components/[name]
   return c ? withCard(`component-${c.name}`, { title: `${c.title} component`, description: `${c.description} Part of basedraft UI: free, one file to copy or download.` }) : {};
 }
 
-/* Prerendered for every component; the name is read inside Suspense so the route's shell stays instant. */
-export default function ComponentPage({ params }: PageProps<"/components/[name]">) {
-  return (
-    <Suspense fallback={<main id="main" className="min-h-[80vh]" />}>
-      <Component params={params} />
-    </Suspense>
-  );
+/* Prerendered for every component. An unknown name is turned away before anything is sent, so it's a real 404. */
+export default async function ComponentPage({ params }: PageProps<"/components/[name]">) {
+  const c = componentOf((await params).name);
+  if (!c || (!c.pro && !SOURCES[c.name])) notFound();
+  return <Component params={params} />;
 }
 
 /* A neighbor in the list, for the arrows by the name. */

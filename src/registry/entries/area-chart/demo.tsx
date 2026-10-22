@@ -73,10 +73,12 @@ export function Demo() {
             </span>
           </div>
         </div>
-        <Segmented size="sm" label="Range" options={RANGES} value={range} onValueChange={(v) => (setRange(v), setAt(null))} />
-        {/* The fill switch shows on the component's own stage; a gallery tile shows the chart alone. */}
-        <div className="hidden w-full justify-end [[data-bd-stage]_&]:flex">
-          <Select size="sm" label="Fill" options={FILLS} value={fill} onValueChange={(v) => setFill(v as typeof fill)} className="w-[150px]!" />
+        {/* The range and the fill side by side; the fill only on the component's own stage. */}
+        <div className="flex items-center gap-2">
+          <Segmented size="sm" label="Range" options={RANGES} value={range} onValueChange={(v) => (setRange(v), setAt(null))} />
+          <div className="hidden [[data-bd-stage]_&]:block">
+            <Select size="sm" label="Fill" options={FILLS} value={fill} onValueChange={(v) => setFill(v as typeof fill)} className="w-[150px]!" />
+          </div>
         </div>
       </div>
       <AreaChart

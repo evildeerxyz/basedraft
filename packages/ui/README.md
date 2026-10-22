@@ -1,6 +1,6 @@
 # @basedraft/ui
 
-basedraft UI: React components with a material of their own. Ink, brushed metal, paper and glass, depth from light rather than borders, and motion that springs. 47 components, accessible, light and dark, with one stylesheet and nothing to configure.
+basedraft UI: React components with a material of their own. Ink, brushed metal, paper and glass, depth from light rather than borders, and motion that springs. 60 components, accessible, light and dark, with one stylesheet and nothing to configure.
 
 Every component has a live page with its props and examples at [basedraft.site/components](https://basedraft.site/components).
 
@@ -83,6 +83,7 @@ Point `@source` at the package from your CSS file's folder. Use either this or `
 - [Hold button](https://basedraft.site/components/hold-button): Press and hold to confirm: ink fills it as you hold, and letting go early cancels. `HoldButton`
 - [Copy button](https://basedraft.site/components/copy-button): Copies a piece of text, its icon turning over into a check as a ring spreads from it. `CopyButton`
 - [Command line](https://basedraft.site/components/command-line): A shell command on a small ink terminal, colored, with a copy button and a switch between package managers. `CommandLine`
+- [Split button](https://basedraft.site/components/split-button): One action and its alternatives, the way a merge button works: pick another from the caret and it takes the pill's place, its name rolling in, ready for the next press. `SplitButton`
 - [Toolbar](https://basedraft.site/components/toolbar): Tools on one white bar, with toggles, a group whose chip slides, a tooltip that glides from tool to tool, and a More menu when it runs out of room. `Toolbar`, `ToolbarButton`, `ToolbarToggle`, `ToolbarGroup`, `ToolbarSeparator`
 - [Action bar](https://basedraft.site/components/action-bar): An ink bar that rises while things are selected, its count rolling, with what you can do to all of them and a way to let them go. `ActionBar`, `ActionBarButton`
 - [Theme toggle](https://basedraft.site/components/theme-toggle): Light and dark, switched with a circle of the new theme opening from the button, a sun that turns into a moon, and a System choice. `ThemeToggle`, `ThemeSwitcher`
@@ -99,6 +100,8 @@ Point `@source` at the package from your CSS file's folder. Use either this or `
 - [Select](https://basedraft.site/components/select): A pill that opens a card of choices in groups, ticked in ink, moved by the arrow keys and by typing a name. `Select`
 - [Code input](https://basedraft.site/components/code-input): A one-time code a cell at a time: typing moves along, a paste or a phone's autofill fills them all, and a wrong code shakes. `CodeInput`
 - [Field](https://basedraft.site/components/field): A label, a hint and an error around any control, wired for screen readers, with a count when there's a limit. `Field`
+- [Password field](https://basedraft.site/components/password-field): A password that helps as you type: an eye to show it, a four-step meter with a word for how strong, rules that tick as they're met, and a word when Caps Lock is on. `PasswordField`
+- [Chips](https://basedraft.site/components/chips): Filters as a row of chips that fill with ink as a check springs in, with counts, several or one at a time, a long tail folded into +N, and Clear once anything is on. `Chips`
 - [Combobox](https://basedraft.site/components/combobox): A select you can type into: results filter and group as you go, the match drawn in bold, with chips for several and a row to create what's missing. `Combobox`
 - [Inline edit](https://basedraft.site/components/inline-edit): Text that becomes a field where it stands, the same size and type, growing as you type, with saving, a check, and a shake when it is refused. `InlineEdit`
 - [Tag input](https://basedraft.site/components/tag-input): A field that turns what you type into chips on Enter or a comma, splits a pasted list, and lets each chip be checked, edited in place or taken away. `TagInput`
@@ -120,6 +123,9 @@ Point `@source` at the package from your CSS file's folder. Use either this or `
 
 - [Tabs](https://basedraft.site/components/tabs): A quiet row of names, the selected one inked on a pill that slides, its panel rising in. `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent`
 - [Accordion](https://basedraft.site/components/accordion): Numbered questions on one card, each answer springing open as its plus turns into a cross. `Accordion`, `AccordionItem`, `AccordionTrigger`, `AccordionContent`
+- [Breadcrumb](https://basedraft.site/components/breadcrumb): The path to the page, with a pill that glides from crumb to crumb, a long middle folded into one menu, and a caret that jumps to a level's siblings. `Breadcrumb`
+- [Pagination](https://basedraft.site/components/pagination): Pages of a long list, the current one inked on a pill that slides, a row that keeps its length as you go, and numbers that roll the way you went. `Pagination`
+- [Table of contents](https://basedraft.site/components/table-of-contents): A long page's sections with an ink bar that slides to the one you're reading, the ones you've passed a shade darker, and links that glide there without a jump. `TableOfContents`
 
 ### Display
 
@@ -132,16 +138,23 @@ Point `@source` at the package from your CSS file's folder. Use either this or `
 - [Marquee](https://basedraft.site/components/marquee): An endless row of logos or quotes that drifts sideways, fades at its edges and holds still when pointed at. `Marquee`
 - [Steps](https://basedraft.site/components/stepper): The way through a task in a few steps, down the page or across, with a line that fills as you go. `Steps`, `Step`
 - [Empty state](https://basedraft.site/components/empty-state): What a list says before it has anything: a small fan of ghost cards that spreads when pointed at, a title, a line and the action that starts it. `EmptyState`
+- [Timeline](https://basedraft.site/components/timeline): An activity log: times in a gutter, one rail through raised beads for what matters and small rings for the rest, days gathered, comments in bubbles, new events sliding in on top. `Timeline`, `TimelineGroup`, `TimelineItem`, `TimelineQuote`, `TimelineMeta`
+- [Compare slider](https://basedraft.site/components/compare-slider): Two versions of one thing split by a line you drag: press anywhere and it springs there, arrow keys step it, and each side's name steps aside as the line comes near. `CompareSlider`
+- [Code block](https://basedraft.site/components/code-block): Code on a card with its file's name or tabs for each package manager, colored in the theme's own hues, long lines wrapping on a hanging indent, marked lines, and a copy that turns to a check. `CodeBlock`
 - [Resizable panels](https://basedraft.site/components/resizable): Two panels and a line between them that catches at sizes you come back to, folds a side away, and springs home on a double-click. `ResizablePanel`, `Resizable`
 - [Carousel](https://basedraft.site/components/carousel): Slides of any width that you drag or flick and that carry on with your speed before settling, with dots or a bar, and that wait while no one's looking. `CarouselSlide`, `Carousel`
 
 ### Data
 
 - [Stat](https://basedraft.site/components/stat): A number that rolls into place, its change marked up or down in the tone that means good or bad, over a line that draws in and reads out each point you point at. `Stat`
+- [Gauge](https://basedraft.site/components/gauge): A reading against its limit as a dial of dots, filling in ink or in the tone of its zone, its edge dithered and springing to the value as the number counts along. `Gauge`
+- [Bar list](https://basedraft.site/components/bar-list): The top few of something, ranked, each over a slim bar whose dots thin through an ordered dither to a hard edge at its value, growing in one by one and gliding when the ranking changes. `BarList`
+- [Sparkline](https://basedraft.site/components/sparkline): A trend in the space of a word: a smooth line that draws in, a wash under it that fades or thins as dots, and a dot on the latest value that can pulse while it's live. `Sparkline`
 
 ### Feedback
 
 - [Meter](https://basedraft.site/components/meter): Progress drawn in dots, its edge dissolving through an ordered dither and springing as it moves. `Meter`
+- [Alert](https://basedraft.site/components/alert): A note in the flow of the page in four tones, washed with its tone or bleeding in from the edge through a dither, with actions, that folds away when closed. `Alert`
 - [Spinner](https://basedraft.site/components/spinner): A ring of dots with a crest that sweeps around it, its tail dissolving through an ordered dither. `Spinner`
 - [Skeleton](https://basedraft.site/components/skeleton): Solid gray blocks, lines and circles in the shape of what's loading, with a band of fine dots passing through. `Skeleton`, `SkeletonText`, `SkeletonAvatar`
 

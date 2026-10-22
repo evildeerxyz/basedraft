@@ -1,0 +1,7 @@
+{
+  "name": "command",
+  "title": "Command",
+  "group": "Overlays",
+  "description": "A search that does things: type to narrow pages and actions, arrows and Enter to go, in place or as a ⌘K palette with the hero's light at its head.",
+  "order": 5
+}

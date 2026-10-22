@@ -1,0 +1,1 @@
+{ "name": "toolbar", "title": "Toolbar", "group": "Actions", "description": "Tools on one white bar, with toggles, a group whose chip slides, a tooltip that glides from tool to tool, and a More menu when it runs out of room.", "order": 60 }

@@ -1,0 +1,7 @@
+{
+  "name": "tooltip",
+  "title": "Tooltip",
+  "group": "Display",
+  "description": "An ink bubble with a caret, carrying the action's shortcut on small caps.",
+  "order": 4
+}

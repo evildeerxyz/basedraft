@@ -1,0 +1,7 @@
+{
+  "name": "number-field",
+  "title": "Number field",
+  "group": "Forms",
+  "description": "A pill with − and + that speed up as they're held, a label you drag sideways to scrub, and arrow keys with Shift for bigger steps.",
+  "order": 62
+}

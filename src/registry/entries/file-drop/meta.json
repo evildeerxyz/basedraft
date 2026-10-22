@@ -1,0 +1,7 @@
+{
+  "name": "file-drop",
+  "title": "File drop",
+  "group": "Forms",
+  "description": "A zone that wakes when files are dragged over the page and lifts to meet them, listing each with its kind, its progress, and why it failed or was turned away.",
+  "order": 64
+}

@@ -5,7 +5,7 @@ Finished websites you make your own. basedraft.site sells three complete Next.js
 | | What it is | Where |
 | --- | --- | --- |
 | **Templates** | The three sites, live, with every page | `/templates`, `/templates/[slug]` |
-| **Components** | basedraft UI, our own free components: each one file at `/ui/<name>.tsx`, sharing the theme `/ui/basedraft.css` | `/components`, `/components/[name]` |
+| **Components** | basedraft UI, our own free React components, as the npm package `@basedraft/ui` (also each one file at `/ui/<name>.tsx`) | `/components`, `/components/[name]`, `/components/get-started` |
 | **Blocks** | Every section from the templates, live at any width, with code and a copy for Figma (moved from `/components`, which redirects) | `/blocks`, `/blocks/[kind]` |
 | **Studio** | A Framer style canvas over the real site | `/studio` |
 | **Pro** | One payment: every template, every export, every update | `/pro` |
@@ -125,7 +125,7 @@ Locally, each template is its own Next app (`next start` on 4101 to 4103) and `n
 
 ## basedraft's own design
 
-- **Quiet grays, a trace of blue.** Cool near-white pages in light mode; uiarc-style neutral grays with no hue in dark (`globals.css`), and light or dark follows the system until you pick (`src/site/color-mode.tsx`). Blue is kept to a trace: small marks use a near-neutral tint with slate ink (`bg-brand-soft`, `text-brand-ink`), and active states lean on ink and grays. Templates keep their own colors.
+- **Quiet grays, a trace of blue.** Cool near-white pages in light mode; neutral grays with no hue in dark (`globals.css`), and light or dark follows the system until you pick (`src/site/color-mode.tsx`). Blue is kept to a trace: small marks use a near-neutral tint with slate ink (`bg-brand-soft`, `text-brand-ink`), and active states lean on ink and grays. Templates keep their own colors.
 - **Type.** Instrument Sans for the big sizes, Inter for text, Geist Mono for code, all through `next/font/google` (`src/app/layout.tsx`). One scale in `@theme`: display 72, headline 48, title 32, heading 18, lead 18, body 16, ui 14, meta 12.
 - **The hero's light, and quiet cards.** Heroes, stages, scenes and feature panels wear one soft surface (`bd-paper`) lit blue, lilac and mint, arranged one of four ways (`glow-b`, `glow-c`, `glow-d`; `Stage`, `Scene`, `glowAt`). In dark mode the hero, the footer and the announcement stay light paper (`.bd-light` re-applies the light tokens inside them). Gallery cards (components, blocks, templates) are a flat, very light neutral gray instead (`bd-panel`), so a page of them stays calm. Gradient surfaces wear fine, faint dots (`public/textures/dots-fine*.png`); the hero carries the animated dot field (`src/site/dot-field.tsx`). Textures come from `node scripts/textures.mjs`.
 - **Buttons.** Every button is a pill. The important action is charcoal inside a brushed-metal edge (`btn-metal`; `btn.ink`, `btnLg.ink`, `btnLg.onPaper` in `src/site/sheet.tsx`).
@@ -136,6 +136,15 @@ Locally, each template is its own Next app (`next start` on 4101 to 4103) and `n
 - **Copy:** US English, plain words, no em dashes.
 - **Thumbnails** are real renders: `npm run shots` (or `shots -- studio | sections | templates`) while the app runs.
 - **Share cards** are real renders too: every page's 1200 by 630 card, the hero's light with the page's icon, name and a line, drawn at `/dev/og` and saved by `node scripts/og.mjs` (while the app runs) into `public/og`. `src/site/og.ts` points each page at its own; released templates only.
+
+## basedraft UI (the components library)
+
+The components ship as the npm package `@basedraft/ui` (`packages/ui`), and their pages live at `/components`.
+
+- **One source.** Each component is one self-contained file in `src/registry/ui/<name>.tsx` (react, motion and Phosphor only, colors from the `--bd-*` tokens and `src/registry/extras.css`). The site, the package and the single-file downloads all read these files.
+- **One folder of docs per component.** `src/registry/entries/<name>/` holds `meta.json` (name, title, group, line, order), `doc.ts` (usage, when to use it, parts and props, examples, keyboard, accessibility) and `demo.tsx` (the live demo and one per example). A component appears on the site once its `meta.json` exists.
+- **`node scripts/registry.mjs`** after any change: it gathers the folders into `src/registry/catalog.ts` and `catalog-demos.tsx`, writes the sources and export names the pages show, `public/ui` (each file, `basedraft.css`, `index.json`) and `public/llms.txt`.
+- **`npm run ui:build`** builds the package into `packages/ui/dist`: an ES module per component with its `"use client"`, types, `styles.css` (theme, materials and the compiled styles, no Tailwind needed) and `theme.css` (for Tailwind v4 projects). Publishing is `npm publish --access public` from `packages/ui`, once logged in to npm.
 
 ## Accounts and data (Supabase)
 

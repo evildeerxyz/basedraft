@@ -9,7 +9,7 @@ const cx = (...c: Array<string | false | null | undefined>) => c.filter(Boolean)
 
 const VARIANTS = {
   default: "text-[var(--bd-ui-ink-text)] [background:var(--bd-ui-ink)] shadow-[inset_0_1px_0_rgb(255_255_255/0.14)]",
-  secondary: "bg-[var(--bd-surface-2)] text-[var(--bd-muted)] shadow-[inset_0_0_0_1px_rgb(var(--bd-ink)/0.06)]",
+  secondary: "bg-[var(--bd-ui-track)] text-[var(--bd-muted)] shadow-[inset_0_0_0_1px_rgb(var(--bd-ink)/0.06)]",
   outline: "bg-[var(--bd-surface)] text-[var(--bd-fg)] shadow-[inset_0_0_0_1px_var(--bd-line-strong)]",
   paper: "text-[var(--bd-paper-ink)] [background:var(--bd-ui-paper)] shadow-[inset_0_0_0_1px_rgb(var(--bd-ink)/0.1),0_1px_2px_rgb(var(--bd-shade)/0.06)]",
   metal: "border-[1.5px] border-transparent text-white [background:var(--bd-ui-metal-fill)_padding-box,var(--bd-ui-metal-edge)_border-box] shadow-[0_1px_2px_rgb(0_0_0/0.18)]",

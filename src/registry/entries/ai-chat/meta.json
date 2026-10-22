@@ -1,0 +1,8 @@
+{
+  "name": "ai-chat",
+  "title": "AI chat",
+  "group": "Patterns",
+  "description": "An assistant thread: replies that stream in word by word, tool calls that open to show their work, and a composer that sends, attaches and stops.",
+  "order": 20,
+  "pro": true
+}

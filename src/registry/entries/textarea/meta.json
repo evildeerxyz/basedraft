@@ -1,0 +1,7 @@
+{
+  "name": "textarea",
+  "title": "Textarea",
+  "group": "Forms",
+  "description": "A longer field that grows as you type, with a small ring that counts toward its limit.",
+  "order": 1
+}

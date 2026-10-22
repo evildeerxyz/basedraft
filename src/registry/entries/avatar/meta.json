@@ -1,0 +1,7 @@
+{
+  "name": "avatar",
+  "title": "Avatar",
+  "group": "Display",
+  "description": "Initials on a stone tint drawn from the name, a status dot, and a group that fans out when you point at it.",
+  "order": 2
+}

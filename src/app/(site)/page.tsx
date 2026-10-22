@@ -13,7 +13,7 @@ import { ShellLine } from "@/site/shell-line";
 import { GLOW, glowAt, onStage, type Glow } from "@/site/stage";
 import { StudioStage } from "@/site/studio-stage";
 import { cn } from "@/lib/utils";
-import { installCommand, themeCommand } from "@/registry";
+import { installCommand } from "@/registry";
 import type { CSSProperties } from "react";
 
 /*
@@ -74,7 +74,7 @@ function SectionRow({ items, reverse, seconds }: { items: LiveSection[]; reverse
 const COUNT: Record<number, string> = { 2: "Two", 3: "Three", 4: "Four", 5: "Five", 6: "Six", 7: "Seven", 8: "Eight" };
 
 /* What Claude Code can run to put basedraft into a project, colored as a terminal colors it. */
-const AGENT_LINES = ["curl -fsSL https://basedraft.site/llms.txt", themeCommand, installCommand("switch")];
+const AGENT_LINES = ["curl -fsSL https://basedraft.site/llms.txt", installCommand()];
 
 export default function Overview() {
   return (
@@ -162,7 +162,7 @@ export default function Overview() {
           <h2 id="agent-title" className="max-w-[560px] text-balance text-headline">
             Ready for Claude Code
           </h2>
-          <p className="mb-7 mt-5 max-w-[460px] text-body text-muted">Every component is one file to download, sharing one theme, and basedraft&apos;s guide for agents lives at /llms.txt. Each template comes with a prompt that sets it up for you.</p>
+          <p className="mb-7 mt-5 max-w-[460px] text-body text-muted">Every component comes in one npm package, @basedraft/ui, and basedraft&apos;s guide for agents lives at /llms.txt. Each template comes with a prompt that sets it up for you.</p>
           <div className="flex flex-wrap gap-x-6 gap-y-3">
             <TextLink href="/components">Browse the components</TextLink>
             <TextLink href="/llms.txt" up>

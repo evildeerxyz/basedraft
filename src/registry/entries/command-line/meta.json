@@ -1,0 +1,7 @@
+{
+  "name": "command-line",
+  "title": "Command line",
+  "group": "Actions",
+  "description": "A shell command on a small ink terminal, colored, with a copy button and a switch between package managers.",
+  "order": 3
+}

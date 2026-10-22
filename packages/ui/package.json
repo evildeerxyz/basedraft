@@ -1,0 +1,60 @@
+{
+  "name": "@basedraft/ui",
+  "version": "0.1.0",
+  "description": "basedraft UI: React components with a material of their own, ink, metal, paper and glass, that move with springs. One stylesheet, light and dark.",
+  "type": "module",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./styles.css": "./dist/styles.css",
+    "./theme.css": "./dist/theme.css",
+    "./package.json": "./package.json",
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "import": "./dist/*.js"
+    }
+  },
+  "peerDependencies": {
+    "@phosphor-icons/react": "^2.1.0",
+    "motion": "^12.0.0 || ^13.0.0 || ^14.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "prepublishOnly": "node scripts/build.mjs"
+  },
+  "keywords": [
+    "react",
+    "components",
+    "ui",
+    "design-system",
+    "motion",
+    "nextjs",
+    "basedraft"
+  ],
+  "homepage": "https://basedraft.site/components",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hey-emmah/basedraft.git",
+    "directory": "packages/ui"
+  },
+  "license": "MIT",
+  "author": "basedraft (https://basedraft.site)",
+  "publishConfig": {
+    "access": "public"
+  }
+}

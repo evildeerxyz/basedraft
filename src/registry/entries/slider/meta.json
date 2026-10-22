@@ -1,0 +1,7 @@
+{
+  "name": "slider",
+  "title": "Slider",
+  "group": "Forms",
+  "description": "A value along an ink track: a bead to drag, a bubble that says the value, and marked stops under it.",
+  "order": 4
+}

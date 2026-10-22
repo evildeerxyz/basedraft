@@ -1,5 +1,6 @@
-import { DownloadSimpleIcon, FileTsxIcon, LayoutIcon, PackageIcon, SquaresFourIcon, StackIcon } from "@phosphor-icons/react/ssr";
+import { BookOpenTextIcon, FileTsxIcon, LayoutIcon, PackageIcon, SquaresFourIcon, StackIcon } from "@phosphor-icons/react/ssr";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { claudePromptAll, COMPONENTS } from "@/registry";
 import { HeroFacts, LibraryHero, NextUp } from "@/site/library";
 import { LIB_WRAP } from "@/site/library-css";
@@ -21,18 +22,18 @@ export default function ComponentsPage() {
             items={[
               { icon: <StackIcon weight="duotone" size={14} />, value: COMPONENTS.length, label: "components" },
               { icon: <PackageIcon weight="duotone" size={14} />, value: "Free", label: "to copy" },
-              { icon: <FileTsxIcon weight="duotone" size={14} />, value: "One file", label: "each" },
+              { icon: <FileTsxIcon weight="duotone" size={14} />, value: "One", label: "npm package" },
             ]}
           />
         }
         title="Components that move well"
-        lead="basedraft UI: our own React components, made to be touched. Each is one file to copy or download, and they share one theme, light and dark."
+        lead="basedraft UI: our own React components, made to be touched. One npm package, one stylesheet, light and dark, with or without Tailwind."
         actions={
           <>
             <ClaudeCodeButton prompt={claudePromptAll} />
-            <a href="/ui/basedraft.css" download className={btnLg.onPaperOutline}>
-              <DownloadSimpleIcon weight="duotone" size={15} /> Download the theme
-            </a>
+            <Link href="/components/get-started" className={btnLg.onPaperOutline}>
+              <BookOpenTextIcon weight="duotone" size={15} /> Get started
+            </Link>
           </>
         }
       />

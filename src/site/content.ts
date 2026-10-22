@@ -2,7 +2,7 @@
 
 import { SECTIONS, TEMPLATES } from "./live";
 
-export type FeatureIcon = "figma" | "paper" | "code" | "layouts" | "template" | "studio" | "personal" | "pro" | "team" | "client" | "support";
+export type FeatureIcon = "figma" | "paper" | "code" | "layouts" | "components" | "template" | "studio" | "personal" | "pro" | "team" | "client" | "support";
 export interface PlanFeature {
   icon: FeatureIcon;
   t: string;
@@ -15,6 +15,7 @@ export const PRO_FEATURES: PlanFeature[] = [
   { icon: "paper", t: "Copy to Paper and SVG", b: "One responsive frame, named layers" },
   { icon: "code", t: "Code and GitHub", b: "The whole site in Next.js or Astro, downloaded or sent to your repo" },
   { icon: "layouts", t: "Every template and section", b: `All ${TEMPLATES.length} sites and ${SECTIONS.length} sections, plus every new one` },
+  { icon: "components", t: "Pro components", b: "Charts, a data table, a kanban board, an AI chat and more, as code you own" },
 ];
 
 /** Small print, each line led by an icon for what kind of promise it is. */

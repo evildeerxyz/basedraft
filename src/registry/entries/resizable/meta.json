@@ -1,0 +1,7 @@
+{
+  "name": "resizable",
+  "title": "Resizable panels",
+  "group": "Display",
+  "description": "Two panels and a line between them that catches at sizes you come back to, folds a side away, and springs home on a double-click.",
+  "order": 61
+}

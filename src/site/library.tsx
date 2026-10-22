@@ -325,7 +325,7 @@ export function BlocksBrowser() {
  * The row at the top of a piece's page: back to the library on the left; on the right the one
  * before, a menu of all of them under the current name, and the one after.
  */
-export function PieceNav({ back, prev, next, menu }: { back: { href: string; label: string }; prev?: { href: string; label: string }; next?: { href: string; label: string }; menu: ReactNode }) {
+export function PieceNav({ back, prev, next, menu }: { back: { href: string; label: string }; prev?: { href: string; label: string }; next?: { href: string; label: string }; /** Leave it out for a page that isn't one of a series. */ menu?: ReactNode }) {
   const step = "grid size-9 shrink-0 place-items-center rounded-full text-muted transition-colors hover:bg-fg/[0.06] hover:text-fg";
   return (
     <div className="flex items-center justify-between gap-3 pt-6">
@@ -333,6 +333,7 @@ export function PieceNav({ back, prev, next, menu }: { back: { href: string; lab
         <ArrowLeftIcon weight="regular" size={13} className="transition-transform duration-300 group-hover:-translate-x-0.5" />
         {back.label}
       </Link>
+      {menu && (
       <div className="flex items-center gap-0.5 rounded-full bg-fg/[0.05] p-0.5">
         {prev ? (
           <Link href={prev.href} aria-label={`Previous: ${prev.label}`} title={prev.label} className={step}>
@@ -354,6 +355,7 @@ export function PieceNav({ back, prev, next, menu }: { back: { href: string; lab
           </span>
         )}
       </div>
+      )}
     </div>
   );
 }
@@ -411,7 +413,7 @@ export function FactPill({ icon, children }: { icon: ReactNode; children: ReactN
 /** A part of a piece's page: a title and an optional line, then what it shows. */
 export function PiecePart({ id, title, lead, children, className }: { id?: string; title: string; lead?: ReactNode; children: ReactNode; className?: string }) {
   return (
-    <section id={id} aria-label={title} className={cn("scroll-mt-[calc(var(--bd-header-h,80px)+24px)] pt-16", className)}>
+    <section id={id} aria-label={title} className={cn("scroll-mt-[calc(var(--bd-header-h,80px)+80px)] pt-16", className)}>
       <h2 className="font-display text-[26px] font-medium leading-[1.15] tracking-[-0.028em]">{title}</h2>
       {lead && <p className="mt-2 max-w-[600px] text-ui text-muted">{lead}</p>}
       <div className="mt-6">{children}</div>
@@ -423,13 +425,13 @@ export function PiecePart({ id, title, lead, children, className }: { id?: strin
  * The sections of one kind, as pills in the dock: each jumps to its section, and the one you're
  * reading is inked as you scroll.
  */
-export function SectionDock({ items }: { items: Array<{ id: string; label: string; logo: string }> }) {
+export function SectionDock({ items, label = "Sections on this page" }: { items: Array<{ id: string; label: string; logo?: string }>; label?: string }) {
   const at = useSpy(
     items.map((i) => i.id),
     220,
   );
   return (
-    <Dock label="Sections on this page">
+    <Dock label={label}>
       {items.map((it) => (
         <DockPill key={it.id} href={`#${it.id}`} on={at === it.id} logo={it.logo}>
           {it.label}

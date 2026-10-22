@@ -21,8 +21,10 @@ export function Textarea({ className, maxLength, showCount = false, value, defau
   return (
     <span
       className={cx(
-        "flex w-full flex-col rounded-[20px] bg-[var(--bd-surface-2)] text-sm text-[var(--bd-fg)] shadow-[var(--bd-ui-well)] transition-[background-color,box-shadow] duration-200 ease-[var(--bd-ease)]",
+        "flex w-full flex-col rounded-[20px] bg-[var(--bd-ui-field)] text-sm text-[var(--bd-fg)] shadow-[var(--bd-ui-well)] transition-[background-color,box-shadow] duration-200 ease-[var(--bd-ease)]",
         "focus-within:bg-[var(--bd-surface)] focus-within:shadow-[inset_0_0_0_1px_rgb(var(--bd-ink)/0.4),0_0_0_4px_rgb(var(--bd-ink)/0.06)] has-[:disabled]:opacity-50",
+        // Marked invalid (by hand, or by a Field with an error): the same red rim as Input.
+        "has-[[aria-invalid=true]]:shadow-[inset_0_0_0_1px_var(--bd-ui-stop),0_0_0_4px_color-mix(in_oklab,var(--bd-ui-stop)_14%,transparent)]",
         className,
       )}
     >

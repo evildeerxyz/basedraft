@@ -1,0 +1,7 @@
+{
+  "name": "hold-button",
+  "title": "Hold button",
+  "group": "Actions",
+  "description": "Press and hold to confirm: ink fills it as you hold, and letting go early cancels.",
+  "order": 1
+}

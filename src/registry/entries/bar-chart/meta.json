@@ -1,0 +1,8 @@
+{
+  "name": "bar-chart",
+  "title": "Bar chart",
+  "group": "Data",
+  "description": "Grouped or stacked bars, standing up or lying down, that grow in one after another, with a band that follows the pointer, values below zero and labels on the bars.",
+  "order": 31,
+  "pro": true
+}

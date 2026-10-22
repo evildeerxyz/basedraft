@@ -1,12 +1,13 @@
 "use client";
 
-import { AnimatePresence, LayoutGroup, motion } from "motion/react";
+import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "motion/react";
 import { createContext, use, useId, useState, type ComponentProps, type KeyboardEvent, type ReactNode } from "react";
 
 /*
  * Tabs as a quiet row of names, the selected one inked on a pill that slides to the next, and its
- * panel rising in under them. The arrow keys move between tabs. Controlled with value and
- * onValueChange, or left to keep its own state.
+ * panel rising in under them, in the very place the last one leaves, so nothing below moves. The
+ * arrow keys move between tabs. Controlled with value and onValueChange, or left to keep its own
+ * state.
  */
 
 const cx = (...c: Array<string | false | null | undefined>) => c.filter(Boolean).join(" ");
@@ -30,7 +31,7 @@ export function Tabs({ value, defaultValue = "", onValueChange, className, child
   return (
     <TabsContext value={{ value: current, setValue, id }}>
       <LayoutGroup id={id}>
-        <div className={cx("flex flex-col gap-4", className)}>{children}</div>
+        <div className={cx("relative flex flex-col gap-4", className)}>{children}</div>
       </LayoutGroup>
     </TabsContext>
   );
@@ -54,6 +55,7 @@ export function TabsList({ className, onKeyDown, ...props }: ComponentProps<"div
 
 export function TabsTrigger({ value, className, children, ...props }: ComponentProps<"button"> & { value: string }) {
   const tabs = useTabs();
+  const still = useReducedMotion();
   const on = tabs.value === value;
   return (
     <button
@@ -73,7 +75,7 @@ export function TabsTrigger({ value, className, children, ...props }: ComponentP
       )}
       {...props}
     >
-      {on && <motion.span layoutId="tab" className="absolute inset-0 rounded-full [background:var(--bd-ui-ink)] shadow-[inset_0_1px_0_rgb(255_255_255/0.14),0_4px_12px_-6px_rgb(var(--bd-shade)/0.5)]" transition={{ type: "spring", stiffness: 520, damping: 42 }} />}
+      {on && <motion.span layoutId="tab" className="absolute inset-0 rounded-full [background:var(--bd-ui-ink)] shadow-[inset_0_1px_0_rgb(255_255_255/0.14),0_4px_12px_-6px_rgb(var(--bd-shade)/0.5)]" transition={still ? { duration: 0 } : { type: "spring", stiffness: 520, damping: 42 }} />}
       <span className="relative flex items-center gap-1.5">{children}</span>
     </button>
   );
@@ -81,18 +83,20 @@ export function TabsTrigger({ value, className, children, ...props }: ComponentP
 
 export function TabsContent({ value, className, children }: { value: string; className?: string; children: ReactNode }) {
   const tabs = useTabs();
+  const still = useReducedMotion();
+  // The leaving panel is lifted out of the flow as it fades, so the new one takes its place at once.
   return (
-    <AnimatePresence mode="wait" initial={false}>
+    <AnimatePresence mode="popLayout" initial={false}>
       {tabs.value === value && (
         <motion.div
           key={value}
           role="tabpanel"
           id={`${tabs.id}-panel-${value}`}
           aria-labelledby={`${tabs.id}-tab-${value}`}
-          initial={{ opacity: 0, y: 8, filter: "blur(3px)" }}
-          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          exit={{ opacity: 0, y: -4, filter: "blur(2px)" }}
-          transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+          initial={{ opacity: 0, y: still ? 0 : 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: still ? 0 : -3, transition: { duration: 0.12, ease: "easeOut" } }}
+          transition={{ duration: 0.26, ease: [0.16, 1, 0.3, 1] }}
           className={className}
         >
           {children}

@@ -1,0 +1,7 @@
+{
+  "name": "checkbox",
+  "title": "Checkbox",
+  "group": "Forms",
+  "description": "A box pressed into the page that fills with ink as its tick draws in, with a half-on state and a row that carries a label and a line.",
+  "order": 50
+}

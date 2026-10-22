@@ -53,7 +53,7 @@ export function Meter({ value, max = 100, label, valueLabel, cols = 40, rows = 4
           const threshold = (BAYER[(r % 4) * 4 + (c % 4)] + 0.5) / 16;
           // Filled well behind the value, empty well past it, and dithered across the edge between.
           const on = x + (threshold - 0.5) * spread < p * (1 + spread) - spread / 2;
-          return <span key={i} className={cx("aspect-square rounded-full transition-colors duration-150", on ? "bg-[rgb(var(--bd-ink)/0.85)]" : "bg-[rgb(var(--bd-ink)/0.1)]")} />;
+          return <span key={i} className={cx("aspect-square rounded-full transition-colors duration-150", on ? "bg-[var(--bd-ui-ink-solid)]" : "bg-[var(--bd-ui-track)]")} />;
         })}
       </div>
     </div>

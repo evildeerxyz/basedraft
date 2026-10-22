@@ -1,0 +1,7 @@
+{
+  "name": "dialog",
+  "title": "Dialog",
+  "group": "Overlays",
+  "description": "A white card lifted over a dimmed page, the hero's light at its head, that holds focus until its question is answered.",
+  "order": 1
+}

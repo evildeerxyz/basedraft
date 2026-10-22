@@ -63,7 +63,7 @@ export function AvatarGroup({ people, max = 4, size = "md", className }: { peopl
         <Avatar key={p.name} {...p} size={size} className="rounded-full ring-2 ring-[var(--bd-surface)]" />
       ))}
       {rest > 0 && (
-        <span className={cx("relative inline-grid shrink-0 place-items-center rounded-full bg-[var(--bd-surface-2)] font-semibold text-[var(--bd-muted)] shadow-[var(--bd-ui-well)] ring-2 ring-[var(--bd-surface)]", SIZES[size])} title={people.slice(max).map((p) => p.name).join(", ")}>
+        <span className={cx("relative inline-grid shrink-0 place-items-center rounded-full bg-[var(--bd-ui-track)] font-semibold text-[var(--bd-muted)] shadow-[var(--bd-ui-well)] ring-2 ring-[var(--bd-surface)]", SIZES[size])} title={people.slice(max).map((p) => p.name).join(", ")}>
           +{rest}
         </span>
       )}

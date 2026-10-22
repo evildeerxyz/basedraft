@@ -1,0 +1,1 @@
+{ "name": "action-bar", "title": "Action bar", "group": "Actions", "description": "An ink bar that rises while things are selected, its count rolling, with what you can do to all of them and a way to let them go.", "order": 61 }

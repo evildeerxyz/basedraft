@@ -19,7 +19,7 @@ import { toast } from "./toast";
  * gets them back to work in one click either way.
  */
 
-export type ProReason = "figma" | "paper" | "svg" | "react" | "layout" | "plan";
+export type ProReason = "figma" | "paper" | "svg" | "react" | "layout" | "components" | "plan";
 
 let reason: ProReason | null = null;
 const listeners = new Set<() => void>();
@@ -41,11 +41,12 @@ const COPY: Record<ProReason, { title: string; body: string }> = {
   svg: { title: "SVG download is in Pro", body: "Take any section or page into any other design tool as a single SVG file." },
   react: { title: "Code export is in Pro", body: "Export your page for its template, in Next.js or Astro, made of its real sections, ready to deploy." },
   layout: { title: "This section's code is in Pro", body: `Pro unlocks all ${TEMPLATES.length} templates and their ${SECTIONS.length} sections, now and as new ones ship.` },
+  components: { title: "Pro components come with Pro", body: "The code of every Pro component, charts, a data table, a kanban board, an AI chat, pricing and more, yours to copy into any project." },
   plan: { title: "basedraft Pro", body: "Everything in basedraft, paid for once, with every update after that." },
 };
 
 /** The row to lift out for each reason. */
-const HIT: Record<ProReason, FeatureIcon | null> = { figma: "figma", paper: "paper", svg: "paper", react: "code", layout: "layouts", plan: null };
+const HIT: Record<ProReason, FeatureIcon | null> = { figma: "figma", paper: "paper", svg: "paper", react: "code", layout: "layouts", components: "components", plan: null };
 
 const subscribe = (cb: () => void) => {
   listeners.add(cb);

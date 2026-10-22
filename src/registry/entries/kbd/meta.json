@@ -1,0 +1,7 @@
+{
+  "name": "kbd",
+  "title": "Kbd",
+  "group": "Display",
+  "description": "A keycap that goes down when you press its key on your keyboard.",
+  "order": 3
+}

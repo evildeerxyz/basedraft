@@ -1,0 +1,7 @@
+{
+  "name": "stat",
+  "title": "Stat",
+  "group": "Data",
+  "description": "A number that rolls into place, its change marked up or down in the tone that means good or bad, over a line that draws in and reads out each point you point at.",
+  "order": 20
+}

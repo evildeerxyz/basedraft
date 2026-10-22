@@ -1,0 +1,4 @@
+# Built by scripts/build.mjs: the copied sources it compiles, what it ships, and packed tarballs.
+src/
+dist/
+*.tgz

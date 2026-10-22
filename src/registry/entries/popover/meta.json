@@ -1,0 +1,7 @@
+{
+  "name": "popover",
+  "title": "Popover",
+  "group": "Overlays",
+  "description": "A small card that opens from its button for one setting or a link to share, follows it as the page scrolls, and flips when there's no room.",
+  "order": 3
+}

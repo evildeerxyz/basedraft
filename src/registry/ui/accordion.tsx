@@ -1,7 +1,7 @@
 "use client";
 
 import { PlusIcon } from "@phosphor-icons/react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, MotionConfig } from "motion/react";
 import { Children, createContext, use, useId, useState, type ReactNode } from "react";
 
 /*
@@ -21,16 +21,18 @@ export function Accordion({ type = "single", defaultValue = [], numbered = true,
   const [open, setOpen] = useState<string[]>(defaultValue);
   const toggle = (v: string) => setOpen((o) => (o.includes(v) ? o.filter((x) => x !== v) : type === "single" ? [v] : [...o, v]));
   return (
-    <AccordionContext value={{ open, toggle, numbered }}>
-      <div className={cx("overflow-hidden rounded-[20px] bg-[var(--bd-surface)] shadow-[inset_0_0_0_1px_var(--bd-line),var(--bd-shadow-resting)]", className)}>
-        {/* Each item learns its place in the list, for its number. */}
-        {Children.toArray(children).map((child, i) => (
-          <NumberContext key={i} value={i + 1}>
-            {child}
-          </NumberContext>
-        ))}
-      </div>
-    </AccordionContext>
+    <MotionConfig reducedMotion="user">
+      <AccordionContext value={{ open, toggle, numbered }}>
+        <div className={cx("overflow-hidden rounded-[20px] bg-[var(--bd-surface)] shadow-[inset_0_0_0_1px_var(--bd-line),var(--bd-shadow-resting)]", className)}>
+          {/* Each item learns its place in the list, for its number. */}
+          {Children.toArray(children).map((child, i) => (
+            <NumberContext key={i} value={i + 1}>
+              {child}
+            </NumberContext>
+          ))}
+        </div>
+      </AccordionContext>
+    </MotionConfig>
   );
 }
 
@@ -41,7 +43,7 @@ export function AccordionItem({ value, className, children }: { value: string; c
   const on = acc.open.includes(value);
   return (
     <ItemContext value={{ value, id, n }}>
-      <div className={cx("border-t border-[var(--bd-line-subtle)] transition-colors duration-300 first:border-t-0", on && "bg-[var(--bd-surface-2)]", className)}>{children}</div>
+      <div className={cx("border-t border-[var(--bd-line-subtle)] transition-colors duration-300 first:border-t-0", on && "bg-[color-mix(in_oklab,var(--bd-ui-track)_32%,var(--bd-surface))]", className)}>{children}</div>
     </ItemContext>
   );
 }
@@ -61,7 +63,7 @@ export function AccordionTrigger({ className, children }: { className?: string; 
     >
       {acc.numbered && <span className={cx("w-5 shrink-0 font-mono text-[11px] tabular-nums transition-colors duration-300", on ? "text-[var(--bd-fg)]" : "text-[var(--bd-subtle)]")}>{String(item.n).padStart(2, "0")}</span>}
       <span className="min-w-0 flex-1">{children}</span>
-      <span className={cx("grid size-6 shrink-0 place-items-center rounded-full transition-[rotate,background-color,color] duration-300 ease-[var(--bd-ease)]", on ? "rotate-45 text-[var(--bd-ui-ink-text)] [background:var(--bd-ui-ink)]" : "bg-[var(--bd-surface-2)] text-[var(--bd-muted)] shadow-[var(--bd-ui-well)]")}>
+      <span className={cx("grid size-6 shrink-0 place-items-center rounded-full transition-[rotate,background-color,color] duration-300 ease-[var(--bd-ease)]", on ? "rotate-45 text-[var(--bd-ui-ink-text)] [background:var(--bd-ui-ink)]" : "bg-[var(--bd-ui-field)] text-[var(--bd-muted)] shadow-[var(--bd-ui-well)]")}>
         <PlusIcon size={12} weight="regular" />
       </span>
     </button>

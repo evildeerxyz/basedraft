@@ -11,7 +11,9 @@
     "start:site": "next start -p 3400",
     "lint": "eslint",
     "typecheck": "tsc --noEmit -p .",
-    "shots": "node scripts/shots.mjs"
+    "shots": "node scripts/shots.mjs",
+    "ui:build": "node packages/ui/scripts/build.mjs",
+    "ui:pack": "node packages/ui/scripts/build.mjs && npm pack ./packages/ui --pack-destination packages/ui"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",

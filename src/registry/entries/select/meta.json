@@ -1,0 +1,7 @@
+{
+  "name": "select",
+  "title": "Select",
+  "group": "Forms",
+  "description": "A pill that opens a card of choices in groups, ticked in ink, moved by the arrow keys and by typing a name.",
+  "order": 52
+}

@@ -1,0 +1,7 @@
+{
+  "name": "radio-group",
+  "title": "Radio group",
+  "group": "Forms",
+  "description": "One choice from a short list, as rows with an ink dot and a bead, or as cards that take an ink edge.",
+  "order": 51
+}

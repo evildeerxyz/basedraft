@@ -1,0 +1,8 @@
+{
+  "name": "sortable-list",
+  "title": "Sortable list",
+  "group": "Display",
+  "description": "Rows you lift and carry with a spring while the rest make room, scrolling at the edges, and reorder from the keyboard just the same.",
+  "order": 60,
+  "pro": true
+}

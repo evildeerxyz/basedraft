@@ -1,0 +1,7 @@
+{
+  "name": "tabs",
+  "title": "Tabs",
+  "group": "Navigation",
+  "description": "A quiet row of names, the selected one inked on a pill that slides, its panel rising in.",
+  "order": 0
+}

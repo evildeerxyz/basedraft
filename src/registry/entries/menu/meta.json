@@ -1,0 +1,7 @@
+{
+  "name": "menu",
+  "title": "Menu",
+  "group": "Overlays",
+  "description": "A dropdown of actions in quiet sections, each with its shortcut on small keys, options that tick, and the destructive one set apart in red.",
+  "order": 4
+}

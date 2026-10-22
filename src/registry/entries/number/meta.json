@@ -1,0 +1,1 @@
+{ "name": "number", "title": "Number", "group": "Display", "description": "A number that rolls to its value a digit at a time, as currency, compact, percent or plain.", "order": 50 }

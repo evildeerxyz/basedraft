@@ -1,0 +1,7 @@
+{
+  "name": "copy-button",
+  "title": "Copy button",
+  "group": "Actions",
+  "description": "Copies a piece of text, its icon turning over into a check as a ring spreads from it.",
+  "order": 2
+}

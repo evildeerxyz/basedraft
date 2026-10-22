@@ -1,0 +1,8 @@
+{
+  "name": "area-chart",
+  "title": "Area chart",
+  "group": "Data",
+  "description": "Smooth lines over a soft wash that draw in from the left, with a crosshair that snaps to the nearest point, stacking, and a legend that re-scales on a spring.",
+  "order": 30,
+  "pro": true
+}

@@ -1,0 +1,7 @@
+{
+  "name": "input",
+  "title": "Input",
+  "group": "Forms",
+  "description": "A text field pressed into the page that lifts to a white face as you type, with room for an icon or a suffix.",
+  "order": 0
+}

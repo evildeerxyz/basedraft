@@ -1,0 +1,8 @@
+{
+  "name": "pricing-table",
+  "title": "Pricing table",
+  "group": "Patterns",
+  "description": "A whole pricing section: a monthly and yearly switch whose prices roll, Yearly tagged with what it saves, the plan you'd pick lit by the hero's light, seats with a rolling total, and a comparison that keeps the plan names in view.",
+  "order": 40,
+  "pro": true
+}

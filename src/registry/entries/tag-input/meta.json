@@ -1,0 +1,7 @@
+{
+  "name": "tag-input",
+  "title": "Tag input",
+  "group": "Forms",
+  "description": "A field that turns what you type into chips on Enter or a comma, splits a pasted list, and lets each chip be checked, edited in place or taken away.",
+  "order": 61
+}

@@ -1,0 +1,7 @@
+{
+  "name": "carousel",
+  "title": "Carousel",
+  "group": "Display",
+  "description": "Slides of any width that you drag or flick and that carry on with your speed before settling, with dots or a bar, and that wait while no one's looking.",
+  "order": 62
+}

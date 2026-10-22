@@ -14,6 +14,9 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // The template zones lint themselves.
     "templates/**",
+    // What packages/ui/scripts/build.mjs writes: copies of src/registry/ui and the built package.
+    "packages/ui/src/**",
+    "packages/ui/dist/**",
   ]),
 ]);
 

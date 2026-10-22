@@ -1,4 +1,4 @@
-import { ArrowsClockwiseIcon, BriefcaseIcon, CheckIcon, CodeIcon, CreditCardIcon, DiamondIcon, FigmaLogoIcon, FileHtmlIcon, InfinityIcon, LayoutIcon, LifebuoyIcon, PenNibIcon, ShieldCheckIcon, SquaresFourIcon, UserIcon, UsersThreeIcon } from "@phosphor-icons/react/ssr";
+import { ArrowsClockwiseIcon, BriefcaseIcon, CheckIcon, CodeIcon, CreditCardIcon, DiamondIcon, FigmaLogoIcon, FileHtmlIcon, InfinityIcon, LayoutIcon, LifebuoyIcon, PenNibIcon, ShieldCheckIcon, SquaresFourIcon, StackIcon, UserIcon, UsersThreeIcon } from "@phosphor-icons/react/ssr";
 import type { Icon } from "@phosphor-icons/react";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
@@ -15,6 +15,7 @@ export const FEATURE_ICON: Record<FeatureIcon, Icon> = {
   paper: FileHtmlIcon,
   code: CodeIcon,
   layouts: SquaresFourIcon,
+  components: StackIcon,
   template: LayoutIcon,
   studio: PenNibIcon,
   personal: UserIcon,

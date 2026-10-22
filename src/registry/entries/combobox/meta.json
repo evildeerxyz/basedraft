@@ -1,0 +1,7 @@
+{
+  "name": "combobox",
+  "title": "Combobox",
+  "group": "Forms",
+  "description": "A select you can type into: results filter and group as you go, the match drawn in bold, with chips for several and a row to create what's missing.",
+  "order": 60
+}

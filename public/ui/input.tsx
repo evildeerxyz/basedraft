@@ -14,8 +14,8 @@ export function Input({ leading, trailing, className, type = "text", ...props }:
   return (
     <span
       className={cx(
-        "flex h-11 w-full items-center gap-2.5 rounded-full bg-[var(--bd-surface-2)] px-4 text-sm text-[var(--bd-fg)] shadow-[var(--bd-ui-well)] transition-[background-color,box-shadow] duration-200 ease-[var(--bd-ease)]",
-        "hover:bg-[color-mix(in_oklab,var(--bd-surface-2)_60%,var(--bd-surface))] focus-within:bg-[var(--bd-surface)] focus-within:shadow-[inset_0_0_0_1px_rgb(var(--bd-ink)/0.4),0_0_0_4px_rgb(var(--bd-ink)/0.06)]",
+        "flex h-11 w-full items-center gap-2.5 rounded-full bg-[var(--bd-ui-field)] px-4 text-sm text-[var(--bd-fg)] shadow-[var(--bd-ui-well)] transition-[background-color,box-shadow] duration-200 ease-[var(--bd-ease)]",
+        "hover:shadow-[inset_0_1px_2px_rgb(var(--bd-shade)/0.09),inset_0_0_0_1px_rgb(var(--bd-ink)/0.16)] focus-within:bg-[var(--bd-surface)] focus-within:shadow-[inset_0_0_0_1px_rgb(var(--bd-ink)/0.4),0_0_0_4px_rgb(var(--bd-ink)/0.06)]",
         "has-[[aria-invalid=true]]:shadow-[inset_0_0_0_1px_var(--bd-ui-stop),0_0_0_4px_color-mix(in_oklab,var(--bd-ui-stop)_14%,transparent)] has-[:disabled]:opacity-50",
         className,
       )}

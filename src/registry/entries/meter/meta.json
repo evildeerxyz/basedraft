@@ -1,0 +1,7 @@
+{
+  "name": "meter",
+  "title": "Meter",
+  "group": "Feedback",
+  "description": "Progress drawn in dots, its edge dissolving through an ordered dither and springing as it moves.",
+  "order": 0
+}

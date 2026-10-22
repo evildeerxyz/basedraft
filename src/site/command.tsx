@@ -75,7 +75,7 @@ const ENTRIES: Entry[] = [
     }),
   ),
   ...COMPONENTS.map(
-    (c): Entry => ({ scope: "components", group: "Components", label: c.title, hint: c.group, href: `/components/${c.name}`, icon: ICON.components, blurb: c.description, facts: [c.group, "Free"], command: installCommand(c.name), words: `${c.title} ${c.group} ${c.description}`.toLowerCase() }),
+    (c): Entry => ({ scope: "components", group: "Components", label: c.title, hint: c.pro ? `${c.group}, Pro` : c.group, href: `/components/${c.name}`, icon: ICON.components, blurb: c.description, facts: [c.group, c.pro ? "Pro" : "Free"], command: c.pro ? undefined : installCommand(), words: `${c.title} ${c.group} ${c.description}`.toLowerCase() }),
   ),
   ...KINDS.filter((k) => sectionsOfKind(k.id).length).map((k): Entry => {
     const list = sectionsOfKind(k.id);

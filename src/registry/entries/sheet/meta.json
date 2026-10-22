@@ -1,0 +1,7 @@
+{
+  "name": "sheet",
+  "title": "Sheet",
+  "group": "Overlays",
+  "description": "A panel that floats in from an edge with the page still in view, and from the bottom, a phone's sheet with a grip to drag it away.",
+  "order": 2
+}

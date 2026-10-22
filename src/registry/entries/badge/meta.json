@@ -1,0 +1,7 @@
+{
+  "name": "badge",
+  "title": "Badge",
+  "group": "Display",
+  "description": "A small stamp in ink, gray, outline, paper or metal, with a status dot that can pulse.",
+  "order": 0
+}

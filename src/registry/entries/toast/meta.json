@@ -1,0 +1,7 @@
+{
+  "name": "toast",
+  "title": "Toast",
+  "group": "Overlays",
+  "description": "Short ink notes that rise at the corner and leave on their own, stack like paper, spread when you point at them, and update in place.",
+  "order": 6
+}

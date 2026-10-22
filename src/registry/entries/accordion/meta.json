@@ -1,0 +1,7 @@
+{
+  "name": "accordion",
+  "title": "Accordion",
+  "group": "Navigation",
+  "description": "Numbered questions on one card, each answer springing open as its plus turns into a cross.",
+  "order": 1
+}

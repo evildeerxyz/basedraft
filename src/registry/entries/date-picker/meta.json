@@ -1,0 +1,7 @@
+{
+  "name": "date-picker",
+  "title": "Date picker",
+  "group": "Forms",
+  "description": "A field that opens a month whose pages slide the way you go, walked by the arrow keys, for one day or a range with a band that follows the pointer.",
+  "order": 63
+}

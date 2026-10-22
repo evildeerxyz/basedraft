@@ -23,12 +23,31 @@
   --bd-ui-lift: inset 0 1px 0 rgb(255 255 255 / 0.75), 0 1px 2px rgb(var(--bd-shade) / 0.1), 0 4px 10px -4px rgb(var(--bd-shade) / 0.16);
   /* A well: what a field or a track is pressed into. */
   --bd-ui-well: inset 0 1px 2px rgb(var(--bd-shade) / 0.09), inset 0 0 0 1px rgb(var(--bd-ink) / 0.07);
+  /*
+   * A field's face (inputs, selects, code cells, unticked boxes): white, pressed in by the well's
+   * shade and hairline, so it reads on white, on a gray card and on paper alike. A track or a chip
+   * is a solid gray a clear step darker than any card, so white knobs and quiet text stand off it.
+   * Neither is a see-through gray, which would muddy on a gray card.
+   */
+  --bd-ui-field: oklch(100% 0 0);
+  --bd-ui-track: oklch(92.4% 0.004 265);
   /* Focus, in ink rather than a color. */
   --bd-ui-focus: rgb(var(--bd-ink) / 0.32);
   /* Status dots: quiet, so a badge never shouts. */
   --bd-ui-ok: oklch(64% 0.15 152);
   --bd-ui-wait: oklch(74% 0.14 75);
   --bd-ui-stop: oklch(60% 0.18 27);
+  /*
+   * Data: the hero's light (iris, mint, peach, sky, rose) as five series colors, in a fixed order
+   * checked for color-blind separation and contrast on white and on the gray card; then a neutral
+   * for "other". Dark has its own steps, checked against dark surfaces, not a flip of these.
+   */
+  --bd-ui-viz-1: oklch(56% 0.16 290);
+  --bd-ui-viz-2: oklch(63% 0.12 166);
+  --bd-ui-viz-3: oklch(66% 0.15 55);
+  --bd-ui-viz-4: oklch(62% 0.13 236);
+  --bd-ui-viz-5: oklch(58% 0.17 10);
+  --bd-ui-viz-6: oklch(72% 0.01 265);
 }
 
 .dark,
@@ -43,10 +62,18 @@
   --bd-ui-ink-solid: oklch(87% 0 0);
   --bd-ui-lift: inset 0 1px 0 rgb(255 255 255 / 0.08), 0 1px 2px rgb(0 0 0 / 0.35), 0 6px 14px -6px rgb(0 0 0 / 0.6);
   --bd-ui-well: inset 0 1px 2px rgb(0 0 0 / 0.45), inset 0 0 0 1px rgb(255 255 255 / 0.06);
+  --bd-ui-field: oklch(17.5% 0 0);
+  --bd-ui-track: oklch(29% 0 0);
   --bd-ui-focus: rgb(255 255 255 / 0.4);
   --bd-ui-ok: oklch(74% 0.15 152);
   --bd-ui-wait: oklch(80% 0.13 75);
   --bd-ui-stop: oklch(70% 0.16 27);
+  --bd-ui-viz-1: oklch(66% 0.15 290);
+  --bd-ui-viz-2: oklch(66% 0.13 166);
+  --bd-ui-viz-3: oklch(66% 0.15 58);
+  --bd-ui-viz-4: oklch(66% 0.12 236);
+  --bd-ui-viz-5: oklch(62% 0.17 12);
+  --bd-ui-viz-6: oklch(52% 0.01 265);
 }
 
 /*

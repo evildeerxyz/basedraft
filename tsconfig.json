@@ -40,6 +40,8 @@
     "node_modules",
     "templates",
     "cloudflare",
-    ".open-next"
+    ".open-next",
+    "packages/ui/src",
+    "packages/ui/dist"
   ]
 }

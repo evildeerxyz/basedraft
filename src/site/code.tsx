@@ -48,7 +48,7 @@ export const usesWord = (line: string, words: string[]) => words.some((w) => new
 
 const esc = (t: string) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-function highlight(code: string) {
+export function highlight(code: string) {
   let out = "";
   let at = 0;
   for (const m of code.matchAll(TOKEN)) {
@@ -87,16 +87,20 @@ export function CodeBlock({ code, className, maxHeight = 420, file = "page.tsx",
           {copied ? "Copied" : "Copy"}
         </button>
       </div>
-      <pre className="overflow-auto py-4 font-mono text-[12.5px] leading-[1.75] text-[var(--code-text)]" style={{ maxHeight }}>
-        <code className="block min-w-fit">
-          {lines.map((line, i) => (
-            <span key={i} className={cn("flex pr-5 transition-[opacity,background-color,box-shadow] duration-200", marking && (hit(line) ? "bg-fg/[0.05] shadow-[inset_2px_0_0_var(--bd-fg)]" : "opacity-40"))}>
-              <span aria-hidden className="w-12 shrink-0 select-none pr-4 text-right text-subtle">
-                {i + 1}
+      {/* Long lines wrap rather than scroll sideways, each one carried on under its own indent. */}
+      <pre className="overflow-y-auto overflow-x-hidden py-4 font-mono text-[12.5px] leading-[1.75] text-[var(--code-text)]" style={{ maxHeight }}>
+        <code className="block">
+          {lines.map((line, i) => {
+            const hang = `${(line.match(/^\s*/)?.[0].length ?? 0) + 2}ch`;
+            return (
+              <span key={i} className={cn("flex pr-5 transition-[opacity,background-color,box-shadow] duration-200", marking && (hit(line) ? "bg-fg/[0.05] shadow-[inset_2px_0_0_var(--bd-fg)]" : "opacity-40"))}>
+                <span aria-hidden className="w-12 shrink-0 select-none pr-4 text-right text-subtle">
+                  {i + 1}
+                </span>
+                <span className="min-w-0 flex-1 whitespace-pre-wrap [overflow-wrap:anywhere]" style={{ paddingLeft: hang, textIndent: `-${hang}` }} dangerouslySetInnerHTML={{ __html: highlight(line) || " " }} />
               </span>
-              <span className="whitespace-pre" dangerouslySetInnerHTML={{ __html: highlight(line) || " " }} />
-            </span>
-          ))}
+            );
+          })}
         </code>
       </pre>
     </div>

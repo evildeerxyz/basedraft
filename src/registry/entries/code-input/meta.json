@@ -1,0 +1,7 @@
+{
+  "name": "code-input",
+  "title": "Code input",
+  "group": "Forms",
+  "description": "A one-time code a cell at a time: typing moves along, a paste or a phone's autofill fills them all, and a wrong code shakes.",
+  "order": 53
+}

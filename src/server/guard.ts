@@ -35,4 +35,22 @@ export function sameOrigin(req: NextRequest) {
   }
 }
 
+/**
+ * Whether the signed-in person has Pro or Team: for a Pro component's source. The same openings
+ * as mayExport: BD_EXPORT_OPEN for a private preview, and the Pro preview header in development.
+ */
+export async function hasPro(req?: NextRequest) {
+  if (process.env.BD_EXPORT_OPEN === "1") return true;
+  if (process.env.NODE_ENV !== "production" && req?.headers.get("x-bd-preview") === "pro") return true;
+  if (!SUPABASE_ON) return false;
+  try {
+    const products: string[] = (await call(await asUser(), "purchases_mine", {}))?.products ?? [];
+    return products.includes("pro") || products.includes("team");
+  } catch {
+    return false;
+  }
+}
+
+export const NEEDS_PRO_COMPONENT = "This component's code comes with Pro. Sign in with the email you bought Pro with.";
+
 export const NEEDS_PRO = "Code export is in Pro, or comes with buying this template. Sign in with the email you bought with.";

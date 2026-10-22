@@ -1,0 +1,8 @@
+{
+  "name": "onboarding",
+  "title": "Onboarding checklist",
+  "group": "Patterns",
+  "description": "A new account's first steps in a card that keeps count: a ring that fills, ticks that draw in, the next step opening on its own, a pill to fold it into, and a finish that blooms.",
+  "order": 60,
+  "pro": true
+}

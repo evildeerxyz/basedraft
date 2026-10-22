@@ -109,6 +109,29 @@ const PLACEHOLDER = [0.45, 0.7, 0.55, 0.85, 0.62, 0.38, 0.74];
 /** A bar's box, in the plot's pixels, with the side it grows from. */
 type Box = { x: number; y: number; w: number; h: number; from: "bottom" | "top" | "left" | "right" };
 
+/* A 4 by 4 ordered (Bayer) dither: each cell's turn to go dark as a fill thins out. */
+const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+/* A dither cell's side, in pixels. */
+const CELL = 2;
+
+/**
+ * An ordered dither that's solid at a bar's end and thins toward its base, as one path: a tile
+ * four cells across and the bar's length deep. Lying down, the tile turns on its side.
+ */
+function ditherCells(length: number, lying: boolean) {
+  const rows = Math.max(1, Math.ceil(length / CELL));
+  let d = "";
+  for (let r = 0; r < rows; r++) {
+    const t = rows > 1 ? r / (rows - 1) : 0;
+    const density = 1 - 0.8 * t ** 1.1;
+    for (let c = 0; c < 4; c++) {
+      if ((BAYER[(r % 4) * 4 + c] + 0.5) / 16 > density) continue;
+      d += lying ? `M${fx(length - (r + 1) * CELL)},${c * CELL}h${CELL}v${CELL}h-${CELL}z` : `M${c * CELL},${r * CELL}h${CELL}v${CELL}h-${CELL}z`;
+    }
+  }
+  return d;
+}
+
 /** A bar with its data end rounded and the end on the baseline square, so every bar stands on the line. */
 function barPath({ x, y, w, h, from }: Box, radius: number) {
   const r = Math.max(0, Math.min(radius, w / 2, h / 2));
@@ -145,8 +168,14 @@ export type BarChartProps = {
   legend?: boolean;
   /** Each bar's value at its end (a stack's total, stacked). */
   valueLabels?: boolean;
-  /** How round each bar's corners are. */
+  /** How round each bar's end is; a large number rounds it fully. */
   radius?: number;
+  /** A faint full-length track behind each bar, so every bar reads against the whole scale. */
+  track?: boolean;
+  /** The values along the value axis. Off, the bars speak for themselves, with the card's number above them. */
+  yAxis?: boolean;
+  /** Fill each bar with an ordered dither: solid at its end, breaking into pixels toward its base. */
+  dither?: boolean;
   /** Grow in the first time they're seen. */
   animate?: boolean;
   loading?: boolean;
@@ -176,6 +205,9 @@ export function BarChart({
   legend,
   valueLabels = false,
   radius = 5,
+  track = false,
+  yAxis = true,
+  dither = false,
   animate = true,
   loading = false,
   empty,
@@ -245,7 +277,7 @@ export function BarChart({
 
   // The frame. Standing up, the left margin fits the widest tick; lying down, the longest name, up to two fifths of the width.
   const longestName = lying && !loading ? Math.max(...data.map((_, i) => name(i).length), 1) : 0;
-  const left = lying ? Math.min(Math.max(56, longestName * 6.9 + 18), W * 0.4) : Math.max(30, Math.max(...tickValues.map((v) => axisFmt.format(v).length)) * 6.6 + 14);
+  const left = lying ? Math.min(Math.max(56, longestName * 6.9 + 18), W * 0.4) : yAxis ? Math.max(30, Math.max(...tickValues.map((v) => axisFmt.format(v).length)) * 6.6 + 14) : 4;
   const m = { top: valueLabels && !lying ? 18 : 10, right: lying && valueLabels ? 48 : 10, bottom: 26, left };
   const iw = Math.max(1, W - m.left - m.right);
   const ih = Math.max(1, height - m.top - m.bottom);
@@ -408,10 +440,6 @@ export function BarChart({
                   <stop offset="1" style={{ stopColor: colors[k], stopOpacity: 0.78 }} />
                 </linearGradient>
               ))}
-              {/* The fine dots of the band behind a pointed-at category. */}
-              <pattern id={`${uid}-dots`} width={4} height={4} patternUnits="userSpaceOnUse">
-                <circle cx={2} cy={2} r={0.9} className="fill-[var(--bd-line-strong)]" />
-              </pattern>
             </defs>
             {/* The highlighted band behind the bars. */}
             <AnimatePresence>
@@ -424,7 +452,7 @@ export function BarChart({
                   transition={reduce ? { duration: 0 } : { x: SNAPPY, y: SNAPPY, opacity: { duration: 0.14 } }}
                   {...(lying ? { x: 0, width: W, height: band } : { y: m.top - 6, width: band, height: ih + 6 })}
                   rx={10}
-                  fill={`url(#${uid}-dots)`}
+                  className="fill-[color-mix(in_oklab,var(--bd-ui-track)_40%,var(--bd-surface))]"
                 />
               )}
             </AnimatePresence>
@@ -434,20 +462,31 @@ export function BarChart({
               lying ? (
                 <g key={v}>
                   {grid && <line y1={m.top} y2={m.top + ih} x1={fx(at(v))} x2={fx(at(v))} className={v === 0 ? "stroke-[var(--bd-line-strong)]" : "stroke-[var(--bd-line-subtle)]"} />}
-                  <text x={at(v)} y={height - 6} textAnchor="middle" className="fill-[var(--bd-subtle)] text-[11px] tabular-nums">
+                  <text x={at(v)} y={height - 6} textAnchor="middle" className={cx("fill-[var(--bd-subtle)] text-[11px] tabular-nums", !yAxis && "hidden")}>
                     {axisFmt.format(v)}
                   </text>
                 </g>
               ) : (
                 <g key={v}>
                   {grid && <line x1={m.left} x2={m.left + iw} y1={fx(at(v))} y2={fx(at(v))} className={v === 0 ? "stroke-[var(--bd-line-strong)]" : "stroke-[var(--bd-line-subtle)]"} />}
-                  <text x={m.left - 10} y={at(v)} dy="0.32em" textAnchor="end" className="fill-[var(--bd-subtle)] text-[11px] tabular-nums">
+                  <text x={m.left - 10} y={at(v)} dy="0.32em" textAnchor="end" className={cx("fill-[var(--bd-subtle)] text-[11px] tabular-nums", !yAxis && "hidden")}>
                     {axisFmt.format(v)}
                   </text>
                 </g>
               ),
             )}
 
+            {/* The tracks: each bar's full length, faint, under it. */}
+            {track &&
+              !loading &&
+              bars.map((group, i) =>
+                group.map((b, k) => {
+                  if ((weights[k] ?? 1) < 0.05) return null;
+                  const zero = at(Math.max(lo, 0));
+                  const t: Box = lying ? { x: zero, y: b.y, w: m.left + iw - zero, h: b.h, from: "left" } : { x: b.x, y: m.top, w: b.w, h: zero - m.top, from: "bottom" };
+                  return <path key={`t${i}-${k}`} d={barPath(t, radius)} className="fill-[color-mix(in_oklab,var(--bd-ui-track)_55%,var(--bd-surface))]" />;
+                }),
+              )}
             {loading
               ? placeholder.map((b, i) => <rect key={i} x={b.x} y={b.y} width={b.w} height={b.h} rx={Math.min(radius, b.w / 2, b.h / 2)} className="fill-[var(--bd-ui-track)]" />)
               : bars.map((group, i) =>
@@ -455,16 +494,31 @@ export function BarChart({
                     // Stacked, only the outermost piece of each pile is rounded; the rest meet square, a hairline of surface apart.
                     const outer = !stacked || k === lastOn;
                     const origin = { bottom: "50% 100%", top: "50% 0%", left: "0% 50%", right: "100% 50%" }[b.from];
+                    const d = barPath(b, outer ? radius : 0);
+                    const len = lying ? b.w : b.h;
                     return (
-                      <motion.path
+                      <motion.g
                         key={`${i}-${series[k].key}`}
-                        d={barPath(b, outer ? radius : 0)}
-                        fill={`url(#${uid}-lit${k})`}
                         initial={grow ? (lying ? { scaleX: 0 } : { scaleY: 0 }) : false}
                         animate={{ ...(lying ? { scaleX: shown ? 1 : 0 } : { scaleY: shown ? 1 : 0 }), opacity: active !== null && active !== i ? 0.42 : 1 }}
                         transition={{ ...GROW, delay: grow ? Math.min(0.6, i * 0.045 + k * 0.02) : 0, opacity: { duration: reduce ? 0 : 0.2 } }}
                         style={{ transformBox: "fill-box", transformOrigin: origin }}
-                      />
+                      >
+                        {dither && len >= 1 ? (
+                          <>
+                            {/* A faint wash of the color keeps the bar's shape; the dither, anchored to the bar, does the rest. */}
+                            <defs>
+                              <pattern id={`${uid}-d${i}-${k}`} patternUnits="userSpaceOnUse" x={b.x} y={b.y} width={lying ? b.w : 4 * CELL} height={lying ? 4 * CELL : b.h}>
+                                <path d={ditherCells(len, lying)} fill={colors[k]} />
+                              </pattern>
+                            </defs>
+                            <path d={d} fill={colors[k]} fillOpacity={0.16} />
+                            <path d={d} fill={`url(#${uid}-d${i}-${k})`} />
+                          </>
+                        ) : (
+                          <path d={d} fill={`url(#${uid}-lit${k})`} />
+                        )}
+                      </motion.g>
                     );
                   }),
                 )}

@@ -3,7 +3,14 @@
 import type { ComponentType } from "react";
 import { BarChart } from "../../pro-ui/bar-chart";
 
-/* Template sales by month: Zuno leads, Noma catches up after its September refresh. */
+/* Templates sold each month over a year: a slow climb, a dip in the summer, and the Zuno launch in October. */
+const YEAR = [
+  ["Nov", 38], ["Dec", 44], ["Jan", 41], ["Feb", 52], ["Mar", 58], ["Apr", 55],
+  ["May", 63], ["Jun", 59], ["Jul", 51], ["Aug", 66], ["Sep", 74], ["Oct", 96],
+].map(([month, sold]) => ({ month: month as string, sold: sold as number }));
+const SOLD = YEAR.reduce((t, m) => t + m.sold, 0);
+
+/* Template sales by month, by template, for the grouped and stacked examples. */
 const SALES = [
   { month: "May", zuno: 42, noma: 28, auren: 19 },
   { month: "Jun", zuno: 48, noma: 31, auren: 24 },
@@ -12,30 +19,19 @@ const SALES = [
   { month: "Sep", zuno: 61, noma: 52, auren: 30 },
   { month: "Oct", zuno: 68, noma: 59, auren: 35 },
 ];
-const SOLD = SALES.reduce((t, m) => t + m.zuno + m.noma + m.auren, 0);
 
+/** A year of sales as round bars, each on a faint track of the whole scale. */
 export function Demo() {
   return (
-    <div className="w-full max-w-[760px] rounded-[22px] bg-[var(--bd-surface)] p-4 shadow-[0_0_0_1px_var(--bd-line),var(--bd-shadow-resting)] sm:p-5">
-      <div className="mb-4 min-w-0">
-        <p className="text-[13px] text-[var(--bd-muted)]">Templates sold, last 6 months</p>
+    <div className="w-full max-w-[720px]">
+      <div className="mb-5 min-w-0">
+        <p className="text-[13px] text-[var(--bd-muted)]">Templates sold, last 12 months</p>
         <div className="mt-1 flex items-baseline gap-2.5">
           <span className="text-[30px] font-semibold leading-none tabular-nums tracking-[-0.03em] text-[var(--bd-fg)]">{SOLD}</span>
-          <span className="inline-flex items-center rounded-full bg-[color-mix(in_oklab,var(--bd-ui-ok)_14%,var(--bd-surface))] px-2 py-0.5 text-xs font-medium tabular-nums text-[color-mix(in_oklab,var(--bd-ui-ok)_80%,var(--bd-fg))]">+24%</span>
+          <span className="inline-flex items-center rounded-full bg-[color-mix(in_oklab,var(--bd-ui-ok)_14%,var(--bd-surface))] px-2 py-0.5 text-xs font-medium tabular-nums text-[color-mix(in_oklab,var(--bd-ui-ok)_80%,var(--bd-fg))]">+31%</span>
         </div>
       </div>
-      <BarChart
-        data={SALES}
-        x="month"
-        series={[
-          { key: "zuno", label: "Zuno" },
-          { key: "noma", label: "Noma" },
-          { key: "auren", label: "Auren" },
-        ]}
-        height={200}
-        title="Sales by template, last 6 months"
-        dataTable
-      />
+      <BarChart data={YEAR} x="month" series={[{ key: "sold", label: "Sold" }]} height={210} track dither radius={4} grid={false} yAxis={false} title="Templates sold, last 12 months" dataTable />
     </div>
   );
 }
@@ -62,6 +58,23 @@ const BY_PLAN = [
   { month: "Sep", pro: 6100, team: 6400, templates: 4900 },
   { month: "Oct", pro: 6500, team: 7100, templates: 5300 },
 ];
+
+function Grouped() {
+  return (
+    <BarChart
+      data={SALES}
+      x="month"
+      series={[
+        { key: "zuno", label: "Zuno" },
+        { key: "noma", label: "Noma" },
+        { key: "auren", label: "Auren" },
+      ]}
+      height={220}
+      title="Sales by template, last 6 months"
+      className="max-w-[640px]"
+    />
+  );
+}
 
 function Stacked() {
   return (
@@ -113,4 +126,4 @@ function Loading() {
   return <BarChart data={[]} x="month" series={[{ key: "sales", label: "Sales" }]} loading title="Sales" className="max-w-[640px]" />;
 }
 
-export const examples: Record<string, ComponentType> = { horizontal: Horizontal, stacked: Stacked, negative: Negative, loading: Loading };
+export const examples: Record<string, ComponentType> = { grouped: Grouped, horizontal: Horizontal, stacked: Stacked, negative: Negative, loading: Loading };

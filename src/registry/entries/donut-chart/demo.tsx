@@ -14,7 +14,7 @@ const SALES = [
 
 export function Demo() {
   return (
-    <div className="w-full max-w-[560px] rounded-[20px] bg-[var(--bd-surface)] p-4 shadow-[0_0_0_1px_var(--bd-line),0_1px_2px_rgb(var(--bd-ink)/0.04)] sm:p-5">
+    <div className="w-full max-w-[560px]">
       <div className="mb-4 flex items-end justify-between gap-3">
         <div className="min-w-0">
           <p className="text-[13px] text-[var(--bd-muted)]">Sales by product</p>

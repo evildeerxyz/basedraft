@@ -2,7 +2,7 @@
 
 import { ChartDonutIcon } from "@phosphor-icons/react";
 import { animate as tween, AnimatePresence, motion, useInView, useMotionValue, useMotionValueEvent, useReducedMotion } from "motion/react";
-import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type ReactNode, type RefObject } from "react";
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode, type RefObject } from "react";
 
 /*
  * Parts of a whole as a ring: the segments sweep in around it the first time it's seen, and the
@@ -144,7 +144,7 @@ export type DonutChartProps = {
 export function DonutChart({
   data,
   size = 220,
-  thickness = 22,
+  thickness = 16,
   format = "number",
   currency = "USD",
   locale = "en-US",
@@ -152,7 +152,7 @@ export function DonutChart({
   centerLabel = "Total",
   centerValue,
   legend = "auto",
-  gap = 4,
+  gap = 5,
   animate = true,
   loading = false,
   empty,
@@ -246,7 +246,6 @@ export function DonutChart({
 
   const still = reduce || !animate;
   const center = D / 2;
-  const dots = useId().replace(/[^a-zA-Z0-9]/g, "");
   const hasData = data.length > 0 && data.some((d) => d.value > 0);
   // The middle's type scales with the ring.
   const big = Math.round(D * 0.13);
@@ -268,20 +267,6 @@ export function DonutChart({
         >
           {W > 0 && (
             <svg width={D} height={D} role="img" aria-label={loading ? `${title ?? "Donut chart"}, loading` : summary} className="block overflow-visible">
-              <defs>
-                <pattern id={`${dots}-dots`} width={4} height={4} patternUnits="userSpaceOnUse">
-                  <circle cx={2} cy={2} r={0.85} className="fill-[var(--bd-line-strong)]" />
-                </pattern>
-                <radialGradient id={`${dots}-fade`}>
-                  <stop offset="0.55" stopColor="#fff" stopOpacity={0.9} />
-                  <stop offset="1" stopColor="#fff" stopOpacity={0} />
-                </radialGradient>
-                <mask id={`${dots}-mask`}>
-                  <circle cx={center} cy={center} r={Math.max(0, r - thickness / 2 - 6)} fill={`url(#${dots}-fade)`} />
-                </mask>
-              </defs>
-              {/* Fine dots inside the ring, fading to its edge, under the figure in the middle. */}
-              <circle cx={center} cy={center} r={Math.max(0, r - thickness / 2 - 6)} fill={`url(#${dots}-dots)`} mask={`url(#${dots}-mask)`} />
               {/* The track, only while there's nothing on it yet. */}
               {(loading || !hasData) && <circle cx={center} cy={center} r={r} fill="none" strokeWidth={thickness} className="stroke-[var(--bd-ui-track)]" />}
               {!loading && hasData && (
@@ -378,14 +363,10 @@ export function DonutChart({
                   onFocus={() => !off && setActive(i)}
                   onBlur={() => setActive(null)}
                   className={cx(
-                    "relative flex h-10 w-full items-center gap-2.5 rounded-[10px] px-2.5 pb-1 text-left text-sm transition-[background-color,opacity] duration-200 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[color:var(--bd-ui-focus)] active:scale-[0.99]",
+                    "relative flex h-9 w-full items-center gap-2.5 rounded-[10px] px-2.5 text-left text-sm transition-[background-color,opacity] duration-200 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[color:var(--bd-ui-focus)] active:scale-[0.99]",
                     active === i ? "bg-[color-mix(in_oklab,var(--bd-ui-track)_55%,var(--bd-surface))]" : "hover:bg-[color-mix(in_oklab,var(--bd-ui-track)_55%,var(--bd-surface))]",
                   )}
                 >
-                  {/* Its share, as a slim bar along the row's foot. */}
-                  <span aria-hidden className="absolute inset-x-2.5 bottom-1.5 h-[3px] overflow-hidden rounded-full bg-[color-mix(in_oklab,var(--bd-ui-track)_70%,var(--bd-surface))]">
-                    <motion.span className="absolute inset-y-0 left-0 origin-left rounded-full" style={{ background: colors[i], width: "100%" }} initial={false} animate={{ scaleX: off ? 0 : Math.max(0.02, shareOf(i)) * (still ? 1 : Math.min(1, progress)) }} transition={reduce ? { duration: 0 } : SNAPPY} />
-                  </span>
                   <span className="size-2.5 shrink-0 rounded-full transition-[background-color,box-shadow] duration-200" style={{ background: off ? "transparent" : colors[i], boxShadow: off ? `inset 0 0 0 1.5px ${colors[i]}` : undefined }} />
                   <span className={cx("min-w-0 flex-1 truncate text-[var(--bd-fg)] transition-opacity duration-200", off && "opacity-45")}>{d.label}</span>
                   <span className={cx("tabular-nums text-[var(--bd-muted)] transition-opacity duration-200", off && "opacity-45")}>{fmt.format(d.value)}</span>

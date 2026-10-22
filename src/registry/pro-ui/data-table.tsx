@@ -155,7 +155,10 @@ const Row = memo(function Row<T>({ row, id, name, columns, on, isOpen, last, gli
     <>
       {selectable && (
         <td className={cx("pl-4 pr-2 align-middle transition-colors duration-150", pad, rowBg(on), cellShade(line, false))} style={stickAt(sticky, 0)}>
-          <Pick state={on} label={`Pick ${name}`} onPick={(shift) => onPick(id, shift)} />
+          {/* The box shows on the row under the pointer, on the one in focus, and on every row once any is picked. */}
+          <span className={cx("inline-grid transition-opacity duration-150", on ? "opacity-100" : "opacity-0 focus-within:opacity-100 group-hover/row:opacity-100 [[data-picking]_&]:opacity-100")}>
+            <Pick state={on} label={`Pick ${name}`} onPick={(shift) => onPick(id, shift)} />
+          </span>
         </td>
       )}
       {expand && (
@@ -290,7 +293,7 @@ export function DataTable<T>({ rows, columns, rowKey, label, rowLabel, selectabl
   const clear = () => setPicked([]);
 
   return (
-    <div className={cx("relative w-full overflow-hidden rounded-[18px] bg-[var(--bd-surface)] text-[var(--bd-fg)] shadow-[inset_0_0_0_1px_var(--bd-line),var(--bd-shadow-resting)]", className)}>
+    <div data-picking={picked.length > 0 || undefined} className={cx("group/table relative w-full overflow-hidden rounded-[18px] bg-[var(--bd-surface)] text-[var(--bd-fg)] shadow-[inset_0_0_0_1px_var(--bd-line),var(--bd-shadow-resting)]", className)}>
       {/* A size container, so the empty message and an opened row can be as wide as the view and hold still in it. */}
       <div className={cx("overflow-auto overscroll-x-contain transition-[padding] duration-300 ease-[var(--bd-ease)] [container-type:inline-size] [scrollbar-color:var(--bd-line-strong)_transparent] [scrollbar-width:thin]", bar && "pb-14")} style={{ maxHeight }} onScroll={(e) => setScrolledX(e.currentTarget.scrollLeft > 0)}>
         <table className="w-full min-w-max border-separate border-spacing-0 text-left">
@@ -298,11 +301,13 @@ export function DataTable<T>({ rows, columns, rowKey, label, rowLabel, selectabl
           <thead>
             <tr>
               {selectable && (
-                <th scope="col" className="sticky top-0 z-[2] h-11 bg-[color-mix(in_oklab,var(--bd-ui-track)_35%,var(--bd-surface))] pl-4 pr-2 shadow-[inset_0_-1px_0_var(--bd-line)]" style={{ width: PICK_W, ...stickAt(stickyFirstColumn, 0), zIndex: 3 }}>
-                  <Pick state={all ? true : some ? "mixed" : false} label={all ? "Unpick every row" : "Pick every row"} onPick={() => setPicked(all ? picked.filter((k) => !keys.includes(k)) : [...new Set([...picked, ...keys])])} />
+                <th scope="col" className="sticky top-0 z-[2] h-11 bg-[var(--bd-surface)] pl-4 pr-2 shadow-[inset_0_-1px_0_var(--bd-line)]" style={{ width: PICK_W, ...stickAt(stickyFirstColumn, 0), zIndex: 3 }}>
+                  <span className="inline-grid opacity-0 transition-opacity duration-150 focus-within:opacity-100 group-hover/table:opacity-100 [[data-picking]_&]:opacity-100">
+                    <Pick state={all ? true : some ? "mixed" : false} label={all ? "Unpick every row" : "Pick every row"} onPick={() => setPicked(all ? picked.filter((k) => !keys.includes(k)) : [...new Set([...picked, ...keys])])} />
+                  </span>
                 </th>
               )}
-              {expand && <th scope="col" aria-label="Open" className="sticky top-0 z-[2] bg-[color-mix(in_oklab,var(--bd-ui-track)_35%,var(--bd-surface))] shadow-[inset_0_-1px_0_var(--bd-line)]" style={{ width: OPEN_W, ...stickAt(stickyFirstColumn, selectable ? PICK_W : 0), zIndex: 3 }} />}
+              {expand && <th scope="col" aria-label="Open" className="sticky top-0 z-[2] bg-[var(--bd-surface)] shadow-[inset_0_-1px_0_var(--bd-line)]" style={{ width: OPEN_W, ...stickAt(stickyFirstColumn, selectable ? PICK_W : 0), zIndex: 3 }} />}
               {columns.map((c, ci) => {
                 const on = current?.key === c.key;
                 const first = ci === 0;
@@ -312,7 +317,7 @@ export function DataTable<T>({ rows, columns, rowKey, label, rowLabel, selectabl
                     scope="col"
                     aria-sort={on ? (current.direction === "asc" ? "ascending" : "descending") : c.sortBy ? "none" : undefined}
                     className={cx(
-                      "sticky top-0 z-[2] h-11 whitespace-nowrap bg-[color-mix(in_oklab,var(--bd-ui-track)_35%,var(--bd-surface))] px-4 text-[12.5px] font-medium text-[var(--bd-muted)]",
+                      "sticky top-0 z-[2] h-11 whitespace-nowrap bg-[var(--bd-surface)] px-4 text-[12.5px] font-medium text-[var(--bd-muted)]",
                       first && edge ? "shadow-[inset_0_-1px_0_var(--bd-line),1px_0_0_var(--bd-line),8px_0_14px_-8px_rgb(var(--bd-shade)/0.22)]" : "shadow-[inset_0_-1px_0_var(--bd-line)]",
                       c.align === "end" && "text-right",
                     )}

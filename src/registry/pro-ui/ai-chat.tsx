@@ -384,8 +384,9 @@ export function ChatThread({ messages, onRetry, empty, label = "Conversation", c
   const finished = [...messages].reverse().find((m) => m.role === "assistant" && (!m.status || m.status === "done"));
 
   return (
-    <div className={cx("relative min-h-0", className)}>
-      <div ref={scroller} onScroll={onScroll} role="log" aria-label={label} aria-live="off" tabIndex={0} className="no-scrollbar h-full overflow-y-auto overscroll-contain outline-none focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[color:var(--bd-ui-focus)]">
+    <div className={cx("relative flex h-full min-h-0 flex-col", className)}>
+      {/* It fills the height it's given and scrolls inside it, alone or in AiChat. */}
+      <div ref={scroller} onScroll={onScroll} role="log" aria-label={label} aria-live="off" tabIndex={0} className="no-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain outline-none focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[color:var(--bd-ui-focus)]">
         <div ref={inner} className="grid gap-7 px-5 py-6">
           {messages.length === 0 && empty}
           {messages.map((m) => (
@@ -598,7 +599,7 @@ export function AiChat({ messages, onSend, onStop, onRetry, streaming, suggestio
   const busy = streaming ?? (last?.role === "assistant" && (last.status === "thinking" || last.status === "streaming"));
   const pick = (s: string) => onSend(s, []);
   return (
-    <section aria-label={label} className={cx("flex min-h-0 flex-col overflow-hidden rounded-[22px] bg-[var(--bd-surface)] text-[var(--bd-fg)] shadow-[0_0_0_1px_rgb(var(--bd-ink)/0.07),var(--bd-shadow-resting)]", className)} style={style}>
+    <section aria-label={label} className={cx("flex h-full min-h-0 flex-col overflow-hidden rounded-[22px] bg-[var(--bd-surface)] text-[var(--bd-fg)] shadow-[0_0_0_1px_rgb(var(--bd-ink)/0.07),var(--bd-shadow-resting)]", className)} style={style}>
       <style href="bd-ui-ai-chat" precedence="medium">
         {STYLE}
       </style>

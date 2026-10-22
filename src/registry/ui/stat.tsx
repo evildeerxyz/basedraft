@@ -203,25 +203,14 @@ function Spark({ data, points, fmt, label }: { data: number[]; points?: string[]
       {width > 0 && (
         <svg width={width} height={HEIGHT} viewBox={`0 0 ${width} ${HEIGHT}`} aria-hidden className="overflow-visible">
           <defs>
-            {/* A faint wash, and the stronger light the fine dots are cut from, both fading to the card's edge. */}
+            {/* The line's color, strong under it and gone by the card's edge. */}
             <linearGradient id={`${gradient}w`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" style={{ stopColor: INK, stopOpacity: 0.1 }} />
+              <stop offset="0%" style={{ stopColor: INK, stopOpacity: 0.32 }} />
               <stop offset="100%" style={{ stopColor: INK, stopOpacity: 0 }} />
             </linearGradient>
-            <linearGradient id={`${gradient}d`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" style={{ stopColor: INK, stopOpacity: 0.9 }} />
-              <stop offset="100%" style={{ stopColor: INK, stopOpacity: 0.05 }} />
-            </linearGradient>
-            <pattern id={`${gradient}p`} width={4} height={4} patternUnits="userSpaceOnUse">
-              <circle cx={2} cy={2} r={0.85} fill="#fff" />
-            </pattern>
-            <mask id={`${gradient}m`} maskUnits="userSpaceOnUse" x={0} y={0} width={width} height={HEIGHT}>
-              <rect width={width} height={HEIGHT} fill={`url(#${gradient}p)`} />
-            </mask>
           </defs>
           <motion.g initial={{ opacity: 0 }} animate={{ opacity: seen || reduce ? 1 : 0 }} transition={{ duration: 0.6, delay: reduce ? 0 : 0.5 }}>
             <path d={`${line} L${width},${HEIGHT} L0,${HEIGHT} Z`} fill={`url(#${gradient}w)`} />
-            <path d={`${line} L${width},${HEIGHT} L0,${HEIGHT} Z`} fill={`url(#${gradient}d)`} mask={`url(#${gradient}m)`} />
           </motion.g>
           <motion.path d={line} fill="none" stroke={INK} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" initial={{ pathLength: reduce ? 1 : 0 }} animate={{ pathLength: seen || reduce ? 1 : 0 }} transition={{ duration: reduce ? 0 : 1.1, ease: [0.16, 1, 0.3, 1] }} />
           {/* The latest point, on a ring of the card's face; it steps back while the cursor rides the line. */}

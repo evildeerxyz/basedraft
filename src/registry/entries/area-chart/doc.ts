@@ -32,7 +32,7 @@ export function Visitors({ days }: { days: Day[] }) {
   parts: [
     {
       name: "AreaChart",
-      note: "Lines in the theme's data colors with a field of fine dots under them, drawn in from the left the first time they're seen. A crosshair follows the pointer or the arrow keys and snaps to the nearest point.",
+      note: "Lines in the theme's data colors with a soft glow and a fading wash under them, drawn in from the left the first time they're seen. A crosshair follows the pointer or the arrow keys and snaps to the nearest point.",
       props: [
         { name: "data", type: "ChartDatum[]", note: "One object per point, in order along the bottom.", required: true },
         { name: "x", type: "string", note: "The field that holds each point's place along the bottom: a Date, a label or a number.", required: true },
@@ -48,7 +48,8 @@ export function Visitors({ days }: { days: Day[] }) {
         { name: "ticks", type: "number", default: "4", note: "About how many lines across. They land on round numbers." },
         { name: "grid", type: "boolean", default: "true", note: "Faint lines across at each tick." },
         { name: "legend", type: "boolean", default: "on with two or more series", note: "The series above the chart. Pressing one hides it and the rest re-scale on a spring." },
-        { name: "fill", type: "boolean", default: "true", note: "A field of fine dots under each line, fading to the baseline, over a faint wash of its color." },
+        { name: "fill", type: "boolean", default: "true", note: "A wash of each line's color under it, fading toward the baseline." },
+        { name: "yAxis", type: "boolean", default: "true", note: "The values up the side. Turn it off when a figure above the chart already says the number." },
         { name: "live", type: "boolean", default: "false", note: "A dot on each line's last point that pulses: for figures still coming in." },
         { name: "onActiveChange", type: "(index: number | null) => void", note: "Told which point is pointed at (or stepped to), and null when none is, so a figure above the chart can follow it." },
         { name: "animate", type: "boolean", default: "true", note: "Draw in from the left the first time it's seen, and again when the data changes, a new range say. Reduced motion skips it." },

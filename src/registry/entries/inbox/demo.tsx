@@ -26,8 +26,9 @@ export function Demo() {
   // On a component's own stage it sits at the top as an app's bar, with room for the card to open under it.
   return (
     <div className="flex w-full justify-center [[data-bd-stage]_&]:min-h-[580px] [[data-bd-stage]_&]:items-start">
-      <div className="flex w-full max-w-[520px] items-center justify-between gap-3 rounded-full bg-[var(--bd-surface)] py-1.5 pl-5 pr-1.5 shadow-[var(--bd-shadow-resting),0_0_0_1px_var(--bd-line)]">
-        <span className="text-sm font-medium text-[var(--bd-fg)]">Parker Studio</span>
+      <div className="flex items-center gap-3 rounded-full bg-[var(--bd-surface)] py-1.5 pl-1.5 pr-1.5 shadow-[var(--bd-shadow-resting),0_0_0_1px_var(--bd-line)]">
+        <span aria-hidden className="grid size-8 place-items-center rounded-full text-[11px] font-semibold text-[var(--bd-ui-ink-text)] [background:var(--bd-ui-ink)]">PS</span>
+        <span className="pr-6 text-sm font-medium text-[var(--bd-fg)]">Parker Studio</span>
         <Inbox defaultItems={ITEMS} footer={<span className="text-xs text-[var(--bd-muted)]">Notification settings</span>} />
       </div>
     </div>

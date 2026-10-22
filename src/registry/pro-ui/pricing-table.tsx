@@ -271,7 +271,7 @@ function PlanCard({ plan, period, currency, locale }: { plan: PricingPlan; perio
   );
   const features = plan.features ?? [];
   return (
-    <article aria-label={typeof plan.name === "string" ? plan.name : undefined} data-plan={plan.id} className={cx("relative flex w-[84%] max-w-[360px] shrink-0 snap-center flex-col @3xl:w-auto @3xl:max-w-none", rec && "@3xl:-translate-y-3")}>
+    <article aria-label={typeof plan.name === "string" ? plan.name : undefined} data-plan={plan.id} className="relative flex w-[84%] max-w-[360px] shrink-0 snap-center flex-col @3xl:w-auto @3xl:max-w-none">
       <div className={cx("relative isolate flex h-full flex-col rounded-[26px] p-1.5", rec ? LIT : SHELL)}>
         {/* Fine dots over the light, fading down from the top, on the plan you'd pick. */}
         {rec && <span aria-hidden className="pointer-events-none absolute inset-0 -z-10 rounded-[inherit] [background:var(--bd-ui-dots)] [mask-image:linear-gradient(to_bottom,#000,transparent_70%)]" />}
@@ -295,15 +295,18 @@ function PlanCard({ plan, period, currency, locale }: { plan: PricingPlan; perio
           <p className="mt-2 h-5 truncate text-[12.5px] text-[var(--bd-subtle)]">
             {each === null ? "Priced for your team" : period === "yearly" ? <>Billed yearly, {new Intl.NumberFormat(locale, { style: "currency", currency, maximumFractionDigits: 0 }).format((total ?? 0) * 12)} a year</> : "Billed monthly, cancel any time"}
           </p>
-          {seatsDef && total !== null && (
-            <div className="mt-4 flex items-center justify-between gap-3">
-              <SeatStepper value={seats} min={min} max={seatsDef.max ?? 500} onChange={setSeats} label={`Seats on ${typeof plan.name === "string" ? plan.name : "this plan"}`} />
-              <span className="whitespace-nowrap text-right text-[13px] text-[var(--bd-muted)]">
-                <Money value={total} currency={currency} locale={locale} className="text-[15px] font-semibold text-[var(--bd-fg)]" />
-                <span className="ml-1">a month</span>
-              </span>
-            </div>
-          )}
+          {/* The seats, or the same room left empty, so every plan's button and list line up across the row. */}
+          <div className={cx("mt-4 flex h-10 items-center justify-between gap-3", !(seatsDef && total !== null) && "@max-3xl:hidden")}>
+            {seatsDef && total !== null && (
+              <>
+                <SeatStepper value={seats} min={min} max={seatsDef.max ?? 500} onChange={setSeats} label={`Seats on ${typeof plan.name === "string" ? plan.name : "this plan"}`} />
+                <span className="whitespace-nowrap text-right text-[13px] text-[var(--bd-muted)]">
+                  <Money value={total} currency={currency} locale={locale} className="text-[15px] font-semibold text-[var(--bd-fg)]" />
+                  <span className="ml-1">a month</span>
+                </span>
+              </>
+            )}
+          </div>
           {plan.cta.href ? (
             <a href={plan.cta.href} className={ctaClass} onClick={() => plan.cta.onClick?.(choice)}>
               {ctaBody}

@@ -48,7 +48,7 @@ export function Demo() {
   const point = data[at ?? data.length - 1];
   const change = point.visitors / data[0].visitors - 1;
   return (
-    <div className="w-full max-w-[760px] rounded-[22px] bg-[var(--bd-surface)] p-4 shadow-[0_0_0_1px_var(--bd-line),var(--bd-shadow-resting)] sm:p-5">
+    <div className="w-full max-w-[720px]">
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-[13px] text-[var(--bd-muted)]">
@@ -70,7 +70,8 @@ export function Demo() {
         series={[{ key: "visitors", label: "Visitors" }]}
         formatX={(v) => when.format(v as Date)}
         format="compact"
-        height={210}
+        height={220}
+        yAxis={false}
         live
         onActiveChange={setAt}
         title={`Visitors, last ${range} days`}

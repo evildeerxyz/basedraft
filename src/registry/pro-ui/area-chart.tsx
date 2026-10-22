@@ -5,9 +5,9 @@ import { AnimatePresence, motion, useInView, useReducedMotion } from "motion/rea
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type ReactNode, type RefObject } from "react";
 
 /*
- * Values over time as lit areas: each series a smooth line in the hero's colors, with a halo, and
- * under it a field of fine dots that fades to the baseline, like the paper the library is drawn on.
- * Side by side or stacked. It draws itself in from the left the first time it's seen, and again
+ * Values over time as lit areas: each series a smooth line in the theme's data colors, with a soft
+ * glow, and under it a wash of its color that fades away toward the baseline. Side by side or
+ * stacked. It draws itself in from the left the first time it's seen, and again
  * when its data changes, a new range say. Point at it (or step with the arrow keys) and a
  * crosshair snaps to the nearest point, with a card of every series' value there, and tells you
  * which point, so a figure above it can follow. The legend turns series off and on, and what's
@@ -170,8 +170,10 @@ export type AreaChartProps = {
   grid?: boolean;
   /** Shown above the chart; on by default when there's more than one series. */
   legend?: boolean;
-  /** A field of fine dots under each line, over a faint wash of its color. */
+  /** A wash of each line's color under it, fading toward the baseline. */
   fill?: boolean;
+  /** The values up the side. Off, the chart is only its lines, for a figure that already says the number. */
+  yAxis?: boolean;
   /** A dot on each line's last point, pulsing: for figures that are still coming in. */
   live?: boolean;
   /** Told which point is pointed at, or null when none is, so a figure beside the chart can follow it. */
@@ -204,6 +206,7 @@ export function AreaChart({
   grid = true,
   legend,
   fill = true,
+  yAxis = true,
   live = false,
   onActiveChange,
   animate = true,
@@ -265,7 +268,7 @@ export function AreaChart({
     return out;
   }, [goalDomain.lo, goalDomain.hi, goalDomain.step]);
   const axisFmt = useMemo(() => (format === "number" && goalDomain.hi >= 10000 ? formatter("compact", locale, currency) : fmt), [format, goalDomain.hi, locale, currency, fmt]);
-  const left = Math.max(30, Math.max(...tickValues.map((v) => axisFmt.format(v).length)) * 6.6 + 14);
+  const left = yAxis ? Math.max(30, Math.max(...tickValues.map((v) => axisFmt.format(v).length)) * 6.6 + 14) : 6;
   const m = { top: 10, right: 10, bottom: 26, left };
   const iw = Math.max(1, W - m.left - m.right);
   const ih = Math.max(1, height - m.top - m.bottom);
@@ -402,27 +405,14 @@ export function AreaChart({
         {W > 0 && (
           <svg width={W} height={height} role="img" aria-label={loading ? `${title ?? "Area chart"}, loading` : summary} className="block select-none overflow-visible">
             <defs>
-              {/* Each series' color fading to the baseline: a faint wash, and the stronger light its dots are cut from. */}
+              {/* Each series' color, strong under its line and gone by the baseline. */}
               {series.map((s, i) => (
-                <g key={s.key}>
-                  <linearGradient id={`${uid}-w${i}`} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0" style={{ stopColor: colors[i], stopOpacity: stacked ? 0.16 : 0.12 }} />
-                    <stop offset="1" style={{ stopColor: colors[i], stopOpacity: stacked ? 0.06 : 0 }} />
-                  </linearGradient>
-                  <linearGradient id={`${uid}-d${i}`} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0" style={{ stopColor: colors[i], stopOpacity: 0.95 }} />
-                    <stop offset="0.55" style={{ stopColor: colors[i], stopOpacity: 0.35 }} />
-                    <stop offset="1" style={{ stopColor: colors[i], stopOpacity: stacked ? 0.12 : 0 }} />
-                  </linearGradient>
-                </g>
+                <linearGradient key={s.key} id={`${uid}-w${i}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" style={{ stopColor: colors[i], stopOpacity: stacked ? 0.34 : 0.3 }} />
+                  <stop offset="0.6" style={{ stopColor: colors[i], stopOpacity: stacked ? 0.16 : 0.08 }} />
+                  <stop offset="1" style={{ stopColor: colors[i], stopOpacity: stacked ? 0.08 : 0 }} />
+                </linearGradient>
               ))}
-              {/* The fine dots, on a grid fixed to the chart so they never swim as it re-scales. */}
-              <pattern id={`${uid}-dots`} width={4} height={4} patternUnits="userSpaceOnUse">
-                <circle cx={2} cy={2} r={0.85} fill="#fff" />
-              </pattern>
-              <mask id={`${uid}-halftone`} maskUnits="userSpaceOnUse" x={0} y={0} width={W} height={height}>
-                <rect x={0} y={0} width={W} height={height} fill={`url(#${uid}-dots)`} />
-              </mask>
               <clipPath id={`${uid}-clip`}>
                 <motion.rect
                   key={dataKey}
@@ -443,10 +433,12 @@ export function AreaChart({
             {/* The grid and the values up the side. */}
             {tickValues.map((v) => (
               <g key={v} className="transition-opacity duration-300">
-                {grid && <line x1={m.left} x2={m.left + iw} y1={fx(py(v)) + 0.5} y2={fx(py(v)) + 0.5} className={cx(v === 0 ? "stroke-[var(--bd-line)]" : "stroke-[var(--bd-line-subtle)]")} />}
-                <text x={m.left - 10} y={py(v)} dy="0.32em" textAnchor="end" className="fill-[var(--bd-subtle)] text-[11px] tabular-nums">
-                  {axisFmt.format(v)}
-                </text>
+                {grid && <line x1={m.left} x2={m.left + iw} y1={fx(py(v)) + 0.5} y2={fx(py(v)) + 0.5} className={cx(v === 0 ? "stroke-[var(--bd-line)]" : "stroke-[var(--bd-line-subtle)] [stroke-opacity:0.6]")} />}
+                {yAxis && (
+                  <text x={m.left - 10} y={py(v)} dy="0.32em" textAnchor="end" className="fill-[var(--bd-subtle)] text-[11px] tabular-nums">
+                    {axisFmt.format(v)}
+                  </text>
+                )}
               </g>
             ))}
 
@@ -456,15 +448,12 @@ export function AreaChart({
               <g clipPath={`url(#${uid}-clip)`}>
                 {fill &&
                   shapes.map((sh, k) => (
-                    <g key={`a${series[k].key}`} style={{ opacity: sh.weight }}>
-                      <path d={sh.area} fill={`url(#${uid}-w${k})`} />
-                      <path d={sh.area} fill={`url(#${uid}-d${k})`} mask={`url(#${uid}-halftone)`} />
-                    </g>
+                    <path key={`a${series[k].key}`} d={sh.area} fill={`url(#${uid}-w${k})`} style={{ opacity: sh.weight }} />
                   ))}
                 {shapes.map((sh, k) => (
                   <g key={`l${series[k].key}`} style={{ opacity: sh.weight }}>
-                    {/* A soft halo, then the line itself. */}
-                    <path d={sh.line} fill="none" stroke={colors[k]} strokeWidth={7} strokeOpacity={0.12} strokeLinejoin="round" strokeLinecap="round" />
+                    {/* A soft glow, then the line itself. */}
+                    <path d={sh.line} fill="none" stroke={colors[k]} strokeWidth={8} strokeOpacity={0.14} strokeLinejoin="round" strokeLinecap="round" style={{ filter: "blur(4px)" }} />
                     <path d={sh.line} fill="none" stroke={colors[k]} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
                   </g>
                 ))}
@@ -502,7 +491,7 @@ export function AreaChart({
             <AnimatePresence>
               {active !== null && !loading && n > 0 && (
                 <motion.g key="cross" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.12 }}>
-                  <motion.line initial={false} animate={{ x1: ax, x2: ax }} transition={reduce ? { duration: 0 } : SNAPPY} y1={m.top} y2={m.top + ih} className="stroke-[var(--bd-line-strong)]" strokeDasharray="3 3" />
+                  <motion.line initial={false} animate={{ x1: ax, x2: ax }} transition={reduce ? { duration: 0 } : SNAPPY} y1={m.top} y2={m.top + ih} className="stroke-[var(--bd-line-strong)]" />
                   {shapes.map((sh, k) =>
                     sh.weight > 0.5 ? (
                       <motion.circle

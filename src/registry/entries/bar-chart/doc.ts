@@ -51,6 +51,9 @@ export function SalesByTemplate({ months }: { months: Month[] }) {
         { name: "legend", type: "boolean", default: "on with two or more series", note: "The series above the chart. Pressing one hides it; the others widen or re-scale on a spring." },
         { name: "valueLabels", type: "boolean", default: "false", note: "Each bar's value at its end, or each stack's total when stacked." },
         { name: "radius", type: "number", default: "6", note: "How round each bar's corners are." },
+        { name: "track", type: "boolean", default: "false", note: "A faint full-length track behind each bar, so each one reads against the whole scale." },
+        { name: "dither", type: "boolean", default: "false", note: "Fills each bar with an ordered dither, solid at its end and breaking into pixels toward its base, over a faint wash of its color." },
+        { name: "yAxis", type: "boolean", default: "true", note: "The values along the value axis. Turn it off when a figure above the chart already says the number." },
         { name: "animate", type: "boolean", default: "true", note: "Grow in one after another the first time they're seen. Reduced motion skips it." },
         { name: "loading", type: "boolean", default: "false", note: "Placeholder bars with a dotted shimmer, while the numbers come." },
         { name: "empty", type: "ReactNode", default: '"No data yet"', note: "What to say when there's nothing to draw." },
@@ -61,6 +64,20 @@ export function SalesByTemplate({ months }: { months: Month[] }) {
     },
   ],
   examples: [
+    {
+      id: "grouped",
+      title: "Grouped",
+      note: "Several series side by side, each in its own data color, with a legend that turns them off and on.",
+      code: `<BarChart
+  data={sales}
+  x="month"
+  series={[
+    { key: "zuno", label: "Zuno" },
+    { key: "noma", label: "Noma" },
+    { key: "auren", label: "Auren" },
+  ]}
+/>`,
+    },
     {
       id: "horizontal",
       title: "Lying down, with values",

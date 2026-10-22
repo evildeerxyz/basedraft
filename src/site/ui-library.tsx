@@ -542,7 +542,7 @@ export function Workbench({ name, title, source, prompt, pro }: { name: string; 
         <AnimatePresence mode="wait" initial={false}>
           <motion.div key={view} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }} className="px-4 pb-24 sm:px-8">
             {view === "preview" ? (
-              <div data-bd-stage="" className="grid min-h-[360px] place-items-center py-6 sm:min-h-[400px]">{Demo ? <Demo key={run} /> : null}</div>
+              <div data-bd-stage="" className="grid min-h-[360px] place-items-center pb-[76px] pt-6 sm:min-h-[400px]">{Demo ? <Demo key={run} /> : null}</div>
             ) : (
               pro || !source ? <ProCode name={name} title={title} /> : <CodeBlock code={source} file={`components/basedraft/${name}.tsx`} maxHeight={440} className="mx-auto max-w-[900px]" />
             )}

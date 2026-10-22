@@ -8,6 +8,7 @@ type Day = { date: Date; visitors: number; returning: number };
 export function Visitors({ days }: { days: Day[] }) {
   return (
     <AreaChart
+      pattern="dither"
       data={days}
       x="date"
       series={[
@@ -49,6 +50,7 @@ export function Visitors({ days }: { days: Day[] }) {
         { name: "grid", type: "boolean", default: "true", note: "Faint lines across at each tick." },
         { name: "legend", type: "boolean", default: "on with two or more series", note: "The series above the chart. Pressing one hides it and the rest re-scale on a spring." },
         { name: "fill", type: "boolean", default: "true", note: "A wash of each line's color under it, fading toward the baseline." },
+        { name: "pattern", type: '"gradient" | "solid" | "dither" | "dots" | "lines" | "none"', default: '"gradient"', note: "How the color under each line is drawn: a wash that fades toward the baseline, flat, an ordered pixel dither or halftone dots that thin toward the baseline, fine diagonal lines, or nothing." },
         { name: "yAxis", type: "boolean", default: "true", note: "The values up the side. Turn it off when a figure above the chart already says the number." },
         { name: "live", type: "boolean", default: "false", note: "A dot on each line's last point that pulses: for figures still coming in." },
         { name: "onActiveChange", type: "(index: number | null) => void", note: "Told which point is pointed at (or stepped to), and null when none is, so a figure above the chart can follow it." },
@@ -74,6 +76,7 @@ export function Visitors({ days }: { days: Day[] }) {
 ];
 
 <AreaChart
+  pattern="dither"
   data={revenue}
   x="month"
   series={[{ key: "revenue", label: "Revenue" }]}
@@ -87,6 +90,7 @@ export function Visitors({ days }: { days: Day[] }) {
       title: "Stacked",
       note: "The top edge is the total. Hide a plan in the legend and the others settle down to fill it.",
       code: `<AreaChart
+  pattern="dither"
   data={byPlan}
   x="month"
   series={[
@@ -110,6 +114,7 @@ export function Visitors({ days }: { days: Day[] }) {
 }));
 
 <AreaChart
+  pattern="dither"
   data={year}
   x="date"
   series={[{ key: "views", label: "Page views" }]}
@@ -124,6 +129,7 @@ export function Visitors({ days }: { days: Day[] }) {
       title: "Loading",
       note: "A placeholder wave with a dotted shimmer, so the page doesn't jump when the numbers arrive.",
       code: `<AreaChart
+  pattern="dither"
   data={[]}
   x="date"
   series={[{ key: "visitors", label: "Visitors" }]}
@@ -137,6 +143,7 @@ export function Visitors({ days }: { days: Day[] }) {
       title: "Nothing yet",
       note: "Say what will fill it and how.",
       code: `<AreaChart
+  pattern="dither"
   data={[]}
   x="date"
   series={[{ key: "visitors", label: "Visitors" }]}

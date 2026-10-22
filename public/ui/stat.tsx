@@ -37,6 +37,11 @@ export type StatProps = Omit<ComponentProps<"div">, "children"> & {
   good?: "up" | "down";
   /** The figures behind the sparkline, oldest first. Two or more draw it. */
   data?: number[];
+  /**
+   * How the color under the sparkline is drawn: a wash fading to the card's edge, flat, an ordered
+   * pixel dither or halftone dots that thin toward the edge, fine diagonal lines, or nothing.
+   */
+  pattern?: ChartPattern;
   /** A name for each point, shown with its figure on the cursor: dates, weeks, months. */
   points?: string[];
   /** A small icon beside the label. */
@@ -82,6 +87,55 @@ function Rolling({ text, still }: { text: string; still: boolean }) {
   );
 }
 
+const fx = (n: number) => Math.round(n * 10) / 10;
+
+/* ---------- fill patterns ---------- */
+
+/** How a chart's color fills its shapes: a smooth gradient, flat, an ordered pixel dither, halftone dots, fine diagonal lines, or nothing. */
+export type ChartPattern = "gradient" | "solid" | "dither" | "dots" | "lines" | "none";
+
+/* A 4 by 4 ordered (Bayer) dither: each cell's turn to fill in as the density rises. */
+const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+/* A dither cell's side, and the spacing of halftone dots, in pixels. */
+const CELL = 2;
+const DOT = 4;
+/* How full a pattern is from its strong end (0) to its faint end (1). */
+const density = (t: number) => 1 - 0.82 * Math.min(1, Math.max(0, t)) ** 1.1;
+
+/**
+ * One tile of a pattern that runs the length of a shape: an ordered dither or halftone dots, full
+ * at the shape's strong end and thinning toward the other. The tile is four dither cells (or two
+ * dots) across and `length` long, as a single path. It runs top to bottom, or bottom to top with
+ * `reverse`; lying down, right to left, or left to right with `reverse`.
+ */
+function patternTile(kind: "dither" | "dots", length: number, lying = false, reverse = false) {
+  // A distance from the strong end, as a place along the shape: from its far side when it runs backward.
+  const along = (dist: number, size: number) => (lying !== reverse ? length - dist - size : dist);
+  const put = (a: number, across: number) => (lying ? [a, across] : [across, a]);
+  let d = "";
+  if (kind === "dither") {
+    const rows = Math.max(1, Math.ceil(length / CELL));
+    for (let r = 0; r < rows; r++) {
+      const on = density(rows > 1 ? r / (rows - 1) : 0);
+      for (let c = 0; c < 4; c++) {
+        if ((BAYER[(r % 4) * 4 + c] + 0.5) / 16 > on) continue;
+        const [x, y] = put(along(r * CELL, CELL), c * CELL);
+        d += `M${fx(x)},${fx(y)}h${CELL}v${CELL}h${-CELL}z`;
+      }
+    }
+    return { d, across: 4 * CELL };
+  }
+  // Dots on a staggered grid; the odd rows sit on the tile's edges, drawn on both, so the halves meet.
+  for (let y = DOT / 2, row = 0; y < length; y += DOT, row++) {
+    const r = fx(Math.max(0.3, (DOT / 2) * 0.9 * Math.sqrt(density(y / length))));
+    for (const x of row % 2 ? [0, 2 * DOT] : [DOT]) {
+      const [cx, cy] = put(along(y, 0), x);
+      d += `M${fx(cx - r)},${fx(cy)}a${r},${r} 0 1,0 ${2 * r},0a${r},${r} 0 1,0 ${-2 * r},0`;
+    }
+  }
+  return { d, across: 2 * DOT };
+}
+
 /*
  * A smooth line through the points that never overshoots them (monotone cubic, Fritsch and
  * Carlson), so a flat week stays flat and a peak isn't drawn taller than it was.
@@ -121,7 +175,7 @@ const PAD = 6;
 const INK = "var(--bd-ui-viz-1, oklch(56% 0.16 290))";
 
 /** The sparkline: drawn in once, then a cursor that rides it under the pointer or the arrow keys. */
-function Spark({ data, points, fmt, label }: { data: number[]; points?: string[]; fmt: Intl.NumberFormat; label: string }) {
+function Spark({ data, points, fmt, label, pattern }: { data: number[]; points?: string[]; fmt: Intl.NumberFormat; label: string; pattern: ChartPattern }) {
   const box = useRef<HTMLDivElement>(null);
   const seen = useInView(box, { once: true, amount: 0.5 });
   const reduce = useReducedMotion();
@@ -149,6 +203,7 @@ function Spark({ data, points, fmt, label }: { data: number[]; points?: string[]
     return data.map((v, i) => [(i / (data.length - 1)) * width, PAD + (1 - (v - lo) / span) * (HEIGHT - PAD - 22)]);
   }, [data, width]);
   const line = width ? curve(pts) : "";
+  const tile = useMemo(() => (pattern === "dither" || pattern === "dots" ? patternTile(pattern, HEIGHT) : { d: "", across: 1 }), [pattern]);
 
   // The cursor springs from point to point, rather than jumping, as the pointer or the keys move it.
   const go = (i: number | null) => {
@@ -208,9 +263,31 @@ function Spark({ data, points, fmt, label }: { data: number[]; points?: string[]
               <stop offset="0%" style={{ stopColor: INK, stopOpacity: 0.32 }} />
               <stop offset="100%" style={{ stopColor: INK, stopOpacity: 0 }} />
             </linearGradient>
+            {(pattern === "dither" || pattern === "dots") && (
+              <pattern id={`${gradient}p`} patternUnits="userSpaceOnUse" x={0} y={0} width={tile.across} height={HEIGHT}>
+                <path d={tile.d} fill={INK} />
+              </pattern>
+            )}
+            {pattern === "lines" && (
+              <>
+                <pattern id={`${gradient}l`} patternUnits="userSpaceOnUse" width={5} height={5} patternTransform="rotate(45)">
+                  <rect width={1.4} height={5} fill={INK} />
+                </pattern>
+                <linearGradient id={`${gradient}fg`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stopColor="#fff" stopOpacity={0.9} />
+                  <stop offset="1" stopColor="#fff" stopOpacity={0.05} />
+                </linearGradient>
+                <mask id={`${gradient}f`} maskUnits="userSpaceOnUse" x={0} y={0} width={width} height={HEIGHT}>
+                  <rect width={width} height={HEIGHT} fill={`url(#${gradient}fg)`} />
+                </mask>
+              </>
+            )}
           </defs>
           <motion.g initial={{ opacity: 0 }} animate={{ opacity: seen || reduce ? 1 : 0 }} transition={{ duration: 0.6, delay: reduce ? 0 : 0.5 }}>
-            <path d={`${line} L${width},${HEIGHT} L0,${HEIGHT} Z`} fill={`url(#${gradient}w)`} />
+            {pattern === "solid" && <path d={`${line} L${width},${HEIGHT} L0,${HEIGHT} Z`} fill={INK} fillOpacity={0.2} />}
+            {pattern !== "solid" && pattern !== "none" && <path d={`${line} L${width},${HEIGHT} L0,${HEIGHT} Z`} fill={`url(#${gradient}w)`} opacity={pattern === "gradient" ? 1 : 0.45} />}
+            {(pattern === "dither" || pattern === "dots") && <path d={`${line} L${width},${HEIGHT} L0,${HEIGHT} Z`} fill={`url(#${gradient}p)`} />}
+            {pattern === "lines" && <path d={`${line} L${width},${HEIGHT} L0,${HEIGHT} Z`} fill={`url(#${gradient}l)`} mask={`url(#${gradient}f)`} />}
           </motion.g>
           <motion.path d={line} fill="none" stroke={INK} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" initial={{ pathLength: reduce ? 1 : 0 }} animate={{ pathLength: seen || reduce ? 1 : 0 }} transition={{ duration: reduce ? 0 : 1.1, ease: [0.16, 1, 0.3, 1] }} />
           {/* The latest point, on a ring of the card's face; it steps back while the cursor rides the line. */}
@@ -231,7 +308,7 @@ function Spark({ data, points, fmt, label }: { data: number[]; points?: string[]
   );
 }
 
-export function Stat({ label, value, format = "number", currency = "USD", decimals, locale = "en-US", delta, deltaLabel, good = "up", data, points, icon, live = false, className, ...props }: StatProps) {
+export function Stat({ label, value, format = "number", currency = "USD", decimals, locale = "en-US", delta, deltaLabel, good = "up", data, points, pattern = "gradient", icon, live = false, className, ...props }: StatProps) {
   const ref = useRef<HTMLDivElement>(null);
   const seen = useInView(ref, { once: true, amount: 0.5 });
   const reduce = useReducedMotion();
@@ -267,7 +344,7 @@ export function Stat({ label, value, format = "number", currency = "USD", decima
         <Rolling text={shown} still={!!reduce} />
       </span>
       {deltaLabel && change && <span className="mt-2 text-[12.5px] text-[var(--bd-subtle)]">{deltaLabel}</span>}
-      {data && data.length > 1 && <Spark data={data} points={points} fmt={fmt} label={name} />}
+      {data && data.length > 1 && <Spark data={data} points={points} fmt={fmt} label={name} pattern={pattern} />}
     </div>
   );
 }

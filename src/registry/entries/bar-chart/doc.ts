@@ -8,6 +8,7 @@ type Month = { month: string; zuno: number; noma: number; auren: number };
 export function SalesByTemplate({ months }: { months: Month[] }) {
   return (
     <BarChart
+      pattern="dither"
       data={months}
       x="month"
       series={[
@@ -52,7 +53,7 @@ export function SalesByTemplate({ months }: { months: Month[] }) {
         { name: "valueLabels", type: "boolean", default: "false", note: "Each bar's value at its end, or each stack's total when stacked." },
         { name: "radius", type: "number", default: "6", note: "How round each bar's corners are." },
         { name: "track", type: "boolean", default: "false", note: "A faint full-length track behind each bar, so each one reads against the whole scale." },
-        { name: "dither", type: "boolean", default: "false", note: "Fills each bar with an ordered dither, solid at its end and breaking into pixels toward its base, over a faint wash of its color." },
+        { name: "pattern", type: '"gradient" | "solid" | "dither" | "dots" | "lines"', default: '"gradient"', note: "How each bar is filled: lit toward its end, flat, an ordered pixel dither or halftone dots that thin toward its base, or fine diagonal lines. Patterns sit on a faint wash of the color, so each bar keeps its shape." },
         { name: "yAxis", type: "boolean", default: "true", note: "The values along the value axis. Turn it off when a figure above the chart already says the number." },
         { name: "animate", type: "boolean", default: "true", note: "Grow in one after another the first time they're seen. Reduced motion skips it." },
         { name: "loading", type: "boolean", default: "false", note: "Placeholder bars with a dotted shimmer, while the numbers come." },
@@ -69,6 +70,7 @@ export function SalesByTemplate({ months }: { months: Month[] }) {
       title: "Grouped",
       note: "Several series side by side, each in its own data color, with a legend that turns them off and on.",
       code: `<BarChart
+  pattern="dither"
   data={sales}
   x="month"
   series={[
@@ -90,6 +92,7 @@ export function SalesByTemplate({ months }: { months: Month[] }) {
 ];
 
 <BarChart
+  pattern="dither"
   data={signups}
   x="country"
   series={[{ key: "signups", label: "Signups" }]}
@@ -104,6 +107,7 @@ export function SalesByTemplate({ months }: { months: Month[] }) {
       title: "Stacked",
       note: "One bar per month, its total on top. Hide a plan in the legend and the rest re-scale.",
       code: `<BarChart
+  pattern="dither"
   data={byPlan}
   x="month"
   series={[
@@ -129,6 +133,7 @@ export function SalesByTemplate({ months }: { months: Month[] }) {
 ];
 
 <BarChart
+  pattern="dither"
   data={seats}
   x="week"
   series={[
@@ -145,6 +150,7 @@ export function SalesByTemplate({ months }: { months: Month[] }) {
       title: "Loading",
       note: "Placeholder bars with a dotted shimmer, so the page doesn't jump when the numbers arrive.",
       code: `<BarChart
+  pattern="dither"
   data={[]}
   x="month"
   series={[{ key: "sales", label: "Sales" }]}

@@ -109,27 +109,51 @@ const PLACEHOLDER = [0.45, 0.7, 0.55, 0.85, 0.62, 0.38, 0.74];
 /** A bar's box, in the plot's pixels, with the side it grows from. */
 type Box = { x: number; y: number; w: number; h: number; from: "bottom" | "top" | "left" | "right" };
 
-/* A 4 by 4 ordered (Bayer) dither: each cell's turn to go dark as a fill thins out. */
+/* ---------- fill patterns ---------- */
+
+/** How a chart's color fills its shapes: a smooth gradient, flat, an ordered pixel dither, halftone dots, fine diagonal lines, or nothing. */
+export type ChartPattern = "gradient" | "solid" | "dither" | "dots" | "lines" | "none";
+
+/* A 4 by 4 ordered (Bayer) dither: each cell's turn to fill in as the density rises. */
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
-/* A dither cell's side, in pixels. */
+/* A dither cell's side, and the spacing of halftone dots, in pixels. */
 const CELL = 2;
+const DOT = 4;
+/* How full a pattern is from its strong end (0) to its faint end (1). */
+const density = (t: number) => 1 - 0.82 * Math.min(1, Math.max(0, t)) ** 1.1;
 
 /**
- * An ordered dither that's solid at a bar's end and thins toward its base, as one path: a tile
- * four cells across and the bar's length deep. Lying down, the tile turns on its side.
+ * One tile of a pattern that runs the length of a shape: an ordered dither or halftone dots, full
+ * at the shape's strong end and thinning toward the other. The tile is four dither cells (or two
+ * dots) across and `length` long, as a single path. It runs top to bottom, or bottom to top with
+ * `reverse`; lying down, right to left, or left to right with `reverse`.
  */
-function ditherCells(length: number, lying: boolean) {
-  const rows = Math.max(1, Math.ceil(length / CELL));
+function patternTile(kind: "dither" | "dots", length: number, lying = false, reverse = false) {
+  // A distance from the strong end, as a place along the shape: from its far side when it runs backward.
+  const along = (dist: number, size: number) => (lying !== reverse ? length - dist - size : dist);
+  const put = (a: number, across: number) => (lying ? [a, across] : [across, a]);
   let d = "";
-  for (let r = 0; r < rows; r++) {
-    const t = rows > 1 ? r / (rows - 1) : 0;
-    const density = 1 - 0.8 * t ** 1.1;
-    for (let c = 0; c < 4; c++) {
-      if ((BAYER[(r % 4) * 4 + c] + 0.5) / 16 > density) continue;
-      d += lying ? `M${fx(length - (r + 1) * CELL)},${c * CELL}h${CELL}v${CELL}h-${CELL}z` : `M${c * CELL},${r * CELL}h${CELL}v${CELL}h-${CELL}z`;
+  if (kind === "dither") {
+    const rows = Math.max(1, Math.ceil(length / CELL));
+    for (let r = 0; r < rows; r++) {
+      const on = density(rows > 1 ? r / (rows - 1) : 0);
+      for (let c = 0; c < 4; c++) {
+        if ((BAYER[(r % 4) * 4 + c] + 0.5) / 16 > on) continue;
+        const [x, y] = put(along(r * CELL, CELL), c * CELL);
+        d += `M${fx(x)},${fx(y)}h${CELL}v${CELL}h${-CELL}z`;
+      }
+    }
+    return { d, across: 4 * CELL };
+  }
+  // Dots on a staggered grid; the odd rows sit on the tile's edges, drawn on both, so the halves meet.
+  for (let y = DOT / 2, row = 0; y < length; y += DOT, row++) {
+    const r = fx(Math.max(0.3, (DOT / 2) * 0.9 * Math.sqrt(density(y / length))));
+    for (const x of row % 2 ? [0, 2 * DOT] : [DOT]) {
+      const [cx, cy] = put(along(y, 0), x);
+      d += `M${fx(cx - r)},${fx(cy)}a${r},${r} 0 1,0 ${2 * r},0a${r},${r} 0 1,0 ${-2 * r},0`;
     }
   }
-  return d;
+  return { d, across: 2 * DOT };
 }
 
 /** A bar with its data end rounded and the end on the baseline square, so every bar stands on the line. */
@@ -174,8 +198,11 @@ export type BarChartProps = {
   track?: boolean;
   /** The values along the value axis. Off, the bars speak for themselves, with the card's number above them. */
   yAxis?: boolean;
-  /** Fill each bar with an ordered dither: solid at its end, breaking into pixels toward its base. */
-  dither?: boolean;
+  /**
+   * How each bar is filled: a gradient lit toward its end, flat, an ordered pixel dither or halftone
+   * dots that thin toward its base, or fine diagonal lines.
+   */
+  pattern?: Exclude<ChartPattern, "none">;
   /** Grow in the first time they're seen. */
   animate?: boolean;
   loading?: boolean;
@@ -207,7 +234,7 @@ export function BarChart({
   radius = 5,
   track = false,
   yAxis = true,
-  dither = false,
+  pattern = "gradient",
   animate = true,
   loading = false,
   empty,
@@ -433,6 +460,13 @@ export function BarChart({
         {W > 0 && (
           <svg width={W} height={height} role="img" aria-label={loading ? `${title ?? "Bar chart"}, loading` : summary} className="block select-none overflow-visible">
             <defs>
+              {/* Fine diagonal lines in each series' color, for the lines pattern. */}
+              {pattern === "lines" &&
+                series.map((s, k) => (
+                  <pattern key={`l${s.key}`} id={`${uid}-lines${k}`} patternUnits="userSpaceOnUse" width={5} height={5} patternTransform="rotate(45)">
+                    <rect width={1.6} height={5} fill={colors[k]} />
+                  </pattern>
+                ))}
               {/* Each bar lit toward its end, a little deeper at the baseline. */}
               {series.map((s, k) => (
                 <linearGradient key={s.key} id={`${uid}-lit${k}`} x1={lying ? 1 : 0} y1={0} x2={0} y2={lying ? 0 : 1}>
@@ -504,19 +538,29 @@ export function BarChart({
                         transition={{ ...GROW, delay: grow ? Math.min(0.6, i * 0.045 + k * 0.02) : 0, opacity: { duration: reduce ? 0 : 0.2 } }}
                         style={{ transformBox: "fill-box", transformOrigin: origin }}
                       >
-                        {dither && len >= 1 ? (
+                        {(pattern === "dither" || pattern === "dots") && len >= 1 ? (
                           <>
-                            {/* A faint wash of the color keeps the bar's shape; the dither, anchored to the bar, does the rest. */}
+                            {/* A faint wash of the color keeps the bar's shape; the pattern, anchored to the bar, does the rest. */}
                             <defs>
-                              <pattern id={`${uid}-d${i}-${k}`} patternUnits="userSpaceOnUse" x={b.x} y={b.y} width={lying ? b.w : 4 * CELL} height={lying ? 4 * CELL : b.h}>
-                                <path d={ditherCells(len, lying)} fill={colors[k]} />
-                              </pattern>
+                              {(() => {
+                                const tile = patternTile(pattern, len, lying, b.from === "top" || b.from === "right");
+                                return (
+                                  <pattern id={`${uid}-p${i}-${k}`} patternUnits="userSpaceOnUse" x={b.x} y={b.y} width={lying ? b.w : tile.across} height={lying ? tile.across : b.h}>
+                                    <path d={tile.d} fill={colors[k]} />
+                                  </pattern>
+                                );
+                              })()}
                             </defs>
                             <path d={d} fill={colors[k]} fillOpacity={0.16} />
-                            <path d={d} fill={`url(#${uid}-d${i}-${k})`} />
+                            <path d={d} fill={`url(#${uid}-p${i}-${k})`} />
+                          </>
+                        ) : pattern === "lines" ? (
+                          <>
+                            <path d={d} fill={colors[k]} fillOpacity={0.16} />
+                            <path d={d} fill={`url(#${uid}-lines${k})`} />
                           </>
                         ) : (
-                          <path d={d} fill={`url(#${uid}-lit${k})`} />
+                          <path d={d} fill={pattern === "solid" ? colors[k] : `url(#${uid}-lit${k})`} />
                         )}
                       </motion.g>
                     );

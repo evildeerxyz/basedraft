@@ -2,7 +2,7 @@
 
 import { ChartDonutIcon } from "@phosphor-icons/react";
 import { animate as tween, AnimatePresence, motion, useInView, useMotionValue, useMotionValueEvent, useReducedMotion } from "motion/react";
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode, type RefObject } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type ReactNode, type RefObject } from "react";
 
 /*
  * Parts of a whole as a ring: the segments sweep in around it the first time it's seen, and the
@@ -47,6 +47,15 @@ function useWidth(ref: RefObject<HTMLElement | null>) {
   }, [ref]);
   return w;
 }
+
+/* ---------- fill patterns ---------- */
+
+/** How each part of the ring is filled: flat, an ordered pixel dither, halftone dots, or fine diagonal lines. */
+export type DonutPattern = "solid" | "dither" | "dots" | "lines";
+
+/* A 4 by 4 ordered (Bayer) dither, and its cells at a steady density, as one tile. */
+const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const DITHER_TILE = BAYER.map((v, i) => ((v + 0.5) / 16 <= 0.56 ? `M${(i % 4) * 2},${Math.floor(i / 4) * 2}h2v2h-2z` : "")).join("");
 
 /** Numbers that spring toward their targets together on one frame loop; with reduced motion they jump. */
 function useSprings(targets: number[], still: boolean) {
@@ -130,6 +139,8 @@ export type DonutChartProps = {
   legend?: "auto" | "right" | "bottom" | false;
   /** The space between segments, in pixels. */
   gap?: number;
+  /** How each part is filled: flat, an ordered pixel dither, halftone dots, or fine diagonal lines, over a faint wash of its color. */
+  pattern?: DonutPattern;
   /** Sweep in the first time it's seen. */
   animate?: boolean;
   loading?: boolean;
@@ -153,6 +164,7 @@ export function DonutChart({
   centerValue,
   legend = "auto",
   gap = 5,
+  pattern = "solid",
   animate = true,
   loading = false,
   empty,
@@ -246,6 +258,7 @@ export function DonutChart({
 
   const still = reduce || !animate;
   const center = D / 2;
+  const uid = useId().replace(/[^a-zA-Z0-9]/g, "");
   const hasData = data.length > 0 && data.some((d) => d.value > 0);
   // The middle's type scales with the ring.
   const big = Math.round(D * 0.13);
@@ -271,6 +284,21 @@ export function DonutChart({
               {(loading || !hasData) && <circle cx={center} cy={center} r={r} fill="none" strokeWidth={thickness} className="stroke-[var(--bd-ui-track)]" />}
               {!loading && hasData && (
                 <g transform={`rotate(-90 ${center} ${center})`}>
+                  {pattern !== "solid" && (
+                    <defs>
+                      {data.map((d, i) =>
+                        pattern === "lines" ? (
+                          <pattern key={d.label} id={`${uid}-p${i}`} patternUnits="userSpaceOnUse" width={5} height={5} patternTransform="rotate(45)">
+                            <rect width={1.6} height={5} fill={colors[i]} />
+                          </pattern>
+                        ) : (
+                          <pattern key={d.label} id={`${uid}-p${i}`} patternUnits="userSpaceOnUse" width={pattern === "dots" ? 4 : 8} height={pattern === "dots" ? 4 : 8}>
+                            {pattern === "dots" ? <circle cx={2} cy={2} r={1.25} fill={colors[i]} /> : <path d={DITHER_TILE} fill={colors[i]} />}
+                          </pattern>
+                        ),
+                      )}
+                    </defs>
+                  )}
                   {segs.map((s, i) => {
                     // How much of this segment the sweep has reached.
                     const shown = Math.max(0, Math.min(s.len, progress - s.start));
@@ -279,12 +307,15 @@ export function DonutChart({
                     const out = active === i ? 6 : 0;
                     return (
                       <motion.g key={i} initial={false} animate={{ x: Math.cos(mid) * out, y: Math.sin(mid) * out, opacity: active !== null && active !== i ? 0.4 : 1 }} transition={reduce ? { duration: 0 } : { ...SNAPPY, opacity: { duration: 0.2 } }}>
+                        {pattern !== "solid" && (
+                          <circle cx={center} cy={center} r={r} fill="none" stroke={colors[i]} strokeOpacity={0.22} strokeWidth={thickness} strokeLinecap={several ? "round" : "butt"} pathLength={1000} strokeDasharray={`${shown * 1000} ${1000 - shown * 1000}`} strokeDashoffset={-s.start * 1000} pointerEvents="none" />
+                        )}
                         <circle
                           cx={center}
                           cy={center}
                           r={r}
                           fill="none"
-                          stroke={colors[i]}
+                          stroke={pattern === "solid" ? colors[i] : `url(#${uid}-p${i})`}
                           strokeWidth={thickness}
                           strokeLinecap={several ? "round" : "butt"}
                           pathLength={1000}

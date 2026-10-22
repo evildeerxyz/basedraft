@@ -59,6 +59,53 @@ function niceDomain(lo: number, hi: number, count: number) {
 const num = (v: ChartDatum[string]) => (typeof v === "number" && Number.isFinite(v) ? v : 0);
 const fx = (n: number) => Math.round(n * 10) / 10;
 
+/* ---------- fill patterns ---------- */
+
+/** How a chart's color fills its shapes: a smooth gradient, flat, an ordered pixel dither, halftone dots, fine diagonal lines, or nothing. */
+export type ChartPattern = "gradient" | "solid" | "dither" | "dots" | "lines" | "none";
+
+/* A 4 by 4 ordered (Bayer) dither: each cell's turn to fill in as the density rises. */
+const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+/* A dither cell's side, and the spacing of halftone dots, in pixels. */
+const CELL = 2;
+const DOT = 4;
+/* How full a pattern is from its strong end (0) to its faint end (1). */
+const density = (t: number) => 1 - 0.82 * Math.min(1, Math.max(0, t)) ** 1.1;
+
+/**
+ * One tile of a pattern that runs the length of a shape: an ordered dither or halftone dots, full
+ * at the shape's strong end and thinning toward the other. The tile is four dither cells (or two
+ * dots) across and `length` long, as a single path. It runs top to bottom, or bottom to top with
+ * `reverse`; lying down, right to left, or left to right with `reverse`.
+ */
+function patternTile(kind: "dither" | "dots", length: number, lying = false, reverse = false) {
+  // A distance from the strong end, as a place along the shape: from its far side when it runs backward.
+  const along = (dist: number, size: number) => (lying !== reverse ? length - dist - size : dist);
+  const put = (a: number, across: number) => (lying ? [a, across] : [across, a]);
+  let d = "";
+  if (kind === "dither") {
+    const rows = Math.max(1, Math.ceil(length / CELL));
+    for (let r = 0; r < rows; r++) {
+      const on = density(rows > 1 ? r / (rows - 1) : 0);
+      for (let c = 0; c < 4; c++) {
+        if ((BAYER[(r % 4) * 4 + c] + 0.5) / 16 > on) continue;
+        const [x, y] = put(along(r * CELL, CELL), c * CELL);
+        d += `M${fx(x)},${fx(y)}h${CELL}v${CELL}h${-CELL}z`;
+      }
+    }
+    return { d, across: 4 * CELL };
+  }
+  // Dots on a staggered grid; the odd rows sit on the tile's edges, drawn on both, so the halves meet.
+  for (let y = DOT / 2, row = 0; y < length; y += DOT, row++) {
+    const r = fx(Math.max(0.3, (DOT / 2) * 0.9 * Math.sqrt(density(y / length))));
+    for (const x of row % 2 ? [0, 2 * DOT] : [DOT]) {
+      const [cx, cy] = put(along(y, 0), x);
+      d += `M${fx(cx - r)},${fx(cy)}a${r},${r} 0 1,0 ${2 * r},0a${r},${r} 0 1,0 ${-2 * r},0`;
+    }
+  }
+  return { d, across: 2 * DOT };
+}
+
 /** A smooth path through points that never overshoots them (monotone cubic, Fritsch and Carlson). */
 function monotone(pts: Array<[number, number]>, lead: "M" | "L" = "M") {
   const n = pts.length;
@@ -170,8 +217,13 @@ export type AreaChartProps = {
   grid?: boolean;
   /** Shown above the chart; on by default when there's more than one series. */
   legend?: boolean;
-  /** A wash of each line's color under it, fading toward the baseline. */
+  /** Anything under the lines at all. False is the same as pattern "none". */
   fill?: boolean;
+  /**
+   * How the color under each line is drawn: a wash fading toward the baseline, flat, an ordered
+   * pixel dither or halftone dots that thin toward the baseline, fine diagonal lines, or nothing.
+   */
+  pattern?: ChartPattern;
   /** The values up the side. Off, the chart is only its lines, for a figure that already says the number. */
   yAxis?: boolean;
   /** A dot on each line's last point, pulsing: for figures that are still coming in. */
@@ -206,6 +258,7 @@ export function AreaChart({
   grid = true,
   legend,
   fill = true,
+  pattern = "gradient",
   yAxis = true,
   live = false,
   onActiveChange,
@@ -362,6 +415,9 @@ export function AreaChart({
   const redraw = again && animate && !reduce;
 
   const showLegend = legend ?? series.length > 1;
+  const look: ChartPattern = fill ? pattern : "none";
+  // One tile serves every series: the same density down the plot, each in its own color.
+  const tile = useMemo(() => (look === "dither" || look === "dots" ? patternTile(look, Math.max(1, Math.round(ih))) : { d: "", across: 1 }), [look, ih]);
   const drawn = revealed || reduce || !animate;
   const settled = drawn && !redraw;
   const ax = active !== null ? px(active) : 0;
@@ -405,6 +461,29 @@ export function AreaChart({
         {W > 0 && (
           <svg width={W} height={height} role="img" aria-label={loading ? `${title ?? "Area chart"}, loading` : summary} className="block select-none overflow-visible">
             <defs>
+              {/* The patterns: dither or dots down the plot's height, or lines that fade on the way down. */}
+              {(look === "dither" || look === "dots") &&
+                series.map((s, i) => (
+                  <pattern key={`p${s.key}`} id={`${uid}-p${i}`} patternUnits="userSpaceOnUse" x={0} y={m.top} width={tile.across} height={ih}>
+                    <path d={tile.d} fill={colors[i]} />
+                  </pattern>
+                ))}
+              {look === "lines" && (
+                <>
+                  {series.map((s, i) => (
+                    <pattern key={`l${s.key}`} id={`${uid}-l${i}`} patternUnits="userSpaceOnUse" width={5} height={5} patternTransform="rotate(45)">
+                      <rect width={1.4} height={5} fill={colors[i]} />
+                    </pattern>
+                  ))}
+                  <linearGradient id={`${uid}-fadeg`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stopColor="#fff" stopOpacity={0.9} />
+                    <stop offset="1" stopColor="#fff" stopOpacity={0.05} />
+                  </linearGradient>
+                  <mask id={`${uid}-fade`} maskUnits="userSpaceOnUse" x={0} y={m.top} width={W} height={ih}>
+                    <rect x={0} y={m.top} width={W} height={ih} fill={`url(#${uid}-fadeg)`} />
+                  </mask>
+                </>
+              )}
               {/* Each series' color, strong under its line and gone by the baseline. */}
               {series.map((s, i) => (
                 <linearGradient key={s.key} id={`${uid}-w${i}`} x1="0" y1="0" x2="0" y2="1">
@@ -446,9 +525,18 @@ export function AreaChart({
               <path d={monotone(WAVE.map((f, i) => [m.left + (i / (WAVE.length - 1)) * iw, m.top + ih * f])) + `L${m.left + iw},${m.top + ih}L${m.left},${m.top + ih}Z`} className="fill-[var(--bd-ui-track)]" />
             ) : (
               <g clipPath={`url(#${uid}-clip)`}>
-                {fill &&
+                {look !== "none" &&
                   shapes.map((sh, k) => (
-                    <path key={`a${series[k].key}`} d={sh.area} fill={`url(#${uid}-w${k})`} style={{ opacity: sh.weight }} />
+                    <g key={`a${series[k].key}`} style={{ opacity: sh.weight }}>
+                      {look === "solid" ? (
+                        <path d={sh.area} fill={colors[k]} fillOpacity={0.2} />
+                      ) : (
+                        // The wash, under every pattern at half its strength so each area keeps its shape.
+                        <path d={sh.area} fill={`url(#${uid}-w${k})`} opacity={look === "gradient" ? 1 : 0.45} />
+                      )}
+                      {(look === "dither" || look === "dots") && <path d={sh.area} fill={`url(#${uid}-p${k})`} />}
+                      {look === "lines" && <path d={sh.area} fill={`url(#${uid}-l${k})`} mask={`url(#${uid}-fade)`} />}
+                    </g>
                   ))}
                 {shapes.map((sh, k) => (
                   <g key={`l${series[k].key}`} style={{ opacity: sh.weight }}>

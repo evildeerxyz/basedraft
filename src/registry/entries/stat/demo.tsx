@@ -2,7 +2,8 @@
 
 import { CurrencyDollarIcon, EyeIcon, ReceiptXIcon } from "@phosphor-icons/react";
 import { useState, type ComponentType } from "react";
-import { Stat } from "../../ui/stat";
+import { Segmented } from "../../ui/segmented";
+import { Stat, type ChartPattern } from "../../ui/stat";
 
 /* Two weeks of a store's revenue, a day a point, for the sparklines. */
 const DAYS = ["Oct 8", "Oct 9", "Oct 10", "Oct 11", "Oct 12", "Oct 13", "Oct 14", "Oct 15", "Oct 16", "Oct 17", "Oct 18", "Oct 19", "Oct 20", "Oct 21"];
@@ -11,13 +12,29 @@ const VISITORS = [1120, 1240, 1180, 1390, 1310, 1020, 1090, 1420, 1510, 1460, 16
 const REFUNDS = [0.019, 0.017, 0.018, 0.016, 0.017, 0.015, 0.016, 0.014, 0.015, 0.013, 0.014, 0.012, 0.013, 0.012];
 
 /** A store's two figures side by side: revenue climbing, and refunds falling, which is the good news. */
+/* The fills a visitor can try on the stage. */
+const FILLS = [
+  { value: "dither", label: "Dither" },
+  { value: "dots", label: "Dots" },
+  { value: "lines", label: "Lines" },
+  { value: "gradient", label: "Gradient" },
+  { value: "none", label: "None" },
+];
+
 export function Demo() {
+  const [fill, setFill] = useState<ChartPattern>("dither");
   return (
-    <div className="grid w-full max-w-[340px] gap-3 [[data-bd-stage]_&]:max-w-[640px] sm:[[data-bd-stage]_&]:grid-cols-2">
-      <Stat label="Revenue" icon={<CurrencyDollarIcon weight="duotone" />} value={48210} format="currency" delta={0.124} deltaLabel="vs last month" data={REVENUE} points={DAYS} />
-      {/* The second figure shows on the component's own stage; a gallery tile has room for one. */}
-      <div className="hidden [[data-bd-stage]_&]:block">
-        <Stat label="Refund rate" icon={<ReceiptXIcon weight="duotone" />} value={0.012} format="percent" decimals={1} delta={-0.21} deltaLabel="vs last month" good="down" data={REFUNDS} points={DAYS} />
+    <div className="grid w-full max-w-[340px] gap-3 [[data-bd-stage]_&]:max-w-[640px]">
+      {/* The fill switch shows on the component's own stage; a gallery tile shows the figure alone. */}
+      <div className="hidden justify-end [[data-bd-stage]_&]:flex">
+        <Segmented size="sm" label="Fill" options={FILLS} value={fill} onValueChange={(v) => setFill(v as ChartPattern)} />
+      </div>
+      <div className="grid gap-3 sm:[[data-bd-stage]_&]:grid-cols-2">
+        <Stat label="Revenue" icon={<CurrencyDollarIcon weight="duotone" />} value={48210} format="currency" delta={0.124} deltaLabel="vs last month" data={REVENUE} points={DAYS} pattern={fill} />
+        {/* The second figure shows on the component's own stage; a gallery tile has room for one. */}
+        <div className="hidden [[data-bd-stage]_&]:block">
+          <Stat label="Refund rate" icon={<ReceiptXIcon weight="duotone" />} value={0.012} format="percent" decimals={1} delta={-0.21} deltaLabel="vs last month" good="down" data={REFUNDS} points={DAYS} pattern={fill} />
+        </div>
       </div>
     </div>
   );

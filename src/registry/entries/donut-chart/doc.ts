@@ -14,6 +14,7 @@ const sales = [
 export function SalesByProduct() {
   return (
     <DonutChart
+      pattern="dither"
       data={sales}
       format="currency"
       centerLabel="Revenue"
@@ -47,6 +48,7 @@ export function SalesByProduct() {
         { name: "centerLabel", type: "string", default: '"Total"', note: "What the middle says under its number." },
         { name: "centerValue", type: "number", default: "the sum of the shown parts", note: "The middle's number, when it isn't the sum, like 7 of 10 seats." },
         { name: "legend", type: '"auto" | "right" | "bottom" | false', default: '"auto"', note: "Beside the ring, under it, or none. Auto puts it beside when there's room." },
+        { name: "pattern", type: '"solid" | "dither" | "dots" | "lines"', default: '"solid"', note: "How each part is filled: flat, an ordered pixel dither, halftone dots, or fine diagonal lines, over a faint wash of its color." },
         { name: "animate", type: "boolean", default: "true", note: "Sweep in and roll up the total the first time it's seen. Reduced motion skips it." },
         { name: "loading", type: "boolean", default: "false", note: "The empty ring with a dotted shimmer, while the numbers come." },
         { name: "empty", type: "ReactNode", default: '"No data yet"', note: "What the middle says when there's nothing to draw." },
@@ -68,6 +70,7 @@ export function SalesByProduct() {
 ];
 
 <DonutChart
+  pattern="dither"
   data={users}
   format="compact"
   centerLabel="Users"
@@ -80,6 +83,7 @@ export function SalesByProduct() {
       title: "Legend underneath",
       note: "For a narrow card or a phone. Press a row to leave that part out; the rest close the gap.",
       code: `<DonutChart
+  pattern="dither"
   data={users}
   format="compact"
   size={180}
@@ -100,6 +104,7 @@ export function SalesByProduct() {
 ];
 
 <DonutChart
+  pattern="dither"
   data={seats}
   centerValue={7}
   centerLabel="of 10 seats"
@@ -115,6 +120,7 @@ export function SalesByProduct() {
       title: "Loading",
       note: "The empty ring with a dotted shimmer, so the page doesn't jump when the numbers arrive.",
       code: `<DonutChart
+  pattern="dither"
   data={[]}
   loading
   title="Sales by product"

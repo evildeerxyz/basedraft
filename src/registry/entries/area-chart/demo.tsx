@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ComponentType } from "react";
-import { AreaChart } from "../../pro-ui/area-chart";
+import { AreaChart, type ChartPattern } from "../../pro-ui/area-chart";
 import { RollingNumber } from "../../ui/number";
 import { Segmented } from "../../ui/segmented";
 
@@ -38,12 +38,21 @@ const RANGES = [
   { value: "30", label: "30D" },
   { value: "90", label: "90D" },
 ];
+/* The fills a visitor can try on the stage. */
+const FILLS = [
+  { value: "dither", label: "Dither" },
+  { value: "dots", label: "Dots" },
+  { value: "lines", label: "Lines" },
+  { value: "gradient", label: "Gradient" },
+  { value: "none", label: "None" },
+];
 const when = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
 
 /** Daily visitors, with the figure above following the pointer along the line. */
 export function Demo() {
   const [range, setRange] = useState("30");
   const [at, setAt] = useState<number | null>(null);
+  const [fill, setFill] = useState<ChartPattern>("dither");
   const data = VISITS.slice(-Number(range));
   const point = data[at ?? data.length - 1];
   const change = point.visitors / data[0].visitors - 1;
@@ -63,6 +72,10 @@ export function Demo() {
           </div>
         </div>
         <Segmented size="sm" label="Range" options={RANGES} value={range} onValueChange={(v) => (setRange(v), setAt(null))} />
+        {/* The fill switch shows on the component's own stage; a gallery tile shows the chart alone. */}
+        <div className="hidden w-full justify-end [[data-bd-stage]_&]:flex">
+          <Segmented size="sm" label="Fill" options={FILLS} value={fill} onValueChange={(v) => setFill(v as typeof fill)} />
+        </div>
       </div>
       <AreaChart
         data={data}
@@ -72,6 +85,7 @@ export function Demo() {
         format="compact"
         height={220}
         yAxis={false}
+        pattern={fill}
         live
         onActiveChange={setAt}
         title={`Visitors, last ${range} days`}
@@ -86,7 +100,7 @@ const MONTHS = ["Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "
 const REVENUE = [8200, 9100, 8700, 10400, 11900, 11300, 12800, 14100, 13600, 15900, 17400, 18900].map((revenue, i) => ({ month: MONTHS[i], revenue }));
 
 function Single() {
-  return <AreaChart data={REVENUE} x="month" series={[{ key: "revenue", label: "Revenue" }]} format="currency" title="Revenue, last 12 months" className="max-w-[640px]" />;
+  return <AreaChart pattern="dither" data={REVENUE} x="month" series={[{ key: "revenue", label: "Revenue" }]} format="currency" title="Revenue, last 12 months" className="max-w-[640px]" />;
 }
 
 const BY_PLAN = [
@@ -107,6 +121,7 @@ const BY_PLAN = [
 function Stacked() {
   return (
     <AreaChart
+      pattern="dither"
       data={BY_PLAN}
       x="month"
       series={[
@@ -133,15 +148,15 @@ const YEAR = (() => {
 })();
 
 function Year() {
-  return <AreaChart data={YEAR} x="date" series={[{ key: "views", label: "Page views" }]} format="compact" height={240} title="Page views this year" className="max-w-[720px]" />;
+  return <AreaChart pattern="dither" data={YEAR} x="date" series={[{ key: "views", label: "Page views" }]} format="compact" height={240} title="Page views this year" className="max-w-[720px]" />;
 }
 
 function Loading() {
-  return <AreaChart data={[]} x="date" series={[{ key: "visitors", label: "Visitors" }]} loading title="Visitors" className="max-w-[640px]" />;
+  return <AreaChart pattern="dither" data={[]} x="date" series={[{ key: "visitors", label: "Visitors" }]} loading title="Visitors" className="max-w-[640px]" />;
 }
 
 function Empty() {
-  return <AreaChart data={[]} x="date" series={[{ key: "visitors", label: "Visitors" }]} empty="No visits yet. Share your draft and they'll show up here." title="Visitors" className="max-w-[640px]" />;
+  return <AreaChart pattern="dither" data={[]} x="date" series={[{ key: "visitors", label: "Visitors" }]} empty="No visits yet. Share your draft and they'll show up here." title="Visitors" className="max-w-[640px]" />;
 }
 
 export const examples: Record<string, ComponentType> = { single: Single, stacked: Stacked, year: Year, loading: Loading, empty: Empty };

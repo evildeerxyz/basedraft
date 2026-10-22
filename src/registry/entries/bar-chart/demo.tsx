@@ -1,7 +1,8 @@
 "use client";
 
-import type { ComponentType } from "react";
-import { BarChart } from "../../pro-ui/bar-chart";
+import { useState, type ComponentType } from "react";
+import { BarChart, type ChartPattern } from "../../pro-ui/bar-chart";
+import { Segmented } from "../../ui/segmented";
 
 /* Templates sold each month over a year: a slow climb, a dip in the summer, and the Zuno launch in October. */
 const YEAR = [
@@ -20,18 +21,34 @@ const SALES = [
   { month: "Oct", zuno: 68, noma: 59, auren: 35 },
 ];
 
-/** A year of sales as round bars, each on a faint track of the whole scale. */
+/* The fills a visitor can try on the stage. */
+const FILLS = [
+  { value: "dither", label: "Dither" },
+  { value: "dots", label: "Dots" },
+  { value: "lines", label: "Lines" },
+  { value: "gradient", label: "Gradient" },
+  { value: "solid", label: "Solid" },
+];
+
+/** A year of sales as bars on faint tracks, dithered, with a switch for the other fills. */
 export function Demo() {
+  const [fill, setFill] = useState<Exclude<ChartPattern, "none">>("dither");
   return (
     <div className="w-full max-w-[720px]">
-      <div className="mb-5 min-w-0">
-        <p className="text-[13px] text-[var(--bd-muted)]">Templates sold, last 12 months</p>
-        <div className="mt-1 flex items-baseline gap-2.5">
-          <span className="text-[30px] font-semibold leading-none tabular-nums tracking-[-0.03em] text-[var(--bd-fg)]">{SOLD}</span>
+      <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[13px] text-[var(--bd-muted)]">Templates sold, last 12 months</p>
+          <div className="mt-1 flex items-baseline gap-2.5">
+            <span className="text-[30px] font-semibold leading-none tabular-nums tracking-[-0.03em] text-[var(--bd-fg)]">{SOLD}</span>
           <span className="inline-flex items-center rounded-full bg-[color-mix(in_oklab,var(--bd-ui-ok)_14%,var(--bd-surface))] px-2 py-0.5 text-xs font-medium tabular-nums text-[color-mix(in_oklab,var(--bd-ui-ok)_80%,var(--bd-fg))]">+31%</span>
+          </div>
+        </div>
+        {/* The fill switch shows on the component's own stage; a gallery tile shows the chart alone. */}
+        <div className="hidden [[data-bd-stage]_&]:block">
+          <Segmented size="sm" label="Fill" options={FILLS} value={fill} onValueChange={(v) => setFill(v as typeof fill)} />
         </div>
       </div>
-      <BarChart data={YEAR} x="month" series={[{ key: "sold", label: "Sold" }]} height={210} track dither radius={4} grid={false} yAxis={false} title="Templates sold, last 12 months" dataTable />
+      <BarChart data={YEAR} x="month" series={[{ key: "sold", label: "Sold" }]} height={210} track pattern={fill} radius={4} grid={false} yAxis={false} title="Templates sold, last 12 months" dataTable />
     </div>
   );
 }
@@ -47,7 +64,7 @@ const SIGNUPS = [
 ];
 
 function Horizontal() {
-  return <BarChart data={SIGNUPS} x="country" series={[{ key: "signups", label: "Signups" }]} layout="horizontal" valueLabels title="Signups by country" className="max-w-[560px]" />;
+  return <BarChart pattern="dither" data={SIGNUPS} x="country" series={[{ key: "signups", label: "Signups" }]} layout="horizontal" valueLabels title="Signups by country" className="max-w-[560px]" />;
 }
 
 const BY_PLAN = [
@@ -62,6 +79,7 @@ const BY_PLAN = [
 function Grouped() {
   return (
     <BarChart
+      pattern="dither"
       data={SALES}
       x="month"
       series={[
@@ -79,6 +97,7 @@ function Grouped() {
 function Stacked() {
   return (
     <BarChart
+      pattern="dither"
       data={BY_PLAN}
       x="month"
       series={[
@@ -109,6 +128,7 @@ const SEATS = [
 function Negative() {
   return (
     <BarChart
+      pattern="dither"
       data={SEATS}
       x="week"
       series={[
@@ -123,7 +143,7 @@ function Negative() {
 }
 
 function Loading() {
-  return <BarChart data={[]} x="month" series={[{ key: "sales", label: "Sales" }]} loading title="Sales" className="max-w-[640px]" />;
+  return <BarChart pattern="dither" data={[]} x="month" series={[{ key: "sales", label: "Sales" }]} loading title="Sales" className="max-w-[640px]" />;
 }
 
 export const examples: Record<string, ComponentType> = { grouped: Grouped, horizontal: Horizontal, stacked: Stacked, negative: Negative, loading: Loading };

@@ -40,6 +40,7 @@ export function Revenue({ days }: { days: { day: string; total: number }[] }) {
         { name: "deltaLabel", type: "ReactNode", note: 'What the change is against, after it: "vs last month".' },
         { name: "good", type: '"up" | "down"', default: '"up"', note: "Which way is good news. The change shows in the good or the bad tone accordingly; no change shows quiet." },
         { name: "data", type: "number[]", note: "The figures behind the sparkline, oldest first. Two or more draw it." },
+        { name: "pattern", type: '"gradient" | "solid" | "dither" | "dots" | "lines" | "none"', default: '"gradient"', note: "How the color under the sparkline is drawn: a wash that fades to the card's edge, flat, an ordered pixel dither or halftone dots that thin toward the edge, fine diagonal lines, or nothing." },
         { name: "points", type: "string[]", note: "A name for each figure, shown beside it on the cursor: days, weeks." },
         { name: "icon", type: "ReactNode", note: "A small icon on a tile beside the label." },
         { name: "live", type: "boolean", default: "false", note: "Read each new value out to screen readers as it changes." },

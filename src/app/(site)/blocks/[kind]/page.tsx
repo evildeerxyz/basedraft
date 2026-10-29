@@ -1,6 +1,7 @@
 import { StackIcon } from "@phosphor-icons/react/ssr";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { SECTION_ICON } from "@/site/icons";
 import { FactPill, KindMenu, NextUp, PieceHead, PieceNav, SectionDock } from "@/site/library";
 import { LIB_WRAP } from "@/site/library-css";
@@ -8,6 +9,7 @@ import { SECTIONS, TEMPLATES, templateLogo, USED_KINDS } from "@/site/live";
 import { LiveSectionShowcase } from "@/site/section-showcase";
 import { glowAt } from "@/site/stage";
 import { withCard } from "@/site/og";
+import { PieceSkeleton } from "@/site/piece-skeleton";
 
 const kindOf = (id: string) => USED_KINDS.find((k) => k.id === id);
 const count = (id: string) => SECTIONS.filter((s) => s.kind === id).length;
@@ -23,10 +25,24 @@ export async function generateMetadata({ params }: PageProps<"/blocks/[kind]">):
   return k ? withCard(`blocks-${k.id}`, { title: `${k.label} sections`, description: `${k.blurb} From the basedraft templates, live.` }) : {};
 }
 
-/* Prerendered for every kind. An unknown kind is turned away before anything is sent, so it's a real 404. */
-export default async function KindPage({ params }: PageProps<"/blocks/[kind]">) {
-  if (!kindOf((await params).kind)) notFound();
-  return <Kind params={params} />;
+/*
+ * The frame comes first, so a click shows it at once, and the kind's page streams into it. Every
+ * kind is prerendered whole; an unknown one is a real 404 from the Worker (cloudflare/worker.ts).
+ */
+export default function KindPage({ params }: PageProps<"/blocks/[kind]">) {
+  return (
+    <main id="main">
+      <Suspense
+        fallback={
+          <div className={LIB_WRAP}>
+            <PieceSkeleton />
+          </div>
+        }
+      >
+        <Kind params={params} />
+      </Suspense>
+    </main>
+  );
 }
 
 async function Kind({ params }: { params: PageProps<"/blocks/[kind]">["params"] }) {
@@ -40,7 +56,7 @@ async function Kind({ params }: { params: PageProps<"/blocks/[kind]">["params"] 
   const related = [1, 2, 3].map((d) => USED_KINDS[(i + d) % USED_KINDS.length]).filter((r) => r.id !== k.id);
   const I = SECTION_ICON[k.id];
   return (
-    <main id="main">
+    <>
       <div className={LIB_WRAP}>
         <PieceNav back={{ href: "/blocks", label: "Blocks" }} prev={link(USED_KINDS[i - 1])} next={link(USED_KINDS[i + 1])} menu={<KindMenu current={k.id} />} />
         <PieceHead
@@ -81,6 +97,6 @@ async function Kind({ params }: { params: PageProps<"/blocks/[kind]">["params"] 
           })}
         />
       </div>
-    </main>
+    </>
   );
 }

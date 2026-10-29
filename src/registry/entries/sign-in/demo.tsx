@@ -3,18 +3,16 @@
 import { useState, type ComponentType } from "react";
 import { SignIn } from "../../pro-ui/sign-in";
 import { Segmented } from "../../ui/segmented";
+import { BaseDraftMark } from "@/site/logo";
 import { hint } from "../_shared/kit";
 
 const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
-/** A plain mark for a made-up product: two rings, overlapping. */
+/** The basedraft mark on an ink tile, in the tile's own text color. */
 function Mark() {
   return (
-    <span className="grid size-10 place-items-center rounded-[12px] text-[var(--bd-ui-ink-text)] [background:var(--bd-ui-ink)] shadow-[inset_0_1px_0_rgb(255_255_255/0.14),0_6px_14px_-8px_rgb(0_0_0/0.5)]">
-      <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth={2.2} aria-hidden>
-        <circle cx="9" cy="12" r="5" />
-        <circle cx="15" cy="12" r="5" />
-      </svg>
+    <span className="grid size-10 place-items-center rounded-[12px] [background:var(--bd-ui-ink)] shadow-[inset_0_1px_0_rgb(255_255_255/0.14),0_6px_14px_-8px_rgb(0_0_0/0.5)]">
+      <BaseDraftMark size={24} className="text-[var(--bd-ui-ink-text)]!" />
     </span>
   );
 }
@@ -28,8 +26,8 @@ export function Demo() {
       <SignIn
         key={run}
         logo={<Mark />}
-        title="Sign in to Acme"
-        providers={["google", "github"]}
+        title="Sign in to basedraft"
+        providers={["google", "github", "apple"]}
         lastUsed="github"
         method="code"
         onProvider={() => wait(1100)}
@@ -90,8 +88,8 @@ function Split() {
         layout="split"
         dither={look === "dither"}
         logo={<Mark />}
-        title="Sign in to Acme"
-        providers={["google"]}
+        title="Sign in to basedraft"
+        providers={["google", "github", "apple"]}
         method="code"
         onEmail={() => wait(600)}
         onCode={() => wait(800)}

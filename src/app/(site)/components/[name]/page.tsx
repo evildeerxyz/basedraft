@@ -1,6 +1,7 @@
 import { PackageIcon, StackIcon } from "@phosphor-icons/react/ssr";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { claudePrompt, COMPONENTS, componentOf, isNew, PACKAGE } from "@/registry";
 import { DOCS } from "@/registry/docs";
 import { DEPS } from "@/registry/exports";
@@ -9,6 +10,7 @@ import { FactPill, PieceHead, PieceNav, PiecePart, SectionDock } from "@/site/li
 import { LIB_WRAP } from "@/site/library-css";
 import { AccessCard, ComponentGlyph, ComponentMenu, ExampleList, GuideCard, MoreComponents, TakeComponent, UsageCard, Workbench } from "@/site/ui-library";
 import { withCard } from "@/site/og";
+import { PieceSkeleton } from "@/site/piece-skeleton";
 import { NewBadge } from "@/site/sheet";
 
 
@@ -21,11 +23,20 @@ export async function generateMetadata({ params }: PageProps<"/components/[name]
   return c ? withCard(`component-${c.name}`, { title: `${c.title} component`, description: `${c.description} Part of basedraft UI: free, one file to copy or download.` }) : {};
 }
 
-/* Prerendered for every component. An unknown name is turned away before anything is sent, so it's a real 404. */
-export default async function ComponentPage({ params }: PageProps<"/components/[name]">) {
-  const c = componentOf((await params).name);
-  if (!c || (!c.pro && !SOURCES[c.name])) notFound();
-  return <Component params={params} />;
+/*
+ * The page's frame comes first, so a click shows it at once with the page's shape in gray, and
+ * the component streams into it. Every component is prerendered whole, so a direct visit gets the
+ * finished page. An unknown name is a real 404 from the Worker (cloudflare/worker.ts) before Next
+ * runs; here, it's the not-found page.
+ */
+export default function ComponentPage({ params }: PageProps<"/components/[name]">) {
+  return (
+    <main id="main" className={LIB_WRAP}>
+      <Suspense fallback={<PieceSkeleton dock />}>
+        <Component params={params} />
+      </Suspense>
+    </main>
+  );
 }
 
 /* A neighbor in the list, for the arrows by the name. */
@@ -55,7 +66,7 @@ async function Component({ params }: { params: PageProps<"/components/[name]">["
     ...(access ? [{ id: "access", label: "Keyboard and accessibility" }] : []),
   ];
   return (
-    <main id="main" className={LIB_WRAP}>
+    <>
       <PieceNav back={{ href: "/components", label: "Components" }} prev={link(COMPONENTS[i - 1])} next={link(COMPONENTS[i + 1])} menu={<ComponentMenu name={c.name} />} />
       <PieceHead
         kicker={
@@ -102,6 +113,6 @@ async function Component({ params }: { params: PageProps<"/components/[name]">["
       <PiecePart title="More components">
         <MoreComponents names={others.map((o) => o.name)} />
       </PiecePart>
-    </main>
+    </>
   );
 }

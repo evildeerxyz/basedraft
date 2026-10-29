@@ -23,6 +23,32 @@ export interface ChangeDay {
 
 export const CHANGELOG: ChangeDay[] = [
   {
+    date: "2026-10-29",
+    changes: [
+      {
+        tag: "New",
+        title: "Seven more free components",
+        body: "Context menu, Time picker, Scroll area, Banner, Lightbox, Consent and Countdown. Each one has full docs, works from the keyboard, and comes with examples.",
+        href: "/components/context-menu",
+        link: "See Context menu",
+      },
+      {
+        tag: "New",
+        title: "Five new Pro components",
+        body: "Scheduler, Sign-in, Code diff, Log viewer and Color picker: whole pieces of an app, from booking a call to reviewing a change.",
+        href: "/components/scheduler",
+        link: "See Scheduler",
+      },
+      {
+        tag: "Improved",
+        title: "New components are easy to spot",
+        body: "Anything added in the last month carries a New tag that shimmers, and the gallery has a New filter to see them all at once.",
+        href: "/components",
+        link: "Browse components",
+      },
+    ],
+  },
+  {
     date: "2026-10-23",
     changes: [
       {

@@ -3,5 +3,6 @@
   "title": "Pagination",
   "group": "Navigation",
   "description": "Pages of a long list, the current one inked on a pill that slides, a row that keeps its length as you go, and numbers that roll the way you went.",
-  "order": 3
+  "order": 3,
+  "added": "2026-10-23"
 }

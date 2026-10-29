@@ -1,0 +1,9 @@
+{
+  "name": "log-viewer",
+  "title": "Log viewer",
+  "group": "Data",
+  "description": "Log lines as they stream in: errors and warnings marked down the edge, chips that filter by level with counts, a search that narrows and marks, lines that open to their fields, and a pill back to the newest.",
+  "order": 36,
+  "added": "2026-10-29",
+  "pro": true
+}

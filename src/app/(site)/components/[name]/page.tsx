@@ -1,7 +1,7 @@
 import { PackageIcon, StackIcon } from "@phosphor-icons/react/ssr";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { claudePrompt, COMPONENTS, componentOf, PACKAGE } from "@/registry";
+import { claudePrompt, COMPONENTS, componentOf, isNew, PACKAGE } from "@/registry";
 import { DOCS } from "@/registry/docs";
 import { DEPS } from "@/registry/exports";
 import { SOURCES } from "@/registry/sources";
@@ -9,6 +9,7 @@ import { FactPill, PieceHead, PieceNav, PiecePart, SectionDock } from "@/site/li
 import { LIB_WRAP } from "@/site/library-css";
 import { AccessCard, ComponentGlyph, ComponentMenu, ExampleList, GuideCard, MoreComponents, TakeComponent, UsageCard, Workbench } from "@/site/ui-library";
 import { withCard } from "@/site/og";
+import { NewBadge } from "@/site/sheet";
 
 
 export function generateStaticParams() {
@@ -61,6 +62,7 @@ async function Component({ params }: { params: PageProps<"/components/[name]">["
           <>
             <ComponentGlyph name={c.name} />
             {c.group}
+            {isNew(c) && <NewBadge size="md" className="ml-1" />}
           </>
         }
         title={c.title}

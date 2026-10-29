@@ -1,0 +1,8 @@
+{
+  "name": "consent",
+  "title": "Consent",
+  "group": "Overlays",
+  "description": "Asking about cookies fairly: Reject all and Accept all set the same, Customize opening to a switch for each kind, the choice kept and read back, and a way to ask again.",
+  "order": 43,
+  "added": "2026-10-29"
+}

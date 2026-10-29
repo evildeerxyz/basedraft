@@ -331,6 +331,19 @@
       "docs": "https://basedraft.site/components/file-drop"
     },
     {
+      "name": "time-picker",
+      "title": "Time picker",
+      "group": "Forms",
+      "description": "A time typed the way you'd say it or picked from a list in steps, scrolled to the one you have, each time saying how long after the start it is.",
+      "file": "https://basedraft.site/ui/time-picker.tsx",
+      "path": "components/basedraft/time-picker.tsx",
+      "dependencies": [
+        "motion",
+        "@phosphor-icons/react"
+      ],
+      "docs": "https://basedraft.site/components/time-picker"
+    },
+    {
       "name": "dialog",
       "title": "Dialog",
       "group": "Overlays",
@@ -406,6 +419,45 @@
         "@phosphor-icons/react"
       ],
       "docs": "https://basedraft.site/components/toast"
+    },
+    {
+      "name": "context-menu",
+      "title": "Context menu",
+      "group": "Overlays",
+      "description": "The actions for a thing, opened where you right-click it: grows from the pointer, turns to stay on screen, opens submenus beside their row, and runs from the keyboard with Shift+F10.",
+      "file": "https://basedraft.site/ui/context-menu.tsx",
+      "path": "components/basedraft/context-menu.tsx",
+      "dependencies": [
+        "motion",
+        "@phosphor-icons/react"
+      ],
+      "docs": "https://basedraft.site/components/context-menu"
+    },
+    {
+      "name": "lightbox",
+      "title": "Lightbox",
+      "group": "Overlays",
+      "description": "Thumbnails that open into a dark viewer, each photo growing out of its thumbnail without stretching, moved by arrows, swipes or keys, and shrinking back where it came from.",
+      "file": "https://basedraft.site/ui/lightbox.tsx",
+      "path": "components/basedraft/lightbox.tsx",
+      "dependencies": [
+        "motion",
+        "@phosphor-icons/react"
+      ],
+      "docs": "https://basedraft.site/components/lightbox"
+    },
+    {
+      "name": "consent",
+      "title": "Consent",
+      "group": "Overlays",
+      "description": "Asking about cookies fairly: Reject all and Accept all set the same, Customize opening to a switch for each kind, the choice kept and read back, and a way to ask again.",
+      "file": "https://basedraft.site/ui/consent.tsx",
+      "path": "components/basedraft/consent.tsx",
+      "dependencies": [
+        "motion",
+        "@phosphor-icons/react"
+      ],
+      "docs": "https://basedraft.site/components/consent"
     },
     {
       "name": "hover-card",
@@ -618,6 +670,28 @@
       "docs": "https://basedraft.site/components/code-block"
     },
     {
+      "name": "scroll-area",
+      "title": "Scroll area",
+      "group": "Display",
+      "description": "A box that scrolls the browser's way with a quieter bar that wakes when you need it, and edges that fade, by gradient or by dither, only while there's more past them.",
+      "file": "https://basedraft.site/ui/scroll-area.tsx",
+      "path": "components/basedraft/scroll-area.tsx",
+      "dependencies": [],
+      "docs": "https://basedraft.site/components/scroll-area"
+    },
+    {
+      "name": "countdown",
+      "title": "Countdown",
+      "group": "Display",
+      "description": "The time left until a launch or a sale's end, on raised tiles or inline, each digit rolling down as it turns over, and handing over to what you say at zero.",
+      "file": "https://basedraft.site/ui/countdown.tsx",
+      "path": "components/basedraft/countdown.tsx",
+      "dependencies": [
+        "motion"
+      ],
+      "docs": "https://basedraft.site/components/countdown"
+    },
+    {
       "name": "resizable",
       "title": "Resizable panels",
       "group": "Display",
@@ -717,6 +791,19 @@
       "docs": "https://basedraft.site/components/alert"
     },
     {
+      "name": "banner",
+      "title": "Banner",
+      "group": "Feedback",
+      "description": "The line across the top of a site, in ink or on paper, with a badge, a link whose arrow steps forward, messages that roll up in turn, and a close that remembers.",
+      "file": "https://basedraft.site/ui/banner.tsx",
+      "path": "components/basedraft/banner.tsx",
+      "dependencies": [
+        "motion",
+        "@phosphor-icons/react"
+      ],
+      "docs": "https://basedraft.site/components/banner"
+    },
+    {
       "name": "spinner",
       "title": "Spinner",
       "group": "Feedback",
@@ -738,6 +825,14 @@
     }
   ],
   "pro": [
+    {
+      "name": "color-picker",
+      "title": "Color picker",
+      "group": "Forms",
+      "description": "A field of saturation and brightness, hue and alpha sliders, an eyedropper, a value typed as hex, rgb or hsl, swatches, and the contrast white and black text would have on the color.",
+      "pro": true,
+      "docs": "https://basedraft.site/components/color-picker"
+    },
     {
       "name": "tour",
       "title": "Tour",
@@ -777,6 +872,14 @@
       "description": "Rows you lift and carry with a spring while the rest make room, scrolling at the edges, and reorder from the keyboard just the same.",
       "pro": true,
       "docs": "https://basedraft.site/components/sortable-list"
+    },
+    {
+      "name": "code-diff",
+      "title": "Code diff",
+      "group": "Display",
+      "description": "Two versions of a file, unified or side by side: the words that changed marked inside each line, the code still in color, quiet stretches folded to a row that opens, and a count whose cells mix through a dither.",
+      "pro": true,
+      "docs": "https://basedraft.site/components/code-diff"
     },
     {
       "name": "data-table",
@@ -835,6 +938,14 @@
       "docs": "https://basedraft.site/components/funnel"
     },
     {
+      "name": "log-viewer",
+      "title": "Log viewer",
+      "group": "Data",
+      "description": "Log lines as they stream in: errors and warnings marked down the edge, chips that filter by level with counts, a search that narrows and marks, lines that open to their fields, and a pill back to the newest.",
+      "pro": true,
+      "docs": "https://basedraft.site/components/log-viewer"
+    },
+    {
       "name": "kanban-board",
       "title": "Kanban board",
       "group": "Patterns",
@@ -889,6 +1000,22 @@
       "description": "A form in steps: a rail that fills, each step sliding in from the side you're heading, checks that land the cursor on what's wrong, a review to read it all back, and a finish.",
       "pro": true,
       "docs": "https://basedraft.site/components/wizard"
+    },
+    {
+      "name": "scheduler",
+      "title": "Scheduler",
+      "group": "Patterns",
+      "description": "Booking a time: who and what, a month whose open days are lit with a pill that glides to the one you pick, the day's times splitting into a Confirm, and a confirmation with a check that draws and an .ics.",
+      "pro": true,
+      "docs": "https://basedraft.site/components/scheduler"
+    },
+    {
+      "name": "sign-in",
+      "title": "Sign-in",
+      "group": "Patterns",
+      "description": "Signing in, in two short steps: a provider in one click with the last one used tagged, or an email then a password or a six-digit code that fills from a paste, and a split layout beside art in a dither.",
+      "pro": true,
+      "docs": "https://basedraft.site/components/sign-in"
     }
   ]
 }

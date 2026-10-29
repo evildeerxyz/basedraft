@@ -8,6 +8,7 @@ import { doc as e_appSidebar } from "./entries/app-sidebar/doc";
 import { doc as e_areaChart } from "./entries/area-chart/doc";
 import { doc as e_avatar } from "./entries/avatar/doc";
 import { doc as e_badge } from "./entries/badge/doc";
+import { doc as e_banner } from "./entries/banner/doc";
 import { doc as e_barChart } from "./entries/bar-chart/doc";
 import { doc as e_barList } from "./entries/bar-list/doc";
 import { doc as e_breadcrumb } from "./entries/breadcrumb/doc";
@@ -17,12 +18,17 @@ import { doc as e_carousel } from "./entries/carousel/doc";
 import { doc as e_checkbox } from "./entries/checkbox/doc";
 import { doc as e_chips } from "./entries/chips/doc";
 import { doc as e_codeBlock } from "./entries/code-block/doc";
+import { doc as e_codeDiff } from "./entries/code-diff/doc";
 import { doc as e_codeInput } from "./entries/code-input/doc";
+import { doc as e_colorPicker } from "./entries/color-picker/doc";
 import { doc as e_combobox } from "./entries/combobox/doc";
 import { doc as e_command } from "./entries/command/doc";
 import { doc as e_commandLine } from "./entries/command-line/doc";
 import { doc as e_compareSlider } from "./entries/compare-slider/doc";
+import { doc as e_consent } from "./entries/consent/doc";
+import { doc as e_contextMenu } from "./entries/context-menu/doc";
 import { doc as e_copyButton } from "./entries/copy-button/doc";
+import { doc as e_countdown } from "./entries/countdown/doc";
 import { doc as e_dataTable } from "./entries/data-table/doc";
 import { doc as e_datePicker } from "./entries/date-picker/doc";
 import { doc as e_dialog } from "./entries/dialog/doc";
@@ -41,6 +47,8 @@ import { doc as e_inlineEdit } from "./entries/inline-edit/doc";
 import { doc as e_input } from "./entries/input/doc";
 import { doc as e_kanbanBoard } from "./entries/kanban-board/doc";
 import { doc as e_kbd } from "./entries/kbd/doc";
+import { doc as e_lightbox } from "./entries/lightbox/doc";
+import { doc as e_logViewer } from "./entries/log-viewer/doc";
 import { doc as e_marquee } from "./entries/marquee/doc";
 import { doc as e_menu } from "./entries/menu/doc";
 import { doc as e_meter } from "./entries/meter/doc";
@@ -54,9 +62,12 @@ import { doc as e_popover } from "./entries/popover/doc";
 import { doc as e_pricingTable } from "./entries/pricing-table/doc";
 import { doc as e_radioGroup } from "./entries/radio-group/doc";
 import { doc as e_resizable } from "./entries/resizable/doc";
+import { doc as e_scheduler } from "./entries/scheduler/doc";
+import { doc as e_scrollArea } from "./entries/scroll-area/doc";
 import { doc as e_segmented } from "./entries/segmented/doc";
 import { doc as e_select } from "./entries/select/doc";
 import { doc as e_sheet } from "./entries/sheet/doc";
+import { doc as e_signIn } from "./entries/sign-in/doc";
 import { doc as e_skeleton } from "./entries/skeleton/doc";
 import { doc as e_slider } from "./entries/slider/doc";
 import { doc as e_sortableList } from "./entries/sortable-list/doc";
@@ -71,6 +82,7 @@ import { doc as e_tabs } from "./entries/tabs/doc";
 import { doc as e_tagInput } from "./entries/tag-input/doc";
 import { doc as e_textarea } from "./entries/textarea/doc";
 import { doc as e_themeToggle } from "./entries/theme-toggle/doc";
+import { doc as e_timePicker } from "./entries/time-picker/doc";
 import { doc as e_timeline } from "./entries/timeline/doc";
 import { doc as e_toast } from "./entries/toast/doc";
 import { doc as e_toolbar } from "./entries/toolbar/doc";
@@ -108,7 +120,8 @@ export const ENTRY_META: ComponentMeta[] = [
     "name": "alert",
     "title": "Alert",
     "group": "Feedback",
-    "description": "A note in the flow of the page in four tones, washed with its tone or bleeding in from the edge through a dither, with actions, that folds away when closed."
+    "description": "A note in the flow of the page in four tones, washed with its tone or bleeding in from the edge through a dither, with actions, that folds away when closed.",
+    "added": "2026-10-23"
   },
   {
     "order": 50,
@@ -141,6 +154,14 @@ export const ENTRY_META: ComponentMeta[] = [
     "description": "A small stamp in ink, gray, outline, paper or metal, with a status dot that can pulse."
   },
   {
+    "order": 2,
+    "name": "banner",
+    "title": "Banner",
+    "group": "Feedback",
+    "description": "The line across the top of a site, in ink or on paper, with a badge, a link whose arrow steps forward, messages that roll up in turn, and a close that remembers.",
+    "added": "2026-10-29"
+  },
+  {
     "order": 31,
     "name": "bar-chart",
     "title": "Bar chart",
@@ -153,14 +174,16 @@ export const ENTRY_META: ComponentMeta[] = [
     "name": "bar-list",
     "title": "Bar list",
     "group": "Data",
-    "description": "The top few of something, ranked, each over a slim bar whose dots thin through an ordered dither to a hard edge at its value, growing in one by one and gliding when the ranking changes."
+    "description": "The top few of something, ranked, each over a slim bar whose dots thin through an ordered dither to a hard edge at its value, growing in one by one and gliding when the ranking changes.",
+    "added": "2026-10-23"
   },
   {
     "order": 2,
     "name": "breadcrumb",
     "title": "Breadcrumb",
     "group": "Navigation",
-    "description": "The path to the page, with a pill that glides from crumb to crumb, a long middle folded into one menu, and a caret that jumps to a level's siblings."
+    "description": "The path to the page, with a pill that glides from crumb to crumb, a long middle folded into one menu, and a caret that jumps to a level's siblings.",
+    "added": "2026-10-23"
   },
   {
     "order": 0,
@@ -195,14 +218,25 @@ export const ENTRY_META: ComponentMeta[] = [
     "name": "chips",
     "title": "Chips",
     "group": "Forms",
-    "description": "Filters as a row of chips that fill with ink as a check springs in, with counts, several or one at a time, a long tail folded into +N, and Clear once anything is on."
+    "description": "Filters as a row of chips that fill with ink as a check springs in, with counts, several or one at a time, a long tail folded into +N, and Clear once anything is on.",
+    "added": "2026-10-23"
   },
   {
     "order": 57,
     "name": "code-block",
     "title": "Code block",
     "group": "Display",
-    "description": "Code on a card with its file's name or tabs for each package manager, colored in the theme's own hues, long lines wrapping on a hanging indent, marked lines, and a copy that turns to a check."
+    "description": "Code on a card with its file's name or tabs for each package manager, colored in the theme's own hues, long lines wrapping on a hanging indent, marked lines, and a copy that turns to a check.",
+    "added": "2026-10-23"
+  },
+  {
+    "order": 63,
+    "name": "code-diff",
+    "title": "Code diff",
+    "group": "Display",
+    "description": "Two versions of a file, unified or side by side: the words that changed marked inside each line, the code still in color, quiet stretches folded to a row that opens, and a count whose cells mix through a dither.",
+    "added": "2026-10-29",
+    "pro": true
   },
   {
     "order": 53,
@@ -210,6 +244,15 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Code input",
     "group": "Forms",
     "description": "A one-time code a cell at a time: typing moves along, a paste or a phone's autofill fills them all, and a wrong code shakes."
+  },
+  {
+    "order": 65,
+    "name": "color-picker",
+    "title": "Color picker",
+    "group": "Forms",
+    "description": "A field of saturation and brightness, hue and alpha sliders, an eyedropper, a value typed as hex, rgb or hsl, swatches, and the contrast white and black text would have on the color.",
+    "added": "2026-10-29",
+    "pro": true
   },
   {
     "order": 60,
@@ -237,7 +280,24 @@ export const ENTRY_META: ComponentMeta[] = [
     "name": "compare-slider",
     "title": "Compare slider",
     "group": "Display",
-    "description": "Two versions of one thing split by a line you drag: press anywhere and it springs there, arrow keys step it, and each side's name steps aside as the line comes near."
+    "description": "Two versions of one thing split by a line you drag: press anywhere and it springs there, arrow keys step it, and each side's name steps aside as the line comes near.",
+    "added": "2026-10-23"
+  },
+  {
+    "order": 43,
+    "name": "consent",
+    "title": "Consent",
+    "group": "Overlays",
+    "description": "Asking about cookies fairly: Reject all and Accept all set the same, Customize opening to a switch for each kind, the choice kept and read back, and a way to ask again.",
+    "added": "2026-10-29"
+  },
+  {
+    "order": 41,
+    "name": "context-menu",
+    "title": "Context menu",
+    "group": "Overlays",
+    "description": "The actions for a thing, opened where you right-click it: grows from the pointer, turns to stay on screen, opens submenus beside their row, and runs from the keyboard with Shift+F10.",
+    "added": "2026-10-29"
   },
   {
     "order": 2,
@@ -245,6 +305,14 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Copy button",
     "group": "Actions",
     "description": "Copies a piece of text, its icon turning over into a check as a ring spreads from it."
+  },
+  {
+    "order": 59,
+    "name": "countdown",
+    "title": "Countdown",
+    "group": "Display",
+    "description": "The time left until a launch or a sale's end, on raised tiles or inline, each digit rolling down as it turns over, and handing over to what you say at zero.",
+    "added": "2026-10-29"
   },
   {
     "order": 10,
@@ -274,6 +342,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Dither image",
     "group": "Display",
     "description": "Any picture printed as an ordered dither, in ink, as round halftone dots or in its own colors stepped down, that develops into view and shows the photo through a dissolve.",
+    "added": "2026-10-23",
     "pro": true
   },
   {
@@ -311,6 +380,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Funnel",
     "group": "Data",
     "description": "How many make it from step to step: bars that rise in turn, the ones lost dissolving above each through a dither or held as a faint wash, a band carrying the flow, and what each step kept.",
+    "added": "2026-10-23",
     "pro": true
   },
   {
@@ -318,7 +388,8 @@ export const ENTRY_META: ComponentMeta[] = [
     "name": "gauge",
     "title": "Gauge",
     "group": "Data",
-    "description": "A reading against its limit as a dial of dots, filling in ink or in the tone of its zone, its edge dithered and springing to the value as the number counts along."
+    "description": "A reading against its limit as a dial of dots, filling in ink or in the tone of its zone, its edge dithered and springing to the value as the number counts along.",
+    "added": "2026-10-23"
   },
   {
     "order": 33,
@@ -326,6 +397,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Heatmap",
     "group": "Data",
     "description": "A year of activity a day at a time, each day's cell shaded by an ordered dither instead of a fade, fitting as many weeks as it has room for, with a card for any day by pointer or keys.",
+    "added": "2026-10-23",
     "pro": true
   },
   {
@@ -380,6 +452,23 @@ export const ENTRY_META: ComponentMeta[] = [
     "description": "A keycap that goes down when you press its key on your keyboard."
   },
   {
+    "order": 42,
+    "name": "lightbox",
+    "title": "Lightbox",
+    "group": "Overlays",
+    "description": "Thumbnails that open into a dark viewer, each photo growing out of its thumbnail without stretching, moved by arrows, swipes or keys, and shrinking back where it came from.",
+    "added": "2026-10-29"
+  },
+  {
+    "order": 36,
+    "name": "log-viewer",
+    "title": "Log viewer",
+    "group": "Data",
+    "description": "Log lines as they stream in: errors and warnings marked down the edge, chips that filter by level with counts, a search that narrows and marks, lines that open to their fields, and a pill back to the newest.",
+    "added": "2026-10-29",
+    "pro": true
+  },
+  {
     "order": 51,
     "name": "marquee",
     "title": "Marquee",
@@ -406,6 +495,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Navigation menu",
     "group": "Navigation",
     "description": "A site's top navigation with one panel that travels between its menus, gliding across and resizing to each one's content as it slides in the way you went, with a caret that follows.",
+    "added": "2026-10-23",
     "pro": true
   },
   {
@@ -435,14 +525,16 @@ export const ENTRY_META: ComponentMeta[] = [
     "name": "pagination",
     "title": "Pagination",
     "group": "Navigation",
-    "description": "Pages of a long list, the current one inked on a pill that slides, a row that keeps its length as you go, and numbers that roll the way you went."
+    "description": "Pages of a long list, the current one inked on a pill that slides, a row that keeps its length as you go, and numbers that roll the way you went.",
+    "added": "2026-10-23"
   },
   {
     "order": 55,
     "name": "password-field",
     "title": "Password field",
     "group": "Forms",
-    "description": "A password that helps as you type: an eye to show it, a four-step meter with a word for how strong, rules that tick as they're met, and a word when Caps Lock is on."
+    "description": "A password that helps as you type: an eye to show it, a four-step meter with a word for how strong, rules that tick as they're met, and a word when Caps Lock is on.",
+    "added": "2026-10-23"
   },
   {
     "order": 3,
@@ -474,6 +566,23 @@ export const ENTRY_META: ComponentMeta[] = [
     "description": "Two panels and a line between them that catches at sizes you come back to, folds a side away, and springs home on a double-click."
   },
   {
+    "order": 80,
+    "name": "scheduler",
+    "title": "Scheduler",
+    "group": "Patterns",
+    "description": "Booking a time: who and what, a month whose open days are lit with a pill that glides to the one you pick, the day's times splitting into a Confirm, and a confirmation with a check that draws and an .ics.",
+    "added": "2026-10-29",
+    "pro": true
+  },
+  {
+    "order": 58,
+    "name": "scroll-area",
+    "title": "Scroll area",
+    "group": "Display",
+    "description": "A box that scrolls the browser's way with a quieter bar that wakes when you need it, and edges that fade, by gradient or by dither, only while there's more past them.",
+    "added": "2026-10-29"
+  },
+  {
     "order": 3,
     "name": "segmented",
     "title": "Segmented control",
@@ -493,6 +602,15 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Sheet",
     "group": "Overlays",
     "description": "A panel that floats in from an edge with the page still in view, and from the bottom, a phone's sheet with a grip to drag it away."
+  },
+  {
+    "order": 90,
+    "name": "sign-in",
+    "title": "Sign-in",
+    "group": "Patterns",
+    "description": "Signing in, in two short steps: a provider in one click with the last one used tagged, or an email then a password or a six-digit code that fills from a paste, and a split layout beside art in a dither.",
+    "added": "2026-10-29",
+    "pro": true
   },
   {
     "order": 51,
@@ -521,7 +639,8 @@ export const ENTRY_META: ComponentMeta[] = [
     "name": "sparkline",
     "title": "Sparkline",
     "group": "Data",
-    "description": "A trend in the space of a word: a smooth line that draws in, a wash under it that fades or thins as dots, and a dot on the latest value that can pulse while it's live."
+    "description": "A trend in the space of a word: a smooth line that draws in, a wash under it that fades or thins as dots, and a dot on the latest value that can pulse while it's live.",
+    "added": "2026-10-23"
   },
   {
     "order": 50,
@@ -535,7 +654,8 @@ export const ENTRY_META: ComponentMeta[] = [
     "name": "split-button",
     "title": "Split button",
     "group": "Actions",
-    "description": "One action and its alternatives, the way a merge button works: pick another from the caret and it takes the pill's place, its name rolling in, ready for the next press."
+    "description": "One action and its alternatives, the way a merge button works: pick another from the caret and it takes the pill's place, its name rolling in, ready for the next press.",
+    "added": "2026-10-23"
   },
   {
     "order": 20,
@@ -563,7 +683,8 @@ export const ENTRY_META: ComponentMeta[] = [
     "name": "table-of-contents",
     "title": "Table of contents",
     "group": "Navigation",
-    "description": "A long page's sections with an ink bar that slides to the one you're reading, the ones you've passed a shade darker, and links that glide there without a jump."
+    "description": "A long page's sections with an ink bar that slides to the one you're reading, the ones you've passed a shade darker, and links that glide there without a jump.",
+    "added": "2026-10-23"
   },
   {
     "order": 0,
@@ -594,11 +715,20 @@ export const ENTRY_META: ComponentMeta[] = [
     "description": "Light and dark, switched with a circle of the new theme opening from the button, a sun that turns into a moon, and a System choice."
   },
   {
+    "order": 64,
+    "name": "time-picker",
+    "title": "Time picker",
+    "group": "Forms",
+    "description": "A time typed the way you'd say it or picked from a list in steps, scrolled to the one you have, each time saying how long after the start it is.",
+    "added": "2026-10-29"
+  },
+  {
     "order": 54,
     "name": "timeline",
     "title": "Timeline",
     "group": "Display",
-    "description": "An activity log: times in a gutter, one rail through raised beads for what matters and small rings for the rest, days gathered, comments in bubbles, new events sliding in on top."
+    "description": "An activity log: times in a gutter, one rail through raised beads for what matters and small rings for the rest, days gathered, comments in bubbles, new events sliding in on top.",
+    "added": "2026-10-23"
   },
   {
     "order": 6,
@@ -627,6 +757,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Tour",
     "group": "Overlays",
     "description": "A walk through a screen one thing at a time: the page dims, a window opens over the thing and glides to the next taking its shape, with a card that goes to the side with room.",
+    "added": "2026-10-23",
     "pro": true
   },
   {
@@ -635,6 +766,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Tree",
     "group": "Navigation",
     "description": "Folders that spring open beside a guide line, darker along the branch to the chosen row, which rides a pill that glides; run by the keyboard like a file tree.",
+    "added": "2026-10-23",
     "pro": true
   },
   {
@@ -643,6 +775,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Uptime",
     "group": "Data",
     "description": "A service's days as slim bars, a bad day mixed amber or red through an ordered dither in proportion to how much went wrong, with its incidents a point away.",
+    "added": "2026-10-23",
     "pro": true
   },
   {
@@ -664,6 +797,7 @@ export const ENTRY_DOCS: Record<string, ComponentDoc> = {
   "area-chart": e_areaChart,
   "avatar": e_avatar,
   "badge": e_badge,
+  "banner": e_banner,
   "bar-chart": e_barChart,
   "bar-list": e_barList,
   "breadcrumb": e_breadcrumb,
@@ -673,12 +807,17 @@ export const ENTRY_DOCS: Record<string, ComponentDoc> = {
   "checkbox": e_checkbox,
   "chips": e_chips,
   "code-block": e_codeBlock,
+  "code-diff": e_codeDiff,
   "code-input": e_codeInput,
+  "color-picker": e_colorPicker,
   "combobox": e_combobox,
   "command": e_command,
   "command-line": e_commandLine,
   "compare-slider": e_compareSlider,
+  "consent": e_consent,
+  "context-menu": e_contextMenu,
   "copy-button": e_copyButton,
+  "countdown": e_countdown,
   "data-table": e_dataTable,
   "date-picker": e_datePicker,
   "dialog": e_dialog,
@@ -697,6 +836,8 @@ export const ENTRY_DOCS: Record<string, ComponentDoc> = {
   "input": e_input,
   "kanban-board": e_kanbanBoard,
   "kbd": e_kbd,
+  "lightbox": e_lightbox,
+  "log-viewer": e_logViewer,
   "marquee": e_marquee,
   "menu": e_menu,
   "meter": e_meter,
@@ -710,9 +851,12 @@ export const ENTRY_DOCS: Record<string, ComponentDoc> = {
   "pricing-table": e_pricingTable,
   "radio-group": e_radioGroup,
   "resizable": e_resizable,
+  "scheduler": e_scheduler,
+  "scroll-area": e_scrollArea,
   "segmented": e_segmented,
   "select": e_select,
   "sheet": e_sheet,
+  "sign-in": e_signIn,
   "skeleton": e_skeleton,
   "slider": e_slider,
   "sortable-list": e_sortableList,
@@ -727,6 +871,7 @@ export const ENTRY_DOCS: Record<string, ComponentDoc> = {
   "tag-input": e_tagInput,
   "textarea": e_textarea,
   "theme-toggle": e_themeToggle,
+  "time-picker": e_timePicker,
   "timeline": e_timeline,
   "toast": e_toast,
   "toolbar": e_toolbar,

@@ -1,0 +1,9 @@
+{
+  "name": "code-diff",
+  "title": "Code diff",
+  "group": "Display",
+  "description": "Two versions of a file, unified or side by side: the words that changed marked inside each line, the code still in color, quiet stretches folded to a row that opens, and a count whose cells mix through a dither.",
+  "order": 63,
+  "added": "2026-10-29",
+  "pro": true
+}

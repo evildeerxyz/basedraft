@@ -1,0 +1,8 @@
+{
+  "name": "lightbox",
+  "title": "Lightbox",
+  "group": "Overlays",
+  "description": "Thumbnails that open into a dark viewer, each photo growing out of its thumbnail without stretching, moved by arrows, swipes or keys, and shrinking back where it came from.",
+  "order": 42,
+  "added": "2026-10-29"
+}

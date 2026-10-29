@@ -1,0 +1,8 @@
+{
+  "name": "time-picker",
+  "title": "Time picker",
+  "group": "Forms",
+  "description": "A time typed the way you'd say it or picked from a list in steps, scrolled to the one you have, each time saying how long after the start it is.",
+  "order": 64,
+  "added": "2026-10-29"
+}

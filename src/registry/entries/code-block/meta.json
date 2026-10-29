@@ -3,5 +3,6 @@
   "title": "Code block",
   "group": "Display",
   "description": "Code on a card with its file's name or tabs for each package manager, colored in the theme's own hues, long lines wrapping on a hanging indent, marked lines, and a copy that turns to a check.",
-  "order": 57
+  "order": 57,
+  "added": "2026-10-23"
 }

@@ -45,6 +45,7 @@ Import its stylesheet once, in the root layout: `import "@basedraft/ui/styles.cs
 - [Number field](https://basedraft.site/components/number-field): A pill with − and + that speed up as they're held, a label you drag sideways to scrub, and arrow keys with Shift for bigger steps. `import { NumberField } from "@basedraft/ui"`
 - [Date picker](https://basedraft.site/components/date-picker): A field that opens a month whose pages slide the way you go, walked by the arrow keys, for one day or a range with a band that follows the pointer. `import { Calendar, DatePicker } from "@basedraft/ui"`
 - [File drop](https://basedraft.site/components/file-drop): A zone that wakes when files are dragged over the page and lifts to meet them, listing each with its kind, its progress, and why it failed or was turned away. `import { FileDrop } from "@basedraft/ui"`
+- [Time picker](https://basedraft.site/components/time-picker): A time typed the way you'd say it or picked from a list in steps, scrolled to the one you have, each time saying how long after the start it is. `import { TimePicker } from "@basedraft/ui"`
 
 ### Overlays
 
@@ -54,6 +55,9 @@ Import its stylesheet once, in the root layout: `import "@basedraft/ui/styles.cs
 - [Menu](https://basedraft.site/components/menu): A dropdown of actions in quiet sections, each with its shortcut on small keys, options that tick, and the destructive one set apart in red. `import { Menu, MenuTrigger, MenuContent, MenuLabel, MenuSeparator, MenuGroup, MenuItem, MenuCheckboxItem } from "@basedraft/ui"`
 - [Command](https://basedraft.site/components/command): A search that does things: type to narrow pages and actions, arrows and Enter to go, in place or as a ⌘K palette with the hero's light at its head. `import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem, CommandFooter, CommandDialog } from "@basedraft/ui"`
 - [Toast](https://basedraft.site/components/toast): Short ink notes that rise at the corner and leave on their own, stack like paper, spread when you point at them, and update in place. `import { toast, Toaster } from "@basedraft/ui"`
+- [Context menu](https://basedraft.site/components/context-menu): The actions for a thing, opened where you right-click it: grows from the pointer, turns to stay on screen, opens submenus beside their row, and runs from the keyboard with Shift+F10. `import { ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuLabel, ContextMenuSeparator, ContextMenuItem, ContextMenuCheckboxItem, ContextMenuSub } from "@basedraft/ui"`
+- [Lightbox](https://basedraft.site/components/lightbox): Thumbnails that open into a dark viewer, each photo growing out of its thumbnail without stretching, moved by arrows, swipes or keys, and shrinking back where it came from. `import { Lightbox } from "@basedraft/ui"`
+- [Consent](https://basedraft.site/components/consent): Asking about cookies fairly: Reject all and Accept all set the same, Customize opening to a switch for each kind, the choice kept and read back, and a way to ask again. `import { Consent } from "@basedraft/ui"`
 - [Hover card](https://basedraft.site/components/hover-card): A preview of where a link leads, opening after a pause, staying open on the way to it, with a caret pointing back at the link. `import { HoverCard, HoverCardTrigger, HoverCardContent } from "@basedraft/ui"`
 
 ### Navigation
@@ -78,6 +82,8 @@ Import its stylesheet once, in the root layout: `import "@basedraft/ui/styles.cs
 - [Timeline](https://basedraft.site/components/timeline): An activity log: times in a gutter, one rail through raised beads for what matters and small rings for the rest, days gathered, comments in bubbles, new events sliding in on top. `import { Timeline, TimelineGroup, TimelineItem, TimelineQuote, TimelineMeta } from "@basedraft/ui"`
 - [Compare slider](https://basedraft.site/components/compare-slider): Two versions of one thing split by a line you drag: press anywhere and it springs there, arrow keys step it, and each side's name steps aside as the line comes near. `import { CompareSlider } from "@basedraft/ui"`
 - [Code block](https://basedraft.site/components/code-block): Code on a card with its file's name or tabs for each package manager, colored in the theme's own hues, long lines wrapping on a hanging indent, marked lines, and a copy that turns to a check. `import { CodeBlock } from "@basedraft/ui"`
+- [Scroll area](https://basedraft.site/components/scroll-area): A box that scrolls the browser's way with a quieter bar that wakes when you need it, and edges that fade, by gradient or by dither, only while there's more past them. `import { ScrollArea } from "@basedraft/ui"`
+- [Countdown](https://basedraft.site/components/countdown): The time left until a launch or a sale's end, on raised tiles or inline, each digit rolling down as it turns over, and handing over to what you say at zero. `import { Countdown } from "@basedraft/ui"`
 - [Resizable panels](https://basedraft.site/components/resizable): Two panels and a line between them that catches at sizes you come back to, folds a side away, and springs home on a double-click. `import { ResizablePanel, Resizable } from "@basedraft/ui"`
 - [Carousel](https://basedraft.site/components/carousel): Slides of any width that you drag or flick and that carry on with your speed before settling, with dots or a bar, and that wait while no one's looking. `import { CarouselSlide, Carousel } from "@basedraft/ui"`
 
@@ -96,6 +102,7 @@ Import its stylesheet once, in the root layout: `import "@basedraft/ui/styles.cs
 
 - [Meter](https://basedraft.site/components/meter): Progress drawn in dots, its edge dissolving through an ordered dither and springing as it moves. `import { Meter } from "@basedraft/ui"`
 - [Alert](https://basedraft.site/components/alert): A note in the flow of the page in four tones, washed with its tone or bleeding in from the edge through a dither, with actions, that folds away when closed. `import { Alert } from "@basedraft/ui"`
+- [Banner](https://basedraft.site/components/banner): The line across the top of a site, in ink or on paper, with a badge, a link whose arrow steps forward, messages that roll up in turn, and a close that remembers. `import { Banner } from "@basedraft/ui"`
 - [Spinner](https://basedraft.site/components/spinner): A ring of dots with a crest that sweeps around it, its tail dissolving through an ordered dither. `import { Spinner } from "@basedraft/ui"`
 - [Skeleton](https://basedraft.site/components/skeleton): Solid gray blocks, lines and circles in the shape of what's loading, with a band of fine dots passing through. `import { Skeleton, SkeletonText, SkeletonAvatar } from "@basedraft/ui"`
 
@@ -103,11 +110,13 @@ Import its stylesheet once, in the root layout: `import "@basedraft/ui/styles.cs
 
 Composed, dashboard-grade pieces that come with basedraft Pro. Anyone can try them live on their pages; their source is for Pro accounts, copied or downloaded from the page once signed in, and they read the same theme as the package.
 
+- [Color picker](https://basedraft.site/components/color-picker) (Pro): A field of saturation and brightness, hue and alpha sliders, an eyedropper, a value typed as hex, rgb or hsl, swatches, and the contrast white and black text would have on the color.
 - [Tour](https://basedraft.site/components/tour) (Pro): A walk through a screen one thing at a time: the page dims, a window opens over the thing and glides to the next taking its shape, with a card that goes to the side with room.
 - [Tree](https://basedraft.site/components/tree) (Pro): Folders that spring open beside a guide line, darker along the branch to the chosen row, which rides a pill that glides; run by the keyboard like a file tree.
 - [Navigation menu](https://basedraft.site/components/navigation-menu) (Pro): A site's top navigation with one panel that travels between its menus, gliding across and resizing to each one's content as it slides in the way you went, with a caret that follows.
 - [Dither image](https://basedraft.site/components/dither-image) (Pro): Any picture printed as an ordered dither, in ink, as round halftone dots or in its own colors stepped down, that develops into view and shows the photo through a dissolve.
 - [Sortable list](https://basedraft.site/components/sortable-list) (Pro): Rows you lift and carry with a spring while the rest make room, scrolling at the edges, and reorder from the keyboard just the same.
+- [Code diff](https://basedraft.site/components/code-diff) (Pro): Two versions of a file, unified or side by side: the words that changed marked inside each line, the code still in color, quiet stretches folded to a row that opens, and a count whose cells mix through a dither.
 - [Data table](https://basedraft.site/components/data-table) (Pro): Rows on a white sheet that sort with a turning arrow and glide into place, pick in ranges with Shift, open for detail, and keep their header and first column in view.
 - [Area chart](https://basedraft.site/components/area-chart) (Pro): Smooth lines over a soft wash that draw in from the left, with a crosshair that snaps to the nearest point, stacking, and a legend that re-scales on a spring.
 - [Bar chart](https://basedraft.site/components/bar-chart) (Pro): Grouped or stacked bars, standing up or lying down, that grow in one after another, with a band that follows the pointer, values below zero and labels on the bars.
@@ -115,6 +124,7 @@ Composed, dashboard-grade pieces that come with basedraft Pro. Anyone can try th
 - [Heatmap](https://basedraft.site/components/heatmap) (Pro): A year of activity a day at a time, each day's cell shaded by an ordered dither instead of a fade, fitting as many weeks as it has room for, with a card for any day by pointer or keys.
 - [Uptime](https://basedraft.site/components/uptime) (Pro): A service's days as slim bars, a bad day mixed amber or red through an ordered dither in proportion to how much went wrong, with its incidents a point away.
 - [Funnel](https://basedraft.site/components/funnel) (Pro): How many make it from step to step: bars that rise in turn, the ones lost dissolving above each through a dither or held as a faint wash, a band carrying the flow, and what each step kept.
+- [Log viewer](https://basedraft.site/components/log-viewer) (Pro): Log lines as they stream in: errors and warnings marked down the edge, chips that filter by level with counts, a search that narrows and marks, lines that open to their fields, and a pill back to the newest.
 - [Kanban board](https://basedraft.site/components/kanban-board) (Pro): Columns of cards you carry by hand or by keyboard: the lifted card tilts and casts a deeper shadow, the others make room, and every move is announced.
 - [AI chat](https://basedraft.site/components/ai-chat) (Pro): An assistant thread: replies that stream in word by word, tool calls that open to show their work, and a composer that sends, attaches and stops.
 - [Inbox](https://basedraft.site/components/inbox) (Pro): A notification center behind a bell: an unread count that rolls, tabs on a sliding pill, items grouped by day that you mark read with a click or a swipe.
@@ -122,6 +132,8 @@ Composed, dashboard-grade pieces that come with basedraft Pro. Anyone can try th
 - [App sidebar](https://basedraft.site/components/app-sidebar) (Pro): An app's navigation down the left: a workspace switcher, search, sections with counts and groups, a pill that slides to the page you're on, a rail of icons, and a drawer that swipes away on a phone.
 - [Onboarding checklist](https://basedraft.site/components/onboarding) (Pro): A new account's first steps in a card that keeps count: a ring that fills, ticks that draw in, the next step opening on its own, a pill to fold it into, and a finish that blooms.
 - [Wizard](https://basedraft.site/components/wizard) (Pro): A form in steps: a rail that fills, each step sliding in from the side you're heading, checks that land the cursor on what's wrong, a review to read it all back, and a finish.
+- [Scheduler](https://basedraft.site/components/scheduler) (Pro): Booking a time: who and what, a month whose open days are lit with a pill that glides to the one you pick, the day's times splitting into a Confirm, and a confirmation with a check that draws and an .ics.
+- [Sign-in](https://basedraft.site/components/sign-in) (Pro): Signing in, in two short steps: a provider in one click with the last one used tagged, or an email then a password or a six-digit code that fills from a paste, and a split layout beside art in a dither.
 
 ## For AI coding agents
 

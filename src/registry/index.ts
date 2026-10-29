@@ -22,6 +22,13 @@ export const COMPONENTS: ComponentMeta[] = [...(META as ComponentMeta[]).map((m,
 export const GROUPS = GROUP_ORDER.filter((g) => COMPONENTS.some((c) => c.group === g)).concat([...new Set(COMPONENTS.map((c) => c.group))].filter((g) => !GROUP_ORDER.includes(g)));
 export const componentOf = (name: string) => COMPONENTS.find((c) => c.name === name);
 
+/** How long a component counts as new: this many days after the newest one was added. */
+const NEW_DAYS = 30;
+const day = (d: string) => Date.parse(`${d}T00:00:00Z`);
+const newest = Math.max(0, ...COMPONENTS.map((c) => (c.added ? day(c.added) : 0)));
+/** Whether a component wears the New tag: added within NEW_DAYS of the newest. Counted from the components, not the clock, so every page and build agrees. */
+export const isNew = (c: { added?: string }) => !!c.added && newest - day(c.added) <= NEW_DAYS * 86_400_000;
+
 export const SITE = "https://basedraft.site";
 /** The npm package the components ship in (packages/ui). */
 export const PACKAGE = "@basedraft/ui";

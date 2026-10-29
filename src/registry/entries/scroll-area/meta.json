@@ -1,0 +1,8 @@
+{
+  "name": "scroll-area",
+  "title": "Scroll area",
+  "group": "Display",
+  "description": "A box that scrolls the browser's way with a quieter bar that wakes when you need it, and edges that fade, by gradient or by dither, only while there's more past them.",
+  "order": 58,
+  "added": "2026-10-29"
+}

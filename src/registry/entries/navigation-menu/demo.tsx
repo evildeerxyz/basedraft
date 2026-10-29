@@ -1,10 +1,10 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element */
 import { BookOpenTextIcon, CodeBlockIcon, CursorClickIcon, MegaphoneSimpleIcon, SquaresFourIcon, StackIcon, TerminalWindowIcon } from "@phosphor-icons/react";
 import type { ComponentProps, ComponentType } from "react";
 import { NavigationMenu, NavigationMenuCard, NavigationMenuItem, NavigationMenuLink } from "../../pro-ui/navigation-menu";
 import { hint } from "../_shared/kit";
+import { Placeholder, type Layout } from "../_shared/placeholder";
 
 /** The demo's links stay on this page. */
 function Stay({ onClick, ...props }: ComponentProps<"a">) {
@@ -19,10 +19,10 @@ function Stay({ onClick, ...props }: ComponentProps<"a">) {
   );
 }
 
-const TEMPLATES = [
-  { name: "Zuno", line: "A fintech app's site, dark, with a live chart.", src: "/shots/zuno.jpg" },
-  { name: "Noma", line: "A studio's site with a journal and a team.", src: "/shots/noma.jpg" },
-  { name: "Auren", line: "A portfolio, quiet and photographic.", src: "/shots/auren.jpg" },
+const TEMPLATES: Array<{ name: string; line: string; layout: Layout }> = [
+  { name: "Landing", line: "A product's home page, with pricing.", layout: "landing" },
+  { name: "Dashboard", line: "An app's numbers, with a sidebar.", layout: "dashboard" },
+  { name: "Journal", line: "Long reads, with pictures.", layout: "article" },
 ];
 
 /** A site's header: the mark, the menus, and a button at the end. */
@@ -44,7 +44,7 @@ function Header() {
           <NavigationMenuItem label="Templates" className="grid w-[min(420px,calc(100cqw-24px))] gap-1">
             {TEMPLATES.map((t) => (
               <Stay key={t.name} href={`/templates/${t.name.toLowerCase()}`} className="flex items-center gap-3 rounded-[14px] p-2 outline-none transition-colors hover:bg-[rgb(var(--bd-ink)/0.04)] focus-visible:bg-[rgb(var(--bd-ink)/0.04)] focus-visible:outline-2 focus-visible:outline-[color:var(--bd-ui-focus)]">
-                <img src={t.src} alt="" className="h-12 w-[72px] shrink-0 rounded-[8px] object-cover object-top shadow-[0_0_0_1px_rgb(var(--bd-ink)/0.08)]" />
+                <Placeholder layout={t.layout} ratio={1.5} className="w-[72px] shrink-0 rounded-[8px]" />
                 <span className="min-w-0">
                   <span className="block text-[13.5px] font-medium text-[var(--bd-fg)]">{t.name}</span>
                   <span className="block truncate text-[12.5px] text-[var(--bd-muted)]">{t.line}</span>

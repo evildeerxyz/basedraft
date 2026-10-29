@@ -1,0 +1,8 @@
+{
+  "name": "countdown",
+  "title": "Countdown",
+  "group": "Display",
+  "description": "The time left until a launch or a sale's end, on raised tiles or inline, each digit rolling down as it turns over, and handing over to what you say at zero.",
+  "order": 59,
+  "added": "2026-10-29"
+}

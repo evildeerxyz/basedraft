@@ -3,5 +3,6 @@
   "title": "Password field",
   "group": "Forms",
   "description": "A password that helps as you type: an eye to show it, a four-step meter with a word for how strong, rules that tick as they're met, and a word when Caps Lock is on.",
-  "order": 55
+  "order": 55,
+  "added": "2026-10-23"
 }

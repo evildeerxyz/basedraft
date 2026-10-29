@@ -3,5 +3,6 @@
   "title": "Table of contents",
   "group": "Navigation",
   "description": "A long page's sections with an ink bar that slides to the one you're reading, the ones you've passed a shade darker, and links that glide there without a jump.",
-  "order": 5
+  "order": 5,
+  "added": "2026-10-23"
 }

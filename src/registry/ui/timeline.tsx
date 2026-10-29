@@ -54,13 +54,23 @@ export function Timeline({ continues = false, className, children, ...props }: T
   useLayoutEffect(() => {
     const el = root.current;
     if (!el) return;
+    // A bead's middle within the list, from layout offsets rather than the screen: right inside
+    // anything scaled or zoomed, and while a new bead is still springing in.
+    const middle = (bead: HTMLElement) => {
+      let x = bead.offsetWidth / 2;
+      let y = bead.offsetHeight / 2;
+      for (let n: HTMLElement | null = bead; n && n !== el; n = n.offsetParent as HTMLElement | null) {
+        x += n.offsetLeft;
+        y += n.offsetTop;
+      }
+      return { x, y };
+    };
     const measure = () => {
       const beads = el.querySelectorAll<HTMLElement>("[data-bead]");
       if (!beads.length) return setRail(null);
-      const box = el.getBoundingClientRect();
-      const a = beads[0].getBoundingClientRect();
-      const b = beads[beads.length - 1].getBoundingClientRect();
-      const next = { x: a.left + a.width / 2 - box.left, top: a.top + a.height / 2 - box.top, height: b.top + b.height / 2 - (a.top + a.height / 2) };
+      const a = middle(beads[0]);
+      const b = middle(beads[beads.length - 1]);
+      const next = { x: a.x, top: a.y, height: b.y - a.y };
       setRail((r) => (r && Math.abs(r.x - next.x) < 0.5 && Math.abs(r.top - next.top) < 0.5 && Math.abs(r.height - next.height) < 0.5 ? r : next));
     };
     measure();

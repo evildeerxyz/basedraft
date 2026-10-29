@@ -3,5 +3,6 @@
   "title": "Alert",
   "group": "Feedback",
   "description": "A note in the flow of the page in four tones, washed with its tone or bleeding in from the edge through a dither, with actions, that folds away when closed.",
-  "order": 1
+  "order": 1,
+  "added": "2026-10-23"
 }

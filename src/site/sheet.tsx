@@ -87,6 +87,35 @@ export function ProBadge({ className, children = "Pro" }: { className?: string; 
   return <span className={cn("inline-flex h-[18px] shrink-0 items-center rounded-full bg-brand-soft px-[7px] text-[11px] font-medium leading-none tracking-normal text-brand-ink", className)}>{children}</span>;
 }
 
+/**
+ * New, on a component added lately: a solid green pill that's hard to miss, with a dot that
+ * pulses and a band of light crossing it every few seconds. Still, with reduced motion.
+ */
+export function NewBadge({ size = "sm", className }: { size?: "sm" | "md"; className?: string }) {
+  return (
+    <span
+      className={cn(
+        // Its own containing block for the layers, unless it's placed from outside.
+        !/\b(absolute|fixed)\b/.test(className ?? "") && "relative",
+        "bd-new isolate inline-flex shrink-0 items-center rounded-full font-semibold leading-none tracking-[0.01em] text-white",
+        size === "md" ? "h-6 gap-1.5 px-2.5 text-[12px]" : "h-[18px] gap-1 px-[7px] text-[11px] [--bd-new-line:1px]",
+        className,
+      )}
+    >
+      {/* Behind, a soft glow of the rainbow; over it the dark body with the rainbow on its edge, and a band of light crossing. */}
+      <span aria-hidden className="bd-new-glow pointer-events-none absolute inset-px rounded-full" />
+      <span aria-hidden className="bd-new-edge pointer-events-none absolute inset-0 overflow-hidden rounded-full">
+        <span className="absolute inset-y-0 left-0 w-1/3 bg-[linear-gradient(90deg,transparent,rgb(255_255_255/0.22),transparent)] animate-[bd-new-shine_3.2s_ease-in-out_infinite] motion-reduce:hidden" />
+      </span>
+      <span aria-hidden className={cn("relative grid shrink-0 place-items-center", size === "md" ? "size-1.5" : "size-[5px]")}>
+        <span className="absolute inset-0 rounded-full bg-white animate-[bd-new-pulse_1.6s_ease-out_infinite] motion-reduce:hidden" />
+        <span className="relative size-full rounded-full bg-white" />
+      </span>
+      <span className="relative">New</span>
+    </span>
+  );
+}
+
 /** A tick on a small light blue dot, the way the plans list what's in them. */
 export function Tick({ className }: { className?: string }) {
   return (

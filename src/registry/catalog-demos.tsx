@@ -10,6 +10,7 @@ import { Demo as e_appSidebarDemo, examples as e_appSidebarExamples } from "./en
 import { Demo as e_areaChartDemo, examples as e_areaChartExamples } from "./entries/area-chart/demo";
 import { Demo as e_avatarDemo, examples as e_avatarExamples } from "./entries/avatar/demo";
 import { Demo as e_badgeDemo, examples as e_badgeExamples } from "./entries/badge/demo";
+import { Demo as e_bannerDemo, examples as e_bannerExamples } from "./entries/banner/demo";
 import { Demo as e_barChartDemo, examples as e_barChartExamples } from "./entries/bar-chart/demo";
 import { Demo as e_barListDemo, examples as e_barListExamples } from "./entries/bar-list/demo";
 import { Demo as e_breadcrumbDemo, examples as e_breadcrumbExamples } from "./entries/breadcrumb/demo";
@@ -19,12 +20,17 @@ import { Demo as e_carouselDemo, examples as e_carouselExamples } from "./entrie
 import { Demo as e_checkboxDemo, examples as e_checkboxExamples } from "./entries/checkbox/demo";
 import { Demo as e_chipsDemo, examples as e_chipsExamples } from "./entries/chips/demo";
 import { Demo as e_codeBlockDemo, examples as e_codeBlockExamples } from "./entries/code-block/demo";
+import { Demo as e_codeDiffDemo, examples as e_codeDiffExamples } from "./entries/code-diff/demo";
 import { Demo as e_codeInputDemo, examples as e_codeInputExamples } from "./entries/code-input/demo";
+import { Demo as e_colorPickerDemo, examples as e_colorPickerExamples } from "./entries/color-picker/demo";
 import { Demo as e_comboboxDemo, examples as e_comboboxExamples } from "./entries/combobox/demo";
 import { Demo as e_commandDemo, examples as e_commandExamples } from "./entries/command/demo";
 import { Demo as e_commandLineDemo, examples as e_commandLineExamples } from "./entries/command-line/demo";
 import { Demo as e_compareSliderDemo, examples as e_compareSliderExamples } from "./entries/compare-slider/demo";
+import { Demo as e_consentDemo, examples as e_consentExamples } from "./entries/consent/demo";
+import { Demo as e_contextMenuDemo, examples as e_contextMenuExamples } from "./entries/context-menu/demo";
 import { Demo as e_copyButtonDemo, examples as e_copyButtonExamples } from "./entries/copy-button/demo";
+import { Demo as e_countdownDemo, examples as e_countdownExamples } from "./entries/countdown/demo";
 import { Demo as e_dataTableDemo, examples as e_dataTableExamples } from "./entries/data-table/demo";
 import { Demo as e_datePickerDemo, examples as e_datePickerExamples } from "./entries/date-picker/demo";
 import { Demo as e_dialogDemo, examples as e_dialogExamples } from "./entries/dialog/demo";
@@ -43,6 +49,8 @@ import { Demo as e_inlineEditDemo, examples as e_inlineEditExamples } from "./en
 import { Demo as e_inputDemo, examples as e_inputExamples } from "./entries/input/demo";
 import { Demo as e_kanbanBoardDemo, examples as e_kanbanBoardExamples } from "./entries/kanban-board/demo";
 import { Demo as e_kbdDemo, examples as e_kbdExamples } from "./entries/kbd/demo";
+import { Demo as e_lightboxDemo, examples as e_lightboxExamples } from "./entries/lightbox/demo";
+import { Demo as e_logViewerDemo, examples as e_logViewerExamples } from "./entries/log-viewer/demo";
 import { Demo as e_marqueeDemo, examples as e_marqueeExamples } from "./entries/marquee/demo";
 import { Demo as e_menuDemo, examples as e_menuExamples } from "./entries/menu/demo";
 import { Demo as e_meterDemo, examples as e_meterExamples } from "./entries/meter/demo";
@@ -56,9 +64,12 @@ import { Demo as e_popoverDemo, examples as e_popoverExamples } from "./entries/
 import { Demo as e_pricingTableDemo, examples as e_pricingTableExamples } from "./entries/pricing-table/demo";
 import { Demo as e_radioGroupDemo, examples as e_radioGroupExamples } from "./entries/radio-group/demo";
 import { Demo as e_resizableDemo, examples as e_resizableExamples } from "./entries/resizable/demo";
+import { Demo as e_schedulerDemo, examples as e_schedulerExamples } from "./entries/scheduler/demo";
+import { Demo as e_scrollAreaDemo, examples as e_scrollAreaExamples } from "./entries/scroll-area/demo";
 import { Demo as e_segmentedDemo, examples as e_segmentedExamples } from "./entries/segmented/demo";
 import { Demo as e_selectDemo, examples as e_selectExamples } from "./entries/select/demo";
 import { Demo as e_sheetDemo, examples as e_sheetExamples } from "./entries/sheet/demo";
+import { Demo as e_signInDemo, examples as e_signInExamples } from "./entries/sign-in/demo";
 import { Demo as e_skeletonDemo, examples as e_skeletonExamples } from "./entries/skeleton/demo";
 import { Demo as e_sliderDemo, examples as e_sliderExamples } from "./entries/slider/demo";
 import { Demo as e_sortableListDemo, examples as e_sortableListExamples } from "./entries/sortable-list/demo";
@@ -73,6 +84,7 @@ import { Demo as e_tabsDemo, examples as e_tabsExamples } from "./entries/tabs/d
 import { Demo as e_tagInputDemo, examples as e_tagInputExamples } from "./entries/tag-input/demo";
 import { Demo as e_textareaDemo, examples as e_textareaExamples } from "./entries/textarea/demo";
 import { Demo as e_themeToggleDemo, examples as e_themeToggleExamples } from "./entries/theme-toggle/demo";
+import { Demo as e_timePickerDemo, examples as e_timePickerExamples } from "./entries/time-picker/demo";
 import { Demo as e_timelineDemo, examples as e_timelineExamples } from "./entries/timeline/demo";
 import { Demo as e_toastDemo, examples as e_toastExamples } from "./entries/toast/demo";
 import { Demo as e_toolbarDemo, examples as e_toolbarExamples } from "./entries/toolbar/demo";
@@ -91,6 +103,7 @@ export const ENTRY_DEMOS: Record<string, ComponentType> = {
   "area-chart": e_areaChartDemo,
   "avatar": e_avatarDemo,
   "badge": e_badgeDemo,
+  "banner": e_bannerDemo,
   "bar-chart": e_barChartDemo,
   "bar-list": e_barListDemo,
   "breadcrumb": e_breadcrumbDemo,
@@ -100,12 +113,17 @@ export const ENTRY_DEMOS: Record<string, ComponentType> = {
   "checkbox": e_checkboxDemo,
   "chips": e_chipsDemo,
   "code-block": e_codeBlockDemo,
+  "code-diff": e_codeDiffDemo,
   "code-input": e_codeInputDemo,
+  "color-picker": e_colorPickerDemo,
   "combobox": e_comboboxDemo,
   "command": e_commandDemo,
   "command-line": e_commandLineDemo,
   "compare-slider": e_compareSliderDemo,
+  "consent": e_consentDemo,
+  "context-menu": e_contextMenuDemo,
   "copy-button": e_copyButtonDemo,
+  "countdown": e_countdownDemo,
   "data-table": e_dataTableDemo,
   "date-picker": e_datePickerDemo,
   "dialog": e_dialogDemo,
@@ -124,6 +142,8 @@ export const ENTRY_DEMOS: Record<string, ComponentType> = {
   "input": e_inputDemo,
   "kanban-board": e_kanbanBoardDemo,
   "kbd": e_kbdDemo,
+  "lightbox": e_lightboxDemo,
+  "log-viewer": e_logViewerDemo,
   "marquee": e_marqueeDemo,
   "menu": e_menuDemo,
   "meter": e_meterDemo,
@@ -137,9 +157,12 @@ export const ENTRY_DEMOS: Record<string, ComponentType> = {
   "pricing-table": e_pricingTableDemo,
   "radio-group": e_radioGroupDemo,
   "resizable": e_resizableDemo,
+  "scheduler": e_schedulerDemo,
+  "scroll-area": e_scrollAreaDemo,
   "segmented": e_segmentedDemo,
   "select": e_selectDemo,
   "sheet": e_sheetDemo,
+  "sign-in": e_signInDemo,
   "skeleton": e_skeletonDemo,
   "slider": e_sliderDemo,
   "sortable-list": e_sortableListDemo,
@@ -154,6 +177,7 @@ export const ENTRY_DEMOS: Record<string, ComponentType> = {
   "tag-input": e_tagInputDemo,
   "textarea": e_textareaDemo,
   "theme-toggle": e_themeToggleDemo,
+  "time-picker": e_timePickerDemo,
   "timeline": e_timelineDemo,
   "toast": e_toastDemo,
   "toolbar": e_toolbarDemo,
@@ -173,6 +197,7 @@ export const ENTRY_EXAMPLES: Record<string, Record<string, ComponentType>> = {
   "area-chart": e_areaChartExamples,
   "avatar": e_avatarExamples,
   "badge": e_badgeExamples,
+  "banner": e_bannerExamples,
   "bar-chart": e_barChartExamples,
   "bar-list": e_barListExamples,
   "breadcrumb": e_breadcrumbExamples,
@@ -182,12 +207,17 @@ export const ENTRY_EXAMPLES: Record<string, Record<string, ComponentType>> = {
   "checkbox": e_checkboxExamples,
   "chips": e_chipsExamples,
   "code-block": e_codeBlockExamples,
+  "code-diff": e_codeDiffExamples,
   "code-input": e_codeInputExamples,
+  "color-picker": e_colorPickerExamples,
   "combobox": e_comboboxExamples,
   "command": e_commandExamples,
   "command-line": e_commandLineExamples,
   "compare-slider": e_compareSliderExamples,
+  "consent": e_consentExamples,
+  "context-menu": e_contextMenuExamples,
   "copy-button": e_copyButtonExamples,
+  "countdown": e_countdownExamples,
   "data-table": e_dataTableExamples,
   "date-picker": e_datePickerExamples,
   "dialog": e_dialogExamples,
@@ -206,6 +236,8 @@ export const ENTRY_EXAMPLES: Record<string, Record<string, ComponentType>> = {
   "input": e_inputExamples,
   "kanban-board": e_kanbanBoardExamples,
   "kbd": e_kbdExamples,
+  "lightbox": e_lightboxExamples,
+  "log-viewer": e_logViewerExamples,
   "marquee": e_marqueeExamples,
   "menu": e_menuExamples,
   "meter": e_meterExamples,
@@ -219,9 +251,12 @@ export const ENTRY_EXAMPLES: Record<string, Record<string, ComponentType>> = {
   "pricing-table": e_pricingTableExamples,
   "radio-group": e_radioGroupExamples,
   "resizable": e_resizableExamples,
+  "scheduler": e_schedulerExamples,
+  "scroll-area": e_scrollAreaExamples,
   "segmented": e_segmentedExamples,
   "select": e_selectExamples,
   "sheet": e_sheetExamples,
+  "sign-in": e_signInExamples,
   "skeleton": e_skeletonExamples,
   "slider": e_sliderExamples,
   "sortable-list": e_sortableListExamples,
@@ -236,6 +271,7 @@ export const ENTRY_EXAMPLES: Record<string, Record<string, ComponentType>> = {
   "tag-input": e_tagInputExamples,
   "textarea": e_textareaExamples,
   "theme-toggle": e_themeToggleExamples,
+  "time-picker": e_timePickerExamples,
   "timeline": e_timelineExamples,
   "toast": e_toastExamples,
   "toolbar": e_toolbarExamples,

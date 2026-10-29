@@ -13,6 +13,8 @@ export type ComponentMeta = {
   description: string;
   /** Its place within its group; lower comes first. */
   order?: number;
+  /** The day it was added, YYYY-MM-DD: it wears a New tag for 30 days after the newest component's day. */
+  added?: string;
   /**
    * A Pro component: anyone can see and try it, but its source is only for Pro. It lives in
    * src/registry/pro-ui rather than ui, so the npm package and the public files never carry it.

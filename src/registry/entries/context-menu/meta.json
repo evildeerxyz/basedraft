@@ -1,0 +1,8 @@
+{
+  "name": "context-menu",
+  "title": "Context menu",
+  "group": "Overlays",
+  "description": "The actions for a thing, opened where you right-click it: grows from the pointer, turns to stay on screen, opens submenus beside their row, and runs from the keyboard with Shift+F10.",
+  "order": 41,
+  "added": "2026-10-29"
+}

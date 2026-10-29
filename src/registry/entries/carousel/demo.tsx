@@ -2,21 +2,21 @@
 
 import { type ComponentType } from "react";
 import { Carousel, CarouselSlide } from "../../ui/carousel";
+import { Placeholder, type Layout } from "../_shared/placeholder";
 
-/* The released templates, as their home pages look, for the carousels to show. */
-const TEMPLATES = [
-  { slug: "zuno", name: "Zuno", line: "Fintech, on a pure black page" },
-  { slug: "noma", name: "Noma", line: "AI and data, like a printed engraving" },
-  { slug: "auren", name: "Auren", line: "A code editor, in ink and amber" },
+/* Kinds of page, as gray boxes, for the carousels to show. */
+const SHOTS: Array<{ slug: string; name: string; line: string; layout: Layout }> = [
+  { slug: "landing", name: "Landing", line: "A product's home page", layout: "landing" },
+  { slug: "dashboard", name: "Dashboard", line: "The numbers at a glance", layout: "dashboard" },
+  { slug: "store", name: "Store", line: "A grid of products", layout: "shop" },
+  { slug: "journal", name: "Journal", line: "Long reads, with pictures", layout: "article" },
 ];
-const SHOTS = [...TEMPLATES.map((t) => ({ ...t, src: `/shots/${t.slug}.jpg` })), { slug: "studio", name: "Studio", line: "Make any of them yours", src: "/shots/studio-stage.jpg" }];
 
-/** A template's shot on a white card, with its name and a line under it. */
+/** A page on a white card, with its name and a line under it. */
 function Shot({ s }: { s: (typeof SHOTS)[number] }) {
   return (
     <figure className="overflow-hidden rounded-[16px] bg-[var(--bd-surface)] shadow-[inset_0_0_0_1px_var(--bd-line),var(--bd-shadow-resting)]">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={s.src} alt="" draggable={false} className="aspect-[16/10] w-full object-cover object-top" />
+      <Placeholder layout={s.layout} ratio={16 / 10} className="w-full" />
       <figcaption className="flex items-baseline justify-between gap-3 px-3.5 py-2.5 text-[13px]">
         <span className="font-medium">{s.name}</span>
         <span className="truncate text-[12px] text-[var(--bd-subtle)]">{s.line}</span>

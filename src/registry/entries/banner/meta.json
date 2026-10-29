@@ -1,0 +1,8 @@
+{
+  "name": "banner",
+  "title": "Banner",
+  "group": "Feedback",
+  "description": "The line across the top of a site, in ink or on paper, with a badge, a link whose arrow steps forward, messages that roll up in turn, and a close that remembers.",
+  "order": 2,
+  "added": "2026-10-29"
+}

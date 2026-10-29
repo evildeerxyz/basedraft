@@ -3,5 +3,6 @@
   "title": "Split button",
   "group": "Actions",
   "description": "One action and its alternatives, the way a merge button works: pick another from the caret and it takes the pill's place, its name rolling in, ready for the next press.",
-  "order": 4
+  "order": 4,
+  "added": "2026-10-23"
 }

@@ -3,6 +3,7 @@
 import {
   ArrowCounterClockwiseIcon,
   DiamondIcon,
+  SparkleIcon,
   StepsIcon,
   SidebarIcon,
   BellIcon,
@@ -98,18 +99,29 @@ import {
   UserCircleIcon,
   XIcon,
   type Icon,
+  MouseRightClickIcon,
+  ClockIcon,
+  ScrollIcon,
+  MegaphoneSimpleIcon,
+  ImagesIcon,
+  CookieIcon,
+  TimerIcon,
+  PaletteIcon,
+  CalendarCheckIcon,
+  GitDiffIcon,
+  SignInIcon,
 } from "@phosphor-icons/react";
 import { AnimatePresence, LayoutGroup, motion } from "motion/react";
 import Link from "next/link";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import { ADD, COMPONENTS, componentOf, GROUPS, importLine, installCommand, PACKAGE, stylesImport, type ComponentMeta, type Runner } from "@/registry";
+import { ADD, COMPONENTS, componentOf, GROUPS, importLine, installCommand, isNew, PACKAGE, stylesImport, type ComponentMeta, type Runner } from "@/registry";
 import { DEMOS, EXAMPLES } from "@/registry/demos";
 import type { Example, Part } from "@/registry/types";
 import { ClaudeMark, CLAUDE_COLOR } from "./claude-mark";
 import { previewHeaders, usePlan } from "./plan";
 import { openPro } from "./pro-modal";
-import { btn, ProBadge } from "./sheet";
+import { btn, NewBadge, ProBadge } from "./sheet";
 import { CodeBlock, highlight, usesWord } from "./code";
 import { useColorMode, type ColorMode } from "./color-mode";
 import { Dock, DockPill, PieceMenu, TILE, TileArrow, useBackToTop } from "./library";
@@ -205,6 +217,18 @@ export const COMPONENT_ICON: Record<string, Icon> = {
   "navigation-menu": SignpostIcon,
   funnel: FunnelIcon,
   tour: MapTrifoldIcon,
+  "context-menu": MouseRightClickIcon,
+  "time-picker": ClockIcon,
+  "scroll-area": ScrollIcon,
+  banner: MegaphoneSimpleIcon,
+  lightbox: ImagesIcon,
+  consent: CookieIcon,
+  countdown: TimerIcon,
+  "color-picker": PaletteIcon,
+  scheduler: CalendarCheckIcon,
+  "log-viewer": TerminalWindowIcon,
+  "code-diff": GitDiffIcon,
+  "sign-in": SignInIcon,
 };
 const GROUP_ICON: Record<string, Icon> = { Actions: CursorClickIcon, Forms: TextboxIcon, Overlays: BrowsersIcon, Navigation: TabsIcon, Display: CardsIcon, Data: ChartLineIcon, Patterns: PresentationChartIcon, Feedback: PulseIcon };
 /* A line on each group, under its name in the gallery. */
@@ -271,6 +295,7 @@ function ComponentTile({ c, span }: { c: ComponentMeta; span: number }) {
               <I size={14} weight="duotone" />
             </span>
             <span className="truncate font-medium text-fg">{c.title}</span>
+            {isNew(c) && <NewBadge />}
             {c.pro && <ProBadge />}
             <span className="truncate text-subtle max-sm:hidden">{c.group}</span>
           </Link>
@@ -313,8 +338,8 @@ export function ComponentsBrowser() {
   const matched = COMPONENTS.filter((c) => words.every((w) => `${c.title} ${c.group} ${c.description}`.toLowerCase().includes(w)));
   // A section per group, in order: every group when All is on, or just the one picked.
   // Pro picks the Pro components out of every group; any other pill is one group.
-  const sections = GROUPS.filter((g) => group === "All" || group === "Pro" || g === group)
-    .map((g) => ({ g, list: matched.filter((c) => c.group === g && (group !== "Pro" || c.pro)) }))
+  const sections = GROUPS.filter((g) => group === "All" || group === "Pro" || group === "New" || g === group)
+    .map((g) => ({ g, list: matched.filter((c) => c.group === g && (group !== "Pro" || c.pro) && (group !== "New" || isNew(c))) }))
     .filter((x) => x.list.length);
   return (
     <>
@@ -322,6 +347,11 @@ export function ComponentsBrowser() {
         <DockPill on={group === "All"} onClick={() => setGroup("All")} icon={SquaresFourIcon} count={matched.length}>
           All
         </DockPill>
+        {matched.some(isNew) && (
+          <DockPill on={group === "New"} onClick={() => setGroup("New")} icon={SparkleIcon} count={matched.filter(isNew).length}>
+            New
+          </DockPill>
+        )}
         {matched.some((c) => c.pro) && (
           <DockPill on={group === "Pro"} onClick={() => setGroup("Pro")} icon={DiamondIcon} count={matched.filter((c) => c.pro).length}>
             Pro

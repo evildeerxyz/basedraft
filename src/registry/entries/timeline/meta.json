@@ -3,5 +3,6 @@
   "title": "Timeline",
   "group": "Display",
   "description": "An activity log: times in a gutter, one rail through raised beads for what matters and small rings for the rest, days gathered, comments in bubbles, new events sliding in on top.",
-  "order": 54
+  "order": 54,
+  "added": "2026-10-23"
 }

@@ -99,4 +99,4 @@ else {
 
 // Local next start serves the templates' normal builds, which the static builds replaced.
 for (const z of ZONES) execSync("npx next build", { cwd: path.join(root, z.dir), stdio: "inherit", env: { ...process.env, BD_STATIC: "" } });
-console.log("Rebuilt the templates for local next start: restart the zones (4101 to 4104) to serve them.");
+console.log(`Rebuilt the templates for local next start: restart the zones (${ZONES.map((z) => z.port).join(", ")}) to serve them.`);

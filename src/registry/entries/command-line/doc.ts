@@ -61,7 +61,7 @@ export function RunIt() {
       note: "A label alone brings the top bar, to say where the command runs.",
       code: `<CommandLine
   label="in the zuno folder"
-  command="git clone https://github.com/fieldwork/zuno-site && cd zuno-site"
+  command="git clone https://github.com/larkspur/zuno-site && cd zuno-site"
 />`,
     },
   ],

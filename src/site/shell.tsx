@@ -6,6 +6,8 @@ import { useEffect, ViewTransition, type ReactNode } from "react";
 import { CommandMenu } from "./command";
 import { SiteFooter } from "./footer";
 import { isLibrary, SiteHeader } from "./header";
+import { ScrollBlur } from "./scroll-blur";
+import { ScrollMotion } from "./scroll-motion";
 import { toast } from "./toast";
 
 /* basedraft's icons are Phosphor's duotone: here by default, as well as where each one says so. */
@@ -40,8 +42,8 @@ function SignInNotice() {
 
 /**
  * Every page of the site: the header, the page, the footer. A new page fades and rises in as the
- * old one fades out; inside a library each page fades on its own (see library.tsx). The libraries,
- * components and blocks, end with their own cards rather than the footer.
+ * old one fades out; inside a library each page fades on its own (see library.tsx). The home page,
+ * which is its hero alone, ends without the footer.
  */
 export function SiteShell({ children }: { children: ReactNode }) {
   const path = usePathname();
@@ -54,7 +56,9 @@ export function SiteShell({ children }: { children: ReactNode }) {
         <ViewTransition key={key} enter="page-in" exit="page-out" default="none">
           <div className="flex-1">{children}</div>
         </ViewTransition>
-        {!library && <SiteFooter />}
+        {path !== "/" && <SiteFooter />}
+        <ScrollBlur />
+        <ScrollMotion />
         <CommandMenu />
         <CheckoutNotice />
         <SignInNotice />

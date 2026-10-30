@@ -17,6 +17,8 @@ const eslintConfig = defineConfig([
     // What packages/ui/scripts/build.mjs writes: copies of src/registry/ui and the built package.
     "packages/ui/src/**",
     "packages/ui/dist/**",
+    // What scripts/screens.mjs writes: the free screens' files, importing from @basedraft/ui.
+    "public/ui/screens/**",
   ]),
 ]);
 

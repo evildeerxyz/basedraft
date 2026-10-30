@@ -1,1 +1,7 @@
-{ "name": "inline-edit", "title": "Inline edit", "group": "Forms", "description": "Text that becomes a field where it stands, the same size and type, growing as you type, with saving, a check, and a shake when it is refused.", "order": 60 }
+{
+  "name": "inline-edit",
+  "title": "Edit in place",
+  "group": "Forms",
+  "description": "Text that becomes a field where it stands, the same size and type, growing as you type, with saving, a check, and a shake when it is refused.",
+  "order": 60
+}

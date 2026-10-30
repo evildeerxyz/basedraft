@@ -11,7 +11,7 @@ export function Demo() {
   return (
     <div className="grid w-full max-w-[360px] gap-2">
       <p className="px-1 text-xs font-medium text-[var(--bd-muted)]">Invite to your Team</p>
-      <TagInput label="Invite to your Team" placeholder="Add an email, then Enter" defaultValue={["maya@fieldwork.co", "jonah@fieldwork.co", "lea@fieldwork"]} validate={email} max={10} transform={(t) => t.toLowerCase()} />
+      <TagInput label="Invite to your Team" placeholder="Add an email, then Enter" defaultValue={["emily@larkspur.co", "jake@larkspur.co", "sarah@larkspur"]} validate={email} max={10} transform={(t) => t.toLowerCase()} />
       <p className={`px-1 ${hint}`}>Paste a list to add them all. Ten seats on a Team license.</p>
     </div>
   );
@@ -22,7 +22,7 @@ function Keywords() {
 }
 
 function Emails() {
-  return <TagInput label="Invite" placeholder="Add an email, then Enter" defaultValue={["maya@fieldwork.co", "sami@fieldwork"]} validate={email} max={10} className="max-w-[360px]" />;
+  return <TagInput label="Invite" placeholder="Add an email, then Enter" defaultValue={["emily@larkspur.co", "ryan@larkspur"]} validate={email} max={10} className="max-w-[360px]" />;
 }
 
 function Limit() {

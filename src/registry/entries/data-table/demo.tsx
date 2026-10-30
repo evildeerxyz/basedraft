@@ -3,32 +3,31 @@
 import { ArrowCounterClockwiseIcon, DownloadSimpleIcon, MagnifyingGlassIcon, ReceiptIcon } from "@phosphor-icons/react";
 import { useState, type ComponentType } from "react";
 import { DataTable, type DataTableColumn } from "../../pro-ui/data-table";
+import { FilterBar, type Filter, type FilterField } from "../../pro-ui/filter-bar";
+import { Avatar } from "../../ui/avatar";
 import { Input } from "../../ui/input";
-import { Segmented } from "../../ui/segmented";
 
 /* A store's purchases: who bought which template, for how much, and where it stands. */
 type Status = "Paid" | "Refunded" | "Pending";
 type Order = { id: string; name: string; email: string; product: string; amount: number; date: string; status: Status };
 
 const ORDERS: Order[] = [
-  { id: "BD-1048", name: "Maya Okafor", email: "maya@fieldwork.co", product: "Pro", amount: 149, date: "2026-10-21", status: "Paid" },
-  { id: "BD-1047", name: "Jonah Park", email: "jonah@northbeam.io", product: "Zuno", amount: 79, date: "2026-10-21", status: "Paid" },
-  { id: "BD-1046", name: "Lea Moreau", email: "lea@parcelworks.fr", product: "Team", amount: 399, date: "2026-10-20", status: "Pending" },
-  { id: "BD-1045", name: "Sami Ito", email: "sami@quanta.jp", product: "Noma", amount: 79, date: "2026-10-19", status: "Paid" },
-  { id: "BD-1044", name: "Ana Ruiz", email: "ana@helio.studio", product: "Auren", amount: 79, date: "2026-10-18", status: "Refunded" },
-  { id: "BD-1043", name: "Ben Adeyemi", email: "ben@mosaic.dev", product: "Pro", amount: 149, date: "2026-10-17", status: "Paid" },
+  { id: "BD-1048", name: "Emily Carter", email: "emily@larkspur.co", product: "Pro", amount: 149, date: "2026-10-21", status: "Paid" },
+  { id: "BD-1047", name: "Jake Morrison", email: "jake@northbeam.io", product: "Zuno", amount: 79, date: "2026-10-21", status: "Paid" },
+  { id: "BD-1046", name: "Sarah Mitchell", email: "sarah@parcelworks.fr", product: "Team", amount: 399, date: "2026-10-20", status: "Pending" },
+  { id: "BD-1045", name: "Ryan Brooks", email: "ryan@quanta.jp", product: "Noma", amount: 79, date: "2026-10-19", status: "Paid" },
+  { id: "BD-1044", name: "Ashley Cooper", email: "ashley@helio.studio", product: "Auren", amount: 79, date: "2026-10-18", status: "Refunded" },
+  { id: "BD-1043", name: "Brandon Reed", email: "brandon@mosaic.dev", product: "Pro", amount: 149, date: "2026-10-17", status: "Paid" },
 ];
 
-/* Status as a tinted pill with a dot, in the theme's status colors. */
-const TONE: Record<Status, string> = {
-  Paid: "bg-[color-mix(in_oklab,var(--bd-ui-ok)_13%,var(--bd-surface))] text-[color-mix(in_oklab,var(--bd-ui-ok)_75%,var(--bd-fg))] [--dot:var(--bd-ui-ok)]",
-  Pending: "bg-[color-mix(in_oklab,var(--bd-ui-wait)_16%,var(--bd-surface))] text-[color-mix(in_oklab,var(--bd-ui-wait)_60%,var(--bd-fg))] [--dot:var(--bd-ui-wait)]",
-  Refunded: "bg-[var(--bd-ui-track)] text-[var(--bd-muted)] [--dot:var(--bd-subtle)]",
+/* Status as a dot and a word: color only where it means something. */
+const DOT: Record<Status, string> = {
+  Paid: "bg-[var(--bd-ui-ok)]",
+  Pending: "bg-[var(--bd-ui-wait)]",
+  Refunded: "bg-[var(--bd-subtle)]",
 };
-/* Each customer's initials on a tint of one of the data colors, the same one every time. */
-const TINTS = ["--bd-ui-viz-1", "--bd-ui-viz-2", "--bd-ui-viz-3", "--bd-ui-viz-4", "--bd-ui-viz-5"];
-const tint = (name: string) => TINTS[[...name].reduce((t, c) => t + c.charCodeAt(0), 0) % TINTS.length];
-const money = (n: number) => `$${n.toLocaleString("en-US")}`;
+const KIND: Record<string, string> = { Pro: "Plan, every template", Team: "Plan, 10 seats", Zuno: "Template", Noma: "Template", Auren: "Template" };
+const money = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD" });
 const day = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
 
 const CUSTOMER: DataTableColumn<Order> = {
@@ -36,12 +35,10 @@ const CUSTOMER: DataTableColumn<Order> = {
   header: "Customer",
   cell: (o) => (
     <span className="flex items-center gap-3">
-      <span aria-hidden className="grid size-8 shrink-0 place-items-center rounded-full text-[11.5px] font-semibold" style={{ background: `color-mix(in oklab, var(${tint(o.name)}) 18%, var(--bd-surface))`, color: `color-mix(in oklab, var(${tint(o.name)}) 70%, var(--bd-fg))` }}>
-        {o.name.split(" ").map((w) => w[0]).join("")}
-      </span>
-      <span className="block leading-tight">
-        <span className="block font-medium">{o.name}</span>
-        <span className="block text-[12px] text-[var(--bd-subtle)]">{o.email}</span>
+      <Avatar name={o.name} size="sm" />
+      <span className="block min-w-0 leading-tight">
+        <span className="block truncate text-[13.5px] font-medium">{o.name}</span>
+        <span className="block truncate text-[12px] text-[var(--bd-subtle)]">{o.email}</span>
       </span>
     </span>
   ),
@@ -50,48 +47,69 @@ const CUSTOMER: DataTableColumn<Order> = {
 const BOUGHT: DataTableColumn<Order> = {
   key: "product",
   header: "Bought",
-  cell: (o) => <span className="inline-flex h-6 items-center rounded-[7px] px-2 text-[12.5px] font-medium shadow-[inset_0_0_0_1px_var(--bd-line)]">{o.product}</span>,
+  cell: (o) => (
+    <span className="block leading-tight">
+      <span className="block text-[13.5px]">{o.product}</span>
+      <span className="block text-[12px] text-[var(--bd-subtle)]">{KIND[o.product]}</span>
+    </span>
+  ),
   sortBy: (o) => o.product,
 };
-const AMOUNT: DataTableColumn<Order> = { key: "amount", header: "Amount", cell: (o) => <span className="font-medium">{money(o.amount)}</span>, sortBy: (o) => o.amount, align: "end" };
+const AMOUNT: DataTableColumn<Order> = {
+  key: "amount",
+  header: "Amount",
+  cell: (o) => (
+    <span className={`font-mono text-[13px] tabular-nums ${o.status === "Refunded" ? "text-[var(--bd-subtle)] line-through decoration-[var(--bd-line-strong)]" : ""}`}>
+      {money(o.amount)}
+      <span className="ml-1.5 text-[11px] text-[var(--bd-subtle)] no-underline">USD</span>
+    </span>
+  ),
+  sortBy: (o) => o.amount,
+  align: "end",
+};
 const STATUS: DataTableColumn<Order> = {
   key: "status",
   header: "Status",
   cell: (o) => (
-    <span className={`inline-flex h-6 items-center gap-1.5 rounded-full px-2.5 text-[12px] font-medium ${TONE[o.status]}`}>
-      <span className="size-1.5 rounded-full bg-[var(--dot)]" />
-      {o.status}
+    <span className="inline-flex items-center gap-2 text-[13px]">
+      <span className={`size-1.5 rounded-full ${DOT[o.status]}`} />
+      <span className={o.status === "Paid" ? "" : "text-[var(--bd-muted)]"}>{o.status}</span>
     </span>
   ),
   sortBy: (o) => o.status,
 };
-const DATE: DataTableColumn<Order> = { key: "date", header: "Date", cell: (o) => <span className="text-[var(--bd-muted)]">{day(o.date)}</span>, sortBy: (o) => o.date };
+const DATE: DataTableColumn<Order> = { key: "date", header: "Date", cell: (o) => <span className="font-mono text-[12.5px] text-[var(--bd-muted)]">{day(o.date)}</span>, sortBy: (o) => o.date };
 
-const COLUMNS: DataTableColumn<Order>[] = [{ key: "id", header: "Order", cell: (o) => <span className="font-mono text-[12.5px]">{o.id}</span>, sortBy: (o) => o.id }, CUSTOMER, BOUGHT, AMOUNT, DATE, STATUS];
+const COLUMNS: DataTableColumn<Order>[] = [{ key: "id", header: "Order", cell: (o) => <span className="font-mono text-[12.5px] text-[var(--bd-muted)]">{o.id}</span>, sortBy: (o) => o.id }, CUSTOMER, BOUGHT, AMOUNT, DATE, STATUS];
 
-const FILTERS = [
-  { value: "all", label: "All" },
-  { value: "Paid", label: "Paid" },
-  { value: "Refunded", label: "Refunded" },
+const FIELDS: FilterField[] = [
+  { id: "status", label: "Status", plural: "statuses", options: (["Paid", "Pending", "Refunded"] as const).map((s) => ({ value: s, label: s, icon: <span className={`size-1.5 rounded-full ${DOT[s]}`} /> })) },
+  { id: "product", label: "Product", plural: "products", options: ["Pro", "Team", "Zuno", "Noma", "Auren"].map((p) => ({ value: p, label: p })) },
 ];
 
-/** Purchases as an admin page shows them: a search, a filter, and a bar for whatever's picked. */
+/** Purchases as an admin page shows them: the total, a search, the filter as a sentence, and a bar for whatever's picked. */
 export function Demo() {
   const [query, setQuery] = useState("");
-  const [filter, setFilter] = useState("all");
+  const [filters, setFilters] = useState<Filter[]>([]);
   const q = query.trim().toLowerCase();
-  const rows = ORDERS.filter((o) => (filter === "all" || o.status === filter) && (!q || `${o.name} ${o.email} ${o.product} ${o.id}`.toLowerCase().includes(q)));
+  const rows = ORDERS.filter((o) => filters.every((f) => f.values.includes(String(o[f.field as keyof Order])) !== !!f.not) && (!q || `${o.name} ${o.email} ${o.product} ${o.id}`.toLowerCase().includes(q)));
+  const total = rows.filter((o) => o.status !== "Refunded").reduce((a, o) => a + o.amount, 0);
   return (
     <div className="grid w-full max-w-[860px] gap-3">
       {/* The toolbar shows on the component's own stage; a gallery tile shows the table alone. */}
-      <div className="hidden flex-wrap items-center justify-between gap-2.5 [[data-bd-stage]_&]:flex">
-        <p className="flex items-center gap-2 text-[15px] font-semibold text-[var(--bd-fg)]">
-          Purchases <span className="rounded-full bg-[var(--bd-ui-track)] px-2 py-0.5 text-[11.5px] font-medium tabular-nums text-[var(--bd-muted)]">{rows.length}</span>
-        </p>
-        <div className="flex flex-wrap items-center gap-2">
-          <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search" aria-label="Search purchases" leading={<MagnifyingGlassIcon weight="duotone" />} className="h-9! w-[180px]! px-3.5" />
-          <Segmented size="sm" label="Show" options={FILTERS} value={filter} onValueChange={setFilter} />
+      <div className="hidden gap-3 [[data-bd-stage]_&]:grid">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="text-[15px] font-semibold text-[var(--bd-fg)]">Purchases</p>
+            <p className="mt-0.5 font-mono text-[12px] tabular-nums text-[var(--bd-muted)]">
+              {rows.length} {rows.length === 1 ? "order" : "orders"}, {money(total)} kept
+            </p>
+          </div>
+          <div className="w-[220px]">
+            <Input size="sm" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Name, email or order" aria-label="Search purchases" leading={<MagnifyingGlassIcon weight="regular" />} />
+          </div>
         </div>
+        <FilterBar noun="purchases" fields={FIELDS} value={filters} onValueChange={setFilters} />
       </div>
       <DataTable
         label="Purchases"
@@ -162,7 +180,7 @@ function Expand() {
 }
 
 /* Two hundred orders, made the same way each time, for the long table. */
-const NAMES = ["Maya Okafor", "Jonah Park", "Lea Moreau", "Sami Ito", "Ana Ruiz", "Ben Adeyemi", "Ines Duarte", "Tomas Berg", "Priya Raman", "Kofi Mensah"];
+const NAMES = ["Emily Carter", "Jake Morrison", "Sarah Mitchell", "Ryan Brooks", "Ashley Cooper", "Brandon Reed", "Olivia Bennett", "Chris Coleman", "Megan Turner", "Tyler Hayes"];
 const PRODUCTS: Array<[string, number]> = [
   ["Pro", 149],
   ["Zuno", 79],

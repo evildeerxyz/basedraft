@@ -1,8 +1,9 @@
-import { DiamondIcon, PenNibIcon, SparkleIcon, SquaresFourIcon, StackIcon } from "@phosphor-icons/react/ssr";
+import { AppWindowIcon, DiamondIcon, PenNibIcon, SparkleIcon, SquaresFourIcon, StackIcon } from "@phosphor-icons/react/ssr";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { COMPONENTS } from "@/registry";
+import { SCREENS } from "@/screens";
 import { PLANS } from "@/site/content";
 import { SECTION_ICON } from "@/site/icons";
 import { KINDS, RELEASED_TEMPLATES, templateLogo } from "@/site/live";
@@ -57,6 +58,10 @@ export default function ShareCards() {
       <Card k="components" glow="c" tile={<SquaresFourIcon size={44} weight="duotone" />} title="Components that move well" lead="Our own React components, one file each, free." path="/components" />
       {COMPONENTS.map((c, i) => (
         <Card key={c.name} k={`component-${c.name}`} glow={glowAt(i)} tile={<OgComponentIcon name={c.name} />} title={c.title} lead={c.description} path={`/components/${c.name}`} />
+      ))}
+      <Card k="screens" glow="b" tile={<AppWindowIcon size={44} weight="duotone" />} title="Whole screens, made of the parts" lead="Dashboards and settings, each one file built from basedraft UI." path="/screens" />
+      {SCREENS.map((sc, i) => (
+        <Card key={sc.slug} k={`screen-${sc.slug}`} glow={glowAt(i + 1)} tile={<AppWindowIcon size={44} weight="duotone" />} title={sc.title} lead={`${sc.kind}, made of ${sc.uses.length} basedraft UI components.`} path={`/screens/${sc.slug}`} />
       ))}
       <Card k="blocks" glow="d" tile={<SquaresFourIcon size={44} weight="duotone" />} title="Every section, from real sites" lead="Live at any width, with their code and a copy for Figma." path="/blocks" />
       {used.map((k, i) => {

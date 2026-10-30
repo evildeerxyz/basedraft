@@ -1,6 +1,5 @@
 import auren from "../../templates/auren/bd/manifest.json";
 import noma from "../../templates/noma/src/bd/manifest.json";
-import pello from "../../templates/pello/src/bd/manifest.json";
 import zuno from "../../templates/zuno/src/bd/manifest.json";
 import { ZONES } from "../../scripts/zones.mjs";
 
@@ -10,7 +9,7 @@ import { ZONES } from "../../scripts/zones.mjs";
  * template's bd/manifest.json and drawn by its own code, so what you see is exactly what you get.
  */
 
-export type TemplateSlug = "zuno" | "noma" | "auren" | "pello";
+export type TemplateSlug = "zuno" | "noma" | "auren";
 
 export type SectionKind =
   | "nav"
@@ -89,7 +88,7 @@ const load = (m: Manifest): LiveTemplate => {
   return { ...m, slug, sections: m.sections.map((s) => ({ ...s, kind: s.kind as SectionKind, template: slug, key: `${slug}/${s.id}` })) };
 };
 
-const ALL: LiveTemplate[] = [load(zuno as Manifest), load(noma as Manifest), load(auren as Manifest), load(pello as Manifest)];
+const ALL: LiveTemplate[] = [load(zuno as Manifest), load(noma as Manifest), load(auren as Manifest)];
 // A template that isn't out yet (marked in scripts/zones.mjs) is only here in development.
 const UNRELEASED = new Set<string>(ZONES.filter((z) => "unreleased" in z && z.unreleased).map((z) => z.slug));
 export const TEMPLATES: LiveTemplate[] = process.env.NODE_ENV === "production" ? ALL.filter((t) => !UNRELEASED.has(t.slug)) : ALL;

@@ -19,10 +19,10 @@ const LOGOS: Array<{ name: string; icon: Icon }> = [
 ];
 
 const QUOTES = [
-  { text: "Our analysts stopped filing SQL tickets in the first week.", name: "Priya Raman", team: "Ledgerly" },
+  { text: "Our analysts stopped filing SQL tickets in the first week.", name: "Megan Turner", team: "Ledgerly" },
   { text: "Read only by default is what won our security team over.", name: "Marcus Hale", team: "Parcelworks" },
-  { text: "Every write waits for a person. That's the whole reason we said yes.", name: "Sofia Lindqvist", team: "Northbeam" },
-  { text: "We retired three dashboards and nobody asked for them back.", name: "Tomás Ortega", team: "Quanta" },
+  { text: "Every write waits for a person. That's the whole reason we said yes.", name: "Rachel Foster", team: "Northbeam" },
+  { text: "We retired three dashboards and nobody asked for them back.", name: "Chris Coleman", team: "Quanta" },
 ];
 
 const logos = LOGOS.map(({ name, icon: I }) => (

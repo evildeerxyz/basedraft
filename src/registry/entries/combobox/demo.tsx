@@ -89,7 +89,7 @@ function Create() {
 }
 
 /* The people on a Team license, found as if from a server: a little later than typed. */
-const TEAM = ["Maya Okafor", "Jonah Park", "Lea Moreau", "Sami Ito", "Ana Ruiz", "Ben Adeyemi"];
+const TEAM = ["Emily Carter", "Jake Morrison", "Sarah Mitchell", "Ryan Brooks", "Ashley Cooper", "Brandon Reed"];
 
 function Async() {
   const [results, setResults] = useState<ComboboxOption[]>([]);

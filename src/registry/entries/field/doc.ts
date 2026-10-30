@@ -65,7 +65,7 @@ export function SiteName() {
   error="Add the part after the dot, like .co"
   className="max-w-[320px]"
 >
-  <Input type="email" defaultValue="maya@fieldwork" />
+  <Input type="email" defaultValue="emily@larkspur" />
 </Field>`,
     },
     {
@@ -74,10 +74,10 @@ export function SiteName() {
       note: "Mark whichever is rarer in the form; here, the optional one says so.",
       code: `<div className="grid w-full max-w-[320px] gap-4">
   <Field label="Your name" required>
-    <Input defaultValue="Maya Okafor" autoComplete="name" />
+    <Input defaultValue="Emily Carter" autoComplete="name" />
   </Field>
   <Field label="Company" optional>
-    <Input placeholder="Fieldwork" autoComplete="organization" />
+    <Input placeholder="Larkspur" autoComplete="organization" />
   </Field>
 </div>`,
     },

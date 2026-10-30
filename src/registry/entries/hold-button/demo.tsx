@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowCounterClockwiseIcon, TrashIcon, UploadSimpleIcon } from "@phosphor-icons/react";
+import { ArrowCounterClockwiseIcon, KeyIcon, PaperPlaneTiltIcon, UploadSimpleIcon } from "@phosphor-icons/react";
 import { useState, type ComponentType } from "react";
 import { HoldButton } from "../../ui/hold-button";
 import { hint } from "../_shared/kit";
@@ -8,10 +8,10 @@ import { hint } from "../_shared/kit";
 export function Demo() {
   return (
     <div className="grid justify-items-center gap-3">
-      <HoldButton tone="stop" done="Deleted" icon={<TrashIcon weight="duotone" />}>
-        Hold to delete this draft
+      <HoldButton done="Sent to Larkspur" icon={<PaperPlaneTiltIcon weight="duotone" />}>
+        Hold to send $2,400
       </HoldButton>
-      <p className={hint}>Let go early to keep it.</p>
+      <p className={hint}>Let go early and nothing moves.</p>
     </div>
   );
 }
@@ -26,8 +26,8 @@ function Ink() {
 
 function Stop() {
   return (
-    <HoldButton tone="stop" done="Deleted" icon={<TrashIcon weight="duotone" />}>
-      Hold to delete Zuno&apos;s draft
+    <HoldButton tone="stop" done="Revoked" icon={<KeyIcon weight="duotone" />}>
+      Hold to revoke the API key
     </HoldButton>
   );
 }

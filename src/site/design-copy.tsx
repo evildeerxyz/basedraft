@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useId, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 import { createPortal } from "react-dom";
 import { cn, EASE_OUT } from "@/lib/utils";
-import { downloadFile, EXPORT_GUTTER, EXPORT_WIDTH, figmaCopyFor, figmaSvgFor, paperHtmlFor, writeClipboard } from "./design-export";
+import { designCopyDrawn, downloadFile, EXPORT_GUTTER, EXPORT_WIDTH, figmaCopyFor, figmaSvgFor, paperCopyFor, writeClipboard } from "./design-export";
 import { prepareLive, type LiveCopy } from "./live-export";
 import { usePlan } from "./plan";
 import { openPro } from "./pro-modal";
@@ -20,10 +20,34 @@ export interface CopyTarget {
   get: () => HTMLElement | null;
   /** For a real template section or page: where to draw it at each width, since templates lay out by viewport. */
   live?: LiveCopy;
+  /**
+   * For a piece that lays itself out in script (a screen): draws it live, out of sight, at a
+   * width, so each of Figma's viewports is its own layout rather than the one on screen squeezed.
+   * Given a state, it presses the buttons that show it first.
+   */
+  draw?: Draw;
+  /** The states the Figma copy brings along, each a variant beside the viewports; the first is how it opens. */
+  states?: string[];
 }
 
-/** Starts making a live target's layers, so they're ready by the time the copy is clicked. */
-export const prepareCopy = (t: CopyTarget) => void (t.live && prepareLive(t.live, t.name).catch(() => undefined));
+type Draw = (width: number, state?: string) => Promise<{ el: HTMLElement; done: () => void; missing?: boolean }>;
+
+/* A drawn target's copies for Figma and Paper, started when the menu opens and kept a minute, so the click only waits on what's left. */
+const drawn = new WeakMap<Draw, { at: number; copy: ReturnType<typeof designCopyDrawn> }>();
+function drawnCopy(draw: Draw, name: string, states?: string[]) {
+  const hit = drawn.get(draw);
+  if (hit && Date.now() - hit.at < 60_000) return hit.copy;
+  const copy = designCopyDrawn(draw, name, states);
+  drawn.set(draw, { at: Date.now(), copy });
+  copy.html.catch(() => drawn.delete(draw));
+  return copy;
+}
+
+/** Starts making a target's layers, so they're ready by the time the copy is clicked. */
+export const prepareCopy = (t: CopyTarget) => {
+  if (t.live) void prepareLive(t.live, t.name).catch(() => undefined);
+  else if (t.draw) void drawnCopy(t.draw, t.name, t.states).html.catch(() => undefined);
+};
 
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
@@ -35,16 +59,18 @@ export async function copyToDesign(kind: CopyKind, t: CopyTarget) {
   const el = t.get();
   if (!el) return toast("Nothing to copy yet", { tone: "error", detail: "Wait for the preview to load, then try again." });
   const frame = `${EXPORT_WIDTH} wide, ${EXPORT_GUTTER}px side margins.`;
+  const each = t.states && t.states.length > 1 ? `, in each of its states (${t.states.join(", ")})` : "";
   try {
     if (kind === "figma") {
-      const copy = figmaCopyFor(el, t.name);
+      const copy = t.draw ? drawnCopy(t.draw, t.name, t.states) : figmaCopyFor(el, t.name);
       await writeClipboard({ "text/html": copy.html, "text/plain": copy.svg }, { exact: true });
-      toast(`Copied ${t.name} for Figma`, { detail: "Desktop, tablet and phone, as component variants with auto layout. Paste into any Figma file with {Cmd V}." });
+      toast(`Copied ${t.name} for Figma`, { detail: `Desktop, tablet and phone${each}, as component variants with auto layout. Paste into any Figma file with {Cmd V}.` });
       track("copied_design", { kind, name: t.name });
     } else if (kind === "paper") {
-      const html = paperHtmlFor(el, t.name);
+      // The same views as Figma's, from the same drawings when there are some.
+      const html = t.draw ? drawnCopy(t.draw, t.name, t.states).paper : paperCopyFor(el, t.name);
       await writeClipboard({ "text/html": html, "text/plain": html });
-      toast(`Copied ${t.name} for Paper`, { detail: `One responsive frame, ${EXPORT_WIDTH} wide, that reflows as you resize it. Paste onto a Paper artboard with {Cmd V}.` });
+      toast(`Copied ${t.name} for Paper`, { detail: `Desktop, tablet and phone${each}, as named frames side by side, each one responsive. Paste into Paper with {Cmd V}.` });
       track("copied_design", { kind, name: t.name });
     } else {
       downloadFile(`${slug(t.name)}.svg`, await figmaSvgFor(el, t.name), "image/svg+xml");
@@ -68,7 +94,7 @@ async function copyLive(kind: CopyKind, t: CopyTarget, live: LiveCopy) {
     } else if (kind === "paper") {
       const html = made.then((r) => r.paper);
       await writeClipboard({ "text/html": html, "text/plain": html });
-      toast(`Copied ${t.name} for Paper`, { detail: "The desktop layout as named HTML layers. Paste onto a Paper artboard with {Cmd V}." });
+      toast(`Copied ${t.name} for Paper`, { detail: "Desktop, tablet and phone, each as the template lays it out, as named frames side by side. Paste into Paper with {Cmd V}." });
       track("copied_design", { kind, name: t.name });
     } else {
       downloadFile(`${slug(t.name)}.svg`, (await made).svg, "image/svg+xml");
@@ -131,7 +157,7 @@ export function DesignCopyMenu({ targets, size = "sm", align = "right" }: { targ
 
   const options: Array<{ kind: CopyKind; label: string; hint: string; icon: Icon }> = [
     { kind: "figma", label: "Copy for Figma", hint: "Every viewport, as component variants", icon: FigmaLogoIcon },
-    { kind: "paper", label: "Copy for Paper", hint: "One responsive frame", icon: FileHtmlIcon },
+    { kind: "paper", label: "Copy for Paper", hint: "Every viewport, as named frames", icon: FileHtmlIcon },
     { kind: "svg", label: "Download SVG", hint: "For any other tool", icon: DownloadSimpleIcon },
   ];
 

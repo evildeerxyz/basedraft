@@ -1,8 +1,8 @@
 import { ArrowLeftIcon } from "@phosphor-icons/react/ssr";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { BACK, BACK_ARROW } from "./library-css";
 import { cn } from "@/lib/utils";
-import { btn } from "./sheet";
 
 /*
  * Headings that sit on the page itself, not in a box: a page's title, and each part of a page.
@@ -18,8 +18,9 @@ export function PageHead({ title, lead, actions, back, children, className, cent
     <header className={cn("bd-reveal pb-12 pt-14 md:pb-16 md:pt-24", center ? "flex flex-col items-center text-center" : "flex flex-wrap items-end justify-between gap-x-10 gap-y-6", className)}>
       <div className={cn("min-w-0", center ? "flex max-w-[760px] flex-col items-center" : "max-w-[720px]")}>
         {back && (
-          <Link href={back.href} className={cn(btn.link, "mb-6 font-normal text-muted")}>
-            <ArrowLeftIcon size={13} weight="regular" /> {back.label}
+          <Link href={back.href} className={cn(BACK, "mb-6")}>
+            <ArrowLeftIcon size={13} weight="regular" className={BACK_ARROW} />
+            {back.label}
           </Link>
         )}
         <h1 className="text-balance text-display">{title}</h1>

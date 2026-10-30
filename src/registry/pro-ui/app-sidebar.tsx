@@ -70,6 +70,14 @@ export type AppSidebarProps = {
   onModeChange?: (mode: "side" | "drawer") => void;
   /** The drawer covers the element around it (which should be relative) rather than the window. */
   contained?: boolean;
+  /** Sits on the page's own ground, with no fill or edge of its own: for an app whose content is a raised panel beside it. */
+  plain?: boolean;
+  /** Something of yours at the foot, over you: a plan's usage, an invite. A node shows only when it's open; a function is told whether it's on the rail and shows always. */
+  footer?: ReactNode | ((rail: boolean) => ReactNode);
+  /** You at the foot, your own way, like an AccountMenu: told whether it's on the rail. In place of user and userMenu. */
+  account?: (rail: boolean) => ReactNode;
+  /** Folds and unfolds it from the keys, with Command or Control. Off with null. */
+  collapseShortcut?: string | null;
   label?: string;
   className?: string;
 };
@@ -202,12 +210,13 @@ function Tip({ tip }: { tip: { text: string; top: number; left: number } | null 
 const contains = (item: SidebarItem, id: string | undefined): boolean => !!id && !!item.items?.some((c) => c.id === id || contains(c, id));
 
 function Count({ value, rail }: { value: number | string; rail: boolean }) {
-  if (rail) return <span aria-hidden className="absolute right-[7px] top-[7px] size-[7px] rounded-full bg-[var(--bd-fg)] shadow-[0_0_0_2px_var(--bd-surface)]" />;
-  return <span className="ml-auto shrink-0 rounded-full bg-[var(--bd-ui-track)] px-1.5 py-px text-[11px] font-medium tabular-nums text-[var(--bd-muted)]">{value}</span>;
+  if (rail) return <span aria-hidden className="absolute right-[6px] top-[6px] size-[6px] rounded-full bg-[var(--bd-fg)]" />;
+  return <span className="relative ml-auto shrink-0 font-mono text-[11px] tabular-nums text-[var(--bd-subtle)]">{value}</span>;
 }
 
 type RowProps = {
   item: SidebarItem;
+  raised: boolean;
   depth: number;
   rail: boolean;
   active: string | undefined;
@@ -219,7 +228,7 @@ type RowProps = {
   layout: string;
 };
 
-function Row({ item, depth, rail, active, openGroups, toggleGroup, choose, expandTo, tip, layout }: RowProps) {
+function Row({ item, raised, depth, rail, active, openGroups, toggleGroup, choose, expandTo, tip, layout }: RowProps) {
   const still = useReducedMotion();
   const group = !!item.items?.length;
   const open = group && openGroups.has(item.id) && !rail;
@@ -228,10 +237,9 @@ function Row({ item, depth, rail, active, openGroups, toggleGroup, choose, expan
   const id = useId();
   const content = (
     <>
-      {on && <motion.span layoutId={layout} aria-hidden className="absolute inset-0 rounded-[10px] bg-[color-mix(in_oklab,var(--bd-ui-track)_70%,var(--bd-surface))] shadow-[inset_0_0_0_1px_var(--bd-line-subtle)]" transition={still ? { duration: 0 } : SNAPPY} />}
-      {on && <motion.span layoutId={`${layout}-tick`} aria-hidden className="absolute left-0 top-2 h-5 w-[2.5px] rounded-full bg-[var(--bd-fg)]" transition={still ? { duration: 0 } : SNAPPY} />}
-      <span className={cx("relative grid size-5 shrink-0 place-items-center [&_svg]:size-[18px]", on || holds ? "text-[var(--bd-fg)]" : "text-[var(--bd-muted)] group-hover/row:text-[var(--bd-fg)]")}>{item.icon ?? (depth > 0 ? <span className="size-1 rounded-full bg-current" /> : null)}</span>
-      <span className={cx("relative min-w-0 flex-1 truncate text-left transition-opacity duration-150", rail ? "opacity-0" : "opacity-100")}>{item.label}</span>
+      {on && <motion.span layoutId={layout} aria-hidden className={cx("absolute inset-0 rounded-[10px]", raised ? "bg-[var(--bd-surface)] shadow-[0_1px_2px_rgb(var(--bd-shade)/0.1),inset_0_0_0_1px_var(--bd-line-subtle)]" : "bg-[rgb(var(--bd-ink)/0.07)]")} transition={still ? { duration: 0 } : SNAPPY} />}
+      <span className={cx("relative grid size-5 shrink-0 place-items-center [&_svg]:size-[17px]", on || holds ? "text-[var(--bd-fg)]" : "text-[var(--bd-muted)] group-hover/row:text-[var(--bd-fg)]")}>{item.icon ?? (depth > 0 ? <span className="size-1 rounded-full bg-current" /> : null)}</span>
+      <span className={cx("relative min-w-0 flex-1 truncate text-left transition-opacity", rail ? "opacity-0 duration-75" : "opacity-100 duration-200")}>{item.label}</span>
       {item.count !== undefined && !group && <Count value={item.count} rail={rail} />}
       {group && (
         <motion.span aria-hidden animate={{ rotate: open ? 90 : 0 }} transition={SNAPPY} className={cx("relative grid size-4 shrink-0 place-items-center text-[var(--bd-subtle)] transition-opacity duration-150 [&_svg]:size-3", rail && "opacity-0")}>
@@ -241,9 +249,9 @@ function Row({ item, depth, rail, active, openGroups, toggleGroup, choose, expan
     </>
   );
   const rowClass = cx(
-    "group/row relative flex h-9 w-full select-none items-center gap-2.5 rounded-[10px] px-2.5 text-[13.5px] outline-none transition-colors duration-150",
+    "group/row relative flex h-9 w-full select-none items-center gap-2.5 overflow-hidden rounded-[10px] px-2.5 text-[13.5px] outline-none transition-colors duration-150",
     "focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[color:var(--bd-ui-focus)]",
-    on ? "font-medium text-[var(--bd-fg)]" : holds ? "text-[var(--bd-fg)]" : "text-[var(--bd-muted)] hover:bg-[rgb(var(--bd-ink)/0.035)] hover:text-[var(--bd-fg)]",
+    on ? "font-medium text-[var(--bd-fg)]" : holds ? "text-[var(--bd-fg)]" : "text-[var(--bd-muted)] hover:bg-[rgb(var(--bd-ink)/0.045)] hover:text-[var(--bd-fg)]",
   );
   const hint = rail ? { onMouseEnter: (e: React.MouseEvent<HTMLElement>) => tip.show(e.currentTarget, item.label, false), onMouseLeave: tip.hide, onFocus: (e: React.FocusEvent<HTMLElement>) => tip.show(e.currentTarget, item.label, true), onBlur: tip.hide } : {};
   return (
@@ -298,13 +306,56 @@ function Row({ item, depth, rail, active, openGroups, toggleGroup, choose, expan
               className="relative ml-[19px] overflow-hidden pl-2 before:absolute before:bottom-1.5 before:left-0 before:top-1.5 before:w-px before:bg-[var(--bd-line)]"
             >
               {item.items!.map((c) => (
-                <Row key={c.id} item={c} depth={depth + 1} rail={rail} active={active} openGroups={openGroups} toggleGroup={toggleGroup} choose={choose} expandTo={expandTo} tip={tip} layout={layout} />
+                <Row key={c.id} item={c} raised={raised} depth={depth + 1} rail={rail} active={active} openGroups={openGroups} toggleGroup={toggleGroup} choose={choose} expandTo={expandTo} tip={tip} layout={layout} />
               ))}
             </motion.ul>
           )}
         </AnimatePresence>
       )}
     </li>
+  );
+}
+
+/*
+ * A face for someone without a picture, the way Vercel draws them: two colors picked by their name,
+ * one dithered into the other through a 4 by 4 ordered matrix, so the same name always gets the
+ * same face.
+ */
+const FACE_BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const FACE_CELLS = 12;
+/** The second color's cells, as one path, for each way the gradient can run. */
+const FACE_RAMPS = [0, 1, 2, 3].map((dir) => {
+  const n = FACE_CELLS - 1;
+  let d = "";
+  for (let y = 0; y < FACE_CELLS; y++)
+    for (let x = 0; x < FACE_CELLS; x++) {
+      const t = dir === 0 ? x / n : dir === 1 ? y / n : dir === 2 ? (x + y) / (2 * n) : (x + n - y) / (2 * n);
+      if ((FACE_BAYER[(y % 4) * 4 + (x % 4)] + 0.5) / 16 < t * 1.25 - 0.12) d += `M${x} ${y}h1v1h-1z`;
+    }
+  return d;
+});
+/** Light and deep, in the muted colors basedraft uses: ocean, pine, moss, ochre, clay, rose, plum, slate. */
+const FACE_COLORS: Array<[string, string]> = [
+  ["oklch(0.86 0.07 235)", "oklch(0.47 0.13 252)"],
+  ["oklch(0.87 0.07 170)", "oklch(0.46 0.09 172)"],
+  ["oklch(0.9 0.08 128)", "oklch(0.55 0.12 138)"],
+  ["oklch(0.91 0.09 88)", "oklch(0.64 0.14 62)"],
+  ["oklch(0.87 0.07 45)", "oklch(0.55 0.14 35)"],
+  ["oklch(0.87 0.08 8)", "oklch(0.52 0.16 2)"],
+  ["oklch(0.86 0.09 330)", "oklch(0.48 0.15 318)"],
+  ["oklch(0.89 0.02 255)", "oklch(0.44 0.04 258)"],
+];
+const faceSeed = (s: string) => [...s].reduce((h, c) => (Math.imul(h, 31) + c.charCodeAt(0)) >>> 0, 7);
+
+/** Someone's dithered face, filling its box; give it colors to draw it in theirs. */
+function Face({ name, colors }: { name: string; colors?: [string, string] }) {
+  const seed = faceSeed(name);
+  const [light, deep] = colors ?? FACE_COLORS[seed % FACE_COLORS.length];
+  return (
+    <svg viewBox={`0 0 ${FACE_CELLS} ${FACE_CELLS}`} shapeRendering="crispEdges" aria-hidden className="block size-full">
+      <rect width={FACE_CELLS} height={FACE_CELLS} style={{ fill: light }} />
+      <path d={FACE_RAMPS[(seed >>> 5) % 4]} style={{ fill: deep }} />
+    </svg>
   );
 }
 
@@ -342,6 +393,10 @@ export function AppSidebar({
   breakpoint = 768,
   onModeChange,
   contained = false,
+  plain = false,
+  footer,
+  account,
+  collapseShortcut = "\\",
   label = "Main",
   className,
 }: AppSidebarProps) {
@@ -389,7 +444,8 @@ export function AppSidebar({
     const host = probe.current?.parentElement;
     if (!host) return;
     const check = () => {
-      const next = host.getBoundingClientRect().width < breakpoint ? "drawer" : "side";
+      // Its laid-out width, not its drawn one, so a page shown shrunk (a thumbnail, a preview) keeps its sidebar.
+      const next = host.offsetWidth < breakpoint ? "drawer" : "side";
       setMode(next);
       if (told.current === next) return;
       told.current = next;
@@ -417,6 +473,44 @@ export function AppSidebar({
     setFolded(false);
     toggleGroup(id, true);
   };
+
+  // Command or Control and the shortcut fold it and unfold it, unless you're typing.
+  const fold = useRef(() => {});
+  useEffect(() => {
+    fold.current = () => {
+      tip.hide();
+      setFolded(!folded);
+    };
+  });
+  useEffect(() => {
+    if (!collapseShortcut || drawer) return;
+    const key = (e: globalThis.KeyboardEvent) => {
+      if (!(e.metaKey || e.ctrlKey) || e.key !== collapseShortcut) return;
+      const t = e.target as HTMLElement | null;
+      if (t?.closest("input, textarea, [contenteditable='true']")) return;
+      e.preventDefault();
+      fold.current();
+    };
+    window.addEventListener("keydown", key);
+    return () => window.removeEventListener("keydown", key);
+  }, [collapseShortcut, drawer]);
+  const keys = collapseShortcut ? `⌘${collapseShortcut}` : "";
+  const toggle = (
+    <button
+      type="button"
+      onClick={() => fold.current()}
+      aria-label={folded ? "Expand the sidebar" : "Collapse the sidebar"}
+      aria-expanded={!folded}
+      aria-keyshortcuts={collapseShortcut ? `Meta+${collapseShortcut}` : undefined}
+      onMouseEnter={(e) => tip.show(e.currentTarget, `${folded ? "Expand" : "Collapse"}${keys ? `  ${keys}` : ""}`, false)}
+      onMouseLeave={tip.hide}
+      onFocus={(e) => tip.show(e.currentTarget, `${folded ? "Expand" : "Collapse"}${keys ? `  ${keys}` : ""}`, true)}
+      onBlur={tip.hide}
+      className={cx("grid shrink-0 place-items-center rounded-[10px] text-[var(--bd-subtle)] transition-[background-color,color,scale] duration-150 hover:bg-[rgb(var(--bd-ink)/0.05)] hover:text-[var(--bd-fg)] active:scale-[0.95] focus-visible:outline-2 focus-visible:outline-[color:var(--bd-ui-focus)] [&_svg]:size-[17px]", folded ? "h-9 w-full" : "size-8")}
+    >
+      <SidebarSimpleIcon weight="regular" className={folded ? "-scale-x-100" : undefined} />
+    </button>
+  );
 
   // Arrows move through the visible rows; right opens a group, left closes it.
   const list = useRef<HTMLDivElement>(null);
@@ -449,10 +543,10 @@ export function AppSidebar({
   };
 
   const body = (
-    <div className="flex h-full flex-col" style={{ width: drawer ? "100%" : WIDE }}>
-      {/* The workspace, and its switcher. */}
+    <div className="flex h-full w-full min-w-0 flex-col">
+      {/* The workspace and its switcher, with the fold beside them. */}
       {ws && (
-        <div className="px-3 pt-3">
+        <div className="flex items-center gap-1 px-3 pt-3">
           <button
             ref={wsButton}
             type="button"
@@ -462,15 +556,18 @@ export function AppSidebar({
             onClick={() => setMenu(menu === "ws" ? null : "ws")}
             onMouseEnter={rail ? (e) => tip.show(e.currentTarget, ws.name, false) : undefined}
             onMouseLeave={rail ? tip.hide : undefined}
-            className="group/ws flex h-12 w-full items-center gap-2.5 rounded-[12px] px-1.5 text-left transition-[background-color,scale] duration-150 hover:bg-[rgb(var(--bd-ink)/0.035)] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-[color:var(--bd-ui-focus)]"
+            className="group/ws flex h-11 min-w-0 flex-1 items-center gap-2.5 overflow-hidden rounded-[11px] px-[5px] text-left transition-[background-color,scale] duration-150 hover:bg-[rgb(var(--bd-ink)/0.045)] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-[color:var(--bd-ui-focus)]"
           >
-            <span className="grid size-[30px] shrink-0 place-items-center overflow-hidden rounded-[9px] text-[13px] font-semibold text-[var(--bd-ui-ink-text)] shadow-[inset_0_1px_0_rgb(255_255_255/0.14)] [background:var(--bd-ui-ink)]">{ws.logo ?? initials(ws.name)}</span>
-            <span className={cx("min-w-0 flex-1 transition-opacity duration-150", rail && "opacity-0")}>
-              <span className="block truncate text-[13.5px] font-semibold text-[var(--bd-fg)]">{ws.name}</span>
-              {ws.plan && <span className="block truncate text-[12px] text-[var(--bd-subtle)]">{ws.plan}</span>}
+            <span className="grid size-[30px] shrink-0 place-items-center overflow-hidden rounded-[9px] text-[13px] font-semibold text-[var(--bd-ui-ink-text)] shadow-[inset_0_1px_0_rgb(255_255_255/0.14),0_1px_2px_rgb(var(--bd-shade)/0.2)] [background:var(--bd-ui-ink)]">{ws.logo ?? initials(ws.name)}</span>
+            <span className={cx("min-w-0 flex-1 transition-opacity", rail ? "opacity-0 duration-75" : "duration-200")}>
+              <span className="flex items-center gap-1 text-[13.5px] font-semibold text-[var(--bd-fg)]">
+                <span className="truncate">{ws.name}</span>
+                <CaretUpDownIcon weight="regular" className="size-3 shrink-0 text-[var(--bd-subtle)]" />
+              </span>
+              {ws.plan && <span className="block truncate text-[11.5px] text-[var(--bd-subtle)]">{ws.plan}</span>}
             </span>
-            <CaretUpDownIcon weight="regular" className={cx("size-3.5 shrink-0 text-[var(--bd-subtle)] transition-opacity duration-150", rail && "opacity-0")} />
           </button>
+          {!drawer && !rail && toggle}
           <Flyout anchor={wsButton} open={menu === "ws"} onClose={closeMenu} side="bottom" label="Workspaces">
             <p className="px-2.5 pb-1 pt-1.5 text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--bd-subtle)]">Workspaces</p>
             {workspaces!.map((w) => (
@@ -524,7 +621,7 @@ export function AppSidebar({
         </div>
       )}
 
-      {/* Search: a field to look at, a button underneath. */}
+      {/* Search: a quiet field to look at, a button underneath; a square of its own on the rail. */}
       {onSearch && (
         <div className="px-3 pt-2">
           <button
@@ -533,13 +630,13 @@ export function AppSidebar({
             aria-label={rail ? "Search" : undefined}
             onMouseEnter={rail ? (e) => tip.show(e.currentTarget, "Search", false) : undefined}
             onMouseLeave={rail ? tip.hide : undefined}
-            className="flex h-9 w-full items-center gap-2.5 rounded-[10px] bg-[var(--bd-ui-field)] px-2.5 text-[13px] text-[var(--bd-subtle)] shadow-[var(--bd-ui-well)] transition-[box-shadow,scale] duration-150 hover:shadow-[inset_0_1px_2px_rgb(var(--bd-shade)/0.09),inset_0_0_0_1px_rgb(var(--bd-ink)/0.16)] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-[color:var(--bd-ui-focus)]"
+            className={cx("flex h-9 w-full items-center gap-2.5 overflow-hidden rounded-[10px] px-2.5 text-[13px] text-[var(--bd-subtle)] transition-[background-color,color,scale] duration-150 hover:text-[var(--bd-fg)] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-[color:var(--bd-ui-focus)]", rail ? "hover:bg-[rgb(var(--bd-ink)/0.045)]" : "bg-[rgb(var(--bd-ink)/0.045)] hover:bg-[rgb(var(--bd-ink)/0.07)]")}
           >
-            <MagnifyingGlassIcon weight="duotone" className="size-[18px] shrink-0" />
-            <span className={cx("flex-1 text-left transition-opacity duration-150", rail && "opacity-0")}>Search</span>
-            <span aria-hidden className={cx("flex gap-0.5 transition-opacity duration-150", rail && "opacity-0")}>
+            <MagnifyingGlassIcon weight="regular" className="size-[17px] shrink-0" />
+            <span className={cx("flex-1 whitespace-nowrap text-left transition-opacity", rail ? "opacity-0 duration-75" : "duration-200")}>Search</span>
+            <span aria-hidden className={cx("flex shrink-0 gap-0.5 transition-opacity", rail ? "opacity-0 duration-75" : "duration-200")}>
               {searchShortcut.map((k) => (
-                <kbd key={k} className="grid h-5 min-w-5 place-items-center rounded-[5px] bg-[var(--bd-ui-track)] px-1 font-sans text-[11px] font-medium text-[var(--bd-muted)]">
+                <kbd key={k} className="grid h-[18px] min-w-[18px] place-items-center rounded-[5px] bg-[var(--bd-surface)] px-1 font-sans text-[10.5px] font-medium text-[var(--bd-muted)] shadow-[0_0_0_1px_var(--bd-line-subtle),0_1px_0_var(--bd-line-subtle)]">
                   {k}
                 </kbd>
               ))}
@@ -555,14 +652,15 @@ export function AppSidebar({
             <div key={s.id ?? si} className={si > 0 ? "mt-4" : "mt-1"}>
               {s.label && (
                 <div className="relative mb-1 h-6">
-                  <p className={cx("absolute inset-x-2.5 top-1 truncate text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--bd-subtle)] transition-opacity duration-150", rail && "opacity-0")}>{s.label}</p>
+                  <p className={cx("absolute inset-x-2.5 top-1 truncate whitespace-nowrap text-[11.5px] font-medium text-[var(--bd-subtle)] transition-opacity", rail ? "opacity-0 duration-75" : "duration-200")}>{s.label}</p>
                   {/* On the rail a section's name gives way to a short hairline. */}
-                  <span aria-hidden className={cx("absolute left-3 top-3 h-px w-4 bg-[var(--bd-line)] transition-opacity duration-150", rail ? "opacity-100" : "opacity-0")} />
+                  <span aria-hidden className={cx("absolute left-1/2 top-3 h-px w-4 -translate-x-1/2 bg-[var(--bd-line)] transition-opacity duration-150", rail ? "opacity-100" : "opacity-0")} />
                 </div>
               )}
-              <ul className="grid gap-0.5" aria-label={s.label}>
+              {/* One column as wide as the sidebar, never the longest name, so on the rail each row is a square. */}
+              <ul className="grid grid-cols-[minmax(0,1fr)] gap-0.5" aria-label={s.label}>
                 {s.items.map((item) => (
-                  <Row key={item.id} item={item} depth={0} rail={rail} active={current} openGroups={openGroups} toggleGroup={toggleGroup} choose={choose} expandTo={expandTo} tip={tip} layout={layout} />
+                  <Row key={item.id} item={item} raised={plain} depth={0} rail={rail} active={current} openGroups={openGroups} toggleGroup={toggleGroup} choose={choose} expandTo={expandTo} tip={tip} layout={layout} />
                 ))}
               </ul>
             </div>
@@ -570,28 +668,13 @@ export function AppSidebar({
         </LayoutGroup>
       </div>
 
-      {/* The foot: fold to a rail, and you. */}
-      <div className="grid gap-1 border-t border-[var(--bd-line-subtle)] p-3">
-        {!drawer && (
-          <button
-            type="button"
-            onClick={() => {
-              tip.hide();
-              setFolded(!folded);
-            }}
-            aria-label={folded ? "Expand the sidebar" : "Collapse the sidebar"}
-            aria-expanded={!folded}
-            onMouseEnter={rail ? (e) => tip.show(e.currentTarget, "Expand", false) : undefined}
-            onMouseLeave={rail ? tip.hide : undefined}
-            className="flex h-9 w-full items-center gap-2.5 rounded-[10px] px-2.5 text-[13.5px] text-[var(--bd-muted)] transition-[background-color,color,scale] duration-150 hover:bg-[rgb(var(--bd-ink)/0.035)] hover:text-[var(--bd-fg)] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-[color:var(--bd-ui-focus)]"
-          >
-            <motion.span animate={{ scaleX: folded ? -1 : 1 }} transition={SNAPPY} className="grid size-5 shrink-0 place-items-center [&_svg]:size-[18px]">
-              <SidebarSimpleIcon weight="duotone" />
-            </motion.span>
-            <span className={cx("transition-opacity duration-150", rail && "opacity-0")}>Collapse</span>
-          </button>
-        )}
-        {user && (
+      {/* The foot: what you put there, then you. */}
+      <div className="grid gap-2 p-3">
+        {typeof footer === "function" ? footer(rail) : footer && <div className={cx("transition-opacity", rail ? "pointer-events-none h-0 overflow-hidden opacity-0" : "opacity-100 duration-200")}>{footer}</div>}
+        {/* On the rail the way back out sits here, under everything else, so nothing above it moves as it folds. */}
+        {!drawer && rail && toggle}
+        {account?.(rail)}
+        {user && !account && (
           <>
             <button
               ref={userButton}
@@ -602,14 +685,16 @@ export function AppSidebar({
               onClick={() => userMenu?.length && setMenu(menu === "user" ? null : "user")}
               onMouseEnter={rail ? (e) => tip.show(e.currentTarget, user.name, false) : undefined}
               onMouseLeave={rail ? tip.hide : undefined}
-              className="flex h-11 w-full items-center gap-2.5 rounded-[12px] px-1.5 text-left transition-[background-color,scale] duration-150 hover:bg-[rgb(var(--bd-ink)/0.035)] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-[color:var(--bd-ui-focus)]"
+              className="flex h-11 w-full items-center gap-2.5 overflow-hidden rounded-[11px] px-[5px] text-left transition-[background-color,scale] duration-150 hover:bg-[rgb(var(--bd-ink)/0.045)] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-[color:var(--bd-ui-focus)]"
             >
-              <span className="grid size-[30px] shrink-0 place-items-center rounded-full bg-[var(--bd-ui-track)] text-[12px] font-semibold text-[var(--bd-muted)] shadow-[var(--bd-ui-well)]">{initials(user.name)}</span>
-              <span className={cx("min-w-0 flex-1 transition-opacity duration-150", rail && "opacity-0")}>
+              <span className="grid size-[30px] shrink-0 place-items-center overflow-hidden rounded-full shadow-[inset_0_0_0_1px_rgb(0_0_0/0.08)]">
+                <Face name={user.name} />
+              </span>
+              <span className={cx("min-w-0 flex-1 transition-opacity", rail ? "opacity-0 duration-75" : "duration-200")}>
                 <span className="block truncate text-[13px] font-medium text-[var(--bd-fg)]">{user.name}</span>
                 {user.email && <span className="block truncate text-[12px] text-[var(--bd-subtle)]">{user.email}</span>}
               </span>
-              {userMenu?.length ? <DotsThreeIcon weight="bold" className={cx("size-4 shrink-0 text-[var(--bd-subtle)] transition-opacity duration-150", rail && "opacity-0")} /> : null}
+              {userMenu?.length ? <DotsThreeIcon weight="bold" className={cx("size-4 shrink-0 text-[var(--bd-subtle)] transition-opacity", rail ? "opacity-0 duration-75" : "duration-200")} /> : null}
             </button>
             {userMenu && userMenu.length > 0 && (
               <Flyout anchor={userButton} open={menu === "user"} onClose={closeMenu} side="top" label="Your account">
@@ -702,7 +787,7 @@ export function AppSidebar({
           initial={false}
           animate={{ width: folded ? RAIL : WIDE }}
           transition={still ? { duration: 0 } : SOFT}
-          className={cx("relative h-full shrink-0 overflow-hidden border-r border-[var(--bd-line-subtle)] bg-[var(--bd-surface)]", className)}
+          className={cx("relative h-full shrink-0 overflow-hidden", !plain && "border-r border-[var(--bd-line-subtle)] bg-[var(--bd-surface)]", className)}
         >
           {body}
         </motion.nav>

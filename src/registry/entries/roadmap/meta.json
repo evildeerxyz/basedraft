@@ -1,0 +1,9 @@
+{
+  "name": "roadmap",
+  "title": "Roadmap",
+  "group": "Data",
+  "description": "Work laid out over the weeks it takes, in groups, with today ruled in ink: drag a bar to move it or an end to stretch it, snapping to days, and see at a glance what's planned, under way, at risk or done.",
+  "order": 21,
+  "added": "2026-10-30",
+  "pro": true
+}

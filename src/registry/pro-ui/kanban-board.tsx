@@ -92,27 +92,57 @@ function scopeOf(el: Element | null): Scope {
   return { className: ["dark", "bd-light", "light"].find((c) => near.classList.contains(c)) };
 }
 
-/** A hue from 0 to 359 for a name, the same every time, as Avatar draws it. */
-const hue = (name: string) => [...name].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 360, 7);
-const initials = (name: string) =>
-  name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((w) => w[0]!.toUpperCase())
-    .join("");
+/*
+ * A face for someone without a picture, the way Vercel draws them: two colors picked by their name,
+ * one dithered into the other through a 4 by 4 ordered matrix, so the same name always gets the
+ * same face.
+ */
+const FACE_BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const FACE_CELLS = 12;
+/** The second color's cells, as one path, for each way the gradient can run. */
+const FACE_RAMPS = [0, 1, 2, 3].map((dir) => {
+  const n = FACE_CELLS - 1;
+  let d = "";
+  for (let y = 0; y < FACE_CELLS; y++)
+    for (let x = 0; x < FACE_CELLS; x++) {
+      const t = dir === 0 ? x / n : dir === 1 ? y / n : dir === 2 ? (x + y) / (2 * n) : (x + n - y) / (2 * n);
+      if ((FACE_BAYER[(y % 4) * 4 + (x % 4)] + 0.5) / 16 < t * 1.25 - 0.12) d += `M${x} ${y}h1v1h-1z`;
+    }
+  return d;
+});
+/** Light and deep, in the muted colors basedraft uses: ocean, pine, moss, ochre, clay, rose, plum, slate. */
+const FACE_COLORS: Array<[string, string]> = [
+  ["oklch(0.86 0.07 235)", "oklch(0.47 0.13 252)"],
+  ["oklch(0.87 0.07 170)", "oklch(0.46 0.09 172)"],
+  ["oklch(0.9 0.08 128)", "oklch(0.55 0.12 138)"],
+  ["oklch(0.91 0.09 88)", "oklch(0.64 0.14 62)"],
+  ["oklch(0.87 0.07 45)", "oklch(0.55 0.14 35)"],
+  ["oklch(0.87 0.08 8)", "oklch(0.52 0.16 2)"],
+  ["oklch(0.86 0.09 330)", "oklch(0.48 0.15 318)"],
+  ["oklch(0.89 0.02 255)", "oklch(0.44 0.04 258)"],
+];
+const faceSeed = (s: string) => [...s].reduce((h, c) => (Math.imul(h, 31) + c.charCodeAt(0)) >>> 0, 7);
+
+/** Someone's dithered face, filling its box; give it colors to draw it in theirs. */
+function Face({ name, colors }: { name: string; colors?: [string, string] }) {
+  const seed = faceSeed(name);
+  const [light, deep] = colors ?? FACE_COLORS[seed % FACE_COLORS.length];
+  return (
+    <svg viewBox={`0 0 ${FACE_CELLS} ${FACE_CELLS}`} shapeRendering="crispEdges" aria-hidden className="block size-full">
+      <rect width={FACE_CELLS} height={FACE_CELLS} style={{ fill: light }} />
+      <path d={FACE_RAMPS[(seed >>> 5) % 4]} style={{ fill: deep }} />
+    </svg>
+  );
+}
 
 function Faces({ people }: { people: string[] }) {
   return (
     <span className="flex [&>*+*]:-ml-1.5">
-      {people.slice(0, 3).map((p) => {
-        const h = hue(p);
-        return (
-          <span key={p} title={p} className="grid size-6 place-items-center rounded-full text-[9px] font-semibold ring-2 ring-[var(--bd-surface)]" style={{ backgroundImage: `linear-gradient(150deg, oklch(0.94 0.022 ${h}), oklch(0.82 0.035 ${h + 40}))`, color: `oklch(0.34 0.03 ${h})` }}>
-            {initials(p)}
-          </span>
-        );
-      })}
+      {people.slice(0, 3).map((p) => (
+        <span key={p} title={p} role="img" aria-label={p} className="size-6 overflow-hidden rounded-full ring-2 ring-[var(--bd-surface)]">
+          <Face name={p} />
+        </span>
+      ))}
     </span>
   );
 }
@@ -198,6 +228,26 @@ export function KanbanBoard<T extends KanbanCard = KanbanCard>({ columns, defaul
   const tilt = useSpring(0, { stiffness: 260, damping: 22 });
   const pointer = useRef({ x: 0, y: 0, t: 0 });
   const raf = useRef(0);
+  // Where columns run past the board's edge, that edge fades, so the board reads as one that scrolls rather than one cut off.
+  const [more, setMore] = useState({ left: false, right: false });
+  useEffect(() => {
+    const el = scroller.current;
+    if (!el) return;
+    const read = () => {
+      const left = el.scrollLeft > 1;
+      const right = el.scrollLeft + el.clientWidth < el.scrollWidth - 1;
+      setMore((m) => (m.left === left && m.right === right ? m : { left, right }));
+    };
+    read();
+    el.addEventListener("scroll", read, { passive: true });
+    const ro = new ResizeObserver(read);
+    ro.observe(el);
+    return () => {
+      el.removeEventListener("scroll", read);
+      ro.disconnect();
+    };
+  }, [folded, cols.length]);
+  const fade = more.left || more.right ? `linear-gradient(to right, ${more.left ? "transparent, black 40px" : "black"}, ${more.right ? "black calc(100% - 40px), transparent" : "black"})` : undefined;
 
   const full = useCallback((c: KanbanColumn<T>, id: string) => enforceLimits && c.limit !== undefined && c.cards.filter((k) => k.id !== id).length >= c.limit, [enforceLimits]);
 
@@ -514,7 +564,8 @@ export function KanbanBoard<T extends KanbanCard = KanbanCard>({ columns, defaul
   const dragged = drag ? cols.flatMap((c) => c.cards).find((k) => k.id === drag.id) : undefined;
   // What's drawn: while a card is carried, it already sits where it would land, as an empty slot the others make room for.
   const view = drag ? moved(cols, drag.id, drag.to, drag.index) : cols;
-  const W = size === "sm" ? "w-[232px]" : "w-[280px]";
+  // Open columns share the width they're given, down to a floor; under that, the board scrolls sideways.
+  const W = size === "sm" ? "min-w-[200px] flex-[1_0_0%]" : "min-w-[280px] flex-[1_0_0%]";
 
   return (
     <div data-board={uid} ref={board} role="region" aria-label={label} className={cx("relative flex min-h-0 flex-col rounded-[22px] bg-[var(--bd-surface)] text-[var(--bd-fg)] shadow-[0_0_0_1px_rgb(var(--bd-ink)/0.07),var(--bd-shadow-resting)]", className)} style={style}>
@@ -525,7 +576,7 @@ export function KanbanBoard<T extends KanbanCard = KanbanCard>({ columns, defaul
         {said}
       </p>
       <LayoutGroup id={uid}>
-        <div ref={scroller} className="no-scrollbar flex min-h-0 flex-1 overflow-x-auto overscroll-x-contain">
+        <div ref={scroller} className="no-scrollbar flex min-h-0 flex-1 overflow-x-auto overscroll-x-contain" style={{ maskImage: fade, WebkitMaskImage: fade }}>
           {view.map((col, ci) => {
             const isFolded = folded.includes(col.id);
             const over = drag?.to === col.id && (drag.to !== drag.from || drag.index !== drag.fromIndex);
@@ -537,7 +588,7 @@ export function KanbanBoard<T extends KanbanCard = KanbanCard>({ columns, defaul
             return (
               <Fragment key={col.id}>
                 {ci > 0 && <span aria-hidden className="my-3 w-px shrink-0 bg-[var(--bd-line-subtle)]" />}
-                <motion.section layout="position" transition={reduce ? { duration: 0 } : SNAPPY} aria-labelledby={`${uid}-${col.id}`} className={cx("relative flex min-h-0 shrink-0 flex-col", isFolded ? "w-12" : W)}>
+                <motion.section layout="position" transition={reduce ? { duration: 0 } : SNAPPY} aria-labelledby={`${uid}-${col.id}`} className={cx("relative flex min-h-0 flex-col", isFolded ? "w-12 shrink-0" : W)}>
                   {isFolded ? (
                     <button type="button" onClick={() => setFolded((f) => f.filter((x) => x !== col.id))} aria-expanded={false} aria-label={`Open ${col.title}, ${count} cards`} className="group/fold flex h-full min-h-40 flex-col items-center gap-3 rounded-[16px] px-2 pb-3 text-[var(--bd-muted)] outline-none transition-colors hover:text-[var(--bd-fg)] focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-[color:var(--bd-ui-focus)]">
                       {/* The same row as an open column's head, so the arrow lines up with the arrows and counts beside it. */}

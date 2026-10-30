@@ -29,8 +29,8 @@ const TEMPLATES: Array<{ name: string; line: string; layout: Layout }> = [
 function Header() {
   return (
     <div className="@container w-full max-w-[680px]">
-      <div className="flex items-center gap-2 rounded-full bg-[var(--bd-surface)] py-1.5 pl-4 pr-1.5 shadow-[inset_0_0_0_1px_var(--bd-line),var(--bd-shadow-resting)]">
-        <span className="mr-1 flex items-center gap-2 text-sm font-medium tracking-[-0.02em] text-[var(--bd-fg)] max-[420px]:hidden">
+      <div className="flex items-center gap-2 rounded-full bg-[var(--bd-surface)] py-1.5 pl-4 pr-1.5 shadow-[inset_0_0_0_1px_var(--bd-line),var(--bd-shadow-resting)] @max-[460px]:pl-1.5 @max-[460px]:[&_nav_li>*]:px-2 @max-[360px]:[&_nav_li>*]:px-1.5 @max-[360px]:[&_nav_li>*]:text-[13px]">
+        <span className="mr-1 flex items-center gap-2 text-sm font-medium tracking-[-0.02em] text-[var(--bd-fg)] @max-[460px]:hidden">
           <span className="size-4 rounded-[4px] [background:var(--bd-ui-ink)]" />
           basedraft
         </span>

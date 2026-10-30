@@ -63,10 +63,10 @@ function Progress() {
 
 /* What people say, each as long as it is, so the slides come in different widths. */
 const QUOTES = [
-  { who: "Maya Okafor, Fieldwork", text: "We shipped our site in an afternoon." },
-  { who: "Jonah Park, Northbeam", text: "Studio let our designer change the copy on the real page, then hand us the code without a single meeting about it." },
-  { who: "Lea Moreau, Parcelworks", text: "The sections fit together however we arrange them." },
-  { who: "Sami Ito, Quanta", text: "Copy to Figma saved us a week of rebuilding the landing page by hand." },
+  { who: "Emily Carter, Larkspur", text: "We shipped our site in an afternoon." },
+  { who: "Jake Morrison, Northbeam", text: "Studio let our designer change the copy on the real page, then hand us the code without a single meeting about it." },
+  { who: "Sarah Mitchell, Parcelworks", text: "The sections fit together however we arrange them." },
+  { who: "Ryan Brooks, Quanta", text: "Copy to Figma saved us a week of rebuilding the landing page by hand." },
 ];
 
 function Widths() {

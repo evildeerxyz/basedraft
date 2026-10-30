@@ -1,0 +1,9 @@
+{
+  "name": "account-menu",
+  "title": "Account menu",
+  "group": "Navigation",
+  "description": "You, and what's yours: your dithered face that opens a menu with your name, email and plan, your pages with their shortcuts, light, dark or system, and Sign out set apart in red.",
+  "order": 9,
+  "added": "2026-10-30",
+  "pro": true
+}

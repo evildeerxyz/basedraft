@@ -7,8 +7,8 @@ import { hint } from "../_shared/kit";
 
 const PEOPLE = {
   ava: { src: "/demo/people/ava-robinson.jpg", alt: "Ava Robinson, smiling" },
-  priya: { src: "/demo/people/priya-raman.jpg", alt: "Priya Raman, in front of a purple wall" },
-  sofia: { src: "/demo/people/sofia-lindqvist.jpg", alt: "Sofia Lindqvist, in a floral shirt" },
+  priya: { src: "/demo/people/priya-raman.jpg", alt: "Megan Turner, in front of a purple wall" },
+  sofia: { src: "/demo/people/sofia-lindqvist.jpg", alt: "Rachel Foster, in a floral shirt" },
 };
 
 const LOOKS = [

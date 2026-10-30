@@ -268,6 +268,11 @@ export function Carousel({ label, children, indicator = "dots", buttons = true, 
 
   const canBack = loop || at > 0;
   const canOn = loop || at < last;
+  // The side the next slide peeks in from fades out, and at the end the side the one before does,
+  // so the peek reads as more to come rather than as cut off.
+  const fadeOn = canOn && stops.length > 1;
+  const fadeBack = !canOn && at > 0;
+  const fade = fadeOn || fadeBack ? `linear-gradient(to right, ${fadeBack ? "transparent, black 32px" : "black"}, ${fadeOn ? "black calc(100% - 32px), transparent" : "black"})` : undefined;
   const round = "grid size-9 place-items-center rounded-full bg-[var(--bd-surface)] text-[var(--bd-fg)] shadow-[0_0_0_1px_var(--bd-line),var(--bd-shadow-resting)] transition-[opacity,scale,box-shadow] duration-200 hover:shadow-[0_0_0_1px_var(--bd-line-strong),var(--bd-shadow-raised)] active:scale-95 disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--bd-ui-focus)]";
 
   return (
@@ -290,7 +295,7 @@ export function Carousel({ label, children, indicator = "dots", buttons = true, 
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
         onKeyDown={onKeyDown}
-        style={{ touchAction: "pan-y" }}
+        style={{ touchAction: "pan-y", maskImage: fade, WebkitMaskImage: fade }}
         // Its width comes from where it's put, never from the row of slides inside it.
         className="relative -my-2 cursor-grab overflow-hidden rounded-[18px] py-2 outline-none [contain:inline-size] active:cursor-grabbing focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--bd-ui-focus)]"
       >

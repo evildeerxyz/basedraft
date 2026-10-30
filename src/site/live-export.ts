@@ -1,4 +1,4 @@
-import { toFigmaSvg, toFigmaTree, toPaperHtml, VIEWPORTS } from "./design-export";
+import { paperFrames, toFigmaSvg, toFigmaTree, toPaperHtml, VIEWPORTS } from "./design-export";
 import { readTiles } from "./figma-paint";
 import { pageHeight, pinViewportHeights } from "./frame-fit";
 import { applyEdits, type TextEdit } from "./text-edits";
@@ -198,7 +198,8 @@ export async function readLive(copy: LiveCopy, name: string, which: number[] = V
     const f = await openLive(copy.url, VIEWPORTS[i].width, copy.names, undefined, copy);
     try {
       const tree = toFigmaTree(f.root, name);
-      return { tree, svg: i === which[0] ? toFigmaSvg(f.root, name) : "", paper: i === which[0] ? toPaperHtml(f.root, name) : "" };
+      // Paper gets every width too, each its own frame, as Figma does.
+      return { tree, svg: i === which[0] ? toFigmaSvg(f.root, name) : "", paper: toPaperHtml(f.root, VIEWPORTS[i].name) };
     } finally {
       f.done();
     }
@@ -206,7 +207,7 @@ export async function readLive(copy: LiveCopy, name: string, which: number[] = V
   const out: Array<Awaited<ReturnType<typeof read>>> = [];
   if (copy.url.includes("/bd/section/")) out.push(...(await Promise.all(which.map((i) => read(i)))));
   else for (const i of which) out.push(await read(i));
-  return { svg: out[0].svg, paper: out[0].paper, views: out.map((o, k) => ({ name: VIEWPORTS[which[k]].name, tree: o.tree })) };
+  return { svg: out[0].svg, paper: paperFrames(name, out.map((o) => ({ html: o.paper }))), views: out.map((o, k) => ({ name: VIEWPORTS[which[k]].name, tree: o.tree })) };
 }
 
 /**

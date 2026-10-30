@@ -21,7 +21,7 @@
       "name": "hold-button",
       "title": "Hold button",
       "group": "Actions",
-      "description": "Press and hold to confirm: ink fills it as you hold, and letting go early cancels.",
+      "description": "Press and hold to confirm: a dial winds closed and the time left counts down as the button sinks under your finger, and letting go early unwinds it.",
       "file": "https://basedraft.site/ui/hold-button.tsx",
       "path": "components/basedraft/hold-button.tsx",
       "dependencies": [
@@ -142,7 +142,7 @@
     },
     {
       "name": "segmented",
-      "title": "Segmented control",
+      "title": "Segmented",
       "group": "Forms",
       "description": "One choice of a few in a machined track, the chosen one on a raised thumb that slides.",
       "file": "https://basedraft.site/ui/segmented.tsx",
@@ -267,7 +267,7 @@
     },
     {
       "name": "inline-edit",
-      "title": "Inline edit",
+      "title": "Edit in place",
       "group": "Forms",
       "description": "Text that becomes a field where it stands, the same size and type, growing as you type, with saving, a check, and a shake when it is refused.",
       "file": "https://basedraft.site/ui/inline-edit.tsx",
@@ -693,7 +693,7 @@
     },
     {
       "name": "resizable",
-      "title": "Resizable panels",
+      "title": "Panes",
       "group": "Display",
       "description": "Two panels and a line between them that catches at sizes you come back to, folds a side away, and springs home on a double-click.",
       "file": "https://basedraft.site/ui/resizable.tsx",
@@ -826,12 +826,28 @@
   ],
   "pro": [
     {
+      "name": "filter-bar",
+      "title": "Filter bar",
+      "group": "Forms",
+      "description": "Filters that read as a sentence you edit in place: Showing deploys where status is not failed and region is Frankfurt or Tokyo. Every dashed word answers a click, and the keys drive it all.",
+      "pro": true,
+      "docs": "https://basedraft.site/components/filter-bar"
+    },
+    {
       "name": "color-picker",
       "title": "Color picker",
       "group": "Forms",
       "description": "A field of saturation and brightness, hue and alpha sliders, an eyedropper, a value typed as hex, rgb or hsl, swatches, and the contrast white and black text would have on the color.",
       "pro": true,
       "docs": "https://basedraft.site/components/color-picker"
+    },
+    {
+      "name": "share",
+      "title": "Share",
+      "group": "Overlays",
+      "description": "Share, link first: who can open it and the link to copy lead, the faces of those invited open into their access, and new people are invited by email at the foot.",
+      "pro": true,
+      "docs": "https://basedraft.site/components/share"
     },
     {
       "name": "tour",
@@ -858,6 +874,22 @@
       "docs": "https://basedraft.site/components/navigation-menu"
     },
     {
+      "name": "dock",
+      "title": "Dock",
+      "group": "Navigation",
+      "description": "A frosted dock of brushed-metal keys that swell on their own springs as the pointer nears, with a name rising over the one you're on, dots under the open ones, a hop when pressed, and the arrow keys to walk it.",
+      "pro": true,
+      "docs": "https://basedraft.site/components/dock"
+    },
+    {
+      "name": "account-menu",
+      "title": "Account menu",
+      "group": "Navigation",
+      "description": "You, and what's yours: your dithered face that opens a menu with your name, email and plan, your pages with their shortcuts, light, dark or system, and Sign out set apart in red.",
+      "pro": true,
+      "docs": "https://basedraft.site/components/account-menu"
+    },
+    {
       "name": "dither-image",
       "title": "Dither image",
       "group": "Display",
@@ -882,12 +914,60 @@
       "docs": "https://basedraft.site/components/code-diff"
     },
     {
+      "name": "swipe-deck",
+      "title": "Swipe deck",
+      "group": "Display",
+      "description": "A stack of cards to decide on one at a time: the top one tilts with your hand as it leans, flies off past the line or on a flick, and comes back with Undo.",
+      "pro": true,
+      "docs": "https://basedraft.site/components/swipe-deck"
+    },
+    {
+      "name": "particle-text",
+      "title": "Particle text",
+      "group": "Display",
+      "description": "A word made of ink pixels, lit from above through an ordered dither, that scatter from your pointer and settle back, and sweep from one word into the next.",
+      "pro": true,
+      "docs": "https://basedraft.site/components/particle-text"
+    },
+    {
+      "name": "split-flap",
+      "title": "Split-flap",
+      "group": "Display",
+      "description": "Letters on hinged flaps, the way a departures board turns over: each one flips forward through the alphabet to its letter, the top half falling and shading as it goes, rippling along the word.",
+      "pro": true,
+      "docs": "https://basedraft.site/components/split-flap"
+    },
+    {
       "name": "data-table",
       "title": "Data table",
       "group": "Data",
       "description": "Rows on a white sheet that sort with a turning arrow and glide into place, pick in ranges with Shift, open for detail, and keep their header and first column in view.",
       "pro": true,
       "docs": "https://basedraft.site/components/data-table"
+    },
+    {
+      "name": "metric-tabs",
+      "title": "Metric tabs",
+      "group": "Data",
+      "description": "The figures that matter as tabs across a card, each with how far it moved and whether that's good news, and under them the chart for the one you pick, an ink rule sliding between them.",
+      "pro": true,
+      "docs": "https://basedraft.site/components/metric-tabs"
+    },
+    {
+      "name": "roadmap",
+      "title": "Roadmap",
+      "group": "Data",
+      "description": "Work laid out over the weeks it takes, in groups, with today ruled in ink: drag a bar to move it or an end to stretch it, snapping to days, and see at a glance what's planned, under way, at risk or done.",
+      "pro": true,
+      "docs": "https://basedraft.site/components/roadmap"
+    },
+    {
+      "name": "allowance",
+      "title": "Allowance",
+      "group": "Data",
+      "description": "How much of an allowance is used: the share, a bar that turns amber near the limit and red past it, and where the month is heading at this pace, hatched ahead. Folds to a ring for a sidebar's rail.",
+      "pro": true,
+      "docs": "https://basedraft.site/components/allowance"
     },
     {
       "name": "area-chart",
@@ -946,6 +1026,14 @@
       "docs": "https://basedraft.site/components/log-viewer"
     },
     {
+      "name": "globe",
+      "title": "Globe",
+      "group": "Data",
+      "description": "The Earth in dots, lit and shaded by an ordered dither, that spins when dragged and coasts to a stop, with markers that pulse, arcs that rise between them carrying a light, and a turn to face whatever you choose.",
+      "pro": true,
+      "docs": "https://basedraft.site/components/globe"
+    },
+    {
       "name": "kanban-board",
       "title": "Kanban board",
       "group": "Patterns",
@@ -987,7 +1075,7 @@
     },
     {
       "name": "onboarding",
-      "title": "Onboarding checklist",
+      "title": "First steps",
       "group": "Patterns",
       "description": "A new account's first steps in a card that keeps count: a ring that fills, ticks that draw in, the next step opening on its own, a pill to fold it into, and a finish that blooms.",
       "pro": true,
@@ -1008,6 +1096,22 @@
       "description": "Booking a time: who and what, a month whose open days are lit with a pill that glides to the one you pick, the day's times splitting into a Confirm, and a confirmation with a check that draws and an .ics.",
       "pro": true,
       "docs": "https://basedraft.site/components/scheduler"
+    },
+    {
+      "name": "flow",
+      "title": "Flow",
+      "group": "Patterns",
+      "description": "A node editor on a dotted board that pans and zooms: steps that snap to the grid, curves you draw from an output to the input they snap to, data visibly flowing into the step that's running, a minimap, and undo.",
+      "pro": true,
+      "docs": "https://basedraft.site/components/flow"
+    },
+    {
+      "name": "live-cursors",
+      "title": "Live cursors",
+      "group": "Patterns",
+      "description": "Everyone else's pointer, gliding on a spring with their name, the box they've selected and what they're saying in a bubble; press / to say something at your own, and follow anyone from the faces above.",
+      "pro": true,
+      "docs": "https://basedraft.site/components/live-cursors"
     },
     {
       "name": "sign-in",

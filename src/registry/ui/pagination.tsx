@@ -89,7 +89,7 @@ export function Pagination({ page, total, onPageChange, siblings = 1, variant = 
     go(to, {
       "aria-label": side === "prev" ? "Previous page" : "Next page",
       disabled: side === "prev" ? at <= 1 : at >= total,
-      className: cx("grid size-9 shrink-0 place-items-center rounded-full text-[var(--bd-muted)] transition-colors hover:bg-[rgb(var(--bd-ink)/0.06)] hover:text-[var(--bd-fg)] [&_svg]:size-4", FOCUS),
+      className: cx("grid size-8 shrink-0 place-items-center rounded-full sm:size-9 text-[var(--bd-muted)] transition-colors hover:bg-[rgb(var(--bd-ink)/0.06)] hover:text-[var(--bd-fg)] [&_svg]:size-4", FOCUS),
       children: side === "prev" ? <CaretLeftIcon weight="regular" /> : <CaretRightIcon weight="regular" />,
     });
 
@@ -123,7 +123,7 @@ export function Pagination({ page, total, onPageChange, siblings = 1, variant = 
           {list.map((p, i) => (
             <li key={i}>
               {p === "…" ? (
-                <span aria-hidden className="grid size-9 place-items-center text-[var(--bd-subtle)]">
+                <span aria-hidden className="grid size-8 place-items-center text-[var(--bd-subtle)] sm:size-9">
                   …
                 </span>
               ) : (
@@ -131,7 +131,7 @@ export function Pagination({ page, total, onPageChange, siblings = 1, variant = 
                   "aria-label": `Page ${p}`,
                   "aria-current": p === at ? "page" : undefined,
                   className: cx(
-                    "relative isolate grid h-9 min-w-9 place-items-center rounded-full px-2 text-sm tabular-nums transition-colors duration-200",
+                    "relative isolate grid h-8 min-w-8 place-items-center rounded-full px-2 text-sm sm:h-9 sm:min-w-9 tabular-nums transition-colors duration-200",
                     p === at ? "font-medium text-[var(--bd-ui-ink-text)]" : "text-[var(--bd-muted)] hover:bg-[rgb(var(--bd-ink)/0.06)] hover:text-[var(--bd-fg)]",
                     FOCUS,
                   ),

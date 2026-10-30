@@ -105,10 +105,10 @@ export function SectionMenu() {
       note: "Aligned to the trigger's end, as a menu at the right of a header should be. The label shows whose account it is.",
       code: `<Menu>
   <MenuTrigger asChild>
-    <Button variant="outline">Maya Okafor</Button>
+    <Button variant="outline">Emily Carter</Button>
   </MenuTrigger>
   <MenuContent align="end">
-    <MenuLabel>maya@fieldwork.co</MenuLabel>
+    <MenuLabel>emily@larkspur.co</MenuLabel>
     <MenuItem icon={<ReceiptIcon weight="duotone" />}>Purchases</MenuItem>
     <MenuItem icon={<UsersThreeIcon weight="duotone" />}>Team</MenuItem>
     <MenuItem icon={<GearSixIcon weight="duotone" />} shortcut={["⌘", ","]}>

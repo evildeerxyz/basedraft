@@ -668,29 +668,32 @@ export function BarChart({
         {announce}
       </span>
       {dataTable && data.length > 0 && (
-        <table className="sr-only">
-          <caption>{title ?? "Bar chart"}</caption>
-          <thead>
-            <tr>
-              <th scope="col">{x}</th>
-              {series.map((s) => (
-                <th key={s.key} scope="col">
-                  {s.label}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((d, i) => (
-              <tr key={i}>
-                <th scope="row">{name(i)}</th>
+        // In a div: a table ignores the 1px box sr-only gives it, and would still stretch whatever scrolls around the chart.
+        <div className="sr-only">
+          <table>
+            <caption>{title ?? "Bar chart"}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{x}</th>
                 {series.map((s) => (
-                  <td key={s.key}>{fmt.format(num(d[s.key]))}</td>
+                  <th key={s.key} scope="col">
+                    {s.label}
+                  </th>
                 ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {data.map((d, i) => (
+                <tr key={i}>
+                  <th scope="row">{name(i)}</th>
+                  {series.map((s) => (
+                    <td key={s.key}>{fmt.format(num(d[s.key]))}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

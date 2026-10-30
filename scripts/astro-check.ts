@@ -17,7 +17,7 @@ import { newProject } from "../src/studio/state";
 const pages = (dir: string): number => readdirSync(dir, { withFileTypes: true }).reduce((n, e) => n + (e.isDirectory() ? pages(path.join(dir, e.name)) : e.name.endsWith(".html") ? 1 : 0), 0);
 
 async function main() {
-  for (const slug of (process.argv[2] ?? "zuno,noma,auren,pello").split(",")) {
+  for (const slug of (process.argv[2] ?? "zuno,noma,auren").split(",")) {
     const { files } = await siteFiles(newProject(slug as never), "astro");
     const dir = path.join(os.tmpdir(), "basedraft-astro", slug);
     // Installed packages stay between runs.

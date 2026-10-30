@@ -61,7 +61,7 @@ function Tones() {
         Invite three more before your plan asks for an upgrade.
       </Alert>
       <Alert tone="stop" title="The push to GitHub failed">
-        fieldwork/zuno-site turned down 2 files over 50 MB.
+        larkspur/zuno-site turned down 2 files over 50 MB.
       </Alert>
     </div>
   );
@@ -82,7 +82,7 @@ function Actions() {
       }
       className="max-w-[420px]"
     >
-      fieldwork/zuno-site turned down 2 files over 50 MB. Shrink them or leave them out.
+      larkspur/zuno-site turned down 2 files over 50 MB. Shrink them or leave them out.
     </Alert>
   );
 }

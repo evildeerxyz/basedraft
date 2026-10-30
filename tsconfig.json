@@ -42,6 +42,7 @@
     "cloudflare",
     ".open-next",
     "packages/ui/src",
-    "packages/ui/dist"
+    "packages/ui/dist",
+    "public/ui/screens"
   ]
 }

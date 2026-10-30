@@ -35,7 +35,7 @@ export function Demo() {
           <DialogTitle>Publish Zuno to GitHub</DialogTitle>
           <DialogDescription>We make a new private repository and push the whole site to it. Later changes go in as pull requests.</DialogDescription>
           <div className="mt-5 divide-y divide-[var(--bd-line-subtle)] rounded-[14px] px-4 py-1 shadow-[var(--bd-ui-well)]">
-            <Fact label="Repository" value="fieldwork/zuno-site" />
+            <Fact label="Repository" value="larkspur/zuno-site" />
             <Fact label="Branch" value="main" />
             <Fact label="Files" value="61" />
           </div>
@@ -49,7 +49,7 @@ export function Demo() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <p className={hint}>{done ? "Published: fieldwork/zuno-site" : "Opens over the page; Escape or a click behind it closes it."}</p>
+      <p className={hint}>{done ? "Published: larkspur/zuno-site" : "Opens over the page; Escape or a click behind it closes it."}</p>
     </div>
   );
 }
@@ -127,7 +127,7 @@ function Locked() {
         <DialogTitle>Name your team</DialogTitle>
         <DialogDescription>Your Team license has 10 seats. Give the team a name so invites say who they&apos;re from.</DialogDescription>
         <div className="mt-5">
-          <Input data-autofocus placeholder="Fieldwork Studio" aria-label="Team name" />
+          <Input data-autofocus placeholder="Larkspur Studio" aria-label="Team name" />
         </div>
         <DialogFooter>
           <DialogClose asChild>

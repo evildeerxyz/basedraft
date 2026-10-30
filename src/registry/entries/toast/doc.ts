@@ -18,7 +18,7 @@ import { toast } from "@basedraft/ui";
 
 toast("Published to GitHub", {
   tone: "ok",
-  description: "fieldwork/zuno-site is up to date.",
+  description: "larkspur/zuno-site is up to date.",
 });`,
   use: [
     "To say that something happened, without stopping the work: a save, a send, a publish.",
@@ -91,14 +91,14 @@ toast("That code has run out", {
       note: "One toast through the whole step: it waits with no time limit, then toast.update says it's done and gives it the usual time.",
       code: `const id = toast("Publishing to GitHub", {
   tone: "wait",
-  description: "fieldwork/zuno-site, 61 files",
+  description: "larkspur/zuno-site, 61 files",
   duration: Infinity,
 });
 
 await publish();
 toast.update(id, "Published to GitHub", {
   tone: "ok",
-  description: "fieldwork/zuno-site is up to date.",
+  description: "larkspur/zuno-site is up to date.",
   action: { label: "Open repository", onClick: openRepo },
 });`,
     },

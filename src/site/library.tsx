@@ -1,15 +1,15 @@
 "use client";
 
-import { ArrowLeftIcon, ArrowRightIcon, ArrowUpRightIcon, CaretDownIcon, CaretLeftIcon, CaretRightIcon, SquaresFourIcon } from "@phosphor-icons/react";
+import { ArrowLeftIcon, ArrowRightIcon, ArrowUpRightIcon, CaretDownIcon, CaretLeftIcon, CaretRightIcon, CheckIcon, MagnifyingGlassIcon, SquaresFourIcon, XIcon } from "@phosphor-icons/react";
 import { AnimatePresence, LayoutGroup, motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useId, useRef, useState, ViewTransition, type ReactNode, type Ref, type RefObject } from "react";
+import { useEffect, useId, useRef, useState, useSyncExternalStore, ViewTransition, type KeyboardEvent as ReactKeyboardEvent, type ReactNode, type Ref, type RefObject } from "react";
 import { cn } from "@/lib/utils";
-import { DotField } from "./dot-field";
+import { DitherLight } from "./dither-light";
 import { SECTION_ICON, type IconType } from "./icons";
-import { GLASS, LIB_WRAP } from "./library-css";
+import { BACK, BACK_ARROW, GLASS, LIB_WRAP } from "./library-css";
 import { isFree, KINDS, SECTIONS, sectionShot, TEMPLATES, templateLogo, templateOf, USED_KINDS, type LiveSection, type SectionKind } from "./live";
 import { Menu } from "./menu";
 import { ProBadge } from "./sheet";
@@ -37,15 +37,17 @@ export function LibraryFrame({ children }: { children: ReactNode }) {
 /* ---------- the front page's card ---------- */
 
 /**
- * A library's front page opens on one light card, the way the home page does, everything on it
- * centered: a frosted pill of what's in it, the title, a line, and the actions.
+ * A library's front page opens on one light card, the way the home page does, lit in dither around
+ * its edges, everything on it centered: a frosted pill of what's in it, the title, a line, and the
+ * actions.
  */
 export function LibraryHero({ facts, title, lead, actions }: { facts: ReactNode; title: ReactNode; lead: ReactNode; actions: ReactNode }) {
   return (
-    <div className="px-3 pt-3 sm:px-4 sm:pt-4">
-      <header className="bd-light bd-paper glow-c relative isolate overflow-hidden rounded-[32px]">
-        <DotField patches={[]} layers={1} fade="radial-gradient(60% 70% at 50% 30%, #000, transparent 85%)" className="opacity-40" />
-        <div className={cn(LIB_WRAP, "flex flex-col items-center py-16 text-center sm:py-20 lg:py-24")}>
+    <div className={cn(LIB_WRAP, "pt-3 sm:pt-4")}>
+      {/* It sinks back and dims as the page scrolls up over it (scroll-motion.tsx). */}
+      <header data-scroll="recede" className="bd-light relative isolate overflow-hidden rounded-[32px] bg-paper text-paper-ink">
+        <DitherLight layout="library" />
+        <div className="flex flex-col items-center px-5 py-16 text-center sm:px-8 sm:py-20 lg:py-24">
           <div className="bd-reveal">{facts}</div>
           <h1 className="bd-reveal mt-7 max-w-[760px] text-balance font-display text-[44px] font-medium leading-[1.02] tracking-[-0.042em] text-paper-ink sm:text-[64px]">{title}</h1>
           <p className="bd-reveal mt-5 max-w-[560px] text-pretty text-lead text-paper-muted">{lead}</p>
@@ -77,13 +79,14 @@ export function HeroFacts({ items }: { items: Array<{ icon: ReactNode; value: Re
  * so filtering or jumping is always one tap away. Its pills scroll sideways when they run long;
  * whatever sits after them (a search, the templates) stays put at its end.
  */
-export function Dock({ label, children, after }: { label: string; children: ReactNode; after?: ReactNode }) {
+export function Dock({ label, children, more, after }: { label: string; children: ReactNode; /** The rest of the pills, behind More: outside the row, so its menu isn't cut by the row's scrolling. */ more?: ReactNode; after?: ReactNode }) {
   const id = useId();
   return (
     <div className="sticky top-[calc(var(--bd-header-h,80px)+10px)] z-30 mt-6 px-3 sm:px-4">
       <nav aria-label={label} className={cn("mx-auto flex w-fit max-w-full items-center gap-1 rounded-full p-1", GLASS)}>
         <LayoutGroup id={id}>
           <div className="no-scrollbar flex min-w-0 items-center gap-0.5 overflow-x-auto">{children}</div>
+          {more}
         </LayoutGroup>
         {after && (
           <>
@@ -91,6 +94,166 @@ export function Dock({ label, children, after }: { label: string; children: Reac
             {after}
           </>
         )}
+      </nav>
+    </div>
+  );
+}
+
+const WIDE = "(min-width: 768px)";
+/** Whether the screen is wide enough for the dock's longer row; a tablet and up. */
+export function useWide() {
+  return useSyncExternalStore(
+    (fn) => {
+      const m = matchMedia(WIDE);
+      m.addEventListener("change", fn);
+      return () => m.removeEventListener("change", fn);
+    },
+    () => matchMedia(WIDE).matches,
+    () => true,
+  );
+}
+
+export type DockItem = { id: string; label: string; icon?: IconType; count?: number };
+
+/**
+ * The dock's last pill: More, with the rest of the groups in a small card under it, each with its
+ * icon and count. When one of those is the one that's on, the pill becomes it, inked, so what's
+ * showing is always named in the dock. The arrow keys walk the card; Escape or a click away closes it.
+ */
+export function DockMore({ items, current, onPick, up }: { items: DockItem[]; current?: string | null; onPick: (id: string) => void; /** Opens upward, from a dock at the foot of the screen. */ up?: boolean }) {
+  const [open, setOpen] = useState(false);
+  const box = useRef<HTMLDivElement>(null);
+  const card = useRef<HTMLDivElement>(null);
+  const picked = items.find((it) => it.id === current);
+  useEffect(() => {
+    if (!open) return;
+    const away = (e: PointerEvent) => !box.current?.contains(e.target as Node) && setOpen(false);
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    addEventListener("pointerdown", away);
+    addEventListener("keydown", esc);
+    // The card opens with the one that's on, or the first, ready for the keys.
+    (card.current?.querySelector<HTMLElement>("[aria-checked=true]") ?? card.current?.querySelector<HTMLElement>("button"))?.focus();
+    return () => {
+      removeEventListener("pointerdown", away);
+      removeEventListener("keydown", esc);
+    };
+  }, [open]);
+  const walk = (e: ReactKeyboardEvent) => {
+    if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+    e.preventDefault();
+    const all = [...(card.current?.querySelectorAll<HTMLElement>("button") ?? [])];
+    const at = all.indexOf(document.activeElement as HTMLElement);
+    all[(at + (e.key === "ArrowDown" ? 1 : -1) + all.length) % all.length]?.focus();
+  };
+  if (!items.length) return null;
+  const I = picked?.icon;
+  return (
+    <div ref={box} className="relative shrink-0">
+      <button
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+        className={cn("relative flex h-9 items-center gap-1.5 rounded-full pl-3.5 pr-3 text-[13px] font-medium transition-colors duration-200", picked ? "text-canvas" : open ? "bg-fg/[0.05] text-fg" : "text-muted hover:bg-fg/[0.05] hover:text-fg")}
+      >
+        {picked && <motion.span layoutId="dock-pill" aria-hidden className="absolute inset-0 rounded-full bg-fg" transition={SLIDE} />}
+        {I && <I size={15} weight="duotone" aria-hidden className="relative shrink-0 text-canvas" />}
+        <span className="relative whitespace-nowrap">{picked ? picked.label : "More"}</span>
+        {picked?.count !== undefined && <span className="relative text-[11px] tabular-nums text-canvas/60">{picked.count}</span>}
+        <CaretDownIcon size={11} weight="bold" aria-hidden className={cn("relative transition-transform duration-200", open !== !!up && "rotate-180", picked ? "text-canvas/70" : "text-subtle")} />
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            ref={card}
+            role="menu"
+            aria-label="More groups"
+            onKeyDown={walk}
+            initial={{ opacity: 0, y: up ? 6 : -6, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: up ? 4 : -4, scale: 0.98, transition: { duration: 0.12 } }}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className={cn("absolute right-0 z-40 w-[248px] rounded-[18px] bg-surface p-1.5 shadow-[var(--bd-shadow-float),0_0_0_1px_var(--bd-line)]", up ? "bottom-[calc(100%+10px)] origin-bottom-right" : "top-[calc(100%+10px)] origin-top-right")}
+          >
+            {items.map((it) => {
+              const on = it.id === current;
+              const J = it.icon;
+              return (
+                <button
+                  key={it.id}
+                  type="button"
+                  role="menuitemradio"
+                  aria-checked={on}
+                  onClick={() => {
+                    onPick(it.id);
+                    setOpen(false);
+                  }}
+                  className={cn("flex h-10 w-full items-center gap-2.5 rounded-[12px] px-3 text-left text-[13px] outline-none transition-colors", on ? "bg-fg/[0.06] font-medium text-fg" : "text-muted hover:bg-fg/[0.045] hover:text-fg focus-visible:bg-fg/[0.045] focus-visible:text-fg")}
+                >
+                  {J && <J size={15} weight="duotone" aria-hidden className={cn("shrink-0", on ? "text-fg" : "text-subtle")} />}
+                  <span className="min-w-0 flex-1 truncate">{it.label}</span>
+                  {it.count !== undefined && <span className="text-[11px] tabular-nums text-subtle">{it.count}</span>}
+                  <CheckIcon size={13} weight="bold" aria-hidden className={cn("shrink-0", on ? "text-fg" : "invisible")} />
+                </button>
+              );
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+/** A library's search, for the dock at the top: what it finds narrows the gallery under it. Escape clears it. */
+export function SearchField({ value, onChange, placeholder, label }: { value: string; onChange: (v: string) => void; placeholder: string; label: string }) {
+  return (
+    <label className="flex h-9 min-w-0 items-center gap-2 rounded-full bg-fg/[0.045] pl-3 pr-1 text-[13px] text-fg transition-colors focus-within:bg-fg/[0.07]">
+      <MagnifyingGlassIcon size={15} weight="duotone" className="shrink-0 text-subtle" />
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key !== "Escape") return;
+          onChange("");
+          e.currentTarget.blur();
+        }}
+        placeholder={placeholder}
+        aria-label={label}
+        className="w-[170px] min-w-0 bg-transparent outline-none placeholder:text-subtle sm:w-[300px]"
+      />
+      {value ? (
+        <button type="button" onClick={() => onChange("")} aria-label="Clear the search" className="grid size-7 shrink-0 place-items-center rounded-full text-subtle transition-colors hover:bg-fg/[0.06] hover:text-fg">
+          <XIcon size={12} weight="regular" />
+        </button>
+      ) : (
+        <span aria-hidden className="size-7 shrink-0" />
+      )}
+    </label>
+  );
+}
+
+/**
+ * A library's groups, floating at the foot of the screen in one frosted pill: the pills in a row
+ * that scrolls sideways when it runs long, and More with the rest, opening upward. It steps out of
+ * the way once the footer comes into view, so it never sits over the footer's links.
+ */
+export function FloatingDock({ label, children, more }: { label: string; children: ReactNode; more?: ReactNode }) {
+  const id = useId();
+  const [away, setAway] = useState(false);
+  useEffect(() => {
+    const foot = document.querySelector("footer");
+    if (!foot) return;
+    const io = new IntersectionObserver(([e]) => setAway(e.isIntersecting));
+    io.observe(foot);
+    return () => io.disconnect();
+  }, []);
+  return (
+    <div className={cn("pointer-events-none fixed inset-x-0 bottom-5 z-50 flex justify-center px-3 transition-[opacity,translate] duration-300 ease-[var(--bd-ease)] sm:px-4", away && "translate-y-4 opacity-0")}>
+      <nav aria-label={label} aria-hidden={away || undefined} className={cn("flex w-fit max-w-full items-center gap-1 rounded-full p-1 shadow-[var(--bd-shadow-float),inset_0_0_0_1px_var(--bd-line)]", GLASS, away ? "pointer-events-none" : "pointer-events-auto")}>
+        <LayoutGroup id={id}>
+          <div className="no-scrollbar flex min-w-0 items-center gap-0.5 overflow-x-auto">{children}</div>
+          {more}
+        </LayoutGroup>
       </nav>
     </div>
   );
@@ -228,7 +391,7 @@ function BlockTile({ s, i }: { s: LiveSection; i: number }) {
 function KindHead({ kind, n }: { kind: (typeof KINDS)[number]; n: number }) {
   const I = SECTION_ICON[kind.id];
   return (
-    <div className="mb-5 flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
+    <div className="bd-reveal mb-5 flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
       <div className="flex min-w-0 items-center gap-3.5">
         <span className="grid size-11 shrink-0 place-items-center rounded-[14px] bg-surface text-fg shadow-[var(--bd-shadow-resting),inset_0_0_0_1px_var(--bd-line-subtle)]">
           <I size={20} weight="duotone" />
@@ -255,10 +418,15 @@ function KindHead({ kind, n }: { kind: (typeof KINDS)[number]; n: number }) {
 export function BlocksBrowser() {
   const [kind, setKind] = useState<SectionKind | "all">("all");
   const [from, setFrom] = useState<string[]>([]);
+  const [q, setQ] = useState("");
+  const wide = useWide();
   const top = useRef<HTMLDivElement>(null);
   useBackToTop(top, `${kind} ${from.join(",")}`);
   const inFrom = (s: LiveSection) => !from.length || from.includes(s.template);
-  const pool = SECTIONS.filter(inFrom);
+  // The search matches a section's name, its template's name and its kind, every word of it.
+  const words = q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const said = (s: LiveSection) => words.every((w) => `${s.name} ${templateOf(s.template)?.name ?? ""} ${KINDS.find((k) => k.id === s.kind)?.label ?? ""}`.toLowerCase().includes(w));
+  const pool = SECTIONS.filter((s) => inFrom(s) && said(s));
   const kinds = USED_KINDS.map((k) => ({ ...k, n: pool.filter((s) => s.kind === k.id).length }));
   const shown = kinds.filter((k) => (kind === "all" || k.id === kind) && k.n > 0);
   const toggle = (slug: string) => setFrom((f) => (f.includes(slug) ? f.filter((x) => x !== slug) : [...f, slug]));
@@ -268,7 +436,7 @@ export function BlocksBrowser() {
   return (
     <>
       <Dock
-        label="Filter sections"
+        label="Search sections"
         after={
           <div role="group" aria-label="From the templates" className="flex shrink-0 items-center gap-1 pr-1">
             {TEMPLATES.map((t) => {
@@ -283,15 +451,18 @@ export function BlocksBrowser() {
           </div>
         }
       >
+        <SearchField value={q} onChange={setQ} placeholder={`Search ${SECTIONS.length} sections`} label="Search the sections" />
+      </Dock>
+      <FloatingDock label="Filter sections" more={<DockMore up items={kinds.slice(wide ? 5 : 1).map((k) => ({ id: k.id, label: k.label, icon: SECTION_ICON[k.id], count: k.n }))} current={kind} onPick={(id) => setKind(id as SectionKind)} />}>
         <DockPill on={kind === "all"} onClick={() => setKind("all")} icon={SquaresFourIcon} count={pool.length}>
           All
         </DockPill>
-        {kinds.map((k) => (
+        {kinds.slice(0, wide ? 5 : 1).map((k) => (
           <DockPill key={k.id} on={kind === k.id} onClick={() => setKind(k.id)} icon={SECTION_ICON[k.id]} count={k.n}>
             {k.label}
           </DockPill>
         ))}
-      </Dock>
+      </FloatingDock>
       <div ref={top} className={cn(LIB_WRAP, "pt-6")}>
         {from.length > 0 && (
           <p className="flex flex-wrap items-center gap-2 pt-4 text-[13px] text-muted">
@@ -301,11 +472,13 @@ export function BlocksBrowser() {
             </button>
           </p>
         )}
-        {shown.length === 0 && <p className="py-24 text-center text-ui text-muted">No {kinds.find((k) => k.id === kind)?.label.toLowerCase()} sections in those templates yet.</p>}
+        {shown.length === 0 && (
+          <p className="py-24 text-center text-ui text-muted">{words.length ? `No sections match “${q.trim()}”.` : `No ${kinds.find((k) => k.id === kind)?.label.toLowerCase()} sections in those templates yet.`}</p>
+        )}
         {groups.map(({ k, list }, gi) => (
           <section key={k.id} id={k.id} aria-label={k.label} className="scroll-mt-[calc(var(--bd-header-h,80px)+88px)] pt-12">
             <KindHead kind={k} n={k.n} />
-            <ul className="grid gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <ul data-reveal-stagger="inner" className="grid gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-3">
               <AnimatePresence mode="popLayout" initial={false}>
                 {list.map((s, j) => (
                   <BlockTile key={s.key} s={s} i={starts[gi] + j} />
@@ -329,8 +502,8 @@ export function PieceNav({ back, prev, next, menu }: { back: { href: string; lab
   const step = "grid size-9 shrink-0 place-items-center rounded-full text-muted transition-colors hover:bg-fg/[0.06] hover:text-fg";
   return (
     <div className="flex items-center justify-between gap-3 pt-6">
-      <Link href={back.href} className="group inline-flex h-9 items-center gap-2 rounded-full bg-fg/[0.05] pl-3 pr-4 text-[13px] font-medium text-fg transition-colors hover:bg-fg/[0.09]">
-        <ArrowLeftIcon weight="regular" size={13} className="transition-transform duration-300 group-hover:-translate-x-0.5" />
+      <Link href={back.href} className={BACK}>
+        <ArrowLeftIcon weight="regular" size={13} className={BACK_ARROW} />
         {back.label}
       </Link>
       {menu && (
@@ -395,7 +568,8 @@ export function PieceHead({ kicker, title, lead, facts }: { kicker: ReactNode; t
         <h1 className="mt-4 text-balance font-display text-[40px] font-medium leading-[1.04] tracking-[-0.04em] sm:text-[52px]">{title}</h1>
         <p className="mt-3 text-pretty text-lead text-muted">{lead}</p>
       </div>
-      {facts && <div className="flex flex-wrap gap-2 max-sm:hidden">{facts}</div>}
+      {/* On a desk the facts sit at the end of the dock's row (SectionDock); here, only on smaller screens. */}
+      {facts && <div className="flex flex-wrap gap-2 md:hidden">{facts}</div>}
     </header>
   );
 }
@@ -403,7 +577,7 @@ export function PieceHead({ kicker, title, lead, facts }: { kicker: ReactNode; t
 /** A small fact under or beside a piece's name: an icon and a line, on a quiet pill. */
 export function FactPill({ icon, children }: { icon: ReactNode; children: ReactNode }) {
   return (
-    <span className="inline-flex h-8 items-center gap-2 rounded-full bg-fg/[0.05] pl-3 pr-3.5 text-[13px] text-muted [&_svg]:shrink-0 [&_svg]:text-subtle">
+    <span className="inline-flex h-9 items-center gap-2 whitespace-nowrap rounded-full bg-fg/[0.045] pl-3 pr-3.5 text-[13px] text-muted [&_svg]:shrink-0 [&_svg]:text-subtle">
       {icon}
       {children}
     </span>
@@ -413,7 +587,7 @@ export function FactPill({ icon, children }: { icon: ReactNode; children: ReactN
 /** A part of a piece's page: a title and an optional line, then what it shows. */
 export function PiecePart({ id, title, lead, children, className }: { id?: string; title: string; lead?: ReactNode; children: ReactNode; className?: string }) {
   return (
-    <section id={id} aria-label={title} className={cn("scroll-mt-[calc(var(--bd-header-h,80px)+80px)] pt-16", className)}>
+    <section id={id} aria-label={title} className={cn("bd-reveal scroll-mt-[calc(var(--bd-header-h,80px)+80px)] pt-16", className)}>
       <h2 className="font-display text-[26px] font-medium leading-[1.15] tracking-[-0.028em]">{title}</h2>
       {lead && <p className="mt-2 max-w-[600px] text-ui text-muted">{lead}</p>}
       <div className="mt-6">{children}</div>
@@ -425,19 +599,32 @@ export function PiecePart({ id, title, lead, children, className }: { id?: strin
  * The sections of one kind, as pills in the dock: each jumps to its section, and the one you're
  * reading is inked as you scroll.
  */
-export function SectionDock({ items, label = "Sections on this page" }: { items: Array<{ id: string; label: string; logo?: string }>; label?: string }) {
+/**
+ * A piece's page, under its name: the dock of its parts on the left edge, and on the right the
+ * facts about it, on glass of the same height, the two holding together under the header as the
+ * page scrolls. On a phone the facts stay under the name (PieceHead) and the dock has the row.
+ */
+export function SectionDock({ items, label = "Sections on this page", end }: { items: Array<{ id: string; label: string; logo?: string }>; label?: string; end?: ReactNode }) {
+  const id = useId();
   const at = useSpy(
     items.map((i) => i.id),
     220,
   );
   return (
-    <Dock label={label}>
-      {items.map((it) => (
-        <DockPill key={it.id} href={`#${it.id}`} on={at === it.id} logo={it.logo}>
-          {it.label}
-        </DockPill>
-      ))}
-    </Dock>
+    <div className="sticky top-[calc(var(--bd-header-h,80px)+10px)] z-30 mt-6 flex items-center justify-between gap-3">
+      <nav aria-label={label} className={cn("flex min-w-0 max-w-full items-center rounded-full p-1", GLASS)}>
+        <LayoutGroup id={id}>
+          <div className="no-scrollbar flex min-w-0 items-center gap-0.5 overflow-x-auto">
+            {items.map((it) => (
+              <DockPill key={it.id} href={`#${it.id}`} on={at === it.id} logo={it.logo}>
+                {it.label}
+              </DockPill>
+            ))}
+          </div>
+        </LayoutGroup>
+      </nav>
+      {end && <div className={cn("flex shrink-0 items-center gap-1 rounded-full p-1 max-md:hidden", GLASS)}>{end}</div>}
+    </div>
   );
 }
 
@@ -445,8 +632,8 @@ export function SectionDock({ items, label = "Sections on this page" }: { items:
 export function NextUp({ title = "Keep going", items }: { title?: string; items: Array<{ href: string; label: string; lead: string; icon?: ReactNode; logo?: string; count?: number }> }) {
   return (
     <section aria-label={title} className="pt-20">
-      <h2 className="font-display text-[26px] font-medium leading-[1.15] tracking-[-0.028em]">{title}</h2>
-      <ul className="mt-6 grid gap-3 sm:gap-4 md:grid-cols-3">
+      <h2 className="bd-reveal font-display text-[26px] font-medium leading-[1.15] tracking-[-0.028em]">{title}</h2>
+      <ul data-reveal-stagger className="mt-6 grid gap-3 sm:gap-4 md:grid-cols-3">
         {items.map((it, i) => (
             <li key={it.href}>
               <Link href={it.href} prefetch={/\.\w+$/.test(it.href) ? false : undefined} className={cn(TILE_LIT, GLOW[glowAt(i + 1)], "h-full min-h-[176px] p-5")}>

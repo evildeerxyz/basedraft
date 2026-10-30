@@ -28,6 +28,8 @@ interface Base extends Box {
   sizeH: Sizing;
   sizeV: Sizing;
   abs?: boolean;
+  /** A pinned layer that spans its parent across or down (an inset-0 thumb, a backdrop): it stretches with the parent in Figma, so it stays fitted if Figma lays the text out a touch wider. */
+  stretch?: { h?: boolean; v?: boolean };
   opacity?: number;
   /** Degrees clockwise. A rotated layer's x and y are where its own top left corner landed. */
   rotation?: number;
@@ -907,6 +909,10 @@ export function figmaTree(root: HTMLElement, name: string, h: TreeHelpers): FFra
       if (cs.flexWrap === "wrap") Object.assign(layout, { wrap: true, counterGap: px(mode === "H" ? cs.rowGap : cs.columnGap) });
       const stretch = cs.alignItems === "normal" || cs.alignItems === "stretch";
       inflow.forEach((k) => sizeChild(k, layout!, cw, chH, stretch));
+      // A row that scrolls (a board's columns on a phone) keeps each item at its drawn size, cut off
+      // at the frame's edge as on screen, rather than squeezed to share the frame's width.
+      const scrolls = mode === "H" ? cs.overflowX !== "visible" && el.scrollWidth > el.clientWidth + 1 : cs.overflowY !== "visible" && el.scrollHeight > el.clientHeight + 1;
+      if (scrolls) inflow.forEach((k) => (mode === "H" ? (k.node.sizeH = "FIXED") : (k.node.sizeV = "FIXED")));
       inflow.forEach((k) => alone(k, mode, layout!.cross, mode === "H" ? b.y + p[0] : b.x + p[3], mode === "H" ? chH : cw));
       // Spacing as laid out, margins included, rather than the CSS gap alone.
       const seq = [...inflow].sort((a, c) => startOf(a, mode) - startOf(c, mode));
@@ -924,6 +930,15 @@ export function figmaTree(root: HTMLElement, name: string, h: TreeHelpers): FFra
           if (trailing > 0) layout.pad[s1] += trailing;
         }
         kids = [...r.items, ...list.filter((k) => k.abs)];
+      } else if (!layout.wrap && layout.main !== "SPACE_BETWEEN" && seq.length > 1) {
+        // Items that overlap by the same amount each (a stack of faces tucked under each other with
+        // negative margins) keep that overlap as a negative gap, which Figma's auto layout allows.
+        const steps = seq.slice(1).map((k, i) => startOf(k, mode) - endOf(seq[i], mode));
+        if (Math.max(...steps) < -0.5 && Math.max(...steps) - Math.min(...steps) <= 1.5) {
+          layout.gap = Math.round(steps.reduce((a, v) => a + v, 0) / steps.length);
+          if (layout.main === "MIN") layout.pad[mode === "V" ? 0 : 3] = Math.max(0, r1(startOf(seq[0], mode) - (mode === "V" ? b.y : b.x)));
+          kids = [...seq, ...list.filter((k) => k.abs)];
+        }
       }
     } else if (cs.display.includes("grid")) {
       const tracks = cs.gridTemplateColumns.split(" ").filter((v) => v.endsWith("px")).map(px);
@@ -1039,10 +1054,15 @@ export function figmaTree(root: HTMLElement, name: string, h: TreeHelpers): FFra
       const raised = kids.filter((k) => k.abs && (k.z ?? 0) > 0).sort((x, y) => (x.z ?? 0) - (y.z ?? 0) || (x.order ?? 0) - (y.order ?? 0));
       const seq = kids.filter((k) => !k.abs);
       const positioned = (k: Item) => Boolean(k.cs && k.cs.position !== "static");
+      // CSS paints positioned layers in page order across the whole tree, so an unpositioned block
+      // whose own pinned layers come later (a roadmap's rows, their bars pinned inside them) still
+      // shows them over an earlier pinned layer (its week rules). Figma can only order siblings, so
+      // such a block stays above that layer.
+      const holdsPinned = (n: FNode): boolean => (n as FFrame).children?.some((c) => c.abs || holdsPinned(c)) ?? false;
       for (const a of absPos) {
         let at = 0;
         seq.forEach((k, i) => {
-          if ((k.order !== undefined && k.order < (a.order ?? 0)) || (!k.abs && !positioned(k))) at = i + 1;
+          if ((k.order !== undefined && k.order < (a.order ?? 0)) || (!k.abs && !positioned(k) && !holdsPinned(k.node))) at = i + 1;
         });
         seq.splice(at, 0, a);
       }
@@ -1051,7 +1071,12 @@ export function figmaTree(root: HTMLElement, name: string, h: TreeHelpers): FFra
     f.layout = layout;
     f.children = kids.map((k) => {
       const n = k.node;
-      if (k.abs) n.abs = true;
+      if (k.abs) {
+        n.abs = true;
+        const h = Math.abs(k.box.x - b.x) <= 1 && Math.abs(k.box.w - b.w) <= 1;
+        const v = Math.abs(k.box.y - b.y) <= 1 && Math.abs(k.box.h - b.h) <= 1;
+        if (h || v) n.stretch = { h, v };
+      }
       n.x = r1(k.box.x - b.x);
       n.y = r1(k.box.y - b.y);
       return n;

@@ -82,14 +82,14 @@ function Person() {
       Last edited by{" "}
       <HoverCard>
         <HoverCardTrigger href="#maya" className={LINK}>
-          Maya Okafor
+          Emily Carter
         </HoverCardTrigger>
         <HoverCardContent className="w-[260px]">
           <div className="flex items-center gap-3">
-            <Avatar name="Maya Okafor" size="lg" status="online" />
+            <Avatar name="Emily Carter" size="lg" status="online" />
             <div className="min-w-0">
-              <p className="text-sm font-semibold">Maya Okafor</p>
-              <p className="text-xs text-[var(--bd-subtle)]">Designer at Fieldwork</p>
+              <p className="text-sm font-semibold">Emily Carter</p>
+              <p className="text-xs text-[var(--bd-subtle)]">Designer at Larkspur</p>
             </div>
           </div>
           <p className="mt-3 text-[13px] leading-snug text-[var(--bd-muted)]">Rewrote the hero and moved Pricing above the FAQ, two hours ago.</p>

@@ -9,6 +9,7 @@
  *   src/registry/sources.ts   the sources again, for the components' Code view
  * Run after changing a component or the tokens:
  *   node scripts/registry.mjs
+ * It writes the screens too (scripts/screens.mjs).
  * Dependencies come from each file's imports, so a component that starts using motion says so.
  */
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -144,7 +145,7 @@ writeFileSync(
 );
 
 /* The templates for llms.txt, from their manifests: only the released ones. */
-const MANIFESTS = { zuno: "templates/zuno/src/bd/manifest.json", noma: "templates/noma/src/bd/manifest.json", auren: "templates/auren/bd/manifest.json", pello: "templates/pello/src/bd/manifest.json" };
+const MANIFESTS = { zuno: "templates/zuno/src/bd/manifest.json", noma: "templates/noma/src/bd/manifest.json", auren: "templates/auren/bd/manifest.json" };
 const released = new Set(RELEASED.map((z) => z.slug));
 const templates = Object.entries(MANIFESTS)
   .filter(([slug]) => released.has(slug))
@@ -212,3 +213,6 @@ Every template, block and export, and every future update, for one payment: ${SI
 writeFileSync("public/llms.txt", llms);
 
 console.log(`${META.length} components (${proItems.length} Pro): public/ui, public/llms.txt, src/registry/sources.ts, pro-sources.ts`);
+
+/* The screens read the same components, so they're written with them. */
+await import("./screens.mjs");

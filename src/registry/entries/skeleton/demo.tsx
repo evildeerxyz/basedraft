@@ -48,7 +48,8 @@ export function Demo() {
           </div>
         ))}
       </section>
-      <div className="mt-4 flex justify-end">
+      {/* Under the list, its arrow in the files' column, not off on its own at the far edge. */}
+      <div className="mt-4 flex">
         <Button
           variant="ghost"
           size="sm"

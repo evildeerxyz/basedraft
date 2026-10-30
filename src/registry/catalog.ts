@@ -1,9 +1,11 @@
 /* Written by scripts/registry.mjs from src/registry/entries: each newer component's meta and documentation. Don't edit by hand. */
 import type { ComponentDoc, ComponentMeta } from "./types";
 import { doc as e_accordion } from "./entries/accordion/doc";
+import { doc as e_accountMenu } from "./entries/account-menu/doc";
 import { doc as e_actionBar } from "./entries/action-bar/doc";
 import { doc as e_aiChat } from "./entries/ai-chat/doc";
 import { doc as e_alert } from "./entries/alert/doc";
+import { doc as e_allowance } from "./entries/allowance/doc";
 import { doc as e_appSidebar } from "./entries/app-sidebar/doc";
 import { doc as e_areaChart } from "./entries/area-chart/doc";
 import { doc as e_avatar } from "./entries/avatar/doc";
@@ -33,12 +35,16 @@ import { doc as e_dataTable } from "./entries/data-table/doc";
 import { doc as e_datePicker } from "./entries/date-picker/doc";
 import { doc as e_dialog } from "./entries/dialog/doc";
 import { doc as e_ditherImage } from "./entries/dither-image/doc";
+import { doc as e_dock } from "./entries/dock/doc";
 import { doc as e_donutChart } from "./entries/donut-chart/doc";
 import { doc as e_emptyState } from "./entries/empty-state/doc";
 import { doc as e_field } from "./entries/field/doc";
 import { doc as e_fileDrop } from "./entries/file-drop/doc";
+import { doc as e_filterBar } from "./entries/filter-bar/doc";
+import { doc as e_flow } from "./entries/flow/doc";
 import { doc as e_funnel } from "./entries/funnel/doc";
 import { doc as e_gauge } from "./entries/gauge/doc";
+import { doc as e_globe } from "./entries/globe/doc";
 import { doc as e_heatmap } from "./entries/heatmap/doc";
 import { doc as e_holdButton } from "./entries/hold-button/doc";
 import { doc as e_hoverCard } from "./entries/hover-card/doc";
@@ -48,24 +54,29 @@ import { doc as e_input } from "./entries/input/doc";
 import { doc as e_kanbanBoard } from "./entries/kanban-board/doc";
 import { doc as e_kbd } from "./entries/kbd/doc";
 import { doc as e_lightbox } from "./entries/lightbox/doc";
+import { doc as e_liveCursors } from "./entries/live-cursors/doc";
 import { doc as e_logViewer } from "./entries/log-viewer/doc";
 import { doc as e_marquee } from "./entries/marquee/doc";
 import { doc as e_menu } from "./entries/menu/doc";
 import { doc as e_meter } from "./entries/meter/doc";
+import { doc as e_metricTabs } from "./entries/metric-tabs/doc";
 import { doc as e_navigationMenu } from "./entries/navigation-menu/doc";
 import { doc as e_number } from "./entries/number/doc";
 import { doc as e_numberField } from "./entries/number-field/doc";
 import { doc as e_onboarding } from "./entries/onboarding/doc";
 import { doc as e_pagination } from "./entries/pagination/doc";
+import { doc as e_particleText } from "./entries/particle-text/doc";
 import { doc as e_passwordField } from "./entries/password-field/doc";
 import { doc as e_popover } from "./entries/popover/doc";
 import { doc as e_pricingTable } from "./entries/pricing-table/doc";
 import { doc as e_radioGroup } from "./entries/radio-group/doc";
 import { doc as e_resizable } from "./entries/resizable/doc";
+import { doc as e_roadmap } from "./entries/roadmap/doc";
 import { doc as e_scheduler } from "./entries/scheduler/doc";
 import { doc as e_scrollArea } from "./entries/scroll-area/doc";
 import { doc as e_segmented } from "./entries/segmented/doc";
 import { doc as e_select } from "./entries/select/doc";
+import { doc as e_share } from "./entries/share/doc";
 import { doc as e_sheet } from "./entries/sheet/doc";
 import { doc as e_signIn } from "./entries/sign-in/doc";
 import { doc as e_skeleton } from "./entries/skeleton/doc";
@@ -74,8 +85,10 @@ import { doc as e_sortableList } from "./entries/sortable-list/doc";
 import { doc as e_sparkline } from "./entries/sparkline/doc";
 import { doc as e_spinner } from "./entries/spinner/doc";
 import { doc as e_splitButton } from "./entries/split-button/doc";
+import { doc as e_splitFlap } from "./entries/split-flap/doc";
 import { doc as e_stat } from "./entries/stat/doc";
 import { doc as e_stepper } from "./entries/stepper/doc";
+import { doc as e_swipeDeck } from "./entries/swipe-deck/doc";
 import { doc as e_switch } from "./entries/switch/doc";
 import { doc as e_tableOfContents } from "./entries/table-of-contents/doc";
 import { doc as e_tabs } from "./entries/tabs/doc";
@@ -101,6 +114,15 @@ export const ENTRY_META: ComponentMeta[] = [
     "description": "Numbered questions on one card, each answer springing open as its plus turns into a cross."
   },
   {
+    "order": 9,
+    "name": "account-menu",
+    "title": "Account menu",
+    "group": "Navigation",
+    "description": "You, and what's yours: your dithered face that opens a menu with your name, email and plan, your pages with their shortcuts, light, dark or system, and Sign out set apart in red.",
+    "added": "2026-10-30",
+    "pro": true
+  },
+  {
     "order": 61,
     "name": "action-bar",
     "title": "Action bar",
@@ -122,6 +144,15 @@ export const ENTRY_META: ComponentMeta[] = [
     "group": "Feedback",
     "description": "A note in the flow of the page in four tones, washed with its tone or bleeding in from the edge through a dither, with actions, that folds away when closed.",
     "added": "2026-10-23"
+  },
+  {
+    "order": 22,
+    "name": "allowance",
+    "title": "Allowance",
+    "group": "Data",
+    "description": "How much of an allowance is used: the share, a bar that turns amber near the limit and red past it, and where the month is heading at this pace, hatched ahead. Folds to a ring for a sidebar's rail.",
+    "added": "2026-10-30",
+    "pro": true
   },
   {
     "order": 50,
@@ -346,6 +377,15 @@ export const ENTRY_META: ComponentMeta[] = [
     "pro": true
   },
   {
+    "order": 8,
+    "name": "dock",
+    "title": "Dock",
+    "group": "Navigation",
+    "description": "A frosted dock of brushed-metal keys that swell on their own springs as the pointer nears, with a name rising over the one you're on, dots under the open ones, a hop when pressed, and the arrow keys to walk it.",
+    "added": "2026-10-30",
+    "pro": true
+  },
+  {
     "order": 32,
     "name": "donut-chart",
     "title": "Donut chart",
@@ -375,6 +415,24 @@ export const ENTRY_META: ComponentMeta[] = [
     "description": "A zone that wakes when files are dragged over the page and lifts to meet them, listing each with its kind, its progress, and why it failed or was turned away."
   },
   {
+    "order": 40,
+    "name": "filter-bar",
+    "title": "Filter bar",
+    "group": "Forms",
+    "description": "Filters that read as a sentence you edit in place: Showing deploys where status is not failed and region is Frankfurt or Tokyo. Every dashed word answers a click, and the keys drive it all.",
+    "added": "2026-10-30",
+    "pro": true
+  },
+  {
+    "order": 85,
+    "name": "flow",
+    "title": "Flow",
+    "group": "Patterns",
+    "description": "A node editor on a dotted board that pans and zooms: steps that snap to the grid, curves you draw from an output to the input they snap to, data visibly flowing into the step that's running, a minimap, and undo.",
+    "added": "2026-10-30",
+    "pro": true
+  },
+  {
     "order": 35,
     "name": "funnel",
     "title": "Funnel",
@@ -392,6 +450,15 @@ export const ENTRY_META: ComponentMeta[] = [
     "added": "2026-10-23"
   },
   {
+    "order": 37,
+    "name": "globe",
+    "title": "Globe",
+    "group": "Data",
+    "description": "The Earth in dots, lit and shaded by an ordered dither, that spins when dragged and coasts to a stop, with markers that pulse, arcs that rise between them carrying a light, and a turn to face whatever you choose.",
+    "added": "2026-10-30",
+    "pro": true
+  },
+  {
     "order": 33,
     "name": "heatmap",
     "title": "Heatmap",
@@ -405,7 +472,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "name": "hold-button",
     "title": "Hold button",
     "group": "Actions",
-    "description": "Press and hold to confirm: ink fills it as you hold, and letting go early cancels."
+    "description": "Press and hold to confirm: a dial winds closed and the time left counts down as the button sinks under your finger, and letting go early unwinds it."
   },
   {
     "order": 60,
@@ -425,7 +492,7 @@ export const ENTRY_META: ComponentMeta[] = [
   {
     "order": 60,
     "name": "inline-edit",
-    "title": "Inline edit",
+    "title": "Edit in place",
     "group": "Forms",
     "description": "Text that becomes a field where it stands, the same size and type, growing as you type, with saving, a check, and a shake when it is refused."
   },
@@ -460,6 +527,15 @@ export const ENTRY_META: ComponentMeta[] = [
     "added": "2026-10-29"
   },
   {
+    "order": 86,
+    "name": "live-cursors",
+    "title": "Live cursors",
+    "group": "Patterns",
+    "description": "Everyone else's pointer, gliding on a spring with their name, the box they've selected and what they're saying in a bubble; press / to say something at your own, and follow anyone from the faces above.",
+    "added": "2026-10-30",
+    "pro": true
+  },
+  {
     "order": 36,
     "name": "log-viewer",
     "title": "Log viewer",
@@ -490,6 +566,15 @@ export const ENTRY_META: ComponentMeta[] = [
     "description": "Progress drawn in dots, its edge dissolving through an ordered dither and springing as it moves."
   },
   {
+    "order": 20,
+    "name": "metric-tabs",
+    "title": "Metric tabs",
+    "group": "Data",
+    "description": "The figures that matter as tabs across a card, each with how far it moved and whether that's good news, and under them the chart for the one you pick, an ink rule sliding between them.",
+    "added": "2026-10-30",
+    "pro": true
+  },
+  {
     "order": 6,
     "name": "navigation-menu",
     "title": "Navigation menu",
@@ -515,7 +600,7 @@ export const ENTRY_META: ComponentMeta[] = [
   {
     "order": 60,
     "name": "onboarding",
-    "title": "Onboarding checklist",
+    "title": "First steps",
     "group": "Patterns",
     "description": "A new account's first steps in a card that keeps count: a ring that fills, ticks that draw in, the next step opening on its own, a pill to fold it into, and a finish that blooms.",
     "pro": true
@@ -527,6 +612,15 @@ export const ENTRY_META: ComponentMeta[] = [
     "group": "Navigation",
     "description": "Pages of a long list, the current one inked on a pill that slides, a row that keeps its length as you go, and numbers that roll the way you went.",
     "added": "2026-10-23"
+  },
+  {
+    "order": 65,
+    "name": "particle-text",
+    "title": "Particle text",
+    "group": "Display",
+    "description": "A word made of ink pixels, lit from above through an ordered dither, that scatter from your pointer and settle back, and sweep from one word into the next.",
+    "added": "2026-10-30",
+    "pro": true
   },
   {
     "order": 55,
@@ -561,9 +655,18 @@ export const ENTRY_META: ComponentMeta[] = [
   {
     "order": 61,
     "name": "resizable",
-    "title": "Resizable panels",
+    "title": "Panes",
     "group": "Display",
     "description": "Two panels and a line between them that catches at sizes you come back to, folds a side away, and springs home on a double-click."
+  },
+  {
+    "order": 21,
+    "name": "roadmap",
+    "title": "Roadmap",
+    "group": "Data",
+    "description": "Work laid out over the weeks it takes, in groups, with today ruled in ink: drag a bar to move it or an end to stretch it, snapping to days, and see at a glance what's planned, under way, at risk or done.",
+    "added": "2026-10-30",
+    "pro": true
   },
   {
     "order": 80,
@@ -585,7 +688,7 @@ export const ENTRY_META: ComponentMeta[] = [
   {
     "order": 3,
     "name": "segmented",
-    "title": "Segmented control",
+    "title": "Segmented",
     "group": "Forms",
     "description": "One choice of a few in a machined track, the chosen one on a raised thumb that slides."
   },
@@ -595,6 +698,15 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Select",
     "group": "Forms",
     "description": "A pill that opens a card of choices in groups, ticked in ink, moved by the arrow keys and by typing a name."
+  },
+  {
+    "order": 30,
+    "name": "share",
+    "title": "Share",
+    "group": "Overlays",
+    "description": "Share, link first: who can open it and the link to copy lead, the faces of those invited open into their access, and new people are invited by email at the foot.",
+    "added": "2026-10-30",
+    "pro": true
   },
   {
     "order": 2,
@@ -658,6 +770,15 @@ export const ENTRY_META: ComponentMeta[] = [
     "added": "2026-10-23"
   },
   {
+    "order": 66,
+    "name": "split-flap",
+    "title": "Split-flap",
+    "group": "Display",
+    "description": "Letters on hinged flaps, the way a departures board turns over: each one flips forward through the alphabet to its letter, the top half falling and shading as it goes, rippling along the word.",
+    "added": "2026-10-30",
+    "pro": true
+  },
+  {
     "order": 20,
     "name": "stat",
     "title": "Stat",
@@ -670,6 +791,15 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Steps",
     "group": "Display",
     "description": "The way through a task in a few steps, down the page or across, with a line that fills as you go."
+  },
+  {
+    "order": 64,
+    "name": "swipe-deck",
+    "title": "Swipe deck",
+    "group": "Display",
+    "description": "A stack of cards to decide on one at a time: the top one tilts with your hand as it leans, flies off past the line or on a flick, and comes back with Undo.",
+    "added": "2026-10-30",
+    "pro": true
   },
   {
     "order": 2,
@@ -790,9 +920,11 @@ export const ENTRY_META: ComponentMeta[] = [
 
 export const ENTRY_DOCS: Record<string, ComponentDoc> = {
   "accordion": e_accordion,
+  "account-menu": e_accountMenu,
   "action-bar": e_actionBar,
   "ai-chat": e_aiChat,
   "alert": e_alert,
+  "allowance": e_allowance,
   "app-sidebar": e_appSidebar,
   "area-chart": e_areaChart,
   "avatar": e_avatar,
@@ -822,12 +954,16 @@ export const ENTRY_DOCS: Record<string, ComponentDoc> = {
   "date-picker": e_datePicker,
   "dialog": e_dialog,
   "dither-image": e_ditherImage,
+  "dock": e_dock,
   "donut-chart": e_donutChart,
   "empty-state": e_emptyState,
   "field": e_field,
   "file-drop": e_fileDrop,
+  "filter-bar": e_filterBar,
+  "flow": e_flow,
   "funnel": e_funnel,
   "gauge": e_gauge,
+  "globe": e_globe,
   "heatmap": e_heatmap,
   "hold-button": e_holdButton,
   "hover-card": e_hoverCard,
@@ -837,24 +973,29 @@ export const ENTRY_DOCS: Record<string, ComponentDoc> = {
   "kanban-board": e_kanbanBoard,
   "kbd": e_kbd,
   "lightbox": e_lightbox,
+  "live-cursors": e_liveCursors,
   "log-viewer": e_logViewer,
   "marquee": e_marquee,
   "menu": e_menu,
   "meter": e_meter,
+  "metric-tabs": e_metricTabs,
   "navigation-menu": e_navigationMenu,
   "number": e_number,
   "number-field": e_numberField,
   "onboarding": e_onboarding,
   "pagination": e_pagination,
+  "particle-text": e_particleText,
   "password-field": e_passwordField,
   "popover": e_popover,
   "pricing-table": e_pricingTable,
   "radio-group": e_radioGroup,
   "resizable": e_resizable,
+  "roadmap": e_roadmap,
   "scheduler": e_scheduler,
   "scroll-area": e_scrollArea,
   "segmented": e_segmented,
   "select": e_select,
+  "share": e_share,
   "sheet": e_sheet,
   "sign-in": e_signIn,
   "skeleton": e_skeleton,
@@ -863,8 +1004,10 @@ export const ENTRY_DOCS: Record<string, ComponentDoc> = {
   "sparkline": e_sparkline,
   "spinner": e_spinner,
   "split-button": e_splitButton,
+  "split-flap": e_splitFlap,
   "stat": e_stat,
   "stepper": e_stepper,
+  "swipe-deck": e_swipeDeck,
   "switch": e_switch,
   "table-of-contents": e_tableOfContents,
   "tabs": e_tabs,

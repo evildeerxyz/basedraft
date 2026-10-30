@@ -5,9 +5,9 @@ import { useEffect, useState, type ComponentType } from "react";
 import { Button } from "../../ui/button";
 import { Timeline, TimelineGroup, TimelineItem, TimelineMeta, TimelineQuote } from "../../ui/timeline";
 
-const MAYA = { name: "Maya Okafor" };
-const JONAH = { name: "Jonah Park" };
-const LEA = { name: "Lea Moreau" };
+const MAYA = { name: "Emily Carter" };
+const JONAH = { name: "Jake Morrison" };
+const LEA = { name: "Sarah Mitchell" };
 
 /* A commit hash, set in mono. */
 const Hash = ({ children }: { children: string }) => <code className="font-mono text-[11.5px]">{children}</code>;
@@ -39,7 +39,7 @@ function Activity({ onAgain }: { onAgain: () => void }) {
           <TimelineItem key="maya" minor time="09:12" person={MAYA} title="changed the headline" />
         </TimelineGroup>
         <TimelineGroup label="Yesterday">
-          <TimelineItem minor time="17:05" person={JONAH} title="invited Lea Moreau" />
+          <TimelineItem minor time="17:05" person={JONAH} title="invited Sarah Mitchell" />
           <TimelineItem time="16:40" tone="stop" icon={<WarningIcon weight="duotone" />} title="Build failed">
             <TimelineMeta items={["main", <Hash key="h">9be20d4</Hash>, "pricing/plans.ts"]} />
           </TimelineItem>
@@ -97,7 +97,7 @@ function Days() {
         <TimelineItem minor time="10:47" person={MAYA} title="moved Pricing above FAQ" />
       </TimelineGroup>
       <TimelineGroup label="Monday, October 12">
-        <TimelineItem time="16:20" person={JONAH} title="invited Lea Moreau" />
+        <TimelineItem time="16:20" person={JONAH} title="invited Sarah Mitchell" />
         <TimelineItem minor time="16:02" tone="warn" title="Domain check is still waiting on DNS" />
       </TimelineGroup>
     </Timeline>

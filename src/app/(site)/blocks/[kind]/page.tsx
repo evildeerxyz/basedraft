@@ -55,6 +55,19 @@ async function Kind({ params }: { params: PageProps<"/blocks/[kind]">["params"] 
   // Three other kinds to go on to: the ones after this one, wrapping at the end.
   const related = [1, 2, 3].map((d) => USED_KINDS[(i + d) % USED_KINDS.length]).filter((r) => r.id !== k.id);
   const I = SECTION_ICON[k.id];
+  // How many there are and the templates they come from: under the name on a phone, at the end of the dock's row on a desk.
+  const facts = (
+    <FactPill icon={<StackIcon weight="duotone" size={14} />}>
+      {list.length} {list.length === 1 ? "section" : "sections"}, from
+      {/* The templates they come from, as a small stack of their logos. */}
+      <span className="flex -space-x-1">
+        {from.map((slug) => (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img key={slug} src={templateLogo(slug)} alt={name(slug)} title={name(slug)} width={18} height={18} className="size-[18px] rounded-full ring-2 ring-canvas" />
+        ))}
+      </span>
+    </FactPill>
+  );
   return (
     <>
       <div className={LIB_WRAP}>
@@ -70,21 +83,10 @@ async function Kind({ params }: { params: PageProps<"/blocks/[kind]">["params"] 
           }
           title={k.label}
           lead={`${k.blurb} ${list.length === 1 ? "It's" : `All ${list.length} are`} live from ${list.length === 1 ? "its" : "their"} own template, exactly as ${list.length === 1 ? "it ships" : "they ship"}.`}
-          facts={
-            <FactPill icon={<StackIcon weight="duotone" size={14} />}>
-              {list.length} {list.length === 1 ? "section" : "sections"}, from
-              {/* The templates they come from, as a small stack of their logos. */}
-              <span className="flex -space-x-1">
-                {from.map((slug) => (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img key={slug} src={templateLogo(slug)} alt={name(slug)} title={name(slug)} width={18} height={18} className="size-[18px] rounded-full ring-2 ring-canvas" />
-                ))}
-              </span>
-            </FactPill>
-          }
+          facts={facts}
         />
+        <SectionDock items={list.map((s) => ({ id: `${s.template}-${s.id}`, label: name(s.template), logo: templateLogo(s.template) }))} end={facts} />
       </div>
-      {list.length > 1 && <SectionDock items={list.map((s) => ({ id: `${s.template}-${s.id}`, label: name(s.template), logo: templateLogo(s.template) }))} />}
       <div className={LIB_WRAP}>
         {list.map((s, j) => (
           <LiveSectionShowcase key={s.key} template={s.template} id={s.id} glow={glowAt(j)} />

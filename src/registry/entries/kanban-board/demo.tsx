@@ -6,8 +6,8 @@ import { KanbanBoard, type KanbanColumn } from "../../pro-ui/kanban-board";
 /* A template's launch, from the first idea to what's live. */
 const LAUNCH: KanbanColumn[] = [
   { id: "ideas", title: "Ideas", cards: [{ id: "a", title: "A pricing page for Auren", note: "Three plans, per-seat Team", tags: ["Copy"] }, { id: "b", title: "Noma in dark mode", tags: ["Design"] }] },
-  { id: "writing", title: "Writing", limit: 3, cards: [{ id: "c", title: "Zuno hero, take two", note: "Shorter promise, one action", people: ["Maya Chen"], meta: "Fri" }] },
-  { id: "review", title: "In review", cards: [{ id: "d", title: "Security section", people: ["Jonah Park", "Lea Moreau"], meta: "2 notes" }] },
+  { id: "writing", title: "Writing", limit: 3, cards: [{ id: "c", title: "Zuno hero, take two", note: "Shorter promise, one action", people: ["Olivia Bennett"], meta: "Fri" }] },
+  { id: "review", title: "In review", cards: [{ id: "d", title: "Security section", people: ["Jake Morrison", "Sarah Mitchell"], meta: "2 notes" }] },
   { id: "shipped", title: "Shipped", cards: [{ id: "e", title: "Changelog, October", tags: ["Live"] }] },
 ];
 
@@ -30,7 +30,7 @@ function Limits() {
         size="sm"
         enforceLimits
         defaultColumns={[
-          { id: "todo", title: "To review", cards: [{ id: "1", title: "Pello pricing" }, { id: "2", title: "Auren FAQ" }] },
+          { id: "todo", title: "To review", cards: [{ id: "1", title: "Noma pricing" }, { id: "2", title: "Auren FAQ" }] },
           { id: "doing", title: "Reviewing", limit: 2, cards: [{ id: "3", title: "Zuno manifesto" }, { id: "4", title: "Noma stats" }] },
           { id: "done", title: "Approved", cards: [] },
         ]}

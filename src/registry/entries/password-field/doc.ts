@@ -45,7 +45,7 @@ export function NewPassword() {
   autoComplete="new-password"
   rules={[
     { label: "16 characters or more", test: (v) => v.length >= 16 },
-    { label: "Not your email", test: (v) => !!v && !v.includes("maya@fieldwork.co") },
+    { label: "Not your email", test: (v) => !!v && !v.includes("emily@larkspur.co") },
     { label: "No spaces", test: (v) => !!v && !/\\s/.test(v) },
   ]}
 />`,

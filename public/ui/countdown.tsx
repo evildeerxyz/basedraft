@@ -108,12 +108,12 @@ export function Countdown({ to, units = ["days", "hours", "minutes", "seconds"],
   }
 
   return (
-    <div role="timer" aria-label={label ? `${label} in ${said ?? "a moment"}` : said} className={cx("inline-flex items-start gap-2", className)}>
+    <div role="timer" aria-label={label ? `${label} in ${said ?? "a moment"}` : said} className={cx("inline-flex items-start gap-1.5 sm:gap-2", className)}>
       {parts.map((p, k) => (
-        <div key={p.u} aria-hidden className="flex items-start gap-2">
-          {k > 0 && <span className="pt-[18px] text-[26px] font-medium leading-none text-[var(--bd-subtle)] opacity-60">:</span>}
+        <div key={p.u} aria-hidden className="flex items-start gap-1.5 sm:gap-2">
+          {k > 0 && <span className="pt-[15px] text-[22px] font-medium leading-none sm:pt-[18px] sm:text-[26px] text-[var(--bd-subtle)] opacity-60">:</span>}
           <div className="grid justify-items-center gap-2">
-            <span className="flex h-[68px] min-w-[68px] items-center justify-center rounded-[16px] px-2.5 text-[38px] font-medium tracking-[-0.03em] tabular-nums text-[var(--bd-fg)] [background:var(--bd-ui-raised)] shadow-[var(--bd-ui-lift),inset_0_0_0_1px_rgb(var(--bd-ink)/0.06)]">
+            <span className="flex h-[56px] min-w-[56px] items-center justify-center rounded-[14px] px-2 text-[30px] font-medium sm:h-[68px] sm:min-w-[68px] sm:rounded-[16px] sm:px-2.5 sm:text-[38px] tracking-[-0.03em] tabular-nums text-[var(--bd-fg)] [background:var(--bd-ui-raised)] shadow-[var(--bd-ui-lift),inset_0_0_0_1px_rgb(var(--bd-ink)/0.06)]">
               {p.n === null ? <span className="text-[var(--bd-subtle)]">--</span> : String(p.n).padStart(2, "0").split("").map((d, i) => <Digit key={i} d={d} />)}
             </span>
             <span className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--bd-subtle)]">{LABEL[p.u][p.n === 1 ? 0 : 1]}</span>

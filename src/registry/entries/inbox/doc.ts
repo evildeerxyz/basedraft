@@ -14,7 +14,7 @@ const items: InboxItem[] = [
   },
   {
     id: "2",
-    actor: "Maya Chen",
+    actor: "Olivia Bennett",
     text: "invited you to Parker Studio",
     day: "Today",
     time: "1h",

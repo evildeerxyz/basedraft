@@ -21,7 +21,7 @@ function Push({ onAgain }: { onAgain: () => void }) {
       <Meter value={n} max={TOTAL} label={done ? "Pushed to GitHub" : "Pushing to GitHub"} valueLabel={`${n} of ${TOTAL} files`} />
       <div className="mt-3.5 flex items-center justify-between gap-3">
         <Badge variant="outline" dot={done ? "ok" : "wait"} live={!done}>
-          fieldwork/zuno-site
+          larkspur/zuno-site
         </Badge>
         <Button variant="ghost" size="sm" onClick={onAgain}>
           <ArrowCounterClockwiseIcon weight="regular" /> Again

@@ -1,0 +1,9 @@
+{
+  "name": "share",
+  "title": "Share",
+  "group": "Overlays",
+  "description": "Share, link first: who can open it and the link to copy lead, the faces of those invited open into their access, and new people are invited by email at the foot.",
+  "order": 30,
+  "added": "2026-10-30",
+  "pro": true
+}

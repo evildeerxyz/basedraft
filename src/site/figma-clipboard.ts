@@ -228,7 +228,7 @@ const position = (i: number) => String.fromCharCode(33 + Math.floor(i / 92)) + S
 /** How a child sits in its auto layout parent: fill on the main axis grows, fill across stretches. */
 function inParent(c: FNode, parent: FFrame | null) {
   if (!parent?.layout) return {};
-  if (c.abs) return { stackPositioning: "ABSOLUTE" };
+  if (c.abs) return { stackPositioning: "ABSOLUTE", ...(c.stretch?.h ? { horizontalConstraint: "STRETCH" } : {}), ...(c.stretch?.v ? { verticalConstraint: "STRETCH" } : {}) };
   const h = parent.layout.mode === "H";
   return {
     ...((h ? c.sizeH : c.sizeV) === "FILL" ? { stackChildPrimaryGrow: 1 } : {}),
@@ -601,18 +601,29 @@ async function mainComponent(s: Scene, n: FFrame, parent: GUID, i: number, x: nu
   return { main, layers: s.nodes.slice(from + 1) };
 }
 
-type View = { name: string; tree: FFrame };
+type View = { name: string; tree: FFrame; state?: string };
 
 /**
- * A Figma component set: one variant per viewport, laid side by side, switched with a
- * "Viewport" property (Desktop, Tablet, Mobile) the way a designer would build it.
+ * A Figma component set: one variant per viewport, switched with a "Viewport" property (Desktop,
+ * Tablet, Mobile) the way a designer would build it, laid side by side. When the copy brings a
+ * piece's states too (what pressing its buttons shows), a "State" property joins it, and the
+ * variants lie in a grid: a row per state, a column per viewport.
  */
-async function componentSet(s: Scene, name: string, parts: Array<{ name: string; n: FFrame }>, parent: GUID, i: number, x: number, y: number, pageFill: RGBA | null) {
+async function componentSet(s: Scene, name: string, parts: Array<{ name: string; state?: string; n: FFrame }>, parent: GUID, i: number, x: number, y: number, pageFill: RGBA | null) {
   const PAD = 40;
   const GAP = 80;
-  const w = PAD * 2 + parts.reduce((t, p) => t + p.n.w, 0) + GAP * (parts.length - 1);
-  const h = PAD * 2 + Math.max(...parts.map((p) => p.n.h));
+  const viewports = [...new Set(parts.map((p) => p.name))];
+  const states = [...new Set(parts.map((p) => p.state).filter((v): v is string => !!v))];
+  const grid = states.length > 0;
+  // Where each variant sits: in a grid, every column as wide as its widest and every row as tall as its tallest.
+  const colW = viewports.map((v) => Math.max(...parts.filter((p) => p.name === v).map((p) => p.n.w)));
+  const rowH = grid ? states.map((st) => Math.max(...parts.filter((p) => p.state === st).map((p) => p.n.h))) : [Math.max(...parts.map((p) => p.n.h))];
+  const colX = colW.map((_, c) => PAD + colW.slice(0, c).reduce((t, v) => t + v + GAP, 0));
+  const rowY = rowH.map((_, r) => PAD + rowH.slice(0, r).reduce((t, v) => t + v + GAP, 0));
+  const w = grid ? PAD * 2 + colW.reduce((t, v) => t + v, 0) + GAP * (colW.length - 1) : PAD * 2 + parts.reduce((t, p) => t + p.n.w, 0) + GAP * (parts.length - 1);
+  const h = PAD * 2 + rowH.reduce((t, v) => t + v, 0) + GAP * (rowH.length - 1);
   const prop = s.guid();
+  const stateProp = s.guid();
   const set = s.add({
     guid: s.guid(),
     phase: "CREATED",
@@ -625,8 +636,11 @@ async function componentSet(s: Scene, name: string, parts: Array<{ name: string;
     transform: at(x, y),
     isStateGroup: true,
     isPublishable: true,
-    stateGroupPropertyValueOrders: [{ property: "Viewport", values: parts.map((p) => p.name) }],
-    componentPropDefs: [{ id: prop, name: "Viewport", initialValue: { textValue: { characters: parts[0].name } }, sortPosition: "!", type: "VARIANT", preferredValues: { stringValues: [] } }],
+    stateGroupPropertyValueOrders: [{ property: "Viewport", values: viewports }, ...(grid ? [{ property: "State", values: states }] : [])],
+    componentPropDefs: [
+      { id: prop, name: "Viewport", initialValue: { textValue: { characters: viewports[0] } }, sortPosition: "!", type: "VARIANT", preferredValues: { stringValues: [] } },
+      ...(grid ? [{ id: stateProp, name: "State", initialValue: { textValue: { characters: states[0] } }, sortPosition: position(1), type: "VARIANT", preferredValues: { stringValues: [] } }] : []),
+    ],
     fillPaints: [],
     // Figma draws a component set's dashed purple outline itself; this matches what it stores.
     strokePaints: [{ ...solid({ r: 0.592, g: 0.278, b: 1, a: 1 }), visible: false }],
@@ -635,22 +649,36 @@ async function componentSet(s: Scene, name: string, parts: Array<{ name: string;
     dashPattern: [10, 5],
     ...corners([5, 5, 5, 5], w, h),
     frameMaskDisabled: false,
-    stackMode: "HORIZONTAL",
-    stackSpacing: GAP,
-    stackVerticalPadding: PAD,
-    stackPaddingRight: PAD,
-    stackPaddingBottom: PAD,
-    stackHorizontalPadding: PAD,
-    stackPrimarySizing: "RESIZE_TO_FIT_WITH_IMPLICIT_SIZE",
-    stackCounterSizing: "RESIZE_TO_FIT_WITH_IMPLICIT_SIZE",
-    stackCounterAlignItems: "MIN",
+    // A row of viewports lays itself out; a grid of states is placed by hand.
+    ...(grid
+      ? {}
+      : {
+          stackMode: "HORIZONTAL",
+          stackSpacing: GAP,
+          stackVerticalPadding: PAD,
+          stackPaddingRight: PAD,
+          stackPaddingBottom: PAD,
+          stackHorizontalPadding: PAD,
+          stackPrimarySizing: "RESIZE_TO_FIT_WITH_IMPLICIT_SIZE",
+          stackCounterSizing: "RESIZE_TO_FIT_WITH_IMPLICIT_SIZE",
+          stackCounterAlignItems: "MIN",
+        }),
     ...s.geometry(w, h, [5, 5, 5, 5]),
   });
   const variants = [];
   let vx = PAD;
   for (const [k, p] of parts.entries()) {
-    variants.push(await mainComponent(s, { ...p.n, name: `Viewport=${p.name}` }, set.guid, k, vx, PAD, pageFill, { variantPropSpecs: [{ propDefId: prop, value: p.name }] }));
-    vx += p.n.w + GAP;
+    if (grid) {
+      const at = { x: colX[viewports.indexOf(p.name)], y: rowY[states.indexOf(p.state ?? states[0])] };
+      const specs = [
+        { propDefId: prop, value: p.name },
+        { propDefId: stateProp, value: p.state ?? states[0] },
+      ];
+      variants.push(await mainComponent(s, { ...p.n, name: `Viewport=${p.name}, State=${p.state ?? states[0]}` }, set.guid, k, at.x, at.y, pageFill, { variantPropSpecs: specs }));
+    } else {
+      variants.push(await mainComponent(s, { ...p.n, name: `Viewport=${p.name}` }, set.guid, k, vx, PAD, pageFill, { variantPropSpecs: [{ propDefId: prop, value: p.name }] }));
+      vx += p.n.w + GAP;
+    }
   }
   return { set, w, h, variants };
 }
@@ -681,7 +709,7 @@ async function sceneFor(views: View[]) {
 
   if (count <= 1) {
     // One section: a component set with a variant per viewport, ready for a design system.
-    const parts = views.map((v, k) => ({ name: v.name, n: sections[k][0] ?? { ...v.tree, component: { key: `frame|${name}`, type: "frame" } } }));
+    const parts = views.map((v, k) => ({ name: v.name, state: v.state, n: sections[k][0] ?? { ...v.tree, component: { key: `frame|${name}`, type: "frame" } } }));
     await componentSet(s, sections[0][0]?.name ?? name, parts, CANVAS, 0, 0, 0, pageFill);
     return { scene: s, made: 1, kind: "component" as const };
   }

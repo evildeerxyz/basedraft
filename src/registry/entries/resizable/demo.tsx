@@ -6,7 +6,8 @@ import { Resizable, ResizablePanel } from "../../ui/resizable";
 
 /** A few lines of a hero's code, colored the way an editor colors them. */
 function Code() {
-  const line = "block whitespace-pre";
+  // Long lines wrap under themselves, so the code fits whatever width the pane is dragged to.
+  const line = "block whitespace-pre-wrap pl-[4ch] -indent-[4ch] [overflow-wrap:anywhere]";
   return (
     <div className="h-full bg-[var(--bd-surface)] p-4 font-mono text-[11.5px] leading-[1.75] text-[var(--bd-fg)]">
       <p className="mb-2 font-sans text-[11px] font-medium text-[var(--bd-subtle)]">hero.tsx</p>

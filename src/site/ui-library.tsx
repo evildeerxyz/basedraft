@@ -2,6 +2,7 @@
 
 import {
   ArrowCounterClockwiseIcon,
+  ShareNetworkIcon,
   DiamondIcon,
   SparkleIcon,
   StepsIcon,
@@ -84,7 +85,6 @@ import {
   KeyboardIcon,
   ListPlusIcon,
   PackageIcon,
-  MagnifyingGlassIcon,
   MoonIcon,
   SlidersHorizontalIcon,
   SquaresFourIcon,
@@ -110,10 +110,16 @@ import {
   CalendarCheckIcon,
   GitDiffIcon,
   SignInIcon,
+  GlobeHemisphereWestIcon,
+  FlowArrowIcon,
+  CursorIcon,
+  CardsThreeIcon,
+  AirplaneTakeoffIcon,
 } from "@phosphor-icons/react";
 import { AnimatePresence, LayoutGroup, motion } from "motion/react";
 import Link from "next/link";
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { flushSync } from "react-dom";
 import { cn } from "@/lib/utils";
 import { ADD, COMPONENTS, componentOf, GROUPS, importLine, installCommand, isNew, PACKAGE, stylesImport, type ComponentMeta, type Runner } from "@/registry";
 import { DEMOS, EXAMPLES } from "@/registry/demos";
@@ -124,7 +130,7 @@ import { openPro } from "./pro-modal";
 import { btn, NewBadge, ProBadge } from "./sheet";
 import { CodeBlock, highlight, usesWord } from "./code";
 import { useColorMode, type ColorMode } from "./color-mode";
-import { Dock, DockPill, PieceMenu, TILE, TileArrow, useBackToTop } from "./library";
+import { Dock, DockMore, DockPill, FloatingDock, PieceMenu, SearchField, TILE, TileArrow, useBackToTop, useWide } from "./library";
 import { GLASS, LIB_WRAP } from "./library-css";
 import { ShellLine } from "./shell-line";
 
@@ -229,6 +235,19 @@ export const COMPONENT_ICON: Record<string, Icon> = {
   "log-viewer": TerminalWindowIcon,
   "code-diff": GitDiffIcon,
   "sign-in": SignInIcon,
+  globe: GlobeHemisphereWestIcon,
+  flow: FlowArrowIcon,
+  "live-cursors": CursorIcon,
+  "swipe-deck": CardsThreeIcon,
+  "particle-text": TextAaIcon,
+  dock: AppWindowIcon,
+  "split-flap": AirplaneTakeoffIcon,
+  "metric-tabs": PresentationChartIcon,
+  "filter-bar": FunnelSimpleIcon,
+  roadmap: CalendarDotsIcon,
+  share: ShareNetworkIcon,
+  "account-menu": UserCircleIcon,
+  "allowance": GaugeIcon,
 };
 const GROUP_ICON: Record<string, Icon> = { Actions: CursorClickIcon, Forms: TextboxIcon, Overlays: BrowsersIcon, Navigation: TabsIcon, Display: CardsIcon, Data: ChartLineIcon, Patterns: PresentationChartIcon, Feedback: PulseIcon };
 /* A line on each group, under its name in the gallery. */
@@ -268,7 +287,7 @@ function CopyCircle({ text, label }: { text: string; label: string }) {
 /* ---------- the front page ---------- */
 
 /* The gallery's widths, out of twelve columns. */
-const SPAN: Record<number, string> = { 4: "lg:col-span-4", 6: "lg:col-span-6", 8: "lg:col-span-8", 12: "lg:col-span-12" };
+const SPAN: Record<number, string> = { 4: "xl:col-span-4", 6: "lg:col-span-6", 8: "lg:col-span-8", 12: "lg:col-span-12" };
 /** For a filtered few: rows of three, with the last one or two rows in halves so no tile is left alone. */
 const evenSpans = (n: number) => {
   if (n === 1) return [12];
@@ -276,6 +295,162 @@ const evenSpans = (n: number) => {
   const thirds = r === 1 ? n - 4 : r === 2 ? n - 2 : n;
   return Array.from({ length: n }, (_, i) => (i < thirds ? 4 : 6));
 };
+
+/*
+ * The bento: two columns of tiles, each as tall as its demo needs, so no demo is ever shrunk or
+ * cut off, with the widest pieces across both. Before a wide piece the columns are evened out, first
+ * with the small tiles just ahead that best fill the shorter one, then by letting its last tile
+ * reach down the rest. After the last one the columns end where they end.
+ */
+const BENTO_WIDE = new Set(["navigation-menu", "data-table", "kanban-board", "scheduler", "roadmap", "pricing-table", "app-sidebar", "metric-tabs", "heatmap", "code-diff", "uptime", "log-viewer"]);
+/** Room kept under a demo whose menus open in place below it, so they open whole: in the bento and in the groups alike. */
+const BENTO_ROOM: Record<string, number> = { "navigation-menu": 290, "filter-bar": 200 };
+const BENTO_GAP = 16;
+/** Around a demo: 40px above it, and 84px below it, down past the name pill. */
+const BENTO_PAD = 40 + 84;
+const BENTO_MIN = 280;
+
+type Spot = { c: ComponentMeta; col: 0 | 1; wide: boolean; top: number; height: number };
+
+function bentoLayout(list: ComponentMeta[], heightOf: (c: ComponentMeta) => number, two: boolean) {
+  const spots: Spot[] = [];
+  const end = [0, 0];
+  if (!two) {
+    for (const c of list) {
+      spots.push({ c, col: 0, wide: true, top: end[0], height: heightOf(c) });
+      end[0] += heightOf(c) + BENTO_GAP;
+    }
+    return { spots, height: Math.max(0, end[0] - BENTO_GAP) };
+  }
+  // The tiles each column has had since the last wide piece.
+  let since: [Spot[], Spot[]] = [[], []];
+  const shorter = () => (end[1] < end[0] ? 1 : 0);
+  const place = (c: ComponentMeta, col: 0 | 1) => {
+    const spot: Spot = { c, col, wide: false, top: end[col], height: heightOf(c) };
+    spots.push(spot);
+    since[col].push(spot);
+    end[col] += spot.height + BENTO_GAP;
+  };
+  const queue = [...list];
+  while (queue.length) {
+    const c = queue.shift()!;
+    if (!BENTO_WIDE.has(c.name)) {
+      place(c, shorter());
+      continue;
+    }
+    // Fill the shorter column with whichever small tile just ahead comes closest, while that helps.
+    for (;;) {
+      const gap = Math.abs(end[0] - end[1]);
+      const miss = (q: ComponentMeta) => Math.abs(gap - heightOf(q) - BENTO_GAP);
+      const best = queue.slice(0, 8).reduce<ComponentMeta | null>((b, q) => (BENTO_WIDE.has(q.name) || (b && miss(b) <= miss(q)) ? b : q), null);
+      if (!gap || !best || miss(best) >= gap) break;
+      queue.splice(queue.indexOf(best), 1);
+      place(best, shorter());
+    }
+    // Then the shorter column's last tile reaches down the rest; a column left empty gives its one neighbour the width.
+    const col = shorter();
+    const gap = Math.abs(end[0] - end[1]);
+    const lastOf = since[col].at(-1);
+    if (gap && lastOf) lastOf.height += gap;
+    else if (gap && since[1 - col].length === 1) since[1 - col][0].wide = true;
+    const top = Math.max(end[0], end[1]);
+    spots.push({ c, col: 0, wide: true, top, height: heightOf(c) });
+    end[0] = end[1] = top + heightOf(c) + BENTO_GAP;
+    since = [[], []];
+  }
+  return { spots, height: Math.max(0, ...end) - BENTO_GAP };
+}
+
+/** The bento itself: it measures each demo as it is drawn and lays the tiles out from what it found. */
+function Bento({ list }: { list: ComponentMeta[] }) {
+  const box = useRef<HTMLUListElement>(null);
+  const [width, setWidth] = useState(0);
+  const [sizes, setSizes] = useState<Record<string, { w: number; h: number }>>({});
+  const observer = useRef<ResizeObserver | null>(null);
+  useLayoutEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    setWidth(el.clientWidth);
+    const ro = new ResizeObserver(() => setWidth(el.clientWidth));
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+      observer.current?.disconnect();
+    };
+  }, []);
+  // Each demo reports its height, in time for the first paint. While the width holds a tile only
+  // grows, so a demo that changes as it's used doesn't shove its neighbours back and forth.
+  const track = useCallback((el: HTMLDivElement | null) => {
+    if (!el) return;
+    observer.current ??= new ResizeObserver((entries) =>
+      flushSync(() =>
+        setSizes((was) => {
+          let next = was;
+          for (const { target } of entries) {
+            const t = target as HTMLElement;
+            const name = t.dataset.bento ?? "";
+            const seen = next[name];
+            if (seen && seen.w === t.offsetWidth && seen.h >= t.offsetHeight) continue;
+            next = { ...next, [name]: { w: t.offsetWidth, h: t.offsetHeight } };
+          }
+          return next;
+        }),
+      ),
+    );
+    observer.current.observe(el);
+    return () => observer.current?.unobserve(el);
+  }, []);
+  const heightOf = (c: ComponentMeta) => Math.max(BENTO_MIN, (sizes[c.name]?.h ?? 200) + BENTO_PAD + (BENTO_ROOM[c.name] ?? 0));
+  const { spots, height } = bentoLayout(list, heightOf, width >= 640);
+  const ready = list.every((c) => sizes[c.name]);
+  return (
+    <ul ref={box} data-reveal-stagger="inner" className="relative mt-8" style={{ height }}>
+      <AnimatePresence initial={false}>
+        {spots.map((s) => (
+          <BentoTile key={s.c.name} spot={s} track={track} moves={ready} />
+        ))}
+      </AnimatePresence>
+    </ul>
+  );
+}
+
+/** A component as a bento tile: placed by the layout, its demo whole and centered above its name. */
+function BentoTile({ spot: { c, col, wide, top, height }, track, moves }: { spot: Spot; track: (el: HTMLDivElement | null) => void; moves: boolean }) {
+  const Demo = DEMOS[c.name];
+  const I = COMPONENT_ICON[c.name] ?? StackIcon;
+  return (
+    <motion.li
+      layout={moves ? "position" : false}
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0 }}
+      transition={SLIDE}
+      className="absolute min-w-0"
+      style={{ top, height, left: col ? `calc(50% + ${BENTO_GAP / 2}px)` : 0, width: wide ? "100%" : `calc(50% - ${BENTO_GAP / 2}px)` }}
+    >
+      <div className={cn(TILE, "h-full")}>
+        <div className="grid flex-1 grid-cols-[minmax(0,1fr)] place-items-center px-6 pt-10 sm:px-8" style={{ paddingBottom: 84 + (BENTO_ROOM[c.name] ?? 0) }}>
+          <div ref={track} data-bento={c.name} className="grid w-full min-w-0 grid-cols-[minmax(0,1fr)] place-items-center">
+            {Demo ? <Demo /> : null}
+          </div>
+        </div>
+        <div className="absolute inset-x-3 bottom-3 flex items-center gap-2">
+          <Link href={`/components/${c.name}`} className={cn("flex h-10 min-w-0 items-center gap-2 rounded-full pl-1.5 pr-4 text-[13px] transition-colors hover:bg-surface", GLASS)}>
+            <span className="grid size-7 shrink-0 place-items-center rounded-full bg-fg/[0.06] text-fg">
+              <I size={14} weight="duotone" />
+            </span>
+            <span className="truncate font-medium text-fg">{c.title}</span>
+            {isNew(c) && <NewBadge />}
+            {c.pro && <ProBadge />}
+          </Link>
+          <Link href={`/components/${c.name}`} aria-label={`Open ${c.title}`} className="ml-auto">
+            <TileArrow />
+          </Link>
+        </div>
+      </div>
+    </motion.li>
+  );
+}
 
 /**
  * A component as a tile: live on the hero's light, so it can be tried where it sits. Floating at
@@ -288,8 +463,10 @@ function ComponentTile({ c, span }: { c: ComponentMeta; span: number }) {
   return (
     <motion.li layout="position" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={SLIDE} className={cn("col-span-12 min-w-0 md:col-span-6", SPAN[span])}>
       <div className={cn(TILE, "h-full min-h-[300px]")}>
-        <div className="grid flex-1 place-items-center px-6 pb-[84px] pt-10">{Demo ? <Demo /> : null}</div>
-        <div className="absolute inset-x-3 bottom-3 flex items-center gap-2">
+        <div className="grid flex-1 grid-cols-[minmax(0,1fr)] place-items-center px-6 pt-10" style={{ paddingBottom: 84 + (BENTO_ROOM[c.name] ?? 0) }}>
+          {Demo ? <Demo /> : null}
+        </div>
+        <div className="@container absolute inset-x-3 bottom-3 flex items-center gap-2">
           <Link href={`/components/${c.name}`} className={cn("flex h-10 min-w-0 items-center gap-2 rounded-full pl-1.5 pr-4 text-[13px] transition-colors hover:bg-surface", GLASS)}>
             <span className="grid size-7 shrink-0 place-items-center rounded-full bg-fg/[0.06] text-fg">
               <I size={14} weight="duotone" />
@@ -297,7 +474,8 @@ function ComponentTile({ c, span }: { c: ComponentMeta; span: number }) {
             <span className="truncate font-medium text-fg">{c.title}</span>
             {isNew(c) && <NewBadge />}
             {c.pro && <ProBadge />}
-            <span className="truncate text-subtle max-sm:hidden">{c.group}</span>
+            {/* The group, only where there is room for it beside the whole name. */}
+            <span className="truncate text-subtle max-sm:hidden @max-[440px]:hidden">{c.group}</span>
           </Link>
           <span className="ml-auto flex shrink-0 items-center gap-1.5">
             {!c.pro && <CopyCircle text={importLine(c.name)} label={`Copy the import for ${c.title}`} />}
@@ -312,28 +490,21 @@ function ComponentTile({ c, span }: { c: ComponentMeta; span: number }) {
 }
 
 /** A search field at the dock's end that narrows the gallery as you type. */
-function FilterField({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  return (
-    <label className="flex h-9 shrink-0 items-center gap-2 rounded-full pl-2.5 pr-1 text-[13px] text-fg max-sm:hidden">
-      <MagnifyingGlassIcon size={15} weight="duotone" className="shrink-0 text-subtle" />
-      <input value={value} onChange={(e) => onChange(e.target.value)} placeholder="Filter" aria-label="Filter components" className="w-[96px] bg-transparent outline-none transition-[width] duration-300 placeholder:text-subtle focus:w-[150px]" />
-      {value ? (
-        <button type="button" onClick={() => onChange("")} aria-label="Clear the filter" className="grid size-7 place-items-center rounded-full text-subtle transition-colors hover:bg-fg/[0.06] hover:text-fg">
-          <XIcon size={12} weight="regular" />
-        </button>
-      ) : (
-        <span className="size-7" />
-      )}
-    </label>
-  );
-}
+/** The components' front page under its card: the search and the layout at the top, the gallery, and the groups floating at the foot of the screen. */
+const LAYOUTS: Array<{ id: "rows" | "bento"; label: string; icon: Icon }> = [
+  { id: "rows", label: "In groups", icon: RowsIcon },
+  { id: "bento", label: "Bento", icon: SquaresFourIcon },
+];
 
-/** The components' front page under its card: the dock (the groups, and a filter) and the gallery. */
 export function ComponentsBrowser() {
   const [group, setGroup] = useState("All");
+  const [layout, setLayout] = useState<"rows" | "bento">("rows");
   const [q, setQ] = useState("");
+  const wide = useWide();
   const top = useRef<HTMLDivElement>(null);
   useBackToTop(top, group);
+  // A few groups in the dock's row, the rest behind More.
+  const inRow = wide ? 4 : 1;
   const words = q.trim().toLowerCase().split(/\s+/).filter(Boolean);
   const matched = COMPONENTS.filter((c) => words.every((w) => `${c.title} ${c.group} ${c.description}`.toLowerCase().includes(w)));
   // A section per group, in order: every group when All is on, or just the one picked.
@@ -343,7 +514,14 @@ export function ComponentsBrowser() {
     .filter((x) => x.list.length);
   return (
     <>
-      <Dock label="Filter components" after={<FilterField value={q} onChange={setQ} />}>
+      {/* At the top, the search and the layout; floating at the foot, the groups. */}
+      <Dock label="Search components" after={<IconSwitch bare label="Layout" value={layout} options={LAYOUTS} onChange={setLayout} />}>
+        <SearchField value={q} onChange={setQ} placeholder={`Search ${COMPONENTS.length} components`} label="Search the components" />
+      </Dock>
+      <FloatingDock
+        label="Filter components"
+        more={<DockMore up items={GROUPS.slice(inRow).map((g) => ({ id: g, label: g, icon: GROUP_ICON[g] ?? StackIcon, count: matched.filter((c) => c.group === g).length }))} current={group} onPick={setGroup} />}
+      >
         <DockPill on={group === "All"} onClick={() => setGroup("All")} icon={SquaresFourIcon} count={matched.length}>
           All
         </DockPill>
@@ -357,20 +535,23 @@ export function ComponentsBrowser() {
             Pro
           </DockPill>
         )}
-        {GROUPS.map((g) => (
+        {GROUPS.slice(0, inRow).map((g) => (
           <DockPill key={g} on={group === g} onClick={() => setGroup(g)} icon={GROUP_ICON[g] ?? StackIcon} count={matched.filter((c) => c.group === g).length}>
             {g}
           </DockPill>
         ))}
-      </Dock>
+      </FloatingDock>
       <div ref={top} className={cn(LIB_WRAP, "pt-4")}>
-        {sections.length ? (
+        {sections.length && layout === "bento" ? (
+          // One bento, no headings: every component the pills and the search leave, sized by what it needs.
+          <Bento list={sections.flatMap(({ list }) => list)} />
+        ) : sections.length ? (
           sections.map(({ g, list }) => {
             const spans = evenSpans(list.length);
             const I = GROUP_ICON[g] ?? StackIcon;
             return (
               <section key={g} aria-label={g} className="pt-10">
-                <div className="mb-5 flex min-w-0 items-center gap-3.5">
+                <div className="bd-reveal mb-5 flex min-w-0 items-center gap-3.5">
                   <span className="grid size-11 shrink-0 place-items-center rounded-[14px] bg-surface text-fg shadow-[var(--bd-shadow-resting),inset_0_0_0_1px_var(--bd-line-subtle)]">
                     <I size={20} weight="duotone" />
                   </span>
@@ -382,7 +563,7 @@ export function ComponentsBrowser() {
                     {GROUP_LINE[g] && <p className="mt-0.5 truncate text-ui text-muted">{GROUP_LINE[g]}</p>}
                   </div>
                 </div>
-                <ul className="grid grid-cols-12 gap-3 sm:gap-4">
+                <ul data-reveal-stagger="inner" className="grid grid-cols-12 gap-3 sm:gap-4">
                   <AnimatePresence mode="popLayout" initial={false}>
                     {list.map((c, i) => (
                       <ComponentTile key={c.name} c={c} span={spans[i]} />
@@ -440,11 +621,11 @@ const VIEWS = [
 ] as const;
 
 /** A small switch of round icon buttons, the chosen one inked on a circle that slides. */
-function IconSwitch<T extends string>({ label, value, options, onChange }: { label: string; value: T; options: Array<{ id: T; label: string; icon: Icon }>; onChange: (v: T) => void }) {
+export function IconSwitch<T extends string>({ label, value, options, onChange, bare }: { label: string; value: T; options: Array<{ id: T; label: string; icon: Icon }>; onChange: (v: T) => void; /** Without its own glass, inside something frosted already. */ bare?: boolean }) {
   const id = useId();
   return (
     <LayoutGroup id={id}>
-      <div role="radiogroup" aria-label={label} className={cn("flex rounded-full p-0.5", GLASS)}>
+      <div role="radiogroup" aria-label={label} className={cn("flex rounded-full p-0.5", !bare && GLASS)}>
         {options.map(({ id: v, label: l, icon: I }) => {
           const on = v === value;
           return (
@@ -538,7 +719,7 @@ function ProTake({ name, title, deps }: { name: string; title: string; deps: str
   const { source } = useProSource(name, plan === "pro");
   return (
     <section id="take" aria-labelledby="take-title" className="scroll-mt-[calc(var(--bd-header-h,80px)+80px)] pt-16">
-      <div className="bd-paper glow-c relative isolate overflow-hidden rounded-[32px] p-2 sm:p-3">
+      <div data-scroll="settle" className="bd-light bd-paper glow-c relative isolate overflow-hidden rounded-[32px] p-2 sm:p-3">
         <div className="grid gap-2 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
           <div className="flex flex-col p-4 sm:p-6">
             <h2 id="take-title" className="flex flex-wrap items-center gap-2.5 text-balance font-display text-[30px] font-medium leading-[1.08] tracking-[-0.032em]">
@@ -598,9 +779,10 @@ export function Workbench({ name, title, source, prompt, pro }: { name: string; 
       {/* The stage carries its own light or dark, apart from the site's. */}
       <div data-theme={mode === "dark" ? "dark" : undefined} className={cn("bd-panel relative isolate overflow-hidden rounded-[32px] text-fg", mode === "light" && "bd-light")}>
         <div className="flex items-center justify-between gap-3 p-3 sm:p-4">
-          <span className={cn("inline-flex h-9 items-center gap-2 rounded-full px-3.5 text-[12.5px] font-medium text-muted", GLASS)}>
-            <span aria-hidden className="size-1.5 rounded-full bg-[oklch(0.62_0.17_150)]" />
-            Live
+          {/* The file it is, the way it lands in a project. */}
+          <span className={cn("inline-flex h-9 min-w-0 items-center gap-2 rounded-full px-3.5 font-mono text-[12px] text-muted", GLASS)}>
+            <FileTsxIcon size={14} weight="duotone" className="shrink-0 text-subtle" />
+            <span className="truncate">{name}.tsx</span>
           </span>
           <div className="flex items-center gap-1.5">
             <IconSwitch label="Stage" value={mode} options={MODES} onChange={setPicked} />
@@ -719,7 +901,7 @@ function FreeTake({ name, title, deps, source, prompt }: { name: string; title: 
   const id = useId();
   return (
     <section id="take" aria-labelledby="take-title" className="scroll-mt-[calc(var(--bd-header-h,80px)+80px)] pt-16">
-      <div className="bd-paper glow-c relative isolate overflow-hidden rounded-[32px] p-2 sm:p-3">
+      <div data-scroll="settle" className="bd-light bd-paper glow-c relative isolate overflow-hidden rounded-[32px] p-2 sm:p-3">
         <div className="grid gap-2 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
           <div className="flex flex-col p-4 sm:p-6">
             <h2 id="take-title" className="text-balance font-display text-[30px] font-medium leading-[1.08] tracking-[-0.032em]">
@@ -995,7 +1177,7 @@ export function MoreComponents({ names }: { names: string[] }) {
   const list = names.map((n) => componentOf(n)).filter((c): c is ComponentMeta => !!c);
   const spans = evenSpans(list.length);
   return (
-    <ul className="grid grid-cols-12 gap-3 sm:gap-4">
+    <ul data-reveal-stagger="inner" className="grid grid-cols-12 gap-3 sm:gap-4">
       {list.map((c, i) => (
         <ComponentTile key={c.name} c={c} span={spans[i]} />
       ))}

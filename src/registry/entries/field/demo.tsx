@@ -29,7 +29,7 @@ function Hint() {
 function WithError() {
   return (
     <Field label="Email" error="Add the part after the dot, like .co" className="max-w-[320px]">
-      <Input type="email" defaultValue="maya@fieldwork" />
+      <Input type="email" defaultValue="emily@larkspur" />
     </Field>
   );
 }
@@ -38,10 +38,10 @@ function RequiredOptional() {
   return (
     <div className="grid w-full max-w-[320px] gap-4">
       <Field label="Your name" required>
-        <Input defaultValue="Maya Okafor" autoComplete="name" />
+        <Input defaultValue="Emily Carter" autoComplete="name" />
       </Field>
       <Field label="Company" optional>
-        <Input placeholder="Fieldwork" autoComplete="organization" />
+        <Input placeholder="Larkspur" autoComplete="organization" />
       </Field>
     </div>
   );

@@ -9,8 +9,8 @@ export function Demo() {
   return (
     <div className="flex w-full max-w-[330px] items-center gap-2.5 rounded-full bg-[var(--bd-surface)] py-1 pl-4 pr-1 shadow-[inset_0_0_0_1px_var(--bd-line),var(--bd-shadow-resting)]">
       <GithubLogoIcon size={16} weight="duotone" className="shrink-0 text-[var(--bd-subtle)]" />
-      <span className="min-w-0 flex-1 truncate font-mono text-[12.5px] text-[var(--bd-muted)]">github.com/fieldwork/zuno-site</span>
-      <CopyButton value="https://github.com/fieldwork/zuno-site" label="Copy" variant="pill" />
+      <span className="min-w-0 flex-1 truncate font-mono text-[12.5px] text-[var(--bd-muted)]">github.com/larkspur/zuno-site</span>
+      <CopyButton value="https://github.com/larkspur/zuno-site" label="Copy" variant="pill" />
     </div>
   );
 }

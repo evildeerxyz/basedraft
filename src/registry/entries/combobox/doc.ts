@@ -239,12 +239,12 @@ export function AddSections() {
       title: "From your own search",
       note: "onSearch fetches as you type; filter is off because the results are already matched, and loading shows while they come.",
       code: `const TEAM = [
-  "Maya Okafor",
-  "Jonah Park",
-  "Lea Moreau",
-  "Sami Ito",
-  "Ana Ruiz",
-  "Ben Adeyemi",
+  "Emily Carter",
+  "Jake Morrison",
+  "Sarah Mitchell",
+  "Ryan Brooks",
+  "Ashley Cooper",
+  "Brandon Reed",
 ];
 
 function AssignTo() {

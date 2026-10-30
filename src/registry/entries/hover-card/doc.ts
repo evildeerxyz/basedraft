@@ -73,14 +73,14 @@ export function TemplateLink() {
       title: "A person",
       note: "Who they are and what they last did.",
       code: `<HoverCard>
-  <HoverCardTrigger href="/team/maya">Maya Okafor</HoverCardTrigger>
+  <HoverCardTrigger href="/team/maya">Emily Carter</HoverCardTrigger>
   <HoverCardContent className="w-[260px]">
     <div className="flex items-center gap-3">
-      <Avatar name="Maya Okafor" size="lg" status="online" />
+      <Avatar name="Emily Carter" size="lg" status="online" />
       <div>
-        <p className="text-sm font-semibold">Maya Okafor</p>
+        <p className="text-sm font-semibold">Emily Carter</p>
         <p className="text-xs text-[var(--bd-subtle)]">
-          Designer at Fieldwork
+          Designer at Larkspur
         </p>
       </div>
     </div>

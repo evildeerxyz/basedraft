@@ -19,11 +19,11 @@ interface Env {
 type ExecutionContext = { waitUntil(promise: Promise<unknown>): void; passThroughOnException(): void };
 
 /*
- * A component, template or kind of section that doesn't exist. Next can only say so after its page
+ * A component, screen, template or kind of section that doesn't exist. Next can only say so after its page
  * has started streaming, as a 200, so the Worker answers first: Next's own not-found page, as a 404.
  */
 const KNOWN = new Set<string>(known.paths);
-const DYNAMIC = /^\/(components|templates|blocks)\/([^/]+)\/?$/;
+const DYNAMIC = /^\/(components|screens|templates|blocks)\/([^/]+)\/?$/;
 const unknownPage = (pathname: string) => {
   const m = DYNAMIC.exec(pathname);
   return !!m && !KNOWN.has(`/${m[1]}/${m[2]}`);
@@ -37,7 +37,6 @@ const unknownPage = (pathname: string) => {
 const ROOT_FILES: Array<[prefix: string, slug: string]> = (
   [
     ["/people/", "noma"],
-    ["/photos/", "pello"],
   ] as Array<[string, string]>
 ).filter(([, slug]) => RELEASED.some((z) => z.slug === slug));
 

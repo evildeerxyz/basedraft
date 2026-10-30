@@ -1,6 +1,6 @@
 "use client";
 
-import { CaretDownIcon, CheckIcon, EyedropperIcon } from "@phosphor-icons/react";
+import { CaretDownIcon, CheckIcon, CopyIcon, EyedropperIcon } from "@phosphor-icons/react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useId, useRef, useState, useSyncExternalStore, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent } from "react";
 import { createPortal } from "react-dom";
@@ -117,7 +117,10 @@ const CHECKER = "repeating-conic-gradient(rgb(var(--bd-ink) / 0.14) 0% 25%, tran
 
 /* ---------- Parts ---------- */
 
-/** A slider of one channel: hue or alpha. The thumb is what takes focus and the keys. */
+/* A bead: the thumb that rides the field and the tracks, with the color in its middle. */
+const BEAD = "rounded-full outline-none [background:var(--bd-ui-bead)] shadow-[0_0_0_1px_rgb(0_0_0/0.22),0_2px_5px_rgb(0_0_0/0.28)] transition-transform duration-150";
+
+/** A slim engraved track for one channel, hue or alpha, with a bead that takes focus and the keys. */
 function Track({ label, value, max, text, background, swatch, onChange }: { label: string; value: number; max: number; text: string; background: string; swatch: string; onChange: (n: number) => void }) {
   const bar = useRef<HTMLDivElement>(null);
   const knob = useRef<HTMLSpanElement>(null);
@@ -141,10 +144,9 @@ function Track({ label, value, max, text, background, swatch, onChange }: { labe
         knob.current?.focus({ preventScroll: true });
       }}
       onPointerMove={(e) => e.currentTarget.hasPointerCapture(e.pointerId) && from(e)}
-      className="relative h-3 touch-none rounded-full"
-      style={{ background }}
+      className="relative h-4 touch-none"
     >
-      <span aria-hidden className="pointer-events-none absolute inset-0 rounded-full shadow-[inset_0_0_0_1px_rgb(var(--bd-ink)/0.1)]" />
+      <span aria-hidden className="absolute inset-x-0 top-1/2 h-[7px] -translate-y-1/2 rounded-full shadow-[inset_0_1px_2px_rgb(0_0_0/0.25),inset_0_0_0_1px_rgb(0_0_0/0.1)]" style={{ background }} />
       <span
         ref={knob}
         role="slider"
@@ -155,9 +157,11 @@ function Track({ label, value, max, text, background, swatch, onChange }: { labe
         aria-valuenow={Math.round(max === 1 ? value * 100 : value)}
         aria-valuetext={text}
         onKeyDown={keys}
-        className="absolute top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full outline-none shadow-[0_0_0_2.5px_white,0_1px_4px_1px_rgb(0_0_0/0.3)] transition-transform duration-150 focus-visible:scale-[1.18] active:scale-[1.18]"
-        style={{ left: `${(value / max) * 100}%`, background: swatch }}
-      />
+        className={cx(BEAD, "absolute top-1/2 grid size-4 -translate-x-1/2 -translate-y-1/2 place-items-center focus-visible:scale-[1.2] active:scale-[1.2]")}
+        style={{ left: `${(value / max) * 100}%` }}
+      >
+        <span className="size-2 rounded-full shadow-[inset_0_0_0_1px_rgb(0_0_0/0.15)]" style={{ background: swatch }} />
+      </span>
     </div>
   );
 }
@@ -170,19 +174,17 @@ export type ColorPickerProps = {
   value?: string;
   defaultValue?: string;
   onChange?: (hex: string) => void;
-  /** Shows the alpha slider, and lets the value carry alpha. */
+  /** Shows the alpha track, and lets the value carry alpha. */
   alpha?: boolean;
-  /** Colors to pick from in one click: the brand's, or the last few used. */
+  /** Paint chips to pick from in one click: the brand's colors, or the last few used. */
   swatches?: string[];
-  /** Shows how white and black text read on the color. */
+  /** Shows how the color reads as text on white and on black. */
   contrast?: boolean;
-  /** How the value shows to start: hex, rgb() or hsl(). The button beside it switches. */
-  format?: Format;
   className?: string;
 };
 
 /** The picker itself: a panel to put in a page, or in ColorField's popover. */
-export function ColorPicker({ value, defaultValue = "#3b82f6", onChange, alpha = false, swatches, contrast: showContrast = true, format: startFormat = "hex", className }: ColorPickerProps) {
+export function ColorPicker({ value, defaultValue = "#2f5d50", onChange, alpha = false, swatches, contrast: showContrast = true, className }: ColorPickerProps) {
   const [hsva, setHsva] = useState<HSVA>(() => rgbToHsv(parseColor(value ?? defaultValue) ?? BLACK));
   // Follows a value set from outside, keeping its own hue when the new color is the same one.
   const [seen, setSeen] = useState(value);
@@ -191,10 +193,10 @@ export function ColorPicker({ value, defaultValue = "#3b82f6", onChange, alpha =
     const c = parseColor(value);
     if (c && toHex(c) !== toHex(hsvToRgb(hsva))) setHsva(rgbToHsv(c, hsva.h));
   }
-  const [format, setFormat] = useState<Format>(startFormat);
   const [text, setText] = useState<string | null>(null);
   const [bad, setBad] = useState(0);
   const [drag, setDrag] = useState(false);
+  const [copied, setCopied] = useState<Format | null>(null);
   const canDrop = useSyncExternalStore(noop, hasEyeDropper, () => false);
   const area = useRef<HTMLDivElement>(null);
   const thumb = useRef<HTMLSpanElement>(null);
@@ -237,14 +239,28 @@ export function ColorPicker({ value, defaultValue = "#3b82f6", onChange, alpha =
       if (c) setColor({ ...c, a: hsva.a });
     } catch {}
   };
+  const copy = async (f: Format) => {
+    try {
+      await navigator.clipboard.writeText(formatColor(rgba, f));
+      setCopied(f);
+      setTimeout(() => setCopied(null), 1200);
+    } catch {}
+  };
 
-  const onWhite = contrast(rgba, WHITE);
-  const onBlack = contrast(rgba, BLACK);
   const grade = (r: number) => (r >= 7 ? "AAA" : r >= 4.5 ? "AA" : r >= 3 ? "AA large" : "Fails");
+  const { h: hh, s: hs, l: hl } = rgbToHsl(rgba);
+  const ROW = "grid h-8 grid-cols-[38px_1fr_28px] items-center bg-[var(--bd-ui-field)] pl-2.5";
+  const LABEL = "font-mono text-[10px] uppercase tracking-[0.1em] text-[var(--bd-subtle)]";
+  const VALUE = "font-mono text-[12px] tabular-nums text-[var(--bd-fg)]";
+  const copyButton = (f: Format) => (
+    <button type="button" aria-label={copied === f ? "Copied" : `Copy as ${f}`} onClick={() => copy(f)} className="grid size-7 place-items-center rounded-[7px] text-[var(--bd-subtle)] outline-none transition-colors hover:text-[var(--bd-fg)] focus-visible:outline-2 focus-visible:outline-[color:var(--bd-ui-focus)]">
+      {copied === f ? <CheckIcon weight="bold" className="size-3" /> : <CopyIcon weight="bold" className="size-3" />}
+    </button>
+  );
 
   return (
-    <div className={cx("grid w-[264px] gap-3 rounded-[22px] bg-[var(--bd-surface)] p-3 text-[var(--bd-fg)] shadow-[inset_0_0_0_1px_var(--bd-line),var(--bd-shadow-resting)]", className)}>
-      {/* Saturation across, brightness up: white and black laid over the pure hue. */}
+    <div className={cx("grid w-[272px] gap-2.5 rounded-[18px] p-2.5 text-[var(--bd-fg)] shadow-[var(--bd-ui-lift),0_0_0_1px_rgb(var(--bd-ink)/0.08)] [background:var(--bd-ui-raised)]", className)}>
+      {/* Saturation across, brightness up: white and black over the pure hue, in a well, with a hairline cross at the bead. */}
       <div
         ref={area}
         onPointerDown={(e) => {
@@ -256,10 +272,12 @@ export function ColorPicker({ value, defaultValue = "#3b82f6", onChange, alpha =
         onPointerMove={(e) => e.currentTarget.hasPointerCapture(e.pointerId) && fromArea(e)}
         onPointerUp={() => setDrag(false)}
         onPointerCancel={() => setDrag(false)}
-        className={cx("relative h-[152px] touch-none rounded-[14px]", drag ? "cursor-grabbing" : "cursor-crosshair")}
+        className={cx("relative h-[150px] touch-none overflow-hidden rounded-[11px]", drag ? "cursor-grabbing" : "cursor-crosshair")}
         style={{ background: `linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, hsl(${hsva.h} 100% 50%))` }}
       >
-        <span aria-hidden className="pointer-events-none absolute inset-0 rounded-[14px] shadow-[inset_0_0_0_1px_rgb(0_0_0/0.08)]" />
+        <span aria-hidden className="pointer-events-none absolute inset-y-0 w-px bg-white/40 mix-blend-difference" style={{ left: pct(hsva.s) }} />
+        <span aria-hidden className="pointer-events-none absolute inset-x-0 h-px bg-white/40 mix-blend-difference" style={{ top: pct(1 - hsva.v) }} />
+        <span aria-hidden className="pointer-events-none absolute inset-0 rounded-[11px] shadow-[inset_0_1px_3px_rgb(0_0_0/0.3),inset_0_0_0_1px_rgb(0_0_0/0.12)]" />
         <span
           ref={thumb}
           role="slider"
@@ -271,104 +289,110 @@ export function ColorPicker({ value, defaultValue = "#3b82f6", onChange, alpha =
           aria-valuenow={Math.round(hsva.s * 100)}
           aria-valuetext={`Saturation ${pct(hsva.s)}, brightness ${pct(hsva.v)}`}
           onKeyDown={areaKeys}
-          className={cx("absolute size-[18px] -translate-x-1/2 -translate-y-1/2 rounded-full outline-none shadow-[0_0_0_2.5px_white,0_2px_6px_1px_rgb(0_0_0/0.35)] transition-transform duration-150 focus-visible:shadow-[0_0_0_2.5px_white,0_0_0_5px_rgb(0_0_0/0.25),0_2px_6px_1px_rgb(0_0_0/0.35)]", drag && "scale-125")}
-          style={{ left: pct(hsva.s), top: pct(1 - hsva.v), background: solid }}
-        />
+          className={cx(BEAD, "absolute grid size-[18px] -translate-x-1/2 -translate-y-1/2 place-items-center focus-visible:shadow-[0_0_0_1px_rgb(0_0_0/0.22),0_0_0_4px_rgb(255_255_255/0.5),0_2px_5px_rgb(0_0_0/0.28)]", drag && "scale-125")}
+          style={{ left: pct(hsva.s), top: pct(1 - hsva.v) }}
+        >
+          <span className="size-[9px] rounded-full shadow-[inset_0_0_0_1px_rgb(0_0_0/0.15)]" style={{ background: solid }} />
+        </span>
       </div>
 
-      <div className="flex items-center gap-2.5">
-        {/* The color as it is, over a checkerboard when it's see-through. */}
-        <span aria-hidden className="relative size-8 shrink-0 overflow-hidden rounded-full" style={{ background: CHECKER }}>
-          <span className="absolute inset-0 rounded-full shadow-[inset_0_0_0_1px_rgb(var(--bd-ink)/0.12)]" style={{ background: hex }} />
+      <div className="flex items-center gap-3 px-1">
+        {/* The color as it is, a paint chip over a checkerboard when it's see-through. */}
+        <span aria-hidden className="relative size-9 shrink-0 overflow-hidden rounded-[9px] shadow-[inset_0_0_0_1px_rgb(0_0_0/0.12)]" style={{ background: CHECKER }}>
+          <span className="absolute inset-0" style={{ background: hex }} />
+          <span className="absolute inset-0 rounded-[9px] shadow-[inset_0_1px_0_rgb(255_255_255/0.25),inset_0_0_0_1px_rgb(0_0_0/0.1)]" />
         </span>
-        <div className="grid min-w-0 flex-1 gap-2.5 px-1.5">
+        <div className="grid min-w-0 flex-1 gap-1.5">
           <Track label="Hue" value={hsva.h} max={360} text={`${Math.round(hsva.h)} degrees`} background="linear-gradient(to right, #f00, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, #f00)" swatch={`hsl(${hsva.h} 100% 50%)`} onChange={(h) => set({ ...hsva, h })} />
           {alpha && <Track label="Alpha" value={hsva.a} max={1} text={pct(hsva.a)} background={`linear-gradient(to right, transparent, ${solid}), ${CHECKER}`} swatch={hex} onChange={(a) => set({ ...hsva, a })} />}
         </div>
         {canDrop && (
           <button type="button" aria-label="Pick a color from the screen" onClick={drop} className="grid size-8 shrink-0 place-items-center rounded-full text-[var(--bd-muted)] outline-none transition-colors hover:bg-[rgb(var(--bd-ink)/0.06)] hover:text-[var(--bd-fg)] focus-visible:outline-2 focus-visible:outline-[color:var(--bd-ui-focus)]">
-            <EyedropperIcon weight="duotone" className="size-[18px]" />
+            <EyedropperIcon weight="bold" className="size-4" />
           </button>
         )}
       </div>
 
-      <div className="flex h-9 items-center gap-1 rounded-[12px] bg-[var(--bd-ui-field)] p-1 shadow-[var(--bd-ui-well)]">
-        <button
-          type="button"
-          onClick={() => setFormat((f) => (f === "hex" ? "rgb" : f === "rgb" ? "hsl" : "hex"))}
-          aria-label={`Showing ${format.toUpperCase()}; switch the format`}
-          className="h-7 w-11 shrink-0 rounded-[8px] text-[11px] font-semibold uppercase tracking-[0.04em] text-[var(--bd-muted)] outline-none transition-colors hover:bg-[rgb(var(--bd-ink)/0.06)] hover:text-[var(--bd-fg)] focus-visible:outline-2 focus-visible:outline-[color:var(--bd-ui-focus)]"
-        >
-          {format}
-        </button>
-        <motion.input
-          key={bad}
-          aria-label="Color value"
-          spellCheck={false}
-          value={text ?? formatColor(rgba, format)}
-          onChange={(e) => setText(e.target.value)}
-          onBlur={commit}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") commit();
-            if (e.key === "Escape" && text !== null) {
-              e.stopPropagation();
-              setText(null);
-            }
-          }}
-          animate={bad && !still ? { x: [0, -5, 5, -3, 3, 0] } : undefined}
-          transition={{ duration: 0.32 }}
-          className="h-7 min-w-0 flex-1 rounded-[8px] bg-transparent px-1.5 font-mono text-[12.5px] text-[var(--bd-fg)] outline-none focus-visible:bg-[rgb(var(--bd-ink)/0.04)]"
-        />
+      {/* The values, as a spec sheet: hex to type into, rgb and hsl to read, each to copy. */}
+      <div className="grid gap-px overflow-hidden rounded-[11px] bg-[rgb(var(--bd-ink)/0.07)] shadow-[inset_0_0_0_1px_rgb(var(--bd-ink)/0.07)]">
+        <div className={ROW}>
+          <label htmlFor={`${id}-hex`} className={LABEL}>
+            Hex
+          </label>
+          <motion.input
+            key={bad}
+            id={`${id}-hex`}
+            spellCheck={false}
+            value={text ?? hex.toUpperCase()}
+            onChange={(e) => setText(e.target.value)}
+            onBlur={commit}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") commit();
+              if (e.key === "Escape" && text !== null) {
+                e.stopPropagation();
+                setText(null);
+              }
+            }}
+            animate={bad && !still ? { x: [0, -4, 4, -2, 2, 0] } : undefined}
+            transition={{ duration: 0.3 }}
+            className={cx(VALUE, "h-full min-w-0 bg-transparent outline-none")}
+          />
+          {copyButton("hex")}
+        </div>
+        <div className={ROW}>
+          <span className={LABEL}>Rgb</span>
+          <span className={VALUE}>
+            {Math.round(rgba.r)} {Math.round(rgba.g)} {Math.round(rgba.b)}
+            {rgba.a < 1 && <span className="text-[var(--bd-subtle)]"> / {pct(rgba.a)}</span>}
+          </span>
+          {copyButton("rgb")}
+        </div>
+        <div className={ROW}>
+          <span className={LABEL}>Hsl</span>
+          <span className={VALUE}>
+            {Math.round(hh)}° {pct(hs)} {pct(hl)}
+          </span>
+          {copyButton("hsl")}
+        </div>
       </div>
 
       {swatches && swatches.length > 0 && (
-        <div role="group" aria-label="Swatches" className="flex flex-wrap gap-1.5">
-          {swatches.map((s) => {
-            const c = parseColor(s);
+        <div role="group" aria-label="Swatches" className="grid auto-cols-fr grid-flow-col gap-1 rounded-[11px] bg-[var(--bd-ui-field)] p-1 shadow-[var(--bd-ui-well)]">
+          {swatches.map((sw) => {
+            const c = parseColor(sw);
             if (!c) return null;
             const on = toHex({ ...c, a: alpha ? c.a : 1 }) === hex;
             return (
               <button
-                key={s}
+                key={sw}
                 type="button"
-                aria-label={s}
+                aria-label={sw}
                 aria-pressed={on}
                 onClick={() => setColor(c)}
-                className="relative grid size-6 place-items-center rounded-full outline-none transition-transform duration-150 hover:scale-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--bd-ui-focus)]"
-                style={{ background: s, boxShadow: "inset 0 0 0 1px rgb(var(--bd-ink) / 0.12)" }}
-              >
-                <AnimatePresence>
-                  {on && (
-                    <motion.span key="on" initial={{ scale: 0.4, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.4, opacity: 0 }} transition={{ type: "spring", stiffness: 600, damping: 30 }} style={{ color: inkOn(s) }}>
-                      <CheckIcon weight="bold" className="size-3" />
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </button>
+                className={cx("h-6 rounded-[6px] outline-none transition-[transform,box-shadow] duration-150 hover:-translate-y-px focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[color:var(--bd-ui-focus)]", on ? "shadow-[inset_0_0_0_1px_rgb(0_0_0/0.15),0_0_0_2px_var(--bd-ui-field),0_0_0_3.5px_var(--bd-fg)]" : "shadow-[inset_0_0_0_1px_rgb(0_0_0/0.12),inset_0_1px_0_rgb(255_255_255/0.2)]")}
+                style={{ background: sw }}
+              />
             );
           })}
         </div>
       )}
 
       {showContrast && (
-        <div aria-labelledby={`${id}-contrast`} role="group" className="grid grid-cols-2 gap-1.5">
-          <span id={`${id}-contrast`} className="sr-only">
-            Contrast of text on this color
-          </span>
+        <div role="group" aria-label="The color as text" className="grid grid-cols-2 gap-1.5">
           {[
-            { ink: "#ffffff", ratio: onWhite, name: "White text" },
-            { ink: "#0b0b0c", ratio: onBlack, name: "Black text" },
+            { bg: "#ffffff", ratio: contrast(rgba, WHITE), on: "white" },
+            { bg: "#0b0b0c", ratio: contrast(rgba, BLACK), on: "black" },
           ].map((t) => {
             const g = grade(t.ratio);
             return (
-              <div key={t.name} className="flex items-center gap-2 rounded-[12px] p-1 pr-2 shadow-[inset_0_0_0_1px_var(--bd-line-subtle)]">
-                <span aria-hidden className="grid h-7 w-8 shrink-0 place-items-center rounded-[8px] text-[13px] font-semibold" style={{ background: solid, color: t.ink }}>
+              <div key={t.on} className="flex items-center gap-2 rounded-[11px] p-1 pr-2 shadow-[inset_0_0_0_1px_rgb(var(--bd-ink)/0.08)]">
+                <span aria-hidden className="grid h-7 w-8 shrink-0 place-items-center rounded-[7px] text-[13px] font-semibold shadow-[inset_0_0_0_1px_rgb(0_0_0/0.1)]" style={{ background: t.bg, color: solid }}>
                   Aa
                 </span>
                 <span className="min-w-0 leading-tight">
-                  <span className="sr-only">{t.name}: </span>
+                  <span className="sr-only">As text on {t.on}: </span>
                   <span className="block font-mono text-[11.5px] tabular-nums text-[var(--bd-fg)]">{t.ratio.toFixed(1)}:1</span>
-                  <span className={cx("block text-[10.5px] font-medium", g === "Fails" ? "text-[var(--bd-ui-stop)]" : g === "AA large" ? "text-[var(--bd-subtle)]" : "text-[var(--bd-ui-ok)]")}>{g}</span>
+                  <span className={cx("block whitespace-nowrap font-mono text-[9.5px] uppercase tracking-[0.08em]", g === "Fails" ? "text-[var(--bd-ui-stop)]" : "text-[var(--bd-subtle)]")}>{g}</span>
                 </span>
               </div>
             );
@@ -399,7 +423,7 @@ export type ColorFieldProps = Omit<ColorPickerProps, "className"> & {
 };
 
 /** A swatch and its value, that opens the picker under it. */
-export function ColorField({ label, value, defaultValue = "#3b82f6", onChange, className, ...picker }: ColorFieldProps) {
+export function ColorField({ label, value, defaultValue = "#2f5d50", onChange, className, ...picker }: ColorFieldProps) {
   const [own, setOwn] = useState(defaultValue);
   const color = value ?? own;
   const [place, setPlace] = useState<{ left: number; top: number; bottom: number; up: boolean; scope: Scope } | null>(null);

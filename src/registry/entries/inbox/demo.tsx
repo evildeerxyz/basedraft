@@ -9,7 +9,7 @@ const ITEMS: InboxItem[] = [
   { id: "1", actor: "Riley Parker", text: "bought Zuno", note: "$79, paid with Whop", day: "Today", time: "2m", icon: <ReceiptIcon weight="duotone" /> },
   {
     id: "2",
-    actor: "Maya Chen",
+    actor: "Olivia Bennett",
     text: "invited you to Parker Studio",
     note: "Team, 4 of 10 seats",
     day: "Today",
@@ -17,7 +17,7 @@ const ITEMS: InboxItem[] = [
     mention: true,
     actions: [{ label: "Accept", primary: true, onClick: () => ({ actions: undefined, note: "You joined Parker Studio" }) }, { label: "Decline", onClick: () => ({ actions: undefined, note: "Declined" }) }],
   },
-  { id: "3", actor: "Jonah Park", text: "mentioned you in Zuno launch", note: "Can you look at the hero copy before Friday?", day: "Today", time: "3h", mention: true },
+  { id: "3", actor: "Jake Morrison", text: "mentioned you in Zuno launch", note: "Can you look at the hero copy before Friday?", day: "Today", time: "3h", mention: true },
   { id: "4", text: "Noma has an update", note: "A dark mode, and two new sections", day: "Yesterday", time: "4:12 PM", icon: <ArrowsClockwiseIcon weight="regular" />, read: true },
   { id: "5", actor: "Sam Ito", text: "bought Pro", note: "$149", day: "Yesterday", time: "9:05 AM", icon: <ReceiptIcon weight="duotone" />, read: true },
 ];

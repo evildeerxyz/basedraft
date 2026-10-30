@@ -5,6 +5,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { cn } from "@/lib/utils";
+import { BACK, BACK_ARROW } from "@/site/library-css";
 import { isFree, kindOf, sectionOf, sectionShot, TEMPLATES, templateOf, viewUrl, type TemplateSlug } from "@/site/live";
 import { btnLg, ProBadge, Tick, wrap } from "@/site/sheet";
 import { TextLink } from "@/site/showcase";
@@ -34,8 +35,9 @@ export default function TemplatePage({ params }: PageProps<"/templates/[slug]">)
   return (
     <main id="main">
       <div className={cn(wrap, "pb-24 pt-6")}>
-        <Link href="/templates" className="bd-link flex h-9 w-fit items-center gap-2 text-ui text-muted transition-colors hover:text-fg">
-          <ArrowLeftIcon weight="regular" size={14} /> All templates
+        <Link href="/templates" className={BACK}>
+          <ArrowLeftIcon weight="regular" size={13} className={BACK_ARROW} />
+          All templates
         </Link>
         <Suspense fallback={<TemplateSkeleton />}>
           <Template params={params} />
@@ -106,7 +108,7 @@ async function Template({ params }: { params: PageProps<"/templates/[slug]">["pa
             </a>
           </div>
         </div>
-        <dl className="bd-paper glow-c grid grid-cols-2 gap-2 rounded-[var(--bd-r-stage)] p-2">
+        <dl className="bd-light bd-paper glow-c grid grid-cols-2 gap-2 rounded-[var(--bd-r-stage)] p-2">
           {facts.map((f) => (
             <div key={f.label} className="rounded-[20px] bg-paper/65 px-5 py-4 shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--bd-paper-ink)_7%,transparent)] backdrop-blur">
               <dt className="text-meta text-paper-muted">{f.label}</dt>
@@ -120,11 +122,11 @@ async function Template({ params }: { params: PageProps<"/templates/[slug]">["pa
 
       <section aria-labelledby="sections-title">
         <Head id="sections-title" title="Its home page, section by section" note={`${home.length} sections. Each one also works on its own, on any page you build.`} />
-        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <ul data-reveal-stagger className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {home.map((s) => {
             const href = `/blocks/${s.kind}#${s.template}-${s.id}`;
             return (
-              <li key={s.id} className="bd-reveal flex min-w-0 flex-col">
+              <li key={s.id} className="flex min-w-0 flex-col">
                 <Link href={href} aria-label={s.name} className="group flex flex-1">
                   <Stage quiet className="flex-1" inner="flex h-full items-center p-2 sm:p-3">
                     <span className={cn(onStage, "relative block aspect-[16/10] w-full")}>
@@ -191,7 +193,7 @@ async function Template({ params }: { params: PageProps<"/templates/[slug]">["pa
       </section>
 
       {/* The ways to take it home, as tabs, beside the price and the one thing to do. */}
-      <section aria-labelledby="take-title" className="bd-paper glow-d grid grid-cols-1 items-start gap-8 rounded-[var(--bd-r-stage)] p-6 sm:p-10 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)] lg:gap-12 lg:p-12">
+      <section aria-labelledby="take-title" data-scroll="settle" className="bd-light bd-paper glow-d grid grid-cols-1 items-start gap-8 rounded-[var(--bd-r-stage)] p-6 sm:p-10 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)] lg:gap-12 lg:p-12">
         <div>
           <TemplateLogo slug={slug} size={44} />
           <h2 id="take-title" className="mt-5 text-headline">

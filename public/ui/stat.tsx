@@ -63,7 +63,7 @@ function Reel({ digit, delay, still }: { digit: number; delay: number; still: bo
   return (
     <span className="relative inline-block h-[1em] overflow-hidden">
       <span className="invisible">0</span>
-      <motion.span className="absolute inset-x-0 top-0 flex flex-col" initial={false} animate={{ y: `${-digit}em` }} transition={still ? { duration: 0 } : { type: "spring", stiffness: 170, damping: 22, mass: 0.9, delay }}>
+      <motion.span data-reel="" className="absolute inset-x-0 top-0 flex flex-col" initial={false} animate={{ y: `${-digit}em` }} transition={still ? { duration: 0 } : { type: "spring", stiffness: 170, damping: 22, mass: 0.9, delay }}>
         {Array.from({ length: 10 }, (_, d) => (
           <span key={d} className="block h-[1em]">
             {d}

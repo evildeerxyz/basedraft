@@ -36,7 +36,7 @@ function Ticks({ items, className }: { items: string[]; className?: string }) {
 export function PricingSheet({ id }: { id?: string }) {
   const plans = [FREE, PRO, TEAM];
   return (
-    <div id={id} className="bd-reveal bd-paper glow-b relative isolate mx-auto max-w-[1200px] scroll-mt-28 overflow-hidden rounded-[32px] p-3 sm:p-5 lg:p-7">
+    <div id={id} data-scroll="settle" className="bd-light bd-paper glow-b relative isolate mx-auto max-w-[1200px] scroll-mt-28 overflow-hidden rounded-[32px] p-3 sm:p-5 lg:p-7">
       <DotField patches={[]} layers={1} fade="radial-gradient(70% 45% at 50% 0%, #000, transparent 80%)" />
       <ul className="grid items-stretch gap-3 lg:grid-cols-3 lg:gap-4">
         {plans.map((p) => {

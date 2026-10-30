@@ -8,8 +8,8 @@ import { hint } from "../_shared/kit";
 
 /* A publish that takes a moment: the toast waits, then says it's done, in the same place. */
 function publish() {
-  const id = toast("Publishing to GitHub", { tone: "wait", description: "fieldwork/zuno-site, 61 files", duration: Infinity });
-  setTimeout(() => toast.update(id, "Published to GitHub", { tone: "ok", description: "fieldwork/zuno-site is up to date.", action: { label: "Open repository", onClick: () => {} } }), 1600);
+  const id = toast("Publishing to GitHub", { tone: "wait", description: "larkspur/zuno-site, 61 files", duration: Infinity });
+  setTimeout(() => toast.update(id, "Published to GitHub", { tone: "ok", description: "larkspur/zuno-site is up to date.", action: { label: "Open repository", onClick: () => {} } }), 1600);
 }
 
 /** Three moments from a working day: a publish, an invite, and a push that didn't go through. */
@@ -20,7 +20,7 @@ export function Demo() {
         <Button variant="metal" onClick={publish}>
           <GithubLogoIcon weight="duotone" /> Publish
         </Button>
-        <Button variant="outline" onClick={() => toast("Invite sent", { tone: "ok", description: "Jonah Park will get an email to join Fieldwork." })}>
+        <Button variant="outline" onClick={() => toast("Invite sent", { tone: "ok", description: "Jake Morrison will get an email to join Larkspur." })}>
           <EnvelopeSimpleIcon weight="duotone" /> Invite
         </Button>
         <Button variant="outline" onClick={() => toast("Couldn't reach GitHub", { tone: "stop", description: "Your changes are saved here. Try again in a moment.", action: { label: "Try again", onClick: publish } })}>

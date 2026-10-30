@@ -6,12 +6,12 @@ export const doc: ComponentDoc = {
 export function Seats() {
   return (
     <div className="flex items-center gap-4">
-      <Avatar name="Maya Okafor" status="online" />
+      <Avatar name="Emily Carter" status="online" />
       <AvatarGroup
         people={[
-          { name: "Jonah Park" },
-          { name: "Lea Moreau" },
-          { name: "Sami Ito" },
+          { name: "Jake Morrison" },
+          { name: "Sarah Mitchell" },
+          { name: "Ryan Brooks" },
         ]}
         max={2}
       />
@@ -56,9 +56,9 @@ export function Seats() {
       title: "Sizes",
       note: "Small in dense rows, large beside a name that leads.",
       code: `<div className="flex items-center gap-3">
-  <Avatar name="Lea Moreau" size="sm" />
-  <Avatar name="Jonah Park" size="md" />
-  <Avatar name="Maya Okafor" size="lg" />
+  <Avatar name="Sarah Mitchell" size="sm" />
+  <Avatar name="Jake Morrison" size="md" />
+  <Avatar name="Emily Carter" size="lg" />
 </div>`,
     },
     {
@@ -66,9 +66,9 @@ export function Seats() {
       title: "With a status",
       note: "Here, busy or away, in the corner.",
       code: `<div className="flex items-center gap-3">
-  <Avatar name="Sami Ito" status="online" />
-  <Avatar name="Ana Ruiz" status="busy" />
-  <Avatar name="Ben Adeyemi" status="away" />
+  <Avatar name="Ryan Brooks" status="online" />
+  <Avatar name="Ashley Cooper" status="busy" />
+  <Avatar name="Brandon Reed" status="away" />
 </div>`,
     },
     {
@@ -76,12 +76,12 @@ export function Seats() {
       title: "A group",
       note: "Point at it and the faces fan out; the count's tooltip names the rest.",
       code: `const PEOPLE = [
-  { name: "Maya Okafor" },
-  { name: "Jonah Park" },
-  { name: "Lea Moreau" },
-  { name: "Sami Ito" },
-  { name: "Ana Ruiz" },
-  { name: "Ben Adeyemi" },
+  { name: "Emily Carter" },
+  { name: "Jake Morrison" },
+  { name: "Sarah Mitchell" },
+  { name: "Ryan Brooks" },
+  { name: "Ashley Cooper" },
+  { name: "Brandon Reed" },
 ];
 
 <div className="flex items-center gap-3">

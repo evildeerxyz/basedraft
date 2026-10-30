@@ -49,8 +49,8 @@ const THREAD: ChatMessage[] = [
     role: "assistant",
     status: "done",
     parts: [
-      { type: "tool", tool: { id: "p", name: "publish_to_github", title: "Publish to GitHub", status: "done", input: '{ "repo": "fieldwork/zuno-site" }', output: "Opened pull request #42" } },
-      { type: "text", text: "Done. It's pull request #42 on fieldwork/zuno-site, ready for review." },
+      { type: "tool", tool: { id: "p", name: "publish_to_github", title: "Publish to GitHub", status: "done", input: '{ "repo": "larkspur/zuno-site" }', output: "Opened pull request #42" } },
+      { type: "text", text: "Done. It's pull request #42 on larkspur/zuno-site, ready for review." },
     ],
   },
   { id: "3", role: "user", content: "And deploy it." },

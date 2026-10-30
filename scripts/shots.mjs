@@ -18,8 +18,8 @@ const CHROME = process.env.CHROME_PATH ?? "/Applications/Google Chrome.app/Conte
 const ONLY = ["studio", "sections", "templates"].find((s) => process.argv.includes(s));
 const run = (set) => !ONLY || ONLY === set;
 
-const MANIFESTS = { zuno: "templates/zuno/src/bd/manifest.json", noma: "templates/noma/src/bd/manifest.json", auren: "templates/auren/bd/manifest.json", pello: "templates/pello/src/bd/manifest.json" };
-// Name templates (npm run shots sections pello) to shoot only those.
+const MANIFESTS = { zuno: "templates/zuno/src/bd/manifest.json", noma: "templates/noma/src/bd/manifest.json", auren: "templates/auren/bd/manifest.json" };
+// Name templates (npm run shots sections noma) to shoot only those.
 const picked = Object.keys(MANIFESTS).filter((slug) => process.argv.includes(slug));
 const templates = await Promise.all(Object.entries(MANIFESTS).filter(([slug]) => !picked.length || picked.includes(slug)).map(async ([slug, path]) => ({ slug, ...JSON.parse(await readFile(path, "utf8")) })));
 

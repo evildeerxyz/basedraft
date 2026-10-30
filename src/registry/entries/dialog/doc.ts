@@ -167,7 +167,7 @@ export function Publish() {
     <div className="mt-5">
       <Input
         data-autofocus
-        placeholder="Fieldwork Studio"
+        placeholder="Larkspur Studio"
         aria-label="Team name"
       />
     </div>

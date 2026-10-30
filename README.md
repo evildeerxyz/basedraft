@@ -36,7 +36,7 @@ src/
   studio/            Studio: canvas, panels, the drafts dialog and export
   lib/               zip, rewrite-text (writing text edits into source), supabase.ts (the browser's client), api.ts (the database's functions, typed)
 supabase/            migrations/: the tables, the functions that are the API, live channels and image storage
-templates/           zuno, noma, auren, pello
+templates/           zuno, noma, auren
 scripts/             run.mjs (all apps), zones.mjs (ports), template-source.mjs (what a buyer gets), shots.mjs, convex-to-supabase.mjs (the move)
 ```
 
@@ -93,10 +93,10 @@ See `.env.example`. In `.env.local`:
 | `SEND_EMAIL_HOOK_SECRET` | The Send Email hook's secret, which signs each sign-in code Supabase asks the site to send |
 | `RESEND_API_KEY`, `EMAIL_FROM`, `EMAIL_REPLY_TO` | basedraft's emails, sent through Resend from `hello@basedraft.site` |
 | `WHOP_API_KEY`, `WHOP_WEBHOOK_SECRET` | Whop checkout, and its webhook at `<site>/api/whop/webhook` |
-| `WHOP_PLAN_ZUNO`, `WHOP_PLAN_NOMA`, `WHOP_PLAN_AUREN`, `WHOP_PLAN_PELLO`, `WHOP_PLAN_PRO`, `WHOP_PLAN_TEAM` | Each product's Whop plan id |
+| `WHOP_PLAN_ZUNO`, `WHOP_PLAN_NOMA`, `WHOP_PLAN_AUREN`, `WHOP_PLAN_PRO`, `WHOP_PLAN_TEAM` | Each product's Whop plan id |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Continue with Google: an OAuth client whose redirect is `<site>/api/auth/callback/google` (development needs `http://localhost:3400/api/auth/callback/google` on it too) |
 | `NEXT_PUBLIC_SITE_URL` | This site's address |
-| `ZUNO_URL`, `NOMA_URL`, `AUREN_URL`, `PELLO_URL` | Where each template zone is deployed |
+| `ZUNO_URL`, `NOMA_URL`, `AUREN_URL` | Where each template zone is deployed |
 | `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | Send to GitHub. An OAuth app whose callback is `<site>/api/github/callback` |
 | `BD_SESSION_SECRET` | Seals the GitHub token in its httpOnly cookie. Required in production |
 | `BD_EXPORT_OPEN` | Lets a production deployment hand out template code before purchases are connected. Leave it off in public |

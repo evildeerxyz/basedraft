@@ -106,7 +106,7 @@ function More() {
         { name: "United States", value: 38 },
         { name: "Germany", value: 14 },
         { name: "United Kingdom", value: 11 },
-        { name: "Nigeria", value: 9 },
+        { name: "Australia", value: 9 },
         { name: "India", value: 8 },
         { name: "Japan", value: 6 },
       ]}

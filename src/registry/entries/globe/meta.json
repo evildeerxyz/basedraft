@@ -1,0 +1,9 @@
+{
+  "name": "globe",
+  "title": "Globe",
+  "group": "Data",
+  "description": "The Earth in dots, lit and shaded by an ordered dither, that spins when dragged and coasts to a stop, with markers that pulse, arcs that rise between them carrying a light, and a turn to face whatever you choose.",
+  "order": 37,
+  "added": "2026-10-30",
+  "pro": true
+}

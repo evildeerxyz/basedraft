@@ -7,7 +7,7 @@ import { Input } from "../../ui/input";
 export function Demo() {
   return (
     <div className="grid w-full max-w-[330px] gap-2.5">
-      <Input leading={<GithubLogoIcon weight="duotone" />} defaultValue="fieldwork/zuno-site" aria-label="Repository" />
+      <Input leading={<GithubLogoIcon weight="duotone" />} defaultValue="larkspur/zuno-site" aria-label="Repository" />
       <Input leading={<GlobeIcon weight="duotone" />} placeholder="Custom domain" trailing="Optional" aria-label="Custom domain" />
     </div>
   );
@@ -24,7 +24,7 @@ function Trailing() {
 function Invalid() {
   return (
     <div className="grid w-full max-w-[320px] gap-1.5">
-      <Input type="email" defaultValue="maya@fieldwork" aria-invalid aria-describedby="email-error" aria-label="Email" />
+      <Input type="email" defaultValue="emily@larkspur" aria-invalid aria-describedby="email-error" aria-label="Email" />
       <p id="email-error" className="px-4 text-xs text-[var(--bd-ui-stop)]">
         Add the part after the dot, like .co
       </p>
@@ -50,7 +50,7 @@ function Password() {
 }
 
 function Disabled() {
-  return <Input leading={<LockSimpleIcon weight="duotone" />} defaultValue="fieldwork" disabled aria-label="Team" className="max-w-[320px]" />;
+  return <Input leading={<LockSimpleIcon weight="duotone" />} defaultValue="larkspur" disabled aria-label="Team" className="max-w-[320px]" />;
 }
 
 export const examples: Record<string, ComponentType> = { leading: Leading, trailing: Trailing, invalid: Invalid, password: Password, disabled: Disabled };

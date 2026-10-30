@@ -76,7 +76,7 @@ function Grow() {
   return (
     <div className="w-full max-w-[320px] rounded-[18px] bg-[var(--bd-surface)] p-1.5 shadow-[inset_0_0_0_1px_var(--bd-line)]">
       <ScrollArea maxHeight={180} fade="gradient" label="Countries">
-        {["United States", "Germany", "United Kingdom", "Nigeria", "India", "Japan", "Brazil", "France", "Canada", "Kenya"].map((c) => (
+        {["United States", "Germany", "United Kingdom", "Australia", "India", "Japan", "Brazil", "France", "Canada", "Kenya"].map((c) => (
           <p key={c} className="rounded-[10px] px-3 py-2 text-[13.5px] text-[var(--bd-fg)] hover:bg-[rgb(var(--bd-ink)/0.04)]">
             {c}
           </p>

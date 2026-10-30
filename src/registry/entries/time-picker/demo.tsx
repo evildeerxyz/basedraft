@@ -11,7 +11,7 @@ const minutes = (a: string, b: string) => {
   return bh * 60 + bm - (ah * 60 + am);
 };
 
-/** A call with Lea: when it starts, and when it ends, the end's list counting from the start. */
+/** A call with Sarah: when it starts, and when it ends, the end's list counting from the start. */
 export function Demo() {
   const [start, setStart] = useState("09:30");
   const [end, setEnd] = useState("10:00");
@@ -25,7 +25,7 @@ export function Demo() {
   };
   return (
     <div className="grid w-full max-w-[420px] gap-3">
-      <p className="text-sm font-medium text-[var(--bd-fg)]">Call with Lea Moreau, Thursday</p>
+      <p className="text-sm font-medium text-[var(--bd-fg)]">Call with Sarah Mitchell, Thursday</p>
       <div className="grid grid-cols-2 gap-3">
         <TimePicker label="Starts" value={start} onValueChange={pickStart} step={15} />
         <TimePicker label="Ends" value={end} onValueChange={setEnd} from={start} step={15} />

@@ -38,7 +38,7 @@ export function LiveSectionShowcase({ template, id, glow = "a" }: { template: st
   const name = `${t.name} ${s.name.toLowerCase()}`;
   const tabs = useId();
   return (
-    <section id={`${template}-${id}`} aria-labelledby={`${template}-${id}-title`} className="scroll-mt-[calc(var(--bd-header-h,80px)+80px)] pt-10">
+    <section id={`${template}-${id}`} aria-labelledby={`${template}-${id}-title`} className="bd-reveal scroll-mt-[calc(var(--bd-header-h,80px)+80px)] pt-10">
       <div className={cn("bd-panel relative isolate rounded-[28px] p-2 shadow-[inset_0_0_0_1px_var(--bd-line-subtle)] sm:p-3", GLOW[glow])}>
         <div className="flex flex-wrap items-center gap-x-3 gap-y-3 px-2 pb-3 pt-1 sm:px-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}

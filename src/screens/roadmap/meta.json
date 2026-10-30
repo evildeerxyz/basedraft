@@ -1,0 +1,9 @@
+{
+  "title": "Roadmap",
+  "kind": "Planning",
+  "description": "A quarter's plan with the team in it: the work on a timeline you drag in place, or the same work as a board, filtered by team and status, with everyone looking at it live and the one you pick open beside it.",
+  "path": "relay.app/acme/roadmap",
+  "pro": true,
+  "added": "2026-10-30",
+  "order": 3
+}

@@ -445,6 +445,8 @@ const KEEP = [
   "flex-direction",
   "flex-wrap",
   "justify-content",
+  "justify-items",
+  "justify-self",
   "align-items",
   "align-self",
   "align-content",
@@ -468,6 +470,7 @@ const KEEP = [
   "margin-bottom",
   "margin-left",
   "min-height",
+  "min-width",
   "max-width",
   "aspect-ratio",
   "grid-auto-rows",
@@ -489,6 +492,7 @@ const KEEP = [
   "text-transform",
   "text-decoration-line",
   "white-space",
+  "text-overflow",
   "border-top",
   "border-right",
   "border-bottom",
@@ -515,6 +519,9 @@ const DEFAULTS: Record<string, string[]> = {
   "flex-direction": ["row"],
   "flex-wrap": ["nowrap"],
   "justify-content": ["normal"],
+  "justify-items": ["normal", "legacy"],
+  "justify-self": ["auto"],
+  "text-overflow": ["clip"],
   "align-items": ["normal"],
   "align-self": ["auto"],
   "align-content": ["normal"],
@@ -535,6 +542,7 @@ const DEFAULTS: Record<string, string[]> = {
   "grid-column": ["auto", "auto / auto"],
   "grid-row": ["auto", "auto / auto"],
   "min-height": ["auto", "0px"],
+  "min-width": ["auto", "0px"],
   "background-color": ["rgba(0, 0, 0, 0)", "transparent"],
   "background-image": ["none"],
   "background-size": ["auto"],
@@ -561,12 +569,14 @@ const INHERITED = new Set(["color", "font-family", "font-size", "font-weight", "
  * reports its declared width and height, so hide it for a moment and ask.
  */
 function declared(el: Element, ctx: Ctx) {
-  if (!(el instanceof HTMLElement)) return { width: "auto", height: "auto" };
+  if (!(el instanceof HTMLElement)) return { width: "auto", height: "auto", top: "auto", right: "auto", bottom: "auto", left: "auto", "margin-top": "", "margin-right": "", "margin-bottom": "", "margin-left": "" };
   const prev = el.style.getPropertyValue("display");
   const prio = el.style.getPropertyPriority("display");
   el.style.setProperty("display", "none", "important");
   const cs = ctx.win.getComputedStyle(el);
-  const out = { width: cs.width, height: cs.height };
+  // The edges too: drawn, a pinned layer reports all four in pixels, even the ones never set. And
+  // margins, where auto (pushing a group to the end of its row) would otherwise read as pixels.
+  const out = { width: cs.width, height: cs.height, top: cs.top, right: cs.right, bottom: cs.bottom, left: cs.left, "margin-top": cs.marginTop, "margin-right": cs.marginRight, "margin-bottom": cs.marginBottom, "margin-left": cs.marginLeft };
   if (prev) el.style.setProperty("display", prev, prio);
   else el.style.removeProperty("display");
   return out;
@@ -587,6 +597,32 @@ function fluidTracks(v: string) {
 }
 
 /**
+ * Whether all of an element's words sit on one line in the browser: every run of text shares a
+ * row (their boxes overlap top to bottom), however the runs are aligned. Short ones like that
+ * (a label, a button, a pill) are told not to wrap in Paper, whose letters come out a hair wider
+ * than the browser's and would otherwise break a word across two lines.
+ */
+function oneLine(el: Element, doc: Document) {
+  const walk = doc.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+  const range = doc.createRange();
+  let top = -Infinity;
+  let bottom = Infinity;
+  let chars = 0;
+  for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+    const t = (n as Text).data;
+    if (!t.trim()) continue;
+    chars += t.trim().length;
+    range.selectNodeContents(n);
+    for (const r of range.getClientRects()) {
+      if (r.width < 0.5) continue;
+      top = Math.max(top, r.top);
+      bottom = Math.min(bottom, r.bottom);
+    }
+  }
+  return chars > 0 && chars <= 48 && top < bottom;
+}
+
+/**
  * Inline styles for Paper, written to stay responsive: boxes the browser sized from their
  * content or parent keep no fixed size, grids become fr columns, set widths become percentages
  * where they are one, and caps (max-width) carry over. Resize the frame in Paper and it reflows.
@@ -596,10 +632,23 @@ function styleFor(el: Element, cs: CSSStyleDeclaration, parent: CSSStyleDeclarat
   if (["ul", "ol", "menu"].includes(el.tagName.toLowerCase())) out.push("list-style: none");
   // The copied frame itself: just its width. Where it sat offscreen while being measured isn't part of the design.
   const isRoot = parent === null;
+  const want = declared(el, ctx);
+  const item = !!parent && /flex|grid/.test(parent.display);
   for (const p of KEEP) {
     if (isRoot && ["position", "top", "right", "bottom", "left", "z-index", "transform"].includes(p)) continue;
+    // Only the edges CSS set: one that was left to fall where it may would pin the layer on that side too.
+    if ((p === "top" || p === "right" || p === "bottom" || p === "left") && want[p] === "auto") continue;
+    if ((p === "margin-top" || p === "margin-right" || p === "margin-bottom" || p === "margin-left") && want[p] === "auto" && !isRoot) {
+      out.push(`${p}: auto`);
+      continue;
+    }
     let v = cs.getPropertyValue(p);
     if (!v) continue;
+    // In a row or a column, a floor of 0 (min-h-0, min-w-0) is what lets an item shrink to fit, not the default.
+    if ((p === "min-height" || p === "min-width") && v === "0px" && item) {
+      out.push(`${p}: 0px`);
+      continue;
+    }
     if (DEFAULTS[p]?.includes(v)) continue;
     if (p.startsWith("margin") && v === "0px" && !UA_STYLED.has(el.tagName.toLowerCase())) continue;
     if (p.startsWith("padding") && v === "0px" && ["ul", "ol", "menu", "fieldset"].includes(el.tagName.toLowerCase())) {
@@ -618,6 +667,12 @@ function styleFor(el: Element, cs: CSSStyleDeclaration, parent: CSSStyleDeclarat
     v = rgbaIn(v);
     out.push(`${p}: ${v}`);
   }
+  // A browser lets an item that clips (a scrolling page, a panel) shrink below what's in it; say so,
+  // or a line a hair taller in Paper pushes it, and everything under it, out of its frame.
+  if (item && (cs.overflowX !== "visible" || cs.overflowY !== "visible")) {
+    if (cs.minHeight === "auto") out.push("min-height: 0px");
+    if (cs.minWidth === "auto") out.push("min-width: 0px");
+  }
   // Centered containers (mx-auto with a max width) report their auto margins as 0, so restore them.
   if (cs.maxWidth !== "none" && el.parentElement && cs.position === "static") {
     const p = el.parentElement.getBoundingClientRect();
@@ -628,6 +683,12 @@ function styleFor(el: Element, cs: CSSStyleDeclaration, parent: CSSStyleDeclarat
 
   const tag = el.tagName.toLowerCase();
   const pinned = cs.position === "absolute" || cs.position === "fixed";
+  // Short words on one line stay on one line, and in a row they keep their room rather than be squeezed into wrapping.
+  if (hasText && !isRoot && oneLine(el, ctx.doc)) {
+    if (cs.whiteSpace === "normal") out.push("white-space: nowrap");
+    const row = parent && parent.display.includes("flex") && !parent.flexDirection.startsWith("column");
+    if (row && !pinned && cs.flexShrink !== "0" && el.scrollWidth <= el.clientWidth + 1) out.push("flex-shrink: 0");
+  }
   const media = ["img", "canvas", "svg", "input", "video"].includes(tag);
   const holder = el.parentElement;
   const pcs = holder ? ctx.win.getComputedStyle(holder) : null;
@@ -635,13 +696,17 @@ function styleFor(el: Element, cs: CSSStyleDeclaration, parent: CSSStyleDeclarat
   const fills = Math.abs(r.w - room) < 1.5;
 
   if (isRoot || !holder) {
-    out.push(`width: ${r.w.toFixed(1)}px`);
+    // Its own frame for what's pinned inside it, wherever it lands beside the other widths, and
+    // its height where it has a set one (a screen, as tall as its window): what fills it (the
+    // sidebar, with the account at its foot) fills it in Paper too.
+    out.push(`width: ${r.w.toFixed(1)}px`, "position: relative");
+    if (/^[\d.]+px$/.test(want.height)) out.push(`height: ${r.h.toFixed(1)}px`);
     return out.join("; ");
   } else if (pinned) {
     // Pinned layers (badges, glows, overlays) keep the box they were drawn in, unless their
     // edges stretch them (inset 0): then they follow their parent as it resizes.
-    const across = cs.left !== "auto" && cs.right !== "auto";
-    const down = cs.top !== "auto" && cs.bottom !== "auto";
+    const across = want.left !== "auto" && want.right !== "auto";
+    const down = want.top !== "auto" && want.bottom !== "auto";
     if (!across) out.push(`width: ${r.w.toFixed(1)}px`);
     if (!down) out.push(`height: ${r.h.toFixed(1)}px`);
     return out.join("; ");
@@ -650,7 +715,6 @@ function styleFor(el: Element, cs: CSSStyleDeclaration, parent: CSSStyleDeclarat
     else out.push(`width: ${r.w.toFixed(1)}px`, `height: ${r.h.toFixed(1)}px`, "max-width: 100%");
     return out.join("; ");
   }
-  const want = declared(el, ctx);
   if (!pinned && !media && !isRoot && holder) {
     // Widths: percentages stay percentages; a set width keeps its size but can never overflow; auto stays fluid.
     if (want.width.endsWith("%")) out.push(`width: ${want.width}`);
@@ -687,24 +751,43 @@ function elementHtml(el: Element, parent: CSSStyleDeclaration | null, ctx: Ctx):
   }
   if (tag === "svg") return inlineSvg(el as SVGSVGElement, parseColor(cs.color)?.rgb ?? "#000", r.w, r.h).replace(/^<svg/, `<svg layer-name="${name}" style="${style}"`);
   if (tag === "input" || tag === "textarea") {
+    // An input's words sit in the middle of its height, and a placeholder wears its own color.
     const f = el as HTMLInputElement;
-    return `<div layer-name="${name}" style="${style}">${esc(f.value || f.placeholder || "")}</div>`;
+    const hint = !f.value && f.placeholder ? ctx.win.getComputedStyle(el, "::placeholder").color : "";
+    const middle = tag === "input" ? "; display: flex; align-items: center; white-space: nowrap; overflow: hidden" : "";
+    return `<div layer-name="${name}" style="${style}${middle}${parseColor(hint) ? `; color: ${esc(rgbaIn(hint))}` : ""}">${esc(f.value || f.placeholder || "")}</div>`;
   }
-  const safeTag = ["a", "button", "label", "select", "option", "summary", "details", "form", "fieldset", "legend"].includes(tag) ? "div" : tag;
+  // A paragraph holding layers is written as a frame: a parser closes a <p> at the first <div>
+  // inside it (a button or a link, written as one), which would push the rest out after it.
+  const safeTag = ["a", "button", "label", "select", "option", "summary", "details", "form", "fieldset", "legend"].includes(tag) || (tag === "p" && el.children.length > 0) ? "div" : tag;
   let inner = "";
+  // In a row or a grid, words beside other layers are a layer of their own, as the browser lays
+  // them out: the words between two layers, however many text nodes they came in, one item.
+  const runs = /flex|grid/.test(cs.display) && el.children.length > 0;
+  let run = "";
+  const endRun = () => {
+    const words = run.replace(/\s+/g, " ").trim();
+    if (words) inner += `<span layer-name="Text" style="box-sizing: border-box; display: block">${esc(cs.textTransform === "uppercase" ? words.toUpperCase() : words)}</span>`;
+    run = "";
+  };
   for (const child of el.childNodes) {
-    if (child.nodeType === Node.TEXT_NODE) {
+    if (child.nodeType === Node.TEXT_NODE && runs) run += (child as Text).data;
+    else if (child.nodeType === Node.TEXT_NODE) {
       const t = (child as Text).data;
       if (t.trim()) inner += esc(cs.textTransform === "uppercase" ? t.toUpperCase() : t);
       else if (t && inner) inner += " ";
     } else if (child.nodeType === Node.ELEMENT_NODE) {
+      endRun();
       // A styled run's edge spaces would collapse inside it; keep them between the runs instead.
       const words = (child as Element).textContent ?? "";
       const html = elementHtml(child as Element, cs, ctx);
-      inner += (html && /^\s/.test(words) && inner && !inner.endsWith(" ") ? " " : "") + html + (html && /\s$/.test(words) ? " " : "");
+      inner += runs ? html : (html && /^\s/.test(words) && inner && !inner.endsWith(" ") ? " " : "") + html + (html && /\s$/.test(words) ? " " : "");
     }
   }
-  return `<${safeTag} layer-name="${name}" style="${style}">${inner}</${safeTag}>`;
+  endRun();
+  // A button centers what's in it by itself; written as a frame, it's told to.
+  const centered = tag === "button" && !/flex|grid/.test(cs.display) ? `; display: flex; align-items: center; justify-content: ${cs.textAlign === "left" || cs.textAlign === "start" ? "flex-start" : cs.textAlign === "right" || cs.textAlign === "end" ? "flex-end" : "center"}` : "";
+  return `<${safeTag} layer-name="${name}" style="${style}${centered}">${inner}</${safeTag}>`;
 }
 
 /* ---------- entry points ---------- */
@@ -875,6 +958,8 @@ export async function exportFrame(target: HTMLElement, { width = EXPORT_WIDTH, g
   }
   root.removeAttribute("id");
   Object.assign(root.style, { position: "absolute", left: "-40000px", top: "0px", width: `${width}px`, minHeight: "0px", zoom: "1", pointerEvents: "none" });
+  // A screen fills its window and scrolls inside it; copied, it's drawn whole, as tall as what's in it.
+  if (target.dataset.exportHeight === "auto") root.style.height = "auto";
   root.style.setProperty("--bd-page", `${width}px`);
   if (gutter !== null) root.style.setProperty("--bd-gutter", `${gutter}px`);
   root.setAttribute("aria-hidden", "true");
@@ -882,7 +967,9 @@ export async function exportFrame(target: HTMLElement, { width = EXPORT_WIDTH, g
   void root.offsetHeight;
 
   // Freeze animations at rest: layout and entrance transforms (translate, scale) would export mid-flight.
+  // A number's reels (data-reel) are the exception: their shift is what shows each digit, not motion.
   root.querySelectorAll<HTMLElement>("[style*='transform']").forEach((el) => {
+    if (el.hasAttribute("data-reel")) return;
     if (/translate|scale|matrix/.test(el.style.transform)) el.style.transform = "none";
   });
   void root.offsetHeight;
@@ -934,13 +1021,72 @@ export function figmaCopyFor(target: HTMLElement, name: string) {
   };
 }
 
-export async function paperHtmlFor(target: HTMLElement, name: string) {
-  const f = await exportFrame(target);
-  try {
-    return toPaperHtml(f.root, name);
-  } finally {
-    f.done();
+/**
+ * Paper's copy of the same views Figma gets: each width its own named frame, the widths side by
+ * side and each state its own row under the first, spaced as Figma spaces its variants.
+ */
+export function paperFrames(name: string, views: Array<{ state?: string; html: string }>) {
+  const states = [...new Set(views.map((v) => v.state))];
+  const row = (state: string | undefined, label: string) =>
+    `<div layer-name="${esc(label)}" style="display: flex; gap: 80px; align-items: flex-start">${views
+      .filter((v) => v.state === state)
+      .map((v) => v.html)
+      .join("")}</div>`;
+  if (states.length === 1) return row(states[0], name);
+  return `<div layer-name="${esc(name)}" style="display: flex; flex-direction: column; gap: 80px; align-items: flex-start">${states.map((s) => row(s, s ?? name)).join("")}</div>`;
+}
+
+/** "Copy for Paper": desktop, tablet and phone, each laid out at its own width as Figma's are. */
+export async function paperCopyFor(target: HTMLElement, name: string) {
+  const views: Array<{ html: string }> = [];
+  for (const v of VIEWPORTS) {
+    const f = await exportFrame(target, v);
+    try {
+      views.push({ html: toPaperHtml(f.root, v.name) });
+    } finally {
+      f.done();
+    }
   }
+  return paperFrames(name, views);
+}
+
+/**
+ * Copies for Figma and for Paper from live layouts: for a piece that lays itself out in script as
+ * well as in CSS (a screen's sidebar folds to its rail, its charts size themselves), a copy of
+ * what's on screen can't lay itself out again at another width. So each viewport is drawn live at
+ * its own width first (all at once), then read the same way as any other copy, once for both tools.
+ */
+export function designCopyDrawn(draw: (width: number, state?: string) => Promise<{ el: HTMLElement; done: () => void; missing?: boolean }>, name: string, states?: string[]) {
+  const work = (async () => {
+    // Every state at every width, drawn at once; a piece without states is drawn once per width.
+    const jobs = (states?.length ? states : [undefined]).flatMap((state) => VIEWPORTS.map((v) => ({ v, state })));
+    const drawn = await Promise.all(jobs.map((j) => draw(j.v.width, j.state)));
+    try {
+      let svg = "";
+      const views: Array<{ name: string; state?: string; tree: ReturnType<typeof toFigmaTree> }> = [];
+      const paper: Array<{ state?: string; html: string }> = [];
+      for (const [i, j] of jobs.entries()) {
+        // A state that isn't there at this width (its button only on a desk) is left out here.
+        if (drawn[i].missing) continue;
+        const f = await exportFrame(drawn[i].el, j.v);
+        try {
+          if (!svg) svg = toFigmaSvg(f.root, name);
+          views.push({ name: j.v.name, state: j.state, tree: toFigmaTree(f.root, name) });
+          paper.push({ state: j.state, html: toPaperHtml(f.root, j.v.name) });
+        } finally {
+          f.done();
+        }
+      }
+      return { svg, views, paper: paperFrames(name, paper) };
+    } finally {
+      drawn.forEach((d) => d.done());
+    }
+  })();
+  return {
+    html: Promise.all([work, import("./figma-clipboard")]).then(([w, m]) => m.figmaClipboardHtml(w.views)),
+    svg: work.then((w) => w.svg),
+    paper: work.then((w) => w.paper),
+  };
 }
 
 /** Writes exact strings through a copy event, the way Figma itself copies. Needs the click's activation to still be live. */

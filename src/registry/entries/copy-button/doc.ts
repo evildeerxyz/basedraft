@@ -6,9 +6,9 @@ export const doc: ComponentDoc = {
 export function RepoLink() {
   return (
     <div className="flex items-center gap-2 rounded-full border py-1 pl-4 pr-1">
-      <code className="text-sm">github.com/fieldwork/zuno-site</code>
+      <code className="text-sm">github.com/larkspur/zuno-site</code>
       <CopyButton
-        value="https://github.com/fieldwork/zuno-site"
+        value="https://github.com/larkspur/zuno-site"
         variant="pill"
       />
     </div>

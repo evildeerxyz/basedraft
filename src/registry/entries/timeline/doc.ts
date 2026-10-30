@@ -8,13 +8,13 @@ export function Activity() {
   return (
     <Timeline continues>
       <TimelineGroup label="Today">
-        <TimelineItem time="09:42" person={{ name: "Lea Moreau" }} title="commented on Pricing">
+        <TimelineItem time="09:42" person={{ name: "Sarah Mitchell" }} title="commented on Pricing">
           <TimelineQuote>Can the yearly price round to $12?</TimelineQuote>
         </TimelineItem>
         <TimelineItem time="09:30" tone="ok" icon={<RocketLaunchIcon weight="duotone" />} title="Published to zuno.site">
           <TimelineMeta items={["main", "a3f9c1e", "41s"]} />
         </TimelineItem>
-        <TimelineItem minor time="09:12" person={{ name: "Maya Okafor" }} title="changed the headline" />
+        <TimelineItem minor time="09:12" person={{ name: "Emily Carter" }} title="changed the headline" />
       </TimelineGroup>
     </Timeline>
   );
@@ -93,10 +93,10 @@ export function Activity() {
       title: "A conversation",
       note: "Each comment in a bubble that points back at the person who wrote it.",
       code: `<Timeline>
-  <TimelineItem time="2m" person={{ name: "Lea Moreau" }} title="commented on Pricing">
+  <TimelineItem time="2m" person={{ name: "Sarah Mitchell" }} title="commented on Pricing">
     <TimelineQuote>Can the yearly price round to $12?</TimelineQuote>
   </TimelineItem>
-  <TimelineItem time="1h" person={{ name: "Maya Okafor" }} title="replied">
+  <TimelineItem time="1h" person={{ name: "Emily Carter" }} title="replied">
     <TimelineQuote>It can. I'll change it in the plans file.</TimelineQuote>
   </TimelineItem>
 </Timeline>`,
@@ -112,7 +112,7 @@ export function Activity() {
     <TimelineItem minor time="10:47" person={maya} title="moved Pricing above FAQ" />
   </TimelineGroup>
   <TimelineGroup label="Monday, October 12">
-    <TimelineItem time="16:20" person={jonah} title="invited Lea Moreau" />
+    <TimelineItem time="16:20" person={jonah} title="invited Sarah Mitchell" />
     <TimelineItem minor time="16:02" tone="warn" title="Domain check is still waiting on DNS" />
   </TimelineGroup>
 </Timeline>`,

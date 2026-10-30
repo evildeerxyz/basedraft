@@ -54,11 +54,11 @@ function Account() {
       <MenuTrigger asChild>
         <Button variant="outline">
           <span className="grid size-6 place-items-center rounded-full bg-[var(--bd-ui-track)] text-[11px] font-semibold">MO</span>
-          Maya Okafor
+          Emily Carter
         </Button>
       </MenuTrigger>
       <MenuContent align="end">
-        <MenuLabel>maya@fieldwork.co</MenuLabel>
+        <MenuLabel>emily@larkspur.co</MenuLabel>
         <MenuItem icon={<ReceiptIcon weight="duotone" />}>Purchases</MenuItem>
         <MenuItem icon={<UsersThreeIcon weight="duotone" />}>Team</MenuItem>
         <MenuItem icon={<GearSixIcon weight="duotone" />} shortcut={["⌘", ","]}>

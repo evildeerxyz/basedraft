@@ -1,6 +1,6 @@
 {
   "name": "segmented",
-  "title": "Segmented control",
+  "title": "Segmented",
   "group": "Forms",
   "description": "One choice of a few in a machined track, the chosen one on a raised thumb that slides.",
   "order": 3

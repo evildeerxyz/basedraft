@@ -91,6 +91,7 @@ export function Shell({
         { name: "breakpoint", type: "number", default: "768", note: "Under this width of the space around it, the sidebar becomes a drawer." },
         { name: "onModeChange", type: '(mode: "side" | "drawer") => void', note: "Told which it is, so the page can show its own menu button." },
         { name: "contained", type: "boolean", default: "false", note: "The drawer covers the element around it (make it relative) rather than the window." },
+        { name: "plain", type: "boolean", default: "false", note: "No fill or edge of its own, so it sits on the page's ground beside a raised content panel." },
         { name: "label", type: "string", default: '"Main"', note: "The navigation's name for screen readers." },
       ],
     },

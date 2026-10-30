@@ -45,9 +45,9 @@ export default function TemplatesPage() {
         </dl>
       </header>
 
-      <ul className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-2">
+      <ul data-reveal-stagger className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-2">
         {TEMPLATES.map((t, i) => (
-          <li key={t.slug} className="bd-reveal min-w-0">
+          <li key={t.slug} className="min-w-0">
             <article className={cn("bd-panel group relative isolate flex h-full flex-col overflow-hidden rounded-[var(--bd-r-stage)]", GLOW[glowAt(i)])}>
               <div className="flex items-start gap-4 p-6 sm:p-7">
                 <TemplateLogo slug={t.slug} size={48} />
@@ -115,7 +115,7 @@ export default function TemplatesPage() {
 function DashboardSketch() {
   const bars = [38, 52, 44, 66, 58, 74, 62, 81, 70, 88, 76, 92];
   return (
-    <div aria-hidden className="bd-paper glow-b rounded-[24px] p-2">
+    <div aria-hidden className="bd-light bd-paper glow-b rounded-[24px] p-2">
       <div className="grid grid-cols-[88px_minmax(0,1fr)] gap-2 rounded-[18px] bg-paper/70 p-2 shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--bd-paper-ink)_7%,transparent)] backdrop-blur sm:grid-cols-[120px_minmax(0,1fr)]">
         <div className="grid content-start gap-2 rounded-[12px] bg-paper-ink/[0.04] p-3">
           <span className="mb-2 h-3 w-12 rounded-full bg-paper-ink/20" />

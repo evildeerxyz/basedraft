@@ -52,5 +52,6 @@ export async function hasPro(req?: NextRequest) {
 }
 
 export const NEEDS_PRO_COMPONENT = "This component's code comes with Pro. Sign in with the email you bought Pro with.";
+export const NEEDS_PRO_SCREEN = "This screen's code comes with Pro. Sign in with the email you bought Pro with.";
 
 export const NEEDS_PRO = "Code export is in Pro, or comes with buying this template. Sign in with the email you bought with.";

@@ -72,8 +72,8 @@ export const examples: Record<string, ComponentType> = {
   done: () => (
     <Steps current={3} className="max-w-[340px]">
       <Step title="Account made" description="Signed in with your email." />
-      <Step title="Team named" description="Fieldwork, 4 of 10 seats." />
-      <Step title="Invites sent" description="Maya and Jonah will get an email." />
+      <Step title="Team named" description="Larkspur, 4 of 10 seats." />
+      <Step title="Invites sent" description="Emily and Jake will get an email." />
     </Steps>
   ),
 };

@@ -34,7 +34,7 @@ export function Demo() {
         <Breadcrumb
           link={Stay}
           items={[
-            { label: "Fieldwork", href: "/", icon: <HouseIcon weight="duotone" /> },
+            { label: "Larkspur", href: "/", icon: <HouseIcon weight="duotone" /> },
             { label: "Zuno", href: "/sites/zuno", siblings: SITES },
             { label: "Pages", href: "/sites/zuno/pages" },
             { label: "Pricing" },
@@ -65,7 +65,7 @@ function Basic() {
     <Breadcrumb
       link={Stay}
       items={[
-        { label: "Fieldwork", href: "/", icon: <HouseIcon weight="duotone" /> },
+        { label: "Larkspur", href: "/", icon: <HouseIcon weight="duotone" /> },
         { label: "Templates", href: "/templates" },
         { label: "Zuno" },
       ]}
@@ -95,7 +95,7 @@ function Siblings() {
     <Breadcrumb
       link={Stay}
       items={[
-        { label: "Fieldwork", href: "/" },
+        { label: "Larkspur", href: "/" },
         { label: "Zuno", href: "/sites/zuno", siblings: SITES },
         { label: "Settings" },
       ]}

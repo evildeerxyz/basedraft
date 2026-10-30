@@ -96,7 +96,7 @@ function Reel({ digit, delay, still }: { digit: number; delay: number; still: bo
   return (
     <span className="relative inline-block h-[1em] overflow-hidden">
       <span className="invisible">0</span>
-      <motion.span className="absolute inset-x-0 top-0 flex flex-col" initial={false} animate={{ y: `${-digit}em` }} transition={still ? { duration: 0 } : { type: "spring", stiffness: 170, damping: 22, mass: 0.9, delay }}>
+      <motion.span data-reel="" className="absolute inset-x-0 top-0 flex flex-col" initial={false} animate={{ y: `${-digit}em` }} transition={still ? { duration: 0 } : { type: "spring", stiffness: 170, damping: 22, mass: 0.9, delay }}>
         {Array.from({ length: 10 }, (_, d) => (
           <span key={d} className="block h-[1em]">
             {d}
@@ -413,25 +413,28 @@ export function DonutChart({
         {announce}
       </span>
       {dataTable && data.length > 0 && (
-        <table className="sr-only">
-          <caption>{title ?? "Donut chart"}</caption>
-          <thead>
-            <tr>
-              <th scope="col">Part</th>
-              <th scope="col">Value</th>
-              <th scope="col">Share</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((d, i) => (
-              <tr key={d.label}>
-                <th scope="row">{d.label}</th>
-                <td>{fmt.format(d.value)}</td>
-                <td>{shareFmt.format(shareOf(i))}</td>
+        // In a div: a table ignores the 1px box sr-only gives it, and would still stretch whatever scrolls around the chart.
+        <div className="sr-only">
+          <table>
+            <caption>{title ?? "Donut chart"}</caption>
+            <thead>
+              <tr>
+                <th scope="col">Part</th>
+                <th scope="col">Value</th>
+                <th scope="col">Share</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {data.map((d, i) => (
+                <tr key={d.label}>
+                  <th scope="row">{d.label}</th>
+                  <td>{fmt.format(d.value)}</td>
+                  <td>{shareFmt.format(shareOf(i))}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

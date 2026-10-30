@@ -65,7 +65,7 @@ export function Keywords() {
 <TagInput
   label="Invite"
   placeholder="Add an email, then Enter"
-  defaultValue={["maya@fieldwork.co", "sami@fieldwork"]}
+  defaultValue={["emily@larkspur.co", "ryan@larkspur"]}
   validate={email}
   max={10}
   className="max-w-[360px]"

@@ -117,7 +117,8 @@ export function NavigationMenu({ children, label = "Main", link: Link = "a", cla
   }, [box, landed, active]);
   useEffect(() => () => void (timer.current && clearTimeout(timer.current)), []);
 
-  // Where the card goes: centered under its menu's name, kept inside the nav's width, as big as what it holds.
+  // Where the card goes: centered under its menu's name, as big as what it holds, and kept inside the
+  // window and inside the nearest box around the menu that clips what spills out of it.
   useLayoutEffect(() => {
     if (active == null) return;
     const measure = () => {
@@ -130,7 +131,14 @@ export function NavigationMenu({ children, label = "Main", link: Link = "a", cla
       const width = p.offsetWidth;
       const height = p.offsetHeight;
       const center = tb.left + tb.width / 2;
-      const left = Math.min(Math.max(center - width / 2, 8), Math.max(8, innerWidth - 8 - width));
+      let [lo, hi] = [8, innerWidth - 8];
+      for (let el = n.parentElement; el; el = el.parentElement) {
+        if (getComputedStyle(el).overflowX === "visible") continue;
+        const r = el.getBoundingClientRect();
+        [lo, hi] = [Math.max(lo, r.left + 8), Math.min(hi, r.right - 8)];
+        break;
+      }
+      const left = Math.min(Math.max(center - width / 2, lo), Math.max(lo, hi - width));
       setBox({ left: left - nb.left, width, height, caret: center - left });
     };
     measure();

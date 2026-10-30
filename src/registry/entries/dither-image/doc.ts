@@ -7,7 +7,7 @@ export function Portrait() {
   return (
     <DitherImage
       src="/people/priya.jpg"
-      alt="Priya Raman, in front of a purple wall"
+      alt="Megan Turner, in front of a purple wall"
       ratio={1}
       className="w-64 rounded-3xl"
     />
@@ -57,8 +57,8 @@ export function Portrait() {
       note: "The text's color by default, any color, or light ink on dark paper: a light ink prints the light, so the picture still reads true.",
       code: `<div className="grid grid-cols-3 gap-3">
   <DitherImage src="/people/ava.jpg" alt="Ava Robinson" ratio={1} cell={2} className="rounded-2xl" />
-  <DitherImage src="/people/priya.jpg" alt="Priya Raman" ratio={1} cell={2} ink="var(--bd-ui-viz-1)" className="rounded-2xl" />
-  <DitherImage src="/people/sofia.jpg" alt="Sofia Lindqvist" ratio={1} cell={2} ink="white" paper="oklch(19% 0.004 265)" className="rounded-2xl" />
+  <DitherImage src="/people/priya.jpg" alt="Megan Turner" ratio={1} cell={2} ink="var(--bd-ui-viz-1)" className="rounded-2xl" />
+  <DitherImage src="/people/sofia.jpg" alt="Rachel Foster" ratio={1} cell={2} ink="white" paper="oklch(19% 0.004 265)" className="rounded-2xl" />
 </div>`,
     },
     {
@@ -80,9 +80,9 @@ export function Portrait() {
       title: "In its own colors",
       note: "Each color stepped down to a few levels: two is eight colors, like an old screen; more gets closer to the photo.",
       code: `<div className="grid grid-cols-3 gap-3">
-  <DitherImage src="/people/priya.jpg" alt="Priya Raman" ratio={1} cell={2} palette="color" levels={2} />
-  <DitherImage src="/people/priya.jpg" alt="Priya Raman" ratio={1} cell={2} palette="color" levels={3} />
-  <DitherImage src="/people/priya.jpg" alt="Priya Raman" ratio={1} cell={2} palette="color" levels={5} />
+  <DitherImage src="/people/priya.jpg" alt="Megan Turner" ratio={1} cell={2} palette="color" levels={2} />
+  <DitherImage src="/people/priya.jpg" alt="Megan Turner" ratio={1} cell={2} palette="color" levels={3} />
+  <DitherImage src="/people/priya.jpg" alt="Megan Turner" ratio={1} cell={2} palette="color" levels={5} />
 </div>`,
     },
     {

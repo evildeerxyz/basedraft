@@ -60,7 +60,7 @@ export default function WhatsNewPage() {
       </ol>
 
       {/* How to hear about the next ones. */}
-      <section aria-labelledby="updates-title" className="bd-reveal bd-paper glow-c mx-auto flex max-w-[960px] flex-wrap items-center justify-between gap-6 rounded-[28px] p-7 sm:p-9">
+      <section aria-labelledby="updates-title" data-scroll="settle" className="bd-light bd-paper glow-c mx-auto flex max-w-[960px] flex-wrap items-center justify-between gap-6 rounded-[28px] p-7 sm:p-9">
         <div className="max-w-[520px]">
           <h2 id="updates-title" className="font-display text-[24px] leading-[1.15]">
             Get updates

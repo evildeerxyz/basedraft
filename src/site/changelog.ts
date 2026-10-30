@@ -23,6 +23,32 @@ export interface ChangeDay {
 
 export const CHANGELOG: ChangeDay[] = [
   {
+    date: "2026-10-30",
+    changes: [
+      {
+        tag: "New",
+        title: "Seven new Pro components",
+        body: "Globe, Flow, Live cursors, Swipe deck, Particle text, Dock and Split-flap: a dotted Earth on real coastlines, a node editor, other people's cursors, a deck to decide on, a word made of pixels, a dock of metal keys and a departures board.",
+        href: "/components/globe",
+        link: "See Globe",
+      },
+      {
+        tag: "New",
+        title: "Screens: whole app pages made of basedraft UI",
+        body: "Roadmap, a whole app page in one file: a timeline and a board, other people's cursors and a share menu, with Pro. Try it at a desktop's, a tablet's or a phone's width, full screen, in light or dark, copy it to Figma, and open any component in it from its card.",
+        href: "/screens",
+        link: "See the screens",
+      },
+      {
+        tag: "New",
+        title: "Metric tabs, Filter bar and Roadmap, with Pro",
+        body: "The figures that lead a dashboard as tabs that pick its chart, filters you edit in place as sentences, and a plan over the weeks you drag by the day.",
+        href: "/components/metric-tabs",
+        link: "See Metric tabs",
+      },
+    ],
+  },
+  {
     date: "2026-10-29",
     changes: [
       {

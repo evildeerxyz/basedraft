@@ -58,7 +58,7 @@ const SIGNUPS = [
   { country: "United States", signups: 1284 },
   { country: "United Kingdom", signups: 612 },
   { country: "Germany", signups: 488 },
-  { country: "Nigeria", signups: 431 },
+  { country: "Australia", signups: 431 },
   { country: "India", signups: 397 },
   { country: "Brazil", signups: 256 },
   { country: "Japan", signups: 173 },

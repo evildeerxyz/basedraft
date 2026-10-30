@@ -79,7 +79,7 @@ export function SignInPage() {
   layout="split"
   dither
   method="code"
-  quote={{ text: "We moved the whole team over in an afternoon.", name: "Priya Raman", role: "Head of engineering" }}
+  quote={{ text: "We moved the whole team over in an afternoon.", name: "Megan Turner", role: "Head of engineering" }}
 />`,
     },
   ],

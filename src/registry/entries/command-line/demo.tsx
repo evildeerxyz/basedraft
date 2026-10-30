@@ -25,7 +25,7 @@ function Managers() {
 }
 
 function Labeled() {
-  return <CommandLine label="in the zuno folder" command="git clone https://github.com/fieldwork/zuno-site && cd zuno-site" />;
+  return <CommandLine label="in the zuno folder" command="git clone https://github.com/larkspur/zuno-site && cd zuno-site" />;
 }
 
 export const examples: Record<string, ComponentType> = { single: Single, managers: Managers, labeled: Labeled };

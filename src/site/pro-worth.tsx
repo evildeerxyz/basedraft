@@ -34,7 +34,8 @@ function Tile({ icon: I, title, children, className, foot }: { icon: Icon | type
 function Latest() {
   const changes = CHANGELOG.flatMap((d) => d.changes).slice(0, 4);
   return (
-    <ul className="grid gap-1.5">
+    // A column that can be narrower than the longest title, so the titles cut off instead of the rows running out of the card.
+    <ul className="grid grid-cols-[minmax(0,1fr)] gap-1.5">
       {changes.map((c) => (
         <li key={c.title} className="flex items-center gap-3 rounded-full bg-paper/70 py-1.5 pl-1.5 pr-4 text-ui shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--bd-paper-ink)_8%,transparent)] backdrop-blur">
           <span className={cn("shrink-0 rounded-full px-2 py-1 text-[11px] font-medium leading-none", c.tag === "Coming" ? "text-paper-muted shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--bd-paper-ink)_25%,transparent)] [border-style:dashed]" : c.tag === "New" ? "bg-brand-soft text-brand-ink" : "bg-paper-ink/[0.06] text-paper-ink")}>{c.tag ?? "Update"}</span>
@@ -48,9 +49,9 @@ function Latest() {
 export function ProWorth() {
   const pages = TEMPLATES.reduce((n, t) => n + t.pages.length, 0);
   return (
-    <ul className="bd-reveal grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-3">
+    <ul data-reveal-stagger className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-3">
       {/* Everything in it: the figures, and the templates' own icons. */}
-      <li className="bd-paper glow-c flex flex-col justify-between gap-10 rounded-[28px] p-6 sm:p-8 lg:col-span-2">
+      <li className="bd-light bd-paper glow-c flex flex-col justify-between gap-10 rounded-[28px] p-6 sm:p-8 lg:col-span-2">
         <div>
           <h3 className="font-display text-[26px] leading-[1.12]">Every template, every section</h3>
           <p className="mt-2 max-w-[460px] text-ui leading-[1.6] text-paper-muted">Whole sites with every page, and each of their sections on its own. New templates come with Pro as they ship.</p>
@@ -88,7 +89,7 @@ export function ProWorth() {
         A prompt that sets a template up in Claude Code, components that download as single files, and /llms.txt for AI tools.
       </Tile>
       {/* Every update after today, with the latest few to show it's real. */}
-      <li className="bd-paper glow-d grid gap-6 rounded-[28px] p-6 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] sm:p-8 lg:col-span-2">
+      <li className="bd-light bd-paper glow-d grid gap-6 rounded-[28px] p-6 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] sm:p-8 lg:col-span-2">
         <div className="flex flex-col">
           <h3 className="font-display text-[26px] leading-[1.12]">Every update after today</h3>
           <p className="mt-2 text-ui leading-[1.6] text-paper-muted">Fixes, new pages and new templates land on your Purchases page, including the dashboard designs coming next.</p>

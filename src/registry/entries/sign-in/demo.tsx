@@ -93,7 +93,7 @@ function Split() {
         method="code"
         onEmail={() => wait(600)}
         onCode={() => wait(800)}
-        quote={{ text: "We moved the whole team over in an afternoon, and nobody asked how to sign in.", name: "Priya Raman", role: "Head of engineering" }}
+        quote={{ text: "We moved the whole team over in an afternoon, and nobody asked how to sign in.", name: "Megan Turner", role: "Head of engineering" }}
         footer={TERMS}
       />
     </div>

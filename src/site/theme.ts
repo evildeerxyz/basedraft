@@ -199,27 +199,6 @@ html:root:root [data-tone="accent"] {
     globals: "app/globals.css",
     font: { own: "mona", label: "Mona Sans", variable: "--font-mona", layout: "app/layout.tsx" },
   },
-  pello: {
-    // The four colors; every other shade in pello's globals.css is mixed from them there, so it follows on its own.
-    base: { accent: "#ff4b1f", page: "#ffffff", cards: "#f5f5f6", text: "#0b0b0c" },
-    vars: {
-      "--pl-accent": "accent",
-      "--pl-accent-ink": "on-accent",
-      "--pl-page": "page",
-      "--pl-surface": "cards",
-      "--pl-ink": "text",
-    },
-    presets: [
-      { name: "pello", colors: { accent: "#ff4b1f", page: "#ffffff", cards: "#f5f5f6", text: "#0b0b0c" } },
-      { name: "Graphite", colors: { accent: "#0b0b0c", page: "#ffffff", cards: "#f4f4f4", text: "#0b0b0c" } },
-      { name: "Cobalt", colors: { accent: "#2a45ff", page: "#ffffff", cards: "#f3f4f7", text: "#0a0c14" } },
-      { name: "Forest", colors: { accent: "#13804f", page: "#ffffff", cards: "#f2f5f3", text: "#0a120d" } },
-      { name: "Violet", colors: { accent: "#6b3cff", page: "#ffffff", cards: "#f4f3f8", text: "#100c1d" } },
-      { name: "Crimson", colors: { accent: "#e5173f", page: "#ffffff", cards: "#f6f4f4", text: "#120a0c" } },
-    ],
-    globals: "src/app/globals.css",
-    font: { own: "geist", label: "Geist", variable: "--font-geist-sans", layout: "src/app/layout.tsx" },
-  },
 };
 
 export const HEX = /^#[0-9a-f]{6}$/i;

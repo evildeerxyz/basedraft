@@ -9,7 +9,7 @@ export function Path() {
     <Breadcrumb
       link={Link}
       items={[
-        { label: "Fieldwork", href: "/" },
+        { label: "Larkspur", href: "/" },
         { label: "Sites", href: "/sites" },
         { label: "Zuno", href: "/sites/zuno" },
         { label: "Pricing" },
@@ -57,7 +57,7 @@ export function Path() {
       note: "Links up to the page you're on, which is in ink and isn't a link.",
       code: `<Breadcrumb
   items={[
-    { label: "Fieldwork", href: "/", icon: <HouseIcon weight="duotone" /> },
+    { label: "Larkspur", href: "/", icon: <HouseIcon weight="duotone" /> },
     { label: "Templates", href: "/templates" },
     { label: "Zuno" },
   ]}
@@ -91,7 +91,7 @@ export function Path() {
 
 <Breadcrumb
   items={[
-    { label: "Fieldwork", href: "/" },
+    { label: "Larkspur", href: "/" },
     { label: "Zuno", href: "/sites/zuno", siblings: sites },
     { label: "Settings" },
   ]}

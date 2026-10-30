@@ -3,7 +3,7 @@
  * try. Not a component; the registry reads only folders with a meta.json.
  */
 
-export const PEOPLE = [{ name: "Maya Okafor" }, { name: "Jonah Park" }, { name: "Lea Moreau" }, { name: "Sami Ito" }, { name: "Ana Ruiz" }, { name: "Ben Adeyemi" }];
+export const PEOPLE = [{ name: "Emily Carter" }, { name: "Jake Morrison" }, { name: "Sarah Mitchell" }, { name: "Ryan Brooks" }, { name: "Ashley Cooper" }, { name: "Brandon Reed" }];
 
 /** A quiet line under a demo. bd-hint marks it as a hint, so a page showing the demo bare (the reel) can leave it out. */
 export const hint = "bd-hint text-xs text-[var(--bd-subtle)]";

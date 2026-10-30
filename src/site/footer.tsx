@@ -1,4 +1,4 @@
-import { ArrowRightIcon, EnvelopeSimpleIcon, LayoutIcon, PackageIcon, PenNibIcon, QuestionIcon, ReceiptIcon, ScrollIcon, SparkleIcon, SquaresFourIcon, StackIcon, TagIcon } from "@phosphor-icons/react/ssr";
+import { AppWindowIcon, ArrowRightIcon, EnvelopeSimpleIcon, LayoutIcon, PackageIcon, PenNibIcon, QuestionIcon, ReceiptIcon, ScrollIcon, SparkleIcon, SquaresFourIcon, StackIcon, TagIcon } from "@phosphor-icons/react/ssr";
 import type { Icon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { TEMPLATES, templateLogo } from "./live";
@@ -19,6 +19,7 @@ const COLUMNS: Array<{ title: string; links: FooterLink[] }> = [
     links: [
       { label: "Templates", href: "/templates", icon: LayoutIcon },
       { label: "Components", href: "/components", icon: StackIcon },
+      { label: "Screens", href: "/screens", icon: AppWindowIcon },
       { label: "Blocks", href: "/blocks", icon: SquaresFourIcon },
       { label: "Studio", href: "/studio", icon: PenNibIcon },
       { label: "Pricing", href: "/pro", icon: TagIcon },
@@ -42,7 +43,7 @@ export function SiteFooter() {
   return (
     <footer className="mt-28 px-3 pb-3 sm:px-4 sm:pb-4 md:mt-36">
       {/* Light paper in both modes, the way the hero is. */}
-      <div className="bd-light bd-paper glow-c relative isolate overflow-hidden rounded-[32px]">
+      <div data-scroll="settle" className="bd-light bd-paper glow-c relative isolate overflow-hidden rounded-[32px]">
         <div className="mx-auto max-w-[1312px] px-6 sm:px-10 lg:px-14">
           {/* The way in, at the head of the card. */}
           <div className="flex flex-col items-start justify-between gap-8 border-b border-paper-ink/10 py-14 md:flex-row md:items-end md:py-20">

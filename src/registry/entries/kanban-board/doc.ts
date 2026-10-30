@@ -16,7 +16,7 @@ const launch: KanbanColumn[] = [
     id: "writing",
     title: "Writing",
     limit: 3,
-    cards: [{ id: "c2", title: "Zuno hero, take two", people: ["Maya Chen"] }],
+    cards: [{ id: "c2", title: "Zuno hero, take two", people: ["Olivia Bennett"] }],
   },
   { id: "review", title: "In review", cards: [] },
   { id: "shipped", title: "Shipped", cards: [] },

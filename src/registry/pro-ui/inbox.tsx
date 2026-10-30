@@ -61,7 +61,7 @@ export type InboxAction = {
 
 export type InboxItem = {
   id: string;
-  /** Who did it, as their face and in bold before the text: "Maya Chen". */
+  /** Who did it, as their face and in bold before the text: "Olivia Bennett". */
   actor?: string;
   /** Their picture. Initials on a tint from their name without one. */
   avatar?: string;
@@ -144,14 +144,48 @@ function Rolling({ value }: { value: number }) {
 
 /* ---------- a row ---------- */
 
-const hue = (name: string) => [...name].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 360, 7);
-const initials = (name: string) =>
-  name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((w) => w[0]!.toUpperCase())
-    .join("");
+/*
+ * A face for someone without a picture, the way Vercel draws them: two colors picked by their name,
+ * one dithered into the other through a 4 by 4 ordered matrix, so the same name always gets the
+ * same face.
+ */
+const FACE_BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const FACE_CELLS = 12;
+/** The second color's cells, as one path, for each way the gradient can run. */
+const FACE_RAMPS = [0, 1, 2, 3].map((dir) => {
+  const n = FACE_CELLS - 1;
+  let d = "";
+  for (let y = 0; y < FACE_CELLS; y++)
+    for (let x = 0; x < FACE_CELLS; x++) {
+      const t = dir === 0 ? x / n : dir === 1 ? y / n : dir === 2 ? (x + y) / (2 * n) : (x + n - y) / (2 * n);
+      if ((FACE_BAYER[(y % 4) * 4 + (x % 4)] + 0.5) / 16 < t * 1.25 - 0.12) d += `M${x} ${y}h1v1h-1z`;
+    }
+  return d;
+});
+/** Light and deep, in the muted colors basedraft uses: ocean, pine, moss, ochre, clay, rose, plum, slate. */
+const FACE_COLORS: Array<[string, string]> = [
+  ["oklch(0.86 0.07 235)", "oklch(0.47 0.13 252)"],
+  ["oklch(0.87 0.07 170)", "oklch(0.46 0.09 172)"],
+  ["oklch(0.9 0.08 128)", "oklch(0.55 0.12 138)"],
+  ["oklch(0.91 0.09 88)", "oklch(0.64 0.14 62)"],
+  ["oklch(0.87 0.07 45)", "oklch(0.55 0.14 35)"],
+  ["oklch(0.87 0.08 8)", "oklch(0.52 0.16 2)"],
+  ["oklch(0.86 0.09 330)", "oklch(0.48 0.15 318)"],
+  ["oklch(0.89 0.02 255)", "oklch(0.44 0.04 258)"],
+];
+const faceSeed = (s: string) => [...s].reduce((h, c) => (Math.imul(h, 31) + c.charCodeAt(0)) >>> 0, 7);
+
+/** Someone's dithered face, filling its box; give it colors to draw it in theirs. */
+function DitherFace({ name, colors }: { name: string; colors?: [string, string] }) {
+  const seed = faceSeed(name);
+  const [light, deep] = colors ?? FACE_COLORS[seed % FACE_COLORS.length];
+  return (
+    <svg viewBox={`0 0 ${FACE_CELLS} ${FACE_CELLS}`} shapeRendering="crispEdges" aria-hidden className="block size-full">
+      <rect width={FACE_CELLS} height={FACE_CELLS} style={{ fill: light }} />
+      <path d={FACE_RAMPS[(seed >>> 5) % 4]} style={{ fill: deep }} />
+    </svg>
+  );
+}
 
 function Face({ item }: { item: InboxItem }) {
   const badge = item.mention ? <AtIcon weight="bold" /> : item.icon;
@@ -161,12 +195,11 @@ function Face({ item }: { item: InboxItem }) {
         {item.icon ?? <BellIcon weight="duotone" />}
       </span>
     );
-  const h = hue(item.actor);
   return (
     <span aria-hidden className="relative size-9">
-      <span className="grid size-full place-items-center overflow-hidden rounded-full text-[11.5px] font-semibold tracking-[0.02em] shadow-[inset_0_1px_0_rgb(255_255_255/0.5),inset_0_0_0_1px_rgb(0_0_0/0.06)]" style={{ backgroundImage: `linear-gradient(150deg, oklch(0.94 0.022 ${h}), oklch(0.82 0.035 ${h + 40}))`, color: `oklch(0.34 0.03 ${h})` }}>
+      <span className="grid size-full place-items-center overflow-hidden rounded-full shadow-[inset_0_0_0_1px_rgb(0_0_0/0.08)]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        {item.avatar ? <img src={item.avatar} alt="" className="size-full object-cover" /> : initials(item.actor)}
+        {item.avatar ? <img src={item.avatar} alt="" className="size-full object-cover" /> : <DitherFace name={item.actor} />}
       </span>
       {badge && <span className="absolute -bottom-1 -right-1 grid size-[18px] place-items-center rounded-full bg-[var(--bd-surface)] text-[var(--bd-fg)] shadow-[0_0_0_1px_rgb(var(--bd-ink)/0.1)] [&_svg]:size-2.5">{badge}</span>}
     </span>

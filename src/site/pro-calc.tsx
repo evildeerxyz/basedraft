@@ -32,7 +32,7 @@ const UNPICKED = "bg-surface-2 text-muted hover:text-fg";
 /** A calculator's card: its icon and question, the control, then the answer on a strip of the hero's light. */
 function Card({ icon: I, title, lead, control, answer }: { icon: Icon; title: string; lead: string; control: ReactNode; answer: ReactNode }) {
   return (
-    <div className="flex flex-col rounded-[28px] border border-line bg-surface p-3 shadow-[var(--bd-shadow-resting)]">
+    <div className="bd-light flex flex-col rounded-[28px] border border-line bg-surface p-3 text-fg shadow-[var(--bd-shadow-resting)]">
       <div className="px-4 pb-6 pt-5 sm:px-5">
         <span className="grid size-10 place-items-center rounded-[12px] bg-surface-2 text-fg">
           <I weight="duotone" size={20} />
@@ -249,7 +249,7 @@ function Team() {
 
 export function ProCalculators() {
   return (
-    <div className="bd-reveal grid gap-4 lg:grid-cols-2">
+    <div data-reveal-stagger className="grid gap-4 lg:grid-cols-2">
       <Templates />
       <Team />
     </div>

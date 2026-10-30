@@ -2,8 +2,12 @@
 /* The template zones build their own CSS. */
 @source not "../../templates";
 
-/* Dark mode is <html data-theme="dark">, set before first paint from your pick or, until you pick, the system. */
-@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+/*
+ * Dark mode is <html data-theme="dark">, set before first paint from your pick or, until you pick, the
+ * system. What's in a .bd-light (the panels that stay light paper in dark) is light, unless something
+ * in it turns dark again with its own data-theme.
+ */
+@custom-variant dark (&:where([data-theme="dark"]:not(.bd-light *), [data-theme="dark"] :not(.bd-light, .bd-light *), .bd-light [data-theme="dark"], .bd-light [data-theme="dark"] *));
 
 /*
  * The kit never hard-codes a color. Sections use these names; a theme
@@ -80,8 +84,8 @@
 
 /*
  * basedraft's own theme, used by the site chrome. Templates override inside a .bd-scope. The same
- * light values hold inside .bd-light, for the hero and the footer, which stay light paper on a
- * dark page.
+ * light values hold inside .bd-light, for what stays light paper on a dark page: the hero, the
+ * footer, and the lit panels (the plans, the calculators, taking a piece home, a template's facts).
  */
 :root,
 .bd-light {
@@ -215,22 +219,43 @@
 }
 
 /*
- * The important action: a charcoal fill inside a brushed-metal edge, light catching its top. The
- * same in light and dark, so the button that matters reads the same on any page.
+ * The important action: a charcoal fill, light catching its top, inside an edge that runs around
+ * it. On light (a light page, or a light card on a dark one) the edge is the New tag's rainbow; on
+ * dark it's brushed metal, bright and dark bands. The angle is a registered property, so either
+ * edge turns; it holds still for anyone who asks for less motion.
  */
+@property --bd-metal-turn {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 135deg;
+}
+@keyframes bd-metal-turn {
+  to {
+    --bd-metal-turn: 495deg;
+  }
+}
 @utility btn-metal {
   color: oklch(98% 0 0);
   border: 1.5px solid transparent;
   background:
     linear-gradient(180deg, oklch(31% 0.003 265), oklch(17% 0.003 265)) padding-box,
-    linear-gradient(135deg, oklch(97% 0 0) 0%, oklch(62% 0.004 265) 24%, oklch(92% 0.002 265) 48%, oklch(50% 0.004 265) 74%, oklch(88% 0.002 265) 100%) border-box;
+    conic-gradient(from var(--bd-metal-turn), #ff5470, #ff9f45, #ffe14f, #59f0a0, #45c8ff, #8a78ff, #ff63d4, #ff5470) border-box;
   box-shadow: inset 0 1px 0 oklch(100% 0 0 / 0.16), 0 1px 2px oklch(0% 0 0 / 0.18), 0 8px 20px -10px oklch(0% 0 0 / 0.45);
   transition: filter 0.2s, scale 0.15s, box-shadow 0.2s;
+  animation: bd-metal-turn 3.2s linear infinite;
+  @variant dark {
+    background:
+      linear-gradient(180deg, oklch(31% 0.003 265), oklch(17% 0.003 265)) padding-box,
+      conic-gradient(from var(--bd-metal-turn), oklch(97% 0 0), oklch(62% 0.004 265) 16%, oklch(92% 0.002 265) 33%, oklch(50% 0.004 265) 52%, oklch(88% 0.002 265) 70%, oklch(56% 0.004 265) 86%, oklch(97% 0 0)) border-box;
+  }
   &:hover {
     filter: brightness(1.14);
   }
   &:active {
     scale: 0.98;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
   }
 }
 
@@ -259,9 +284,10 @@
 
 /*
  * The hero's light: a near-white surface lit draft blue, lilac and mint, with fine faint dots over
- * it. In dark mode the surface goes deep blue-black, the same light glows in it and the dots turn
- * white. Every frame on the site wears it, arranged one of four ways (bd-paper alone, or with
- * glow-b, glow-c or glow-d) so no two neighbors match.
+ * it. In dark mode a stage's frame goes deep blue-black, the same light glows in it and the dots
+ * turn white; the panels you read (with .bd-light) stay as they are in light. Every frame on the
+ * site wears it, arranged one of four ways (bd-paper alone, or with glow-b, glow-c or glow-d) so
+ * no two neighbors match.
  */
 @utility bd-paper {
   color: var(--bd-paper-ink);
@@ -756,22 +782,7 @@
   mix-blend-mode: normal;
 }
 
-/* Sheets ease up into place as they scroll into view, then stay put. Already on screen, they just are. */
-@media (prefers-reduced-motion: no-preference) {
-  @supports (animation-timeline: view()) {
-    .bd-reveal {
-      animation: bd-reveal linear both;
-      animation-timeline: view();
-      animation-range: entry 0 entry 180px;
-    }
-  }
-}
-@keyframes bd-reveal {
-  from {
-    opacity: 0;
-    translate: 0 28px;
-  }
-}
+/* Blocks marked bd-reveal rise in as they scroll into view, once: scroll-motion.tsx, made with Motion. */
 
 /* Questions open and close with their height, where the browser can animate to auto. */
 details.bd-faq {

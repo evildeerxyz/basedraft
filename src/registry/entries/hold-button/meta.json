@@ -2,6 +2,6 @@
   "name": "hold-button",
   "title": "Hold button",
   "group": "Actions",
-  "description": "Press and hold to confirm: ink fills it as you hold, and letting go early cancels.",
+  "description": "Press and hold to confirm: a dial winds closed and the time left counts down as the button sinks under your finger, and letting go early unwinds it.",
   "order": 1
 }

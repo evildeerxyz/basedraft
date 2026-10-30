@@ -25,8 +25,8 @@ export function Demo() {
 
 const PEOPLE: LightboxImage[] = [
   { src: "/demo/people/ava-robinson.jpg", alt: "Ava Robinson", caption: "Ava Robinson, designer" },
-  { src: "/demo/people/priya-raman.jpg", alt: "Priya Raman", caption: "Priya Raman, engineer" },
-  { src: "/demo/people/sofia-lindqvist.jpg", alt: "Sofia Lindqvist", caption: "Sofia Lindqvist, writer" },
+  { src: "/demo/people/priya-raman.jpg", alt: "Megan Turner", caption: "Megan Turner, engineer" },
+  { src: "/demo/people/sofia-lindqvist.jpg", alt: "Rachel Foster", caption: "Rachel Foster, writer" },
 ];
 
 function Team() {

@@ -39,7 +39,7 @@ export function Sheet({ title, icon: Icon, meta, actions, children, className, b
  * Every button is a pill. Large is 48px, the size that leads a page; medium is 36px, the header's.
  */
 const INK = "btn-ink inline-flex shrink-0 items-center justify-center whitespace-nowrap font-medium";
-/** The important action: charcoal inside a brushed-metal edge (btn-metal in globals.css). */
+/** The important action: charcoal inside a running edge, rainbow on light and metal on dark (btn-metal in globals.css). */
 const METAL = "btn-metal inline-flex shrink-0 items-center justify-center whitespace-nowrap font-medium";
 /* A press sinks a button a touch. */
 const PLAIN = "inline-flex shrink-0 items-center justify-center whitespace-nowrap font-medium text-fg transition-[color,background-color,box-shadow,scale] duration-200 ease-out active:scale-[0.98]";

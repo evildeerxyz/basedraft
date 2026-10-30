@@ -11,6 +11,8 @@ import { LIB_WRAP } from "@/site/library-css";
 import { AccessCard, ComponentGlyph, ComponentMenu, ExampleList, GuideCard, MoreComponents, TakeComponent, UsageCard, Workbench } from "@/site/ui-library";
 import { withCard } from "@/site/og";
 import { PieceSkeleton } from "@/site/piece-skeleton";
+import { ScreenLinks } from "@/site/screens";
+import { screensUsing } from "@/screens";
 import { NewBadge } from "@/site/sheet";
 
 
@@ -56,15 +58,23 @@ async function Component({ params }: { params: PageProps<"/components/[name]">["
   const parts = doc?.parts?.length ? doc.parts : doc?.props ? [{ name: c.title.replace(/\s+(\w)/g, (_, l: string) => l.toUpperCase()), props: doc.props }] : [];
   const guide = !!(doc?.use?.length || doc?.avoid?.length);
   const access = !!(doc?.keyboard?.length || doc?.a11y?.length);
+  const inScreens = screensUsing(c.name);
   // The page's parts, for the dock that follows you down it.
   const sections = [
     { id: "preview", label: "Preview" },
     { id: "take", label: "Install" },
-    ...(guide ? [{ id: "when", label: "When to use it" }] : []),
+    ...(guide ? [{ id: "when", label: "Where it fits" }] : []),
     ...(doc?.examples?.length ? [{ id: "examples", label: "Examples" }] : []),
     ...(doc ? [{ id: "usage", label: "Props" }] : []),
-    ...(access ? [{ id: "access", label: "Keyboard and accessibility" }] : []),
+    ...(access ? [{ id: "access", label: "Keys and screen readers" }] : []),
   ];
+  // What it is and what it needs: under its name on a phone, at the end of the dock's row on a desk.
+  const facts = (
+    <>
+      <FactPill icon={<PackageIcon weight="duotone" size={14} />}>{c.pro ? "Pro" : PACKAGE}</FactPill>
+      <FactPill icon={<StackIcon weight="duotone" size={14} />}>{deps.length ? deps.join(", ") : "No dependencies"}</FactPill>
+    </>
+  );
   return (
     <>
       <PieceNav back={{ href: "/components", label: "Components" }} prev={link(COMPONENTS[i - 1])} next={link(COMPONENTS[i + 1])} menu={<ComponentMenu name={c.name} />} />
@@ -78,20 +88,15 @@ async function Component({ params }: { params: PageProps<"/components/[name]">["
         }
         title={c.title}
         lead={c.description}
-        facts={
-          <>
-            <FactPill icon={<PackageIcon weight="duotone" size={14} />}>{c.pro ? "Pro" : PACKAGE}</FactPill>
-            <FactPill icon={<StackIcon weight="duotone" size={14} />}>{deps.length ? deps.join(", ") : "No dependencies"}</FactPill>
-          </>
-        }
+        facts={facts}
       />
-      <SectionDock label="This page" items={sections} />
+      <SectionDock label="This page" items={sections} end={facts} />
       <div className="pt-6">
         <Workbench name={c.name} title={c.title} source={source} prompt={c.pro ? "" : claudePrompt(c)} pro={c.pro} />
       </div>
       <TakeComponent name={c.name} title={c.title} deps={deps} source={source} prompt={c.pro ? "" : claudePrompt(c)} pro={c.pro} />
       {guide && (
-        <PiecePart id="when" title="When to use it">
+        <PiecePart id="when" title="Where it fits">
           <GuideCard use={doc?.use} avoid={doc?.avoid} />
         </PiecePart>
       )}
@@ -106,8 +111,13 @@ async function Component({ params }: { params: PageProps<"/components/[name]">["
         </PiecePart>
       )}
       {access && (
-        <PiecePart id="access" title="Keyboard and accessibility">
+        <PiecePart id="access" title="Keys and screen readers">
           <AccessCard keyboard={doc?.keyboard} a11y={doc?.a11y} />
+        </PiecePart>
+      )}
+      {inScreens.length > 0 && (
+        <PiecePart id="screens" title="In these screens" lead={`Whole screens that use ${c.title}, to try it where it lives.`}>
+          <ScreenLinks slugs={inScreens.map((x) => x.slug)} />
         </PiecePart>
       )}
       <PiecePart title="More components">

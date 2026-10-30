@@ -50,7 +50,7 @@ export function DomainCheck() {
   <Alert title="Edits save as you go">Nothing reaches zuno.site until you publish.</Alert>
   <Alert tone="ok" title="Published to zuno.site">61 files, live in 38 seconds.</Alert>
   <Alert tone="warn" title="7 of 10 seats used">Invite three more before your plan asks for an upgrade.</Alert>
-  <Alert tone="stop" title="The push to GitHub failed">fieldwork/zuno-site turned down 2 files over 50 MB.</Alert>
+  <Alert tone="stop" title="The push to GitHub failed">larkspur/zuno-site turned down 2 files over 50 MB.</Alert>
 </div>`,
     },
     {
@@ -68,7 +68,7 @@ export function DomainCheck() {
   }
   className="max-w-[420px]"
 >
-  fieldwork/zuno-site turned down 2 files over 50 MB. Shrink them or leave them out.
+  larkspur/zuno-site turned down 2 files over 50 MB. Shrink them or leave them out.
 </Alert>`,
     },
     {

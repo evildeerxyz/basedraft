@@ -2,13 +2,15 @@
  * Text the way Figma stores it once laid out: every glyph's outline, placed where the browser
  * drew that character, with its line boxes and font facts. Figma draws a pasted text layer from
  * this straight away, even before it has the font. Outlines come from static copies of the
- * template typefaces in /fonts/figma, fetched only when someone copies.
+ * template typefaces and of basedraft's own Inter (the components and screens are set in it) in
+ * /fonts/figma, fetched only when someone copies. A family without a copy goes to Figma bare,
+ * and Figma leaves its text blank until it lays it out, which it does only once it's clicked.
  */
 import type { Font } from "opentype.js";
 import { pathBlob } from "./figma-geometry";
 import type { FText } from "./figma-tree";
 
-const FILES: Record<string, string> = { Geist: "Geist", "Geist Mono": "GeistMono", "Instrument Sans": "InstrumentSans", "Mona Sans": "MonaSans", "Inter Tight": "InterTight", Doto: "Doto" };
+const FILES: Record<string, string> = { Inter: "Inter", Geist: "Geist", "Geist Mono": "GeistMono", "Instrument Sans": "InstrumentSans", "Mona Sans": "MonaSans", "Inter Tight": "InterTight", Doto: "Doto" };
 /**
  * Families Figma draws only by laying the text out itself: given outlines, it shows nothing. Mona
  * Sans is one (in Figma it's a variable font with width and optical size axes): pasted with its

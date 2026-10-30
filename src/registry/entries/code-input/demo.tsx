@@ -12,7 +12,7 @@ export function Demo() {
   return (
     <div className="grid justify-items-center gap-3.5 text-center">
       <p className="max-w-[300px] text-sm text-[var(--bd-muted)]">
-        Enter the code we sent to <span className="font-medium text-[var(--bd-fg)]">maya@fieldwork.co</span>
+        Enter the code we sent to <span className="font-medium text-[var(--bd-fg)]">emily@larkspur.co</span>
       </p>
       <CodeInput
         key={run}

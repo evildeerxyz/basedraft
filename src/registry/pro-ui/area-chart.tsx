@@ -653,29 +653,32 @@ export function AreaChart({
         {announce}
       </span>
       {dataTable && n > 0 && (
-        <table className="sr-only">
-          <caption>{title ?? "Area chart"}</caption>
-          <thead>
-            <tr>
-              <th scope="col">{x}</th>
-              {series.map((s) => (
-                <th key={s.key} scope="col">
-                  {s.label}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((d, i) => (
-              <tr key={i}>
-                <th scope="row">{label(i)}</th>
+        // In a div: a table ignores the 1px box sr-only gives it, and would still stretch whatever scrolls around the chart.
+        <div className="sr-only">
+          <table>
+            <caption>{title ?? "Area chart"}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{x}</th>
                 {series.map((s) => (
-                  <td key={s.key}>{fmt.format(num(d[s.key]))}</td>
+                  <th key={s.key} scope="col">
+                    {s.label}
+                  </th>
                 ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {data.map((d, i) => (
+                <tr key={i}>
+                  <th scope="row">{label(i)}</th>
+                  {series.map((s) => (
+                    <td key={s.key}>{fmt.format(num(d[s.key]))}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

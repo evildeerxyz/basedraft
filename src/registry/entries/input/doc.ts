@@ -28,7 +28,8 @@ export function Repository() {
       name: "Input",
       note: "A pill wrapping a native input, with optional parts before and after it.",
       props: [
-        { name: "leading", type: "ReactNode", note: "Before the text, quiet: an icon, usually. Icons size to 16px." },
+        { name: "leading", type: "ReactNode", note: "Before the text, quiet: an icon, usually, sized to 16px. Words, like relay.app/, sit right against the text as part of it." },
+        { name: "size", type: '"sm" | "md"', default: '"md"', note: "sm is 36px tall, for a dense row beside a small Select or Button." },
         { name: "trailing", type: "ReactNode", note: "After the text: a suffix, a hint, or a small button." },
         { name: "aria-invalid", type: "boolean", note: "Rims the pill in red while what's in it won't do." },
         { name: "type", type: "string", default: '"text"', note: "Any input type that's a line of text: email, url, password, search." },
@@ -69,7 +70,7 @@ export function Repository() {
       code: `<div className="grid w-full max-w-[320px] gap-1.5">
   <Input
     type="email"
-    defaultValue="maya@fieldwork"
+    defaultValue="emily@larkspur"
     aria-invalid
     aria-describedby="email-error"
     aria-label="Email"
@@ -115,7 +116,7 @@ export function Repository() {
       note: "Faded, and it can't take focus.",
       code: `<Input
   leading={<LockSimpleIcon weight="duotone" />}
-  defaultValue="fieldwork"
+  defaultValue="larkspur"
   disabled
   aria-label="Team"
   className="max-w-[320px]"

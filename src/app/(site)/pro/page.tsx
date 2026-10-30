@@ -77,7 +77,7 @@ export default function ProPage() {
       <section className={cn(COLUMN, "mt-28 scroll-mt-28 md:mt-36")} id="delivery" aria-labelledby="delivery-title">
         <SectionHeading small id="delivery-title" title="How you get your template" lead="Pay on Whop with a card, Apple Pay or Google Pay. The moment it goes through, we email you from hello@basedraft.site with two ways to take it, and both stay on your Purchases page." />
         <DeliveryCards />
-        <ol className="bd-reveal mt-6 grid gap-4 md:grid-cols-3">
+        <ol data-reveal-stagger className="mt-6 grid gap-4 md:grid-cols-3">
           {STEPS.map(([I, t, b]) => (
             <li key={t} className="rounded-[24px] border border-line bg-surface p-6">
               <span className="grid size-10 place-items-center rounded-[12px] bg-brand-soft text-brand-ink">

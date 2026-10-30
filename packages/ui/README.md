@@ -1,6 +1,6 @@
 # @basedraft/ui
 
-basedraft UI: React components with a material of their own. Ink, brushed metal, paper and glass, depth from light rather than borders, and motion that springs. 60 components, accessible, light and dark, with one stylesheet and nothing to configure.
+basedraft UI: React components with a material of their own. Ink, brushed metal, paper and glass, depth from light rather than borders, and motion that springs. 67 components, accessible, light and dark, with one stylesheet and nothing to configure.
 
 Every component has a live page with its props and examples at [basedraft.site/components](https://basedraft.site/components).
 
@@ -80,7 +80,7 @@ Point `@source` at the package from your CSS file's folder. Use either this or `
 ### Actions
 
 - [Button](https://basedraft.site/components/button): A pill in ink, metal, paper, glass, outline or ghost, with a field of dithered dots while it loads. `Button`
-- [Hold button](https://basedraft.site/components/hold-button): Press and hold to confirm: ink fills it as you hold, and letting go early cancels. `HoldButton`
+- [Hold button](https://basedraft.site/components/hold-button): Press and hold to confirm: a dial winds closed and the time left counts down as the button sinks under your finger, and letting go early unwinds it. `HoldButton`
 - [Copy button](https://basedraft.site/components/copy-button): Copies a piece of text, its icon turning over into a check as a ring spreads from it. `CopyButton`
 - [Command line](https://basedraft.site/components/command-line): A shell command on a small ink terminal, colored, with a copy button and a switch between package managers. `CommandLine`
 - [Split button](https://basedraft.site/components/split-button): One action and its alternatives, the way a merge button works: pick another from the caret and it takes the pill's place, its name rolling in, ready for the next press. `SplitButton`
@@ -93,7 +93,7 @@ Point `@source` at the package from your CSS file's folder. Use either this or `
 - [Input](https://basedraft.site/components/input): A text field pressed into the page that lifts to a white face as you type, with room for an icon or a suffix. `Input`
 - [Textarea](https://basedraft.site/components/textarea): A longer field that grows as you type, with a small ring that counts toward its limit. `Textarea`
 - [Switch](https://basedraft.site/components/switch): A recessed track that fills with ink, and a bead for a knob that stretches while you press it. `Switch`
-- [Segmented control](https://basedraft.site/components/segmented): One choice of a few in a machined track, the chosen one on a raised thumb that slides. `Segmented`
+- [Segmented](https://basedraft.site/components/segmented): One choice of a few in a machined track, the chosen one on a raised thumb that slides. `Segmented`
 - [Slider](https://basedraft.site/components/slider): A value along an ink track: a bead to drag, a bubble that says the value, and marked stops under it. `Slider`
 - [Checkbox](https://basedraft.site/components/checkbox): A box pressed into the page that fills with ink as its tick draws in, with a half-on state and a row that carries a label and a line. `Checkbox`, `CheckboxRow`
 - [Radio group](https://basedraft.site/components/radio-group): One choice from a short list, as rows with an ink dot and a bead, or as cards that take an ink edge. `RadioGroup`, `RadioGroupItem`
@@ -103,11 +103,12 @@ Point `@source` at the package from your CSS file's folder. Use either this or `
 - [Password field](https://basedraft.site/components/password-field): A password that helps as you type: an eye to show it, a four-step meter with a word for how strong, rules that tick as they're met, and a word when Caps Lock is on. `PasswordField`
 - [Chips](https://basedraft.site/components/chips): Filters as a row of chips that fill with ink as a check springs in, with counts, several or one at a time, a long tail folded into +N, and Clear once anything is on. `Chips`
 - [Combobox](https://basedraft.site/components/combobox): A select you can type into: results filter and group as you go, the match drawn in bold, with chips for several and a row to create what's missing. `Combobox`
-- [Inline edit](https://basedraft.site/components/inline-edit): Text that becomes a field where it stands, the same size and type, growing as you type, with saving, a check, and a shake when it is refused. `InlineEdit`
+- [Edit in place](https://basedraft.site/components/inline-edit): Text that becomes a field where it stands, the same size and type, growing as you type, with saving, a check, and a shake when it is refused. `InlineEdit`
 - [Tag input](https://basedraft.site/components/tag-input): A field that turns what you type into chips on Enter or a comma, splits a pasted list, and lets each chip be checked, edited in place or taken away. `TagInput`
 - [Number field](https://basedraft.site/components/number-field): A pill with − and + that speed up as they're held, a label you drag sideways to scrub, and arrow keys with Shift for bigger steps. `NumberField`
 - [Date picker](https://basedraft.site/components/date-picker): A field that opens a month whose pages slide the way you go, walked by the arrow keys, for one day or a range with a band that follows the pointer. `Calendar`, `DatePicker`
 - [File drop](https://basedraft.site/components/file-drop): A zone that wakes when files are dragged over the page and lifts to meet them, listing each with its kind, its progress, and why it failed or was turned away. `FileDrop`
+- [Time picker](https://basedraft.site/components/time-picker): A time typed the way you'd say it or picked from a list in steps, scrolled to the one you have, each time saying how long after the start it is. `TimePicker`
 
 ### Overlays
 
@@ -117,6 +118,9 @@ Point `@source` at the package from your CSS file's folder. Use either this or `
 - [Menu](https://basedraft.site/components/menu): A dropdown of actions in quiet sections, each with its shortcut on small keys, options that tick, and the destructive one set apart in red. `Menu`, `MenuTrigger`, `MenuContent`, `MenuLabel`, `MenuSeparator`, `MenuGroup`, `MenuItem`, `MenuCheckboxItem`
 - [Command](https://basedraft.site/components/command): A search that does things: type to narrow pages and actions, arrows and Enter to go, in place or as a ⌘K palette with the hero's light at its head. `Command`, `CommandInput`, `CommandList`, `CommandEmpty`, `CommandGroup`, `CommandItem`, `CommandFooter`, `CommandDialog`
 - [Toast](https://basedraft.site/components/toast): Short ink notes that rise at the corner and leave on their own, stack like paper, spread when you point at them, and update in place. `Toaster`
+- [Context menu](https://basedraft.site/components/context-menu): The actions for a thing, opened where you right-click it: grows from the pointer, turns to stay on screen, opens submenus beside their row, and runs from the keyboard with Shift+F10. `ContextMenu`, `ContextMenuTrigger`, `ContextMenuContent`, `ContextMenuLabel`, `ContextMenuSeparator`, `ContextMenuItem`, `ContextMenuCheckboxItem`, `ContextMenuSub`
+- [Lightbox](https://basedraft.site/components/lightbox): Thumbnails that open into a dark viewer, each photo growing out of its thumbnail without stretching, moved by arrows, swipes or keys, and shrinking back where it came from. `Lightbox`
+- [Consent](https://basedraft.site/components/consent): Asking about cookies fairly: Reject all and Accept all set the same, Customize opening to a switch for each kind, the choice kept and read back, and a way to ask again. `Consent`
 - [Hover card](https://basedraft.site/components/hover-card): A preview of where a link leads, opening after a pause, staying open on the way to it, with a caret pointing back at the link. `HoverCard`, `HoverCardTrigger`, `HoverCardContent`
 
 ### Navigation
@@ -141,7 +145,9 @@ Point `@source` at the package from your CSS file's folder. Use either this or `
 - [Timeline](https://basedraft.site/components/timeline): An activity log: times in a gutter, one rail through raised beads for what matters and small rings for the rest, days gathered, comments in bubbles, new events sliding in on top. `Timeline`, `TimelineGroup`, `TimelineItem`, `TimelineQuote`, `TimelineMeta`
 - [Compare slider](https://basedraft.site/components/compare-slider): Two versions of one thing split by a line you drag: press anywhere and it springs there, arrow keys step it, and each side's name steps aside as the line comes near. `CompareSlider`
 - [Code block](https://basedraft.site/components/code-block): Code on a card with its file's name or tabs for each package manager, colored in the theme's own hues, long lines wrapping on a hanging indent, marked lines, and a copy that turns to a check. `CodeBlock`
-- [Resizable panels](https://basedraft.site/components/resizable): Two panels and a line between them that catches at sizes you come back to, folds a side away, and springs home on a double-click. `ResizablePanel`, `Resizable`
+- [Scroll area](https://basedraft.site/components/scroll-area): A box that scrolls the browser's way with a quieter bar that wakes when you need it, and edges that fade, by gradient or by dither, only while there's more past them. `ScrollArea`
+- [Countdown](https://basedraft.site/components/countdown): The time left until a launch or a sale's end, on raised tiles or inline, each digit rolling down as it turns over, and handing over to what you say at zero. `Countdown`
+- [Panes](https://basedraft.site/components/resizable): Two panels and a line between them that catches at sizes you come back to, folds a side away, and springs home on a double-click. `ResizablePanel`, `Resizable`
 - [Carousel](https://basedraft.site/components/carousel): Slides of any width that you drag or flick and that carry on with your speed before settling, with dots or a bar, and that wait while no one's looking. `CarouselSlide`, `Carousel`
 
 ### Data
@@ -155,6 +161,7 @@ Point `@source` at the package from your CSS file's folder. Use either this or `
 
 - [Meter](https://basedraft.site/components/meter): Progress drawn in dots, its edge dissolving through an ordered dither and springing as it moves. `Meter`
 - [Alert](https://basedraft.site/components/alert): A note in the flow of the page in four tones, washed with its tone or bleeding in from the edge through a dither, with actions, that folds away when closed. `Alert`
+- [Banner](https://basedraft.site/components/banner): The line across the top of a site, in ink or on paper, with a badge, a link whose arrow steps forward, messages that roll up in turn, and a close that remembers. `Banner`
 - [Spinner](https://basedraft.site/components/spinner): A ring of dots with a crest that sweeps around it, its tail dissolving through an ordered dither. `Spinner`
 - [Skeleton](https://basedraft.site/components/skeleton): Solid gray blocks, lines and circles in the shape of what's loading, with a band of fine dots passing through. `Skeleton`, `SkeletonText`, `SkeletonAvatar`
 

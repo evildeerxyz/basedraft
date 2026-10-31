@@ -1,0 +1,9 @@
+{
+  "name": "commit",
+  "title": "Commit",
+  "group": "Display",
+  "description": "A commit the way people read one: the message first, then who made it with their face, the branch and a short hash that copies the whole one. On one line for a list, or stacked for a page about it.",
+  "order": 92,
+  "added": "2026-10-31",
+  "pro": true
+}

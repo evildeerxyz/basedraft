@@ -26,6 +26,7 @@ import { doc as e_colorPicker } from "./entries/color-picker/doc";
 import { doc as e_combobox } from "./entries/combobox/doc";
 import { doc as e_command } from "./entries/command/doc";
 import { doc as e_commandLine } from "./entries/command-line/doc";
+import { doc as e_commit } from "./entries/commit/doc";
 import { doc as e_compareSlider } from "./entries/compare-slider/doc";
 import { doc as e_consent } from "./entries/consent/doc";
 import { doc as e_contextMenu } from "./entries/context-menu/doc";
@@ -67,6 +68,7 @@ import { doc as e_onboarding } from "./entries/onboarding/doc";
 import { doc as e_pagination } from "./entries/pagination/doc";
 import { doc as e_particleText } from "./entries/particle-text/doc";
 import { doc as e_passwordField } from "./entries/password-field/doc";
+import { doc as e_pipeline } from "./entries/pipeline/doc";
 import { doc as e_popover } from "./entries/popover/doc";
 import { doc as e_pricingTable } from "./entries/pricing-table/doc";
 import { doc as e_radioGroup } from "./entries/radio-group/doc";
@@ -305,6 +307,15 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Command line",
     "group": "Actions",
     "description": "A shell command on a small ink terminal, colored, with a copy button and a switch between package managers."
+  },
+  {
+    "order": 92,
+    "name": "commit",
+    "title": "Commit",
+    "group": "Display",
+    "description": "A commit the way people read one: the message first, then who made it with their face, the branch and a short hash that copies the whole one. On one line for a list, or stacked for a page about it.",
+    "added": "2026-10-31",
+    "pro": true
   },
   {
     "order": 56,
@@ -631,6 +642,15 @@ export const ENTRY_META: ComponentMeta[] = [
     "added": "2026-10-23"
   },
   {
+    "order": 91,
+    "name": "pipeline",
+    "title": "Pipeline",
+    "group": "Data",
+    "description": "A job's stages as a waterfall, the way a trace reads: a row each, and on one time axis a bar from where it started for as long as it took. Ghosts for what's to come, the running one growing in ink with a hairline for now, red where it failed. Pick a stage and its output opens under its row.",
+    "added": "2026-10-31",
+    "pro": true
+  },
+  {
     "order": 3,
     "name": "popover",
     "title": "Popover",
@@ -945,6 +965,7 @@ export const ENTRY_DOCS: Record<string, ComponentDoc> = {
   "combobox": e_combobox,
   "command": e_command,
   "command-line": e_commandLine,
+  "commit": e_commit,
   "compare-slider": e_compareSlider,
   "consent": e_consent,
   "context-menu": e_contextMenu,
@@ -986,6 +1007,7 @@ export const ENTRY_DOCS: Record<string, ComponentDoc> = {
   "pagination": e_pagination,
   "particle-text": e_particleText,
   "password-field": e_passwordField,
+  "pipeline": e_pipeline,
   "popover": e_popover,
   "pricing-table": e_pricingTable,
   "radio-group": e_radioGroup,

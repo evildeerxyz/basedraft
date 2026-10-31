@@ -286,11 +286,19 @@ const STATES: Record<string, ScreenState[]> = {
     { name: "Sidebar", press: ["Collapse the sidebar|Open the menu"] },
     { name: "Cursors off", press: ["Show everyone's cursors"] },
   ],
+  deployments: [
+    { name: "Building", press: [] },
+    { name: "Deployment open", press: ["Open Round cart totals once, at checkout"] },
+    { name: "Failed build", press: ["Open Cache product pages by region"] },
+    { name: "Row menu", press: ["More for Search that forgives typos"], overlay: true },
+    { name: "Redeploy options", press: ["More ways to redeploy"], overlay: true },
+    { name: "Sidebar", press: ["Collapse the sidebar|Open the menu"] },
+  ],
 };
 
-/** The control a state presses: by its accessible name, its title or its words, exactly first, then by its words in part. */
+/** The control a state presses: by its accessible name, its title or its words, exactly first, then by its words in part. Only one that's showing: a row drawn twice (wide and narrow) has one copy hidden. */
 function control(root: HTMLElement, label: string) {
-  const all = [...root.querySelectorAll<HTMLElement>("button, [role=radio], [role=tab], [role=switch], a")];
+  const all = [...root.querySelectorAll<HTMLElement>("button, [role=radio], [role=tab], [role=switch], a")].filter((b) => b.getClientRects().length > 0);
   for (const one of label.replace(/^\?/, "").split("|")) {
     const hit = all.find((b) => b.getAttribute("aria-label") === one || b.title === one || b.textContent?.trim() === one) ?? all.find((b) => b.textContent?.includes(one));
     if (hit) return hit;

@@ -23,6 +23,25 @@ export interface ChangeDay {
 
 export const CHANGELOG: ChangeDay[] = [
   {
+    date: "2026-10-31",
+    changes: [
+      {
+        tag: "New",
+        title: "Deployments, a screen made of basedraft UI",
+        body: "A project's deployments with the build in flight leading: its stages as a waterfall of time, the running one's output under it as it goes, then a hold to promote it. Every deployment by day under it, each opening beside the list onto its stages, logs and domains, with a hold to roll back. With Pro.",
+        href: "/screens/deployments",
+        link: "Open Deployments",
+      },
+      {
+        tag: "New",
+        title: "Pipeline and Commit, with Pro",
+        body: "Pipeline draws a job's stages the way a trace reads: a bar for each on one time axis, a ghost for what's to come, a hairline for now, and the picked stage's output under its row. Commit reads a commit the way people do: the message, who made it, its branch and a hash that copies.",
+        href: "/components/pipeline",
+        link: "See Pipeline",
+      },
+    ],
+  },
+  {
     date: "2026-10-30",
     changes: [
       {

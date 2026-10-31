@@ -1,0 +1,9 @@
+{
+  "name": "pipeline",
+  "title": "Pipeline",
+  "group": "Data",
+  "description": "A job's stages as a waterfall, the way a trace reads: a row each, and on one time axis a bar from where it started for as long as it took. Ghosts for what's to come, the running one growing in ink with a hairline for now, red where it failed. Pick a stage and its output opens under its row.",
+  "order": 91,
+  "added": "2026-10-31",
+  "pro": true
+}

@@ -28,6 +28,7 @@ import { Demo as e_colorPickerDemo, examples as e_colorPickerExamples } from "./
 import { Demo as e_comboboxDemo, examples as e_comboboxExamples } from "./entries/combobox/demo";
 import { Demo as e_commandDemo, examples as e_commandExamples } from "./entries/command/demo";
 import { Demo as e_commandLineDemo, examples as e_commandLineExamples } from "./entries/command-line/demo";
+import { Demo as e_commitDemo, examples as e_commitExamples } from "./entries/commit/demo";
 import { Demo as e_compareSliderDemo, examples as e_compareSliderExamples } from "./entries/compare-slider/demo";
 import { Demo as e_consentDemo, examples as e_consentExamples } from "./entries/consent/demo";
 import { Demo as e_contextMenuDemo, examples as e_contextMenuExamples } from "./entries/context-menu/demo";
@@ -69,6 +70,7 @@ import { Demo as e_onboardingDemo, examples as e_onboardingExamples } from "./en
 import { Demo as e_paginationDemo, examples as e_paginationExamples } from "./entries/pagination/demo";
 import { Demo as e_particleTextDemo, examples as e_particleTextExamples } from "./entries/particle-text/demo";
 import { Demo as e_passwordFieldDemo, examples as e_passwordFieldExamples } from "./entries/password-field/demo";
+import { Demo as e_pipelineDemo, examples as e_pipelineExamples } from "./entries/pipeline/demo";
 import { Demo as e_popoverDemo, examples as e_popoverExamples } from "./entries/popover/demo";
 import { Demo as e_pricingTableDemo, examples as e_pricingTableExamples } from "./entries/pricing-table/demo";
 import { Demo as e_radioGroupDemo, examples as e_radioGroupExamples } from "./entries/radio-group/demo";
@@ -134,6 +136,7 @@ export const ENTRY_DEMOS: Record<string, ComponentType> = {
   "combobox": e_comboboxDemo,
   "command": e_commandDemo,
   "command-line": e_commandLineDemo,
+  "commit": e_commitDemo,
   "compare-slider": e_compareSliderDemo,
   "consent": e_consentDemo,
   "context-menu": e_contextMenuDemo,
@@ -175,6 +178,7 @@ export const ENTRY_DEMOS: Record<string, ComponentType> = {
   "pagination": e_paginationDemo,
   "particle-text": e_particleTextDemo,
   "password-field": e_passwordFieldDemo,
+  "pipeline": e_pipelineDemo,
   "popover": e_popoverDemo,
   "pricing-table": e_pricingTableDemo,
   "radio-group": e_radioGroupDemo,
@@ -241,6 +245,7 @@ export const ENTRY_EXAMPLES: Record<string, Record<string, ComponentType>> = {
   "combobox": e_comboboxExamples,
   "command": e_commandExamples,
   "command-line": e_commandLineExamples,
+  "commit": e_commitExamples,
   "compare-slider": e_compareSliderExamples,
   "consent": e_consentExamples,
   "context-menu": e_contextMenuExamples,
@@ -282,6 +287,7 @@ export const ENTRY_EXAMPLES: Record<string, Record<string, ComponentType>> = {
   "pagination": e_paginationExamples,
   "particle-text": e_particleTextExamples,
   "password-field": e_passwordFieldExamples,
+  "pipeline": e_pipelineExamples,
   "popover": e_popoverExamples,
   "pricing-table": e_pricingTableExamples,
   "radio-group": e_radioGroupExamples,

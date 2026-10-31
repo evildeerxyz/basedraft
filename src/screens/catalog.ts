@@ -3,6 +3,33 @@ import type { ScreenMeta } from "./types";
 
 export const SCREEN_META: ScreenMeta[] = [
   {
+    "slug": "deployments",
+    "order": 1,
+    "title": "Deployments",
+    "kind": "Developer tools",
+    "description": "A project's deployments with the one in flight leading: its stages turning over and their output as it builds, then a hold to promote it. Every deployment by day under it, filtered in place, each opening onto its stages, logs and domains, with a hold to roll back.",
+    "path": "relay.app/acme/storefront/deployments",
+    "pro": true,
+    "added": "2026-10-31",
+    "name": "DeploymentsScreen",
+    "uses": [
+      "account-menu",
+      "allowance",
+      "app-sidebar",
+      "commit",
+      "filter-bar",
+      "log-viewer",
+      "pipeline",
+      "breadcrumb",
+      "button",
+      "hold-button",
+      "menu",
+      "split-button",
+      "toast"
+    ],
+    "lines": 911
+  },
+  {
     "slug": "roadmap",
     "order": 3,
     "title": "Roadmap",

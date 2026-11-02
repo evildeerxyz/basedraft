@@ -6,11 +6,13 @@ import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, useSy
 import { createPortal } from "react-dom";
 
 /*
- * A product's navigation, down the left: the workspace at the top with a menu to switch it, a
- * search, the pages in sections with their icons and counts, groups that open to show what's in
- * them, and you at the foot with your own menu. The page you're on sits on a soft pill that slides
- * from one to the next. It folds to a rail of icons (their names come up beside them), and where
- * there isn't room for it, it becomes a drawer that slides in over the page and swipes away.
+ * A product's navigation, down the left: the workspace at the top with a menu to switch it, and
+ * search and the fold beside it; views to switch between, like Home and Activity, on a sliding
+ * thumb; the pages in sections with their icons, and at a row's end its count, a New tag, an
+ * unread dot or a spinner while something runs; groups that open to show what's in them; and you
+ * at the foot with your own menu. The page you're on sits on a soft gray fill that slides from one
+ * to the next. It folds to a rail of icons (their names come up beside them), and where there
+ * isn't room for it, it becomes a drawer that slides in over the page and swipes away.
  */
 
 const cx = (...c: Array<string | false | null | undefined>) => c.filter(Boolean).join(" ");
@@ -29,17 +31,36 @@ export type SidebarItem = {
   icon?: ReactNode;
   /** A count beside it, like unread messages. */
   count?: number | string;
+  /** A short tag at its end, like "New". */
+  tag?: string;
+  /** Something unread in it: a dot at its end. */
+  dot?: boolean;
+  /** Something running in it, like a build: a small spinner at its end. */
+  busy?: boolean;
   href?: string;
   /** Pages inside it: it opens to show them. */
   items?: SidebarItem[];
 };
-export type SidebarSection = { id?: string; label?: string; items: SidebarItem[] };
+export type SidebarSection = {
+  id?: string;
+  label?: string;
+  items: SidebarItem[];
+  /** A plus beside the section's name, to add to it. */
+  action?: { label: string; onSelect: () => void };
+};
+/** A view of the sidebar, switched on a segmented control at its head. Without sections it shows the sidebar's own. */
+export type SidebarView = { id: string; label: string; sections?: SidebarSection[] };
 export type SidebarWorkspace = { id: string; name: string; plan?: string; logo?: ReactNode };
 export type SidebarUser = { name: string; email?: string };
 export type SidebarAction = { label: string; icon?: ReactNode; onSelect?: () => void; tone?: "default" | "stop" };
 
 export type AppSidebarProps = {
   sections: SidebarSection[];
+  /** Views to switch between at the head, like Home and Activity. */
+  views?: SidebarView[];
+  view?: string;
+  defaultView?: string;
+  onViewChange?: (id: string) => void;
   /** The page you're on, by id. Leave it out and the sidebar keeps it itself. */
   active?: string;
   defaultActive?: string;
@@ -211,7 +232,7 @@ const contains = (item: SidebarItem, id: string | undefined): boolean => !!id &&
 
 function Count({ value, rail }: { value: number | string; rail: boolean }) {
   if (rail) return <span aria-hidden className="absolute right-[6px] top-[6px] size-[6px] rounded-full bg-[var(--bd-fg)]" />;
-  return <span className="relative ml-auto shrink-0 font-mono text-[11px] tabular-nums text-[var(--bd-subtle)]">{value}</span>;
+  return <span className="relative ml-auto shrink-0 text-[13px] tabular-nums text-[var(--bd-subtle)]">{value}</span>;
 }
 
 type RowProps = {
@@ -237,9 +258,20 @@ function Row({ item, raised, depth, rail, active, openGroups, toggleGroup, choos
   const id = useId();
   const content = (
     <>
-      {on && <motion.span layoutId={layout} aria-hidden className={cx("absolute inset-0 rounded-[10px]", raised ? "bg-[var(--bd-surface)] shadow-[0_1px_2px_rgb(var(--bd-shade)/0.1),inset_0_0_0_1px_var(--bd-line-subtle)]" : "bg-[rgb(var(--bd-ink)/0.07)]")} transition={still ? { duration: 0 } : SNAPPY} />}
-      <span className={cx("relative grid size-5 shrink-0 place-items-center [&_svg]:size-[17px]", on || holds ? "text-[var(--bd-fg)]" : "text-[var(--bd-muted)] group-hover/row:text-[var(--bd-fg)]")}>{item.icon ?? (depth > 0 ? <span className="size-1 rounded-full bg-current" /> : null)}</span>
+      {on && <motion.span layoutId={layout} aria-hidden className={cx("absolute inset-0 rounded-[10px]", raised ? "bg-[rgb(var(--bd-ink)/0.065)]" : "bg-[rgb(var(--bd-ink)/0.06)]")} transition={still ? { duration: 0 } : SNAPPY} />}
+      {/* A row of words alone, like a chat's title, has no icon; on the rail it keeps a dot in its place. */}
+      {(item.icon || depth > 0 || rail) && (
+        <span className={cx("relative grid size-5 shrink-0 place-items-center [&_svg]:size-[18px]", on || holds ? "text-[var(--bd-fg)]" : "text-[var(--bd-muted)] group-hover/row:text-[var(--bd-fg)]")}>{item.icon ?? <span className="size-1 rounded-full bg-current" />}</span>
+      )}
       <span className={cx("relative min-w-0 flex-1 truncate text-left transition-opacity", rail ? "opacity-0 duration-75" : "opacity-100 duration-200")}>{item.label}</span>
+      {!rail && item.busy && (
+        <svg aria-label="Running" viewBox="0 0 16 16" className="relative size-3.5 shrink-0 animate-spin text-[var(--bd-fg)] motion-reduce:animate-none">
+          <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" strokeOpacity="0.2" strokeWidth="2" />
+          <path d="M8 2a6 6 0 0 1 6 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      )}
+      {!rail && item.tag && <span className="relative shrink-0 rounded-[6px] bg-[oklch(0.94_0.035_250)] px-1.5 py-[3px] text-[11.5px] font-medium leading-none text-[oklch(0.48_0.13_252)] dark:bg-[oklch(0.32_0.06_252)] dark:text-[oklch(0.84_0.08_250)]">{item.tag}</span>}
+      {item.dot && <span aria-label="Unread" className={cx("shrink-0 rounded-full bg-[oklch(0.62_0.16_252)]", rail ? "absolute right-[7px] top-[7px] size-[6px]" : "relative mr-1 size-[7px]")} />}
       {item.count !== undefined && !group && <Count value={item.count} rail={rail} />}
       {group && (
         <motion.span aria-hidden animate={{ rotate: open ? 90 : 0 }} transition={SNAPPY} className={cx("relative grid size-4 shrink-0 place-items-center text-[var(--bd-subtle)] transition-opacity duration-150 [&_svg]:size-3", rail && "opacity-0")}>
@@ -249,9 +281,9 @@ function Row({ item, raised, depth, rail, active, openGroups, toggleGroup, choos
     </>
   );
   const rowClass = cx(
-    "group/row relative flex h-9 w-full select-none items-center gap-2.5 overflow-hidden rounded-[10px] px-2.5 text-[13.5px] outline-none transition-colors duration-150",
+    "group/row relative flex h-[38px] w-full select-none items-center gap-3 overflow-hidden rounded-[10px] px-2.5 text-[14px] outline-none transition-colors duration-150",
     "focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[color:var(--bd-ui-focus)]",
-    on ? "font-medium text-[var(--bd-fg)]" : holds ? "text-[var(--bd-fg)]" : "text-[var(--bd-muted)] hover:bg-[rgb(var(--bd-ink)/0.045)] hover:text-[var(--bd-fg)]",
+    on || holds ? "text-[var(--bd-fg)]" : "text-[var(--bd-muted)] hover:bg-[rgb(var(--bd-ink)/0.04)] hover:text-[var(--bd-fg)]",
   );
   const hint = rail ? { onMouseEnter: (e: React.MouseEvent<HTMLElement>) => tip.show(e.currentTarget, item.label, false), onMouseLeave: tip.hide, onFocus: (e: React.FocusEvent<HTMLElement>) => tip.show(e.currentTarget, item.label, true), onBlur: tip.hide } : {};
   return (
@@ -372,6 +404,10 @@ function initials(name: string) {
 
 export function AppSidebar({
   sections,
+  views,
+  view,
+  defaultView,
+  onViewChange,
   active,
   defaultActive,
   onActiveChange,
@@ -400,7 +436,11 @@ export function AppSidebar({
   label = "Main",
   className,
 }: AppSidebarProps) {
-  const all = sections.flatMap((s) => s.items);
+  // The view showing, and the sections it shows.
+  const [innerView, setInnerView] = useState(defaultView ?? views?.[0]?.id);
+  const viewId = view ?? innerView;
+  const shown = views?.find((v) => v.id === viewId)?.sections ?? sections;
+  const all = [...sections, ...(views ?? []).flatMap((v) => v.sections ?? [])].flatMap((s) => s.items);
   const [innerActive, setInnerActive] = useState(defaultActive ?? all[0]?.id);
   const current = active ?? innerActive;
   const [innerCollapsed, setInnerCollapsed] = useState(defaultCollapsed);
@@ -556,17 +596,29 @@ export function AppSidebar({
             onClick={() => setMenu(menu === "ws" ? null : "ws")}
             onMouseEnter={rail ? (e) => tip.show(e.currentTarget, ws.name, false) : undefined}
             onMouseLeave={rail ? tip.hide : undefined}
-            className="group/ws flex h-11 min-w-0 flex-1 items-center gap-2.5 overflow-hidden rounded-[11px] px-[5px] text-left transition-[background-color,scale] duration-150 hover:bg-[rgb(var(--bd-ink)/0.045)] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-[color:var(--bd-ui-focus)]"
+            className={cx("group/ws flex h-10 min-w-0 items-center gap-2.5 overflow-hidden rounded-[10px] px-[7px] text-left transition-[background-color,scale] duration-150 hover:bg-[rgb(var(--bd-ink)/0.045)] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-[color:var(--bd-ui-focus)]", rail ? "flex-1" : "mr-auto")}
           >
-            <span className="grid size-[30px] shrink-0 place-items-center overflow-hidden rounded-[9px] text-[13px] font-semibold text-[var(--bd-ui-ink-text)] shadow-[inset_0_1px_0_rgb(255_255_255/0.14),0_1px_2px_rgb(var(--bd-shade)/0.2)] [background:var(--bd-ui-ink)]">{ws.logo ?? initials(ws.name)}</span>
-            <span className={cx("min-w-0 flex-1 transition-opacity", rail ? "opacity-0 duration-75" : "duration-200")}>
-              <span className="flex items-center gap-1 text-[13.5px] font-semibold text-[var(--bd-fg)]">
-                <span className="truncate">{ws.name}</span>
-                <CaretUpDownIcon weight="regular" className="size-3 shrink-0 text-[var(--bd-subtle)]" />
-              </span>
-              {ws.plan && <span className="block truncate text-[11.5px] text-[var(--bd-subtle)]">{ws.plan}</span>}
+            <span className="grid size-6 shrink-0 place-items-center overflow-hidden rounded-[7px] text-[11px] font-semibold text-[var(--bd-ui-ink-text)] shadow-[inset_0_1px_0_rgb(255_255_255/0.14),0_1px_2px_rgb(var(--bd-shade)/0.2)] [background:var(--bd-ui-ink)]">{ws.logo ?? initials(ws.name)}</span>
+            <span className={cx("flex min-w-0 items-center gap-1.5 text-[14.5px] font-semibold tracking-[-0.01em] text-[var(--bd-fg)] transition-opacity", rail ? "opacity-0 duration-75" : "duration-200")}>
+              <span className="truncate">{ws.name}</span>
+              <CaretUpDownIcon weight="regular" className="size-3.5 shrink-0 text-[var(--bd-subtle)]" />
             </span>
           </button>
+          {onSearch && !rail && (
+            <button
+              type="button"
+              onClick={onSearch}
+              aria-label="Search"
+              aria-keyshortcuts={searchShortcut.length ? searchShortcut.join("+").replace("⌘", "Meta") : undefined}
+              onMouseEnter={(e) => tip.show(e.currentTarget, `Search  ${searchShortcut.join("")}`, false)}
+              onMouseLeave={tip.hide}
+              onFocus={(e) => tip.show(e.currentTarget, `Search  ${searchShortcut.join("")}`, true)}
+              onBlur={tip.hide}
+              className="grid size-8 shrink-0 place-items-center rounded-[10px] text-[var(--bd-subtle)] transition-[background-color,color,scale] duration-150 hover:bg-[rgb(var(--bd-ink)/0.05)] hover:text-[var(--bd-fg)] active:scale-[0.95] focus-visible:outline-2 focus-visible:outline-[color:var(--bd-ui-focus)]"
+            >
+              <MagnifyingGlassIcon weight="regular" className="size-[17px]" />
+            </button>
+          )}
           {!drawer && !rail && toggle}
           <Flyout anchor={wsButton} open={menu === "ws"} onClose={closeMenu} side="bottom" label="Workspaces">
             <p className="px-2.5 pb-1 pt-1.5 text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--bd-subtle)]">Workspaces</p>
@@ -592,6 +644,7 @@ export function AppSidebar({
               >
                 <span className="grid size-6 shrink-0 place-items-center overflow-hidden rounded-[7px] text-[11px] font-semibold text-[var(--bd-ui-ink-text)] [background:var(--bd-ui-ink)]">{w.logo ?? initials(w.name)}</span>
                 <span className="min-w-0 flex-1 truncate">{w.name}</span>
+                {w.plan && <span className="shrink-0 text-[12px] text-[var(--bd-subtle)]">{w.plan}</span>}
                 {w.id === ws.id && <CheckIcon weight="bold" className="!size-3.5 text-[var(--bd-fg)]" />}
               </div>
             ))}
@@ -621,8 +674,8 @@ export function AppSidebar({
         </div>
       )}
 
-      {/* Search: a quiet field to look at, a button underneath; a square of its own on the rail. */}
-      {onSearch && (
+      {/* On the rail, search is a square of its own under the workspace; open, it sits in the head. */}
+      {onSearch && rail && (
         <div className="px-3 pt-2">
           <button
             type="button"
@@ -630,31 +683,57 @@ export function AppSidebar({
             aria-label={rail ? "Search" : undefined}
             onMouseEnter={rail ? (e) => tip.show(e.currentTarget, "Search", false) : undefined}
             onMouseLeave={rail ? tip.hide : undefined}
-            className={cx("flex h-9 w-full items-center gap-2.5 overflow-hidden rounded-[10px] px-2.5 text-[13px] text-[var(--bd-subtle)] transition-[background-color,color,scale] duration-150 hover:text-[var(--bd-fg)] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-[color:var(--bd-ui-focus)]", rail ? "hover:bg-[rgb(var(--bd-ink)/0.045)]" : "bg-[rgb(var(--bd-ink)/0.045)] hover:bg-[rgb(var(--bd-ink)/0.07)]")}
+            className="flex h-[38px] w-full items-center gap-2.5 overflow-hidden rounded-[10px] px-2.5 text-[var(--bd-subtle)] transition-[background-color,color,scale] duration-150 hover:bg-[rgb(var(--bd-ink)/0.045)] hover:text-[var(--bd-fg)] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-[color:var(--bd-ui-focus)]"
           >
-            <MagnifyingGlassIcon weight="regular" className="size-[17px] shrink-0" />
-            <span className={cx("flex-1 whitespace-nowrap text-left transition-opacity", rail ? "opacity-0 duration-75" : "duration-200")}>Search</span>
-            <span aria-hidden className={cx("flex shrink-0 gap-0.5 transition-opacity", rail ? "opacity-0 duration-75" : "duration-200")}>
-              {searchShortcut.map((k) => (
-                <kbd key={k} className="grid h-[18px] min-w-[18px] place-items-center rounded-[5px] bg-[var(--bd-surface)] px-1 font-sans text-[10.5px] font-medium text-[var(--bd-muted)] shadow-[0_0_0_1px_var(--bd-line-subtle),0_1px_0_var(--bd-line-subtle)]">
-                  {k}
-                </kbd>
-              ))}
-            </span>
+            <MagnifyingGlassIcon weight="regular" className="size-[18px] shrink-0" />
           </button>
         </div>
       )}
 
+      {/* The views, on a thumb that slides between them. */}
+      {views && views.length > 1 && !rail && (
+        <div className="px-3 pt-3">
+          <div role="tablist" aria-label="Views" className="grid auto-cols-fr grid-flow-col rounded-[11px] bg-[rgb(var(--bd-ink)/0.055)] p-[3px]">
+            {views.map((v) => {
+              const on = v.id === viewId;
+              return (
+                <button
+                  key={v.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={on}
+                  onClick={() => {
+                    setInnerView(v.id);
+                    onViewChange?.(v.id);
+                  }}
+                  className={cx("relative h-8 rounded-[8px] text-[13.5px] outline-none transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[color:var(--bd-ui-focus)]", on ? "font-medium text-[var(--bd-fg)]" : "text-[var(--bd-muted)] hover:text-[var(--bd-fg)]")}
+                >
+                  {on && <motion.span layoutId={`${layout}-view`} aria-hidden className="absolute inset-0 rounded-[8px] bg-[var(--bd-surface)] shadow-[0_1px_2px_rgb(var(--bd-shade)/0.12),0_0_0_1px_rgb(var(--bd-ink)/0.05)] dark:bg-[var(--bd-well)] dark:shadow-[inset_0_0_0_1px_rgb(var(--bd-ink)/0.08)]" transition={still ? { duration: 0 } : SNAPPY} />}
+                  <span className="relative">{v.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* The pages, in their sections. */}
-      <div ref={list} onKeyDown={onListKey} className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-3 pb-3 pt-2 [scrollbar-width:thin]">
+      <div ref={list} onKeyDown={onListKey} className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-3 pb-3 pt-3 [scrollbar-width:thin]">
         <LayoutGroup id={layout}>
-          {sections.map((s, si) => (
-            <div key={s.id ?? si} className={si > 0 ? "mt-4" : "mt-1"}>
+          <AnimatePresence mode="wait" initial={false}>
+          <motion.div key={viewId ?? "main"} initial={still ? { opacity: 0 } : { opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, transition: { duration: 0.08 } }} transition={{ duration: 0.18 }}>
+          {shown.map((s, si) => (
+            <div key={s.id ?? si} className={si > 0 ? "mt-5" : undefined}>
               {s.label && (
-                <div className="relative mb-1 h-6">
-                  <p className={cx("absolute inset-x-2.5 top-1 truncate whitespace-nowrap text-[11.5px] font-medium text-[var(--bd-subtle)] transition-opacity", rail ? "opacity-0 duration-75" : "duration-200")}>{s.label}</p>
+                <div className="relative mb-0.5 flex h-8 items-center">
+                  <p className={cx("min-w-0 flex-1 truncate whitespace-nowrap px-2.5 text-[12.5px] text-[var(--bd-subtle)] transition-opacity", rail ? "opacity-0 duration-75" : "duration-200")}>{s.label}</p>
+                  {s.action && !rail && (
+                    <button type="button" onClick={s.action.onSelect} aria-label={s.action.label} className="grid size-7 shrink-0 place-items-center rounded-[8px] text-[var(--bd-subtle)] transition-colors hover:bg-[rgb(var(--bd-ink)/0.05)] hover:text-[var(--bd-fg)] focus-visible:outline-2 focus-visible:outline-[color:var(--bd-ui-focus)]">
+                      <PlusIcon weight="regular" className="size-3.5" />
+                    </button>
+                  )}
                   {/* On the rail a section's name gives way to a short hairline. */}
-                  <span aria-hidden className={cx("absolute left-1/2 top-3 h-px w-4 -translate-x-1/2 bg-[var(--bd-line)] transition-opacity duration-150", rail ? "opacity-100" : "opacity-0")} />
+                  <span aria-hidden className={cx("absolute left-1/2 top-4 h-px w-4 -translate-x-1/2 bg-[var(--bd-line)] transition-opacity duration-150", rail ? "opacity-100" : "opacity-0")} />
                 </div>
               )}
               {/* One column as wide as the sidebar, never the longest name, so on the rail each row is a square. */}
@@ -665,6 +744,8 @@ export function AppSidebar({
               </ul>
             </div>
           ))}
+          </motion.div>
+          </AnimatePresence>
         </LayoutGroup>
       </div>
 

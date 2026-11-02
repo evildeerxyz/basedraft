@@ -784,6 +784,11 @@
 
 /* Blocks marked bd-reveal rise in as they scroll into view, once: scroll-motion.tsx, made with Motion. */
 
+/* While a screen is full screen its controls sit in the bottom-right corner, so the toasts rise over them. */
+html[data-bd-full] [data-bd-toaster] {
+  bottom: 76px;
+}
+
 /* Questions open and close with their height, where the browser can animate to auto. */
 details.bd-faq {
   interpolate-size: allow-keywords;

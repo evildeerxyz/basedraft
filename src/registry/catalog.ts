@@ -54,6 +54,7 @@ import { doc as e_inlineEdit } from "./entries/inline-edit/doc";
 import { doc as e_input } from "./entries/input/doc";
 import { doc as e_kanbanBoard } from "./entries/kanban-board/doc";
 import { doc as e_kbd } from "./entries/kbd/doc";
+import { doc as e_lanes } from "./entries/lanes/doc";
 import { doc as e_lightbox } from "./entries/lightbox/doc";
 import { doc as e_liveCursors } from "./entries/live-cursors/doc";
 import { doc as e_logViewer } from "./entries/log-viewer/doc";
@@ -65,6 +66,7 @@ import { doc as e_navigationMenu } from "./entries/navigation-menu/doc";
 import { doc as e_number } from "./entries/number/doc";
 import { doc as e_numberField } from "./entries/number-field/doc";
 import { doc as e_onboarding } from "./entries/onboarding/doc";
+import { doc as e_pace } from "./entries/pace/doc";
 import { doc as e_pagination } from "./entries/pagination/doc";
 import { doc as e_particleText } from "./entries/particle-text/doc";
 import { doc as e_passwordField } from "./entries/password-field/doc";
@@ -74,7 +76,9 @@ import { doc as e_pricingTable } from "./entries/pricing-table/doc";
 import { doc as e_radioGroup } from "./entries/radio-group/doc";
 import { doc as e_resizable } from "./entries/resizable/doc";
 import { doc as e_roadmap } from "./entries/roadmap/doc";
+import { doc as e_runway } from "./entries/runway/doc";
 import { doc as e_scheduler } from "./entries/scheduler/doc";
+import { doc as e_scoreMeter } from "./entries/score-meter/doc";
 import { doc as e_scrollArea } from "./entries/scroll-area/doc";
 import { doc as e_segmented } from "./entries/segmented/doc";
 import { doc as e_select } from "./entries/select/doc";
@@ -102,6 +106,7 @@ import { doc as e_timeline } from "./entries/timeline/doc";
 import { doc as e_toast } from "./entries/toast/doc";
 import { doc as e_toolbar } from "./entries/toolbar/doc";
 import { doc as e_tooltip } from "./entries/tooltip/doc";
+import { doc as e_topUp } from "./entries/top-up/doc";
 import { doc as e_tour } from "./entries/tour/doc";
 import { doc as e_tree } from "./entries/tree/doc";
 import { doc as e_uptime } from "./entries/uptime/doc";
@@ -161,7 +166,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "name": "app-sidebar",
     "title": "App sidebar",
     "group": "Patterns",
-    "description": "An app's navigation down the left: a workspace switcher, search, sections with counts and groups, a pill that slides to the page you're on, a rail of icons, and a drawer that swipes away on a phone.",
+    "description": "An app's navigation down the left: the workspace with search and the fold beside it, views like Home and Activity on a sliding thumb, pages whose ends carry a count, a New tag, an unread dot or a spinner, a fill that slides to the page you're on, a rail of icons, and a drawer that swipes away on a phone.",
     "pro": true
   },
   {
@@ -530,6 +535,15 @@ export const ENTRY_META: ComponentMeta[] = [
     "description": "A keycap that goes down when you press its key on your keyboard."
   },
   {
+    "order": 97,
+    "name": "lanes",
+    "title": "Lanes",
+    "group": "Data",
+    "description": "Rows that share one time axis, each with what happened to it along its own lane: ink ticks for what shipped, gray for what was tried, red for what failed and a breathing ring for what's running, with a hairline for now and weekends shaded.",
+    "added": "2026-11-02",
+    "pro": true
+  },
+  {
     "order": 42,
     "name": "lightbox",
     "title": "Lightbox",
@@ -617,6 +631,15 @@ export const ENTRY_META: ComponentMeta[] = [
     "pro": true
   },
   {
+    "order": 96,
+    "name": "pace",
+    "title": "Pace",
+    "group": "Data",
+    "description": "Where each allowance stands now and where it lands by the period's end, on one scale with the plan's line running down through them all. A dot for now, a ring for the end at this pace, and past the plan the ghost turns amber.",
+    "added": "2026-11-02",
+    "pro": true
+  },
+  {
     "order": 3,
     "name": "pagination",
     "title": "Pagination",
@@ -689,12 +712,30 @@ export const ENTRY_META: ComponentMeta[] = [
     "pro": true
   },
   {
+    "order": 95,
+    "name": "runway",
+    "title": "Runway",
+    "group": "Data",
+    "description": "A balance's past and where it's heading on one line: what it was day by day in ink up to a hairline for today, then a ghost at the pace it's spent, down to the day it runs out. A top-up that runs by itself turns the ghost into a saw that never reaches zero.",
+    "added": "2026-11-02",
+    "pro": true
+  },
+  {
     "order": 80,
     "name": "scheduler",
     "title": "Scheduler",
     "group": "Patterns",
     "description": "Booking a time: who and what, a month whose open days are lit with a pill that glides to the one you pick, the day's times splitting into a Confirm, and a confirmation with a check that draws and an .ics.",
     "added": "2026-10-29",
+    "pro": true
+  },
+  {
+    "order": 93,
+    "name": "score-meter",
+    "title": "Score meter",
+    "group": "Data",
+    "description": "A score out of a hundred as a row of capsules: as many lit as it reaches, the last filled only as far as it does, in the tone of its band. They light one after another the first time it's seen, for a column of fit or health scores that reads at a glance.",
+    "added": "2026-11-02",
     "pro": true
   },
   {
@@ -902,6 +943,15 @@ export const ENTRY_META: ComponentMeta[] = [
     "description": "An ink bubble with a caret, carrying the action's shortcut on small caps."
   },
   {
+    "order": 94,
+    "name": "top-up",
+    "title": "Top up",
+    "group": "Patterns",
+    "description": "Adding money to a balance, said in what it buys: the amount big in the middle, typed or run along a tape, and how long it lasts with it. What's charged reads as one sentence with the card a picker in it, paying is a hold, and once it's paid the column turns over to the balance and its runway, before and after.",
+    "added": "2026-11-02",
+    "pro": true
+  },
+  {
     "order": 61,
     "name": "tour",
     "title": "Tour",
@@ -993,6 +1043,7 @@ export const ENTRY_DOCS: Record<string, ComponentDoc> = {
   "input": e_input,
   "kanban-board": e_kanbanBoard,
   "kbd": e_kbd,
+  "lanes": e_lanes,
   "lightbox": e_lightbox,
   "live-cursors": e_liveCursors,
   "log-viewer": e_logViewer,
@@ -1004,6 +1055,7 @@ export const ENTRY_DOCS: Record<string, ComponentDoc> = {
   "number": e_number,
   "number-field": e_numberField,
   "onboarding": e_onboarding,
+  "pace": e_pace,
   "pagination": e_pagination,
   "particle-text": e_particleText,
   "password-field": e_passwordField,
@@ -1013,7 +1065,9 @@ export const ENTRY_DOCS: Record<string, ComponentDoc> = {
   "radio-group": e_radioGroup,
   "resizable": e_resizable,
   "roadmap": e_roadmap,
+  "runway": e_runway,
   "scheduler": e_scheduler,
+  "score-meter": e_scoreMeter,
   "scroll-area": e_scrollArea,
   "segmented": e_segmented,
   "select": e_select,
@@ -1041,6 +1095,7 @@ export const ENTRY_DOCS: Record<string, ComponentDoc> = {
   "toast": e_toast,
   "toolbar": e_toolbar,
   "tooltip": e_tooltip,
+  "top-up": e_topUp,
   "tour": e_tour,
   "tree": e_tree,
   "uptime": e_uptime,

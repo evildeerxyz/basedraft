@@ -1,7 +1,7 @@
 "use client";
 
 import { IconContext, AppWindowIcon, ArrowsInSimpleIcon, ArrowsOutSimpleIcon, CheckIcon, CodeIcon, CopyIcon, DeviceMobileIcon, DeviceTabletIcon, DiamondIcon, DownloadSimpleIcon, EyeIcon, FileTsxIcon, LockSimpleIcon, MonitorIcon, MoonIcon, SquaresFourIcon, StackIcon, SunIcon, ArrowCounterClockwiseIcon, type Icon } from "@phosphor-icons/react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type MouseEvent, type ReactNode, type Ref } from "react";
 import { createPortal } from "react-dom";
@@ -242,6 +242,8 @@ function useFullScreen(on: boolean, close: () => void) {
     if (!on) return;
     const root = document.documentElement;
     root.style.overflow = "hidden";
+    // The toasts read this and rise over the controls in the corner.
+    root.dataset.bdFull = "";
     const key = (e: KeyboardEvent) => {
       if (e.key !== "Escape" || e.defaultPrevented) return;
       // A menu, a list or a dialog in the screen takes the Escape first.
@@ -251,9 +253,97 @@ function useFullScreen(on: boolean, close: () => void) {
     window.addEventListener("keydown", key);
     return () => {
       root.style.overflow = "";
+      delete root.dataset.bdFull;
       window.removeEventListener("keydown", key);
     };
   }, [on, close]);
+}
+
+/**
+ * The full-screen controls, in the window's bottom-right corner. No corner of an app screen is
+ * free (the sidebar's account, the header's actions and a side panel's buttons all sit in one),
+ * so they show as full screen opens and then tuck away, leaving a small handle. They come back
+ * when the pointer comes near the corner, when the handle is pressed, or when a key brings focus
+ * to them, and tuck away again a moment after it leaves.
+ */
+/* In development, Next's own indicator sits in the bottom-right corner (moved there in its menu): the controls keep clear of it. */
+const EDGE = process.env.NODE_ENV === "development" ? "right-16" : "right-4";
+
+function CornerDock({ children }: { children: ReactNode }) {
+  const still = useReducedMotion();
+  const [awake, setAwake] = useState(true);
+  const over = useRef(false);
+  const timer = useRef(0);
+  // Tuck away in a moment, unless the pointer or focus is on them by then.
+  const sleepSoon = useRef(() => {
+    window.clearTimeout(timer.current);
+    timer.current = window.setTimeout(() => !over.current && setAwake(false), 2200);
+  });
+  useEffect(() => {
+    const sleep = sleepSoon.current;
+    // Near the corner: the width the controls take and a little over, and the band at the foot.
+    const near = (e: PointerEvent) => {
+      if (e.clientX > window.innerWidth - 460 && e.clientY > window.innerHeight - 120) {
+        window.clearTimeout(timer.current);
+        setAwake(true);
+      } else if (!over.current) sleep();
+    };
+    sleep();
+    window.addEventListener("pointermove", near);
+    window.addEventListener("pointerdown", near);
+    return () => {
+      window.removeEventListener("pointermove", near);
+      window.removeEventListener("pointerdown", near);
+      window.clearTimeout(timer.current);
+    };
+  }, []);
+  const glide = still ? { duration: 0 } : { type: "spring" as const, stiffness: 420, damping: 36 };
+  return (
+    <div className={cn("pointer-events-none absolute bottom-4 flex flex-col items-end max-sm:inset-x-3 max-sm:items-center", EDGE)}>
+      <motion.div
+        initial={false}
+        animate={{ y: awake ? 0 : 24, opacity: awake ? 1 : 0, scale: awake ? 1 : 0.96 }}
+        transition={glide}
+        onPointerEnter={() => {
+          over.current = true;
+          setAwake(true);
+        }}
+        onPointerLeave={() => {
+          over.current = false;
+          sleepSoon.current();
+        }}
+        onFocus={() => {
+          over.current = true;
+          setAwake(true);
+        }}
+        onBlur={(e) => {
+          if (e.currentTarget.contains(e.relatedTarget as Node)) return;
+          over.current = false;
+          sleepSoon.current();
+        }}
+        className={cn("origin-bottom-right", awake ? "pointer-events-auto" : "pointer-events-none")}
+      >
+        {children}
+      </motion.div>
+      {/* Tucked away, a small handle stays in the corner to bring them back. */}
+      <AnimatePresence>
+        {!awake && (
+          <motion.button
+            key="handle"
+            type="button"
+            aria-label="Show the full screen controls"
+            onClick={() => setAwake(true)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="pointer-events-auto absolute bottom-0 right-0 grid h-6 w-14 place-items-center rounded-full"
+          >
+            <span className="h-1.5 w-9 rounded-full bg-fg/25 shadow-[0_0_0_1px_rgb(var(--bd-paper-rgb)/0.5)] transition-colors hover:bg-fg/45" />
+          </motion.button>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 }
 
 /** The screen in its window: as wide as the width picked, as tall as the box it's in, scrolling inside. */
@@ -292,6 +382,21 @@ const STATES: Record<string, ScreenState[]> = {
     { name: "Failed build", press: ["Open Cache product pages by region"] },
     { name: "Row menu", press: ["More for Search that forgives typos"], overlay: true },
     { name: "Redeploy options", press: ["More ways to redeploy"], overlay: true },
+    { name: "Sidebar", press: ["Collapse the sidebar|Open the menu"] },
+  ],
+  projects: [
+    { name: "Projects", press: [] },
+    { name: "Needs you", press: ["Needs you 2"] },
+    { name: "Project open", press: ["gift-cards"] },
+    { name: "Two picked", press: ["Pick storefront", "Pick docs"] },
+    { name: "Activity", press: ["Activity"] },
+    { name: "Sidebar", press: ["Collapse the sidebar|Open the menu"] },
+  ],
+  billing: [
+    { name: "Usage and billing", press: [] },
+    { name: "Auto top-up on", press: ["Auto top-up"] },
+    { name: "Add credits", press: ["Add credits"], overlay: true },
+    { name: "Activity", press: ["Activity"] },
     { name: "Sidebar", press: ["Collapse the sidebar|Open the menu"] },
   ],
 };
@@ -543,9 +648,9 @@ export function ScreenStage({ s, source }: { s: ScreenMeta; source: string | nul
             <div className={cn("flex min-h-0 flex-1", width !== "desktop" && "px-3 pb-20 pt-3 sm:px-6 sm:pt-6")}>
               <Window slug={s.slug} width={width} run={run} className={cn("h-full", width !== "desktop" && "rounded-[20px] shadow-[0_0_0_1px_var(--bd-line),var(--bd-shadow-float)]")} />
             </div>
-            {/* The controls float over the screen's foot, on glass, so the screen keeps all of the window. */}
-            <div className="pointer-events-none absolute inset-x-0 bottom-4 flex justify-center px-3">
-              <div className={cn("pointer-events-auto flex items-center gap-1.5 rounded-full p-1", GLASS, "shadow-[var(--bd-shadow-float),inset_0_0_0_1px_var(--bd-line)]")}>
+            {/* The controls float in the corner, on glass, so the screen keeps all of the window. */}
+            <CornerDock>
+              <div className={cn("flex items-center gap-1.5 rounded-full p-1", GLASS, "shadow-[var(--bd-shadow-float),inset_0_0_0_1px_var(--bd-line)]")}>
                 <span className="max-md:hidden">
                   <IconSwitch label="Width" value={width} options={SIZES} onChange={setWidth} />
                 </span>
@@ -554,7 +659,7 @@ export function ScreenStage({ s, source }: { s: ScreenMeta; source: string | nul
                   <ArrowsInSimpleIcon weight="regular" size={14} /> Exit <kbd className="font-sans text-[11px] text-canvas/60">Esc</kbd>
                 </button>
               </div>
-            </div>
+            </CornerDock>
           </motion.div>,
           document.body,
         )}

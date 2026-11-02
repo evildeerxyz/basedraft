@@ -72,6 +72,10 @@ export type DataTableProps<T> = {
    * while any are picked, with their count and a way to clear them.
    */
   actions?: (picked: string[], clear: () => void) => ReactNode;
+  /** Opens a row on a click anywhere in it that isn't one of its own controls: into a panel beside the table, or its page. */
+  onRowClick?: (row: T) => void;
+  /** The key of the row that's open, so it stays lit while it is. */
+  active?: string | null;
   className?: string;
 };
 
@@ -118,11 +122,13 @@ const stickAt = (sticky: boolean, left: number) => (sticky ? ({ position: "stick
 // A cell has one box-shadow, so its line underneath and the held-still column's edge are drawn together.
 const cellShade = (line: boolean, edge: boolean) =>
   edge ? (line ? "shadow-[inset_0_-1px_0_var(--bd-line-subtle),1px_0_0_var(--bd-line),8px_0_14px_-8px_rgb(var(--bd-shade)/0.22)]" : "shadow-[1px_0_0_var(--bd-line),8px_0_14px_-8px_rgb(var(--bd-shade)/0.22)]") : line ? "shadow-[inset_0_-1px_0_var(--bd-line-subtle)]" : "";
-// Row backgrounds are solid mixes, not see-through tints, so the held-still cells match the rest.
-const rowBg = (on: boolean) =>
+// Row backgrounds are solid mixes of ink into the sheet, not see-through tints, so the held-still cells match the rest.
+const rowBg = (on: boolean, active = false) =>
   on
-    ? "bg-[color-mix(in_oklab,var(--bd-surface),var(--bd-ui-viz-1,oklch(56%_0.16_290))_7%)] group-hover/row:bg-[color-mix(in_oklab,var(--bd-surface),var(--bd-ui-viz-1,oklch(56%_0.16_290))_10%)]"
-    : "bg-[var(--bd-surface)] group-hover/row:bg-[color-mix(in_oklab,var(--bd-surface),var(--bd-fg)_2.5%)]";
+    ? "bg-[color-mix(in_oklab,var(--bd-surface),var(--bd-fg)_6%)] group-hover/row:bg-[color-mix(in_oklab,var(--bd-surface),var(--bd-fg)_8%)]"
+    : active
+      ? "bg-[color-mix(in_oklab,var(--bd-surface),var(--bd-fg)_4.5%)]"
+      : "bg-[var(--bd-surface)] group-hover/row:bg-[color-mix(in_oklab,var(--bd-surface),var(--bd-fg)_2.5%)]";
 
 type RowProps<T> = {
   row: T;
@@ -142,19 +148,23 @@ type RowProps<T> = {
   detail: string;
   onPick: (id: string, shift: boolean) => void;
   onToggle: (id: string) => void;
+  /** Lit as the open one. */
+  active: boolean;
+  /** Opens the row, when rows open on a click. */
+  onOpen?: (id: string) => void;
 };
 
 /*
  * One row and the detail it opens to. It only takes plain values and steady handlers, so picking a
  * row redraws that row alone and a sort only moves rows rather than redrawing them.
  */
-const Row = memo(function Row<T>({ row, id, name, columns, on, isOpen, last, glide, reduce, selectable, expand, pad, sticky, edge, detail, onPick, onToggle }: RowProps<T>) {
+const Row = memo(function Row<T>({ row, id, name, columns, on, isOpen, last, glide, reduce, selectable, expand, pad, sticky, edge, detail, onPick, onToggle, active, onOpen }: RowProps<T>) {
   const line = !(last && !isOpen);
   const firstLeft = (selectable ? PICK_W : 0) + (expand ? OPEN_W : 0);
   const cells = (
     <>
       {selectable && (
-        <td className={cx("pl-4 pr-2 align-middle transition-colors duration-150", pad, rowBg(on), cellShade(line, false))} style={stickAt(sticky, 0)}>
+        <td className={cx("pl-4 pr-2 align-middle transition-colors duration-150", pad, rowBg(on, active), cellShade(line, false))} style={stickAt(sticky, 0)}>
           {/* The box shows on the row under the pointer, on the one in focus, and on every row once any is picked. */}
           <span className={cx("inline-grid transition-opacity duration-150", on ? "opacity-100" : "opacity-0 focus-within:opacity-100 group-hover/row:opacity-100 [[data-picking]_&]:opacity-100")}>
             <Pick state={on} label={`Pick ${name}`} onPick={(shift) => onPick(id, shift)} />
@@ -162,7 +172,7 @@ const Row = memo(function Row<T>({ row, id, name, columns, on, isOpen, last, gli
         </td>
       )}
       {expand && (
-        <td className={cx("align-middle transition-colors duration-150", pad, rowBg(on), cellShade(line, false))} style={stickAt(sticky, selectable ? PICK_W : 0)}>
+        <td className={cx("align-middle transition-colors duration-150", pad, rowBg(on, active), cellShade(line, false))} style={stickAt(sticky, selectable ? PICK_W : 0)}>
           <button
             type="button"
             aria-expanded={isOpen}
@@ -178,21 +188,33 @@ const Row = memo(function Row<T>({ row, id, name, columns, on, isOpen, last, gli
         </td>
       )}
       {columns.map((c, ci) => (
-        <td key={c.key} className={cx("px-4 align-middle tabular-nums transition-colors duration-150", pad, rowBg(on), cellShade(line, ci === 0 && edge), c.align === "end" && "text-right")} style={ci === 0 ? stickAt(sticky, firstLeft) : undefined}>
+        <td key={c.key} className={cx("px-4 align-middle tabular-nums transition-colors duration-150", pad, rowBg(on, active), cellShade(line, ci === 0 && edge), c.align === "end" && "text-right")} style={ci === 0 ? stickAt(sticky, firstLeft) : undefined}>
           {c.cell(row)}
         </td>
       ))}
     </>
   );
+  // A click on the row opens it, unless it landed on one of the row's own controls.
+  const open = onOpen
+    ? {
+        onClick: (e: MouseEvent) => {
+          if ((e.target as HTMLElement).closest("button, a, input, label, [role=checkbox]")) return;
+          onOpen(id);
+        },
+      }
+    : {};
+  const rowClass = cx("group/row", onOpen && "cursor-pointer");
   return (
     <>
       {/* Gliding rows are motion rows; past the limit they're plain ones, which cost nothing to keep. */}
       {glide ? (
-        <motion.tr layout="position" transition={SOFT} className="group/row">
+        <motion.tr layout="position" transition={SOFT} className={rowClass} {...open}>
           {cells}
         </motion.tr>
       ) : (
-        <tr className="group/row">{cells}</tr>
+        <tr className={rowClass} {...open}>
+          {cells}
+        </tr>
       )}
       {expand && (
         <tr>
@@ -223,7 +245,7 @@ const Row = memo(function Row<T>({ row, id, name, columns, on, isOpen, last, gli
   );
 }) as <T>(props: RowProps<T>) => ReactElement;
 
-export function DataTable<T>({ rows, columns, rowKey, label, rowLabel, selectable = false, selected, defaultSelected = [], onSelectedChange, sort, defaultSort = null, onSortChange, expand, density = "regular", empty, maxHeight, stickyFirstColumn = false, actions, className }: DataTableProps<T>) {
+export function DataTable<T>({ rows, columns, rowKey, label, rowLabel, selectable = false, selected, defaultSelected = [], onSelectedChange, sort, defaultSort = null, onSortChange, expand, density = "regular", empty, maxHeight, stickyFirstColumn = false, actions, onRowClick, active = null, className }: DataTableProps<T>) {
   const id = useId();
   const reduce = useReducedMotion() ?? false;
   const [innerSort, setInnerSort] = useState<DataTableSort>(defaultSort);
@@ -282,6 +304,15 @@ export function DataTable<T>({ rows, columns, rowKey, label, rowLabel, selectabl
   });
   const onPick = useCallback((key: string, shift: boolean) => latest.current(key, shift), []);
   const onToggle = useCallback((key: string) => setOpen((o) => (o.includes(key) ? o.filter((k) => k !== key) : [...o, key])), []);
+  // Opening reaches the latest rows through a steady handler too.
+  const opener = useRef<(key: string) => void>(() => {});
+  useLayoutEffect(() => {
+    opener.current = (key) => {
+      const row = ordered[keys.indexOf(key)];
+      if (row !== undefined) onRowClick?.(row);
+    };
+  });
+  const onOpen = useCallback((key: string) => opener.current(key), []);
   const all = keys.length > 0 && keys.every((k) => pickedSet.has(k));
   const some = !all && keys.some((k) => pickedSet.has(k));
 
@@ -293,7 +324,7 @@ export function DataTable<T>({ rows, columns, rowKey, label, rowLabel, selectabl
   const clear = () => setPicked([]);
 
   return (
-    <div data-picking={picked.length > 0 || undefined} className={cx("group/table relative w-full overflow-hidden rounded-[18px] bg-[var(--bd-surface)] text-[var(--bd-fg)] shadow-[inset_0_0_0_1px_var(--bd-line),var(--bd-shadow-resting)]", className)}>
+    <div data-picking={picked.length > 0 || undefined} className={cx("group/table relative w-full overflow-clip rounded-[18px] border border-[var(--bd-line)] bg-[var(--bd-surface)] text-[var(--bd-fg)] shadow-[var(--bd-shadow-resting)] dark:shadow-none", className)}>
       {/* A size container, so the empty message and an opened row can be as wide as the view and hold still in it. */}
       <div className={cx("overflow-auto overscroll-x-contain transition-[padding] duration-300 ease-[var(--bd-ease)] [container-type:inline-size] [scrollbar-color:var(--bd-line-strong)_transparent] [scrollbar-width:thin]", bar && "pb-14")} style={{ maxHeight }} onScroll={(e) => setScrolledX(e.currentTarget.scrollLeft > 0)}>
         <table className="w-full min-w-max border-separate border-spacing-0 text-left">
@@ -388,13 +419,20 @@ export function DataTable<T>({ rows, columns, rowKey, label, rowLabel, selectabl
                     detail={`${id}-${key}`}
                     onPick={onPick}
                     onToggle={onToggle}
+                    active={active === key}
+                    onOpen={onRowClick ? onOpen : undefined}
                   />
               );
             })}
           </tbody>
         </table>
       </div>
-      {/* The picked rows' bar: their count, what can be done to them, and a way to let them go. */}
+      {/*
+        The picked rows' bar: their count, what can be done to them, and a way to let them go. It
+        floats at the foot of what you can see while the table runs on past it, and settles at the
+        table's own foot once you reach it. The sheet clips rather than hides what overflows, so the
+        bar can hold to the page's scroll rather than the sheet's.
+      */}
       <AnimatePresence>
         {bar && (
           <motion.div
@@ -403,7 +441,7 @@ export function DataTable<T>({ rows, columns, rowKey, label, rowLabel, selectabl
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={reduce ? { opacity: 0 } : { opacity: 0, y: 12, scale: 0.97, transition: { duration: 0.16 } }}
             transition={reduce ? { duration: 0.12 } : SNAPPY}
-            className="pointer-events-none absolute inset-x-0 bottom-3 z-[4] flex justify-center px-3"
+            className="pointer-events-none sticky bottom-3 z-[4] -mt-[52px] flex h-[52px] items-center justify-center px-3"
           >
             <div
               role="toolbar"

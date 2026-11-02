@@ -1,10 +1,10 @@
 "use client";
 
-import { CalendarDotsIcon, ChartLineIcon, CircleHalfIcon, CreditCardIcon, CursorIcon, FoldersIcon, GearSixIcon, HouseIcon, KanbanIcon, ListIcon, RocketLaunchIcon, UserIcon, UsersThreeIcon } from "@phosphor-icons/react";
+import { CalendarDotsIcon, ChartLineIcon, ChatCircleIcon, CircleHalfIcon, CoinsIcon, CreditCardIcon, CursorIcon, FolderIcon, FoldersIcon, GearSixIcon, HouseIcon, KanbanIcon, ListIcon, RocketLaunchIcon, UserIcon, UserPlusIcon, UsersThreeIcon, WarningCircleIcon } from "@phosphor-icons/react";
 import { useReducedMotion } from "motion/react";
 import { useEffect, useState, type ReactNode } from "react";
 import { AccountMenu } from "@/registry/pro-ui/account-menu";
-import { AppSidebar, type SidebarSection } from "@/registry/pro-ui/app-sidebar";
+import { AppSidebar, type SidebarSection, type SidebarView } from "@/registry/pro-ui/app-sidebar";
 import { FilterBar, type Filter, type FilterField } from "@/registry/pro-ui/filter-bar";
 import { KanbanBoard, type KanbanColumn } from "@/registry/pro-ui/kanban-board";
 import { LiveCursors, Viewers, type Presence } from "@/registry/pro-ui/live-cursors";
@@ -31,9 +31,18 @@ const SECTIONS: SidebarSection[] = [
     items: [
       { id: "overview", label: "Overview", icon: <HouseIcon weight="duotone" />, href: "/acme" },
       { id: "projects", label: "Projects", icon: <FoldersIcon weight="duotone" />, count: 14, href: "/acme/projects" },
-      { id: "deployments", label: "Deployments", icon: <RocketLaunchIcon weight="duotone" />, href: "/acme/storefront/deployments" },
+      { id: "deployments", label: "Deployments", icon: <RocketLaunchIcon weight="duotone" />, busy: true, href: "/acme/storefront/deployments" },
       { id: "analytics", label: "Analytics", icon: <ChartLineIcon weight="duotone" />, href: "/acme/storefront/analytics" },
-      { id: "roadmap", label: "Roadmap", icon: <CalendarDotsIcon weight="duotone" />, href: "/acme/roadmap" },
+      { id: "roadmap", label: "Roadmap", icon: <CalendarDotsIcon weight="duotone" />, tag: "New", href: "/acme/roadmap" },
+    ],
+  },
+  {
+    label: "Pinned",
+    action: { label: "Pin a project", onSelect: () => undefined },
+    items: [
+      { id: "p-storefront", label: "storefront", icon: <FolderIcon weight="duotone" />, dot: true, href: "/acme/storefront" },
+      { id: "p-docs", label: "docs", icon: <FolderIcon weight="duotone" />, href: "/acme/docs" },
+      { id: "p-api", label: "api", icon: <FolderIcon weight="duotone" />, href: "/acme/api" },
     ],
   },
   {
@@ -42,6 +51,32 @@ const SECTIONS: SidebarSection[] = [
       { id: "members", label: "Members", icon: <UsersThreeIcon weight="duotone" />, href: "/acme/members" },
       { id: "billing", label: "Usage and billing", icon: <CreditCardIcon weight="duotone" />, href: "/acme/billing" },
       { id: "settings", label: "Settings", icon: <GearSixIcon weight="duotone" />, href: "/acme/settings" },
+    ],
+  },
+];
+
+/* The sidebar's other view: what happened across the workspace, newest first. */
+const VIEWS: SidebarView[] = [
+  { id: "home", label: "Home" },
+  {
+    id: "activity",
+    label: "Activity",
+    sections: [
+      {
+        label: "Today",
+        items: [
+          { id: "a-promote", label: "7c2e9a1 is live", icon: <RocketLaunchIcon weight="duotone" />, count: "2m" },
+          { id: "a-failed", label: "gift-cards failed", icon: <WarningCircleIcon weight="duotone" />, dot: true },
+          { id: "a-comment", label: "Lauren on Checkout", icon: <ChatCircleIcon weight="duotone" />, count: "1h" },
+        ],
+      },
+      {
+        label: "Yesterday",
+        items: [
+          { id: "a-credits", label: "$100 of credits", icon: <CoinsIcon weight="duotone" />, count: "5pm" },
+          { id: "a-invite", label: "Tyler Hayes joined", icon: <UserPlusIcon weight="duotone" />, count: "3pm" },
+        ],
+      },
     ],
   },
 ];
@@ -69,6 +104,7 @@ function AppFrame({ page, crumbs, actions, children }: { page: string; crumbs: s
         contained
         breakpoint={900}
         sections={SECTIONS}
+        views={VIEWS}
         active={page}
         workspaces={[
           { id: "acme", name: "Acme", plan: "Team", logo: <Mark /> },

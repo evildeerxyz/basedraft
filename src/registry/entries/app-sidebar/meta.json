@@ -2,7 +2,7 @@
   "name": "app-sidebar",
   "title": "App sidebar",
   "group": "Patterns",
-  "description": "An app's navigation down the left: a workspace switcher, search, sections with counts and groups, a pill that slides to the page you're on, a rail of icons, and a drawer that swipes away on a phone.",
+  "description": "An app's navigation down the left: the workspace with search and the fold beside it, views like Home and Activity on a sliding thumb, pages whose ends carry a count, a New tag, an unread dot or a spinner, a fill that slides to the page you're on, a rail of icons, and a drawer that swipes away on a phone.",
   "order": 50,
   "pro": true
 }

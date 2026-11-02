@@ -23,6 +23,32 @@ export interface ChangeDay {
 
 export const CHANGELOG: ChangeDay[] = [
   {
+    date: "2026-11-02",
+    changes: [
+      {
+        tag: "New",
+        title: "Projects and Billing, two new screens",
+        body: "Projects is every project in one table that sorts, picks rows for a floating bar and fits any width, with each project's page opening beside it. Billing leads with the balance and how long it lasts, then what the period will use against the plan, the bills, and credits added with a hold. With Pro.",
+        href: "/screens/projects",
+        link: "Open Projects",
+      },
+      {
+        tag: "New",
+        title: "Runway, Pace, Top up, Score meter and Lanes, with Pro",
+        body: "Runway draws a balance's past and where it's heading, down to the day it runs out. Pace sets each allowance against the plan's line. Top up adds money on a tape and a hold. Score meter reads a score in capsules, and Lanes puts many things on one time axis.",
+        href: "/components/runway",
+        link: "See Runway",
+      },
+      {
+        tag: "Improved",
+        title: "The app sidebar, the data table and full screen",
+        body: "The sidebar has Home and Activity views, and its rows can carry a count, a New tag, an unread dot or a spinner. Data table rows open on a click, its frame stays whole and its bar floats in view. Full screen keeps its controls in a corner that tucks away.",
+        href: "/components/app-sidebar",
+        link: "See the sidebar",
+      },
+    ],
+  },
+  {
     date: "2026-10-31",
     changes: [
       {

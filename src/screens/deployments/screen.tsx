@@ -1,11 +1,11 @@
 "use client";
 
-import { ArrowClockwiseIcon, ArrowCounterClockwiseIcon, ArrowBendDownRightIcon, ArrowUpRightIcon, CalendarDotsIcon, ChartLineIcon, CheckIcon, CircleHalfIcon, CopyIcon, EyeIcon, GlobeHemisphereWestIcon, TimerIcon, CreditCardIcon, DotsThreeIcon, FoldersIcon, GearSixIcon, GitBranchIcon, GlobeSimpleIcon, HouseIcon, LinkSimpleIcon, ListIcon, MagnifyingGlassIcon, ProhibitIcon, RocketLaunchIcon, StackIcon, UserIcon, UsersThreeIcon, XIcon } from "@phosphor-icons/react";
+import { ArrowBendDownRightIcon, ArrowClockwiseIcon, ArrowCounterClockwiseIcon, ArrowUpRightIcon, CalendarDotsIcon, ChartLineIcon, ChatCircleIcon, CheckIcon, CircleHalfIcon, CoinsIcon, CopyIcon, CreditCardIcon, DotsThreeIcon, EyeIcon, FolderIcon, FoldersIcon, GearSixIcon, GitBranchIcon, GlobeHemisphereWestIcon, GlobeSimpleIcon, HouseIcon, LinkSimpleIcon, ListIcon, MagnifyingGlassIcon, ProhibitIcon, RocketLaunchIcon, StackIcon, TimerIcon, UserIcon, UserPlusIcon, UsersThreeIcon, WarningCircleIcon, XIcon } from "@phosphor-icons/react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { AccountMenu } from "@/registry/pro-ui/account-menu";
 import { Allowance } from "@/registry/pro-ui/allowance";
-import { AppSidebar, type SidebarSection } from "@/registry/pro-ui/app-sidebar";
+import { AppSidebar, type SidebarSection, type SidebarView } from "@/registry/pro-ui/app-sidebar";
 import { Commit } from "@/registry/pro-ui/commit";
 import { FilterBar, type Filter, type FilterField } from "@/registry/pro-ui/filter-bar";
 import { LogViewer, type LogLine } from "@/registry/pro-ui/log-viewer";
@@ -35,7 +35,16 @@ const SECTIONS: SidebarSection[] = [
       { id: "projects", label: "Projects", icon: <FoldersIcon weight="duotone" />, count: 14, href: "/acme/projects" },
       { id: "deployments", label: "Deployments", icon: <RocketLaunchIcon weight="duotone" />, href: "/acme/storefront/deployments" },
       { id: "analytics", label: "Analytics", icon: <ChartLineIcon weight="duotone" />, href: "/acme/storefront/analytics" },
-      { id: "roadmap", label: "Roadmap", icon: <CalendarDotsIcon weight="duotone" />, href: "/acme/roadmap" },
+      { id: "roadmap", label: "Roadmap", icon: <CalendarDotsIcon weight="duotone" />, tag: "New", href: "/acme/roadmap" },
+    ],
+  },
+  {
+    label: "Pinned",
+    action: { label: "Pin a project", onSelect: () => undefined },
+    items: [
+      { id: "p-storefront", label: "storefront", icon: <FolderIcon weight="duotone" />, dot: true, href: "/acme/storefront" },
+      { id: "p-docs", label: "docs", icon: <FolderIcon weight="duotone" />, href: "/acme/docs" },
+      { id: "p-api", label: "api", icon: <FolderIcon weight="duotone" />, href: "/acme/api" },
     ],
   },
   {
@@ -44,6 +53,32 @@ const SECTIONS: SidebarSection[] = [
       { id: "members", label: "Members", icon: <UsersThreeIcon weight="duotone" />, href: "/acme/members" },
       { id: "billing", label: "Usage and billing", icon: <CreditCardIcon weight="duotone" />, href: "/acme/billing" },
       { id: "settings", label: "Settings", icon: <GearSixIcon weight="duotone" />, href: "/acme/settings" },
+    ],
+  },
+];
+
+/* The sidebar's other view: what happened across the workspace, newest first. */
+const VIEWS: SidebarView[] = [
+  { id: "home", label: "Home" },
+  {
+    id: "activity",
+    label: "Activity",
+    sections: [
+      {
+        label: "Today",
+        items: [
+          { id: "a-promote", label: "7c2e9a1 is live", icon: <RocketLaunchIcon weight="duotone" />, count: "2m" },
+          { id: "a-failed", label: "gift-cards failed", icon: <WarningCircleIcon weight="duotone" />, dot: true },
+          { id: "a-comment", label: "Lauren on Checkout", icon: <ChatCircleIcon weight="duotone" />, count: "1h" },
+        ],
+      },
+      {
+        label: "Yesterday",
+        items: [
+          { id: "a-credits", label: "$100 of credits", icon: <CoinsIcon weight="duotone" />, count: "5pm" },
+          { id: "a-invite", label: "Tyler Hayes joined", icon: <UserPlusIcon weight="duotone" />, count: "3pm" },
+        ],
+      },
     ],
   },
 ];
@@ -71,6 +106,7 @@ function AppFrame({ page, crumbs, actions, panel, children }: { page: string; cr
         contained
         breakpoint={900}
         sections={SECTIONS}
+        views={VIEWS}
         active={page}
         workspaces={[
           { id: "acme", name: "Acme", plan: "Team", logo: <Mark /> },

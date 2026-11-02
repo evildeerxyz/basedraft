@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowsOutLineVerticalIcon, CaretDownIcon, FileCodeIcon, FileCssIcon, FileJsIcon, FileTsIcon, FileTsxIcon, TerminalWindowIcon, type Icon } from "@phosphor-icons/react";
+import { ArrowRightIcon, ArrowsOutLineVerticalIcon, CaretDownIcon, FileCodeIcon, FileCssIcon, FileJsIcon, FileTsIcon, FileTsxIcon, TerminalWindowIcon, type Icon } from "@phosphor-icons/react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useId, useMemo, useState, type KeyboardEvent } from "react";
 
@@ -436,7 +436,7 @@ export function CodeDiff({ before, after, filename, oldFilename, language, view:
           {oldFilename && oldFilename !== filename && (
             <>
               <span className="text-[var(--bd-subtle)] line-through decoration-[rgb(var(--bd-ink)/0.3)]">{oldFilename}</span>
-              <span className="px-1.5 text-[var(--bd-subtle)]">→</span>
+              <ArrowRightIcon aria-label="renamed to" weight="regular" className="mx-1.5 inline size-3 align-[-1px] text-[var(--bd-subtle)]" />
             </>
           )}
           {filename}

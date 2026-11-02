@@ -1,0 +1,9 @@
+{
+  "name": "pace",
+  "title": "Pace",
+  "group": "Data",
+  "description": "Where each allowance stands now and where it lands by the period's end, on one scale with the plan's line running down through them all. A dot for now, a ring for the end at this pace, and past the plan the ghost turns amber.",
+  "order": 96,
+  "added": "2026-11-02",
+  "pro": true
+}

@@ -1,0 +1,9 @@
+{
+  "name": "top-up",
+  "title": "Top up",
+  "group": "Patterns",
+  "description": "Adding money to a balance, said in what it buys: the amount big in the middle, typed or run along a tape, and how long it lasts with it. What's charged reads as one sentence with the card a picker in it, paying is a hold, and once it's paid the column turns over to the balance and its runway, before and after.",
+  "order": 94,
+  "added": "2026-11-02",
+  "pro": true
+}

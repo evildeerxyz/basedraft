@@ -56,6 +56,7 @@ import { Demo as e_inlineEditDemo, examples as e_inlineEditExamples } from "./en
 import { Demo as e_inputDemo, examples as e_inputExamples } from "./entries/input/demo";
 import { Demo as e_kanbanBoardDemo, examples as e_kanbanBoardExamples } from "./entries/kanban-board/demo";
 import { Demo as e_kbdDemo, examples as e_kbdExamples } from "./entries/kbd/demo";
+import { Demo as e_lanesDemo, examples as e_lanesExamples } from "./entries/lanes/demo";
 import { Demo as e_lightboxDemo, examples as e_lightboxExamples } from "./entries/lightbox/demo";
 import { Demo as e_liveCursorsDemo, examples as e_liveCursorsExamples } from "./entries/live-cursors/demo";
 import { Demo as e_logViewerDemo, examples as e_logViewerExamples } from "./entries/log-viewer/demo";
@@ -67,6 +68,7 @@ import { Demo as e_navigationMenuDemo, examples as e_navigationMenuExamples } fr
 import { Demo as e_numberDemo, examples as e_numberExamples } from "./entries/number/demo";
 import { Demo as e_numberFieldDemo, examples as e_numberFieldExamples } from "./entries/number-field/demo";
 import { Demo as e_onboardingDemo, examples as e_onboardingExamples } from "./entries/onboarding/demo";
+import { Demo as e_paceDemo, examples as e_paceExamples } from "./entries/pace/demo";
 import { Demo as e_paginationDemo, examples as e_paginationExamples } from "./entries/pagination/demo";
 import { Demo as e_particleTextDemo, examples as e_particleTextExamples } from "./entries/particle-text/demo";
 import { Demo as e_passwordFieldDemo, examples as e_passwordFieldExamples } from "./entries/password-field/demo";
@@ -76,7 +78,9 @@ import { Demo as e_pricingTableDemo, examples as e_pricingTableExamples } from "
 import { Demo as e_radioGroupDemo, examples as e_radioGroupExamples } from "./entries/radio-group/demo";
 import { Demo as e_resizableDemo, examples as e_resizableExamples } from "./entries/resizable/demo";
 import { Demo as e_roadmapDemo, examples as e_roadmapExamples } from "./entries/roadmap/demo";
+import { Demo as e_runwayDemo, examples as e_runwayExamples } from "./entries/runway/demo";
 import { Demo as e_schedulerDemo, examples as e_schedulerExamples } from "./entries/scheduler/demo";
+import { Demo as e_scoreMeterDemo, examples as e_scoreMeterExamples } from "./entries/score-meter/demo";
 import { Demo as e_scrollAreaDemo, examples as e_scrollAreaExamples } from "./entries/scroll-area/demo";
 import { Demo as e_segmentedDemo, examples as e_segmentedExamples } from "./entries/segmented/demo";
 import { Demo as e_selectDemo, examples as e_selectExamples } from "./entries/select/demo";
@@ -104,6 +108,7 @@ import { Demo as e_timelineDemo, examples as e_timelineExamples } from "./entrie
 import { Demo as e_toastDemo, examples as e_toastExamples } from "./entries/toast/demo";
 import { Demo as e_toolbarDemo, examples as e_toolbarExamples } from "./entries/toolbar/demo";
 import { Demo as e_tooltipDemo, examples as e_tooltipExamples } from "./entries/tooltip/demo";
+import { Demo as e_topUpDemo, examples as e_topUpExamples } from "./entries/top-up/demo";
 import { Demo as e_tourDemo, examples as e_tourExamples } from "./entries/tour/demo";
 import { Demo as e_treeDemo, examples as e_treeExamples } from "./entries/tree/demo";
 import { Demo as e_uptimeDemo, examples as e_uptimeExamples } from "./entries/uptime/demo";
@@ -164,6 +169,7 @@ export const ENTRY_DEMOS: Record<string, ComponentType> = {
   "input": e_inputDemo,
   "kanban-board": e_kanbanBoardDemo,
   "kbd": e_kbdDemo,
+  "lanes": e_lanesDemo,
   "lightbox": e_lightboxDemo,
   "live-cursors": e_liveCursorsDemo,
   "log-viewer": e_logViewerDemo,
@@ -175,6 +181,7 @@ export const ENTRY_DEMOS: Record<string, ComponentType> = {
   "number": e_numberDemo,
   "number-field": e_numberFieldDemo,
   "onboarding": e_onboardingDemo,
+  "pace": e_paceDemo,
   "pagination": e_paginationDemo,
   "particle-text": e_particleTextDemo,
   "password-field": e_passwordFieldDemo,
@@ -184,7 +191,9 @@ export const ENTRY_DEMOS: Record<string, ComponentType> = {
   "radio-group": e_radioGroupDemo,
   "resizable": e_resizableDemo,
   "roadmap": e_roadmapDemo,
+  "runway": e_runwayDemo,
   "scheduler": e_schedulerDemo,
+  "score-meter": e_scoreMeterDemo,
   "scroll-area": e_scrollAreaDemo,
   "segmented": e_segmentedDemo,
   "select": e_selectDemo,
@@ -212,6 +221,7 @@ export const ENTRY_DEMOS: Record<string, ComponentType> = {
   "toast": e_toastDemo,
   "toolbar": e_toolbarDemo,
   "tooltip": e_tooltipDemo,
+  "top-up": e_topUpDemo,
   "tour": e_tourDemo,
   "tree": e_treeDemo,
   "uptime": e_uptimeDemo,
@@ -273,6 +283,7 @@ export const ENTRY_EXAMPLES: Record<string, Record<string, ComponentType>> = {
   "input": e_inputExamples,
   "kanban-board": e_kanbanBoardExamples,
   "kbd": e_kbdExamples,
+  "lanes": e_lanesExamples,
   "lightbox": e_lightboxExamples,
   "live-cursors": e_liveCursorsExamples,
   "log-viewer": e_logViewerExamples,
@@ -284,6 +295,7 @@ export const ENTRY_EXAMPLES: Record<string, Record<string, ComponentType>> = {
   "number": e_numberExamples,
   "number-field": e_numberFieldExamples,
   "onboarding": e_onboardingExamples,
+  "pace": e_paceExamples,
   "pagination": e_paginationExamples,
   "particle-text": e_particleTextExamples,
   "password-field": e_passwordFieldExamples,
@@ -293,7 +305,9 @@ export const ENTRY_EXAMPLES: Record<string, Record<string, ComponentType>> = {
   "radio-group": e_radioGroupExamples,
   "resizable": e_resizableExamples,
   "roadmap": e_roadmapExamples,
+  "runway": e_runwayExamples,
   "scheduler": e_schedulerExamples,
+  "score-meter": e_scoreMeterExamples,
   "scroll-area": e_scrollAreaExamples,
   "segmented": e_segmentedExamples,
   "select": e_selectExamples,
@@ -321,6 +335,7 @@ export const ENTRY_EXAMPLES: Record<string, Record<string, ComponentType>> = {
   "toast": e_toastExamples,
   "toolbar": e_toolbarExamples,
   "tooltip": e_tooltipExamples,
+  "top-up": e_topUpExamples,
   "tour": e_tourExamples,
   "tree": e_treeExamples,
   "uptime": e_uptimeExamples,

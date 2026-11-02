@@ -72,6 +72,8 @@ export function Purchases({ orders }: { orders: Order[] }) {
         { name: "maxHeight", type: "number | string", note: "Past this height the rows scroll under a header that stays put." },
         { name: "stickyFirstColumn", type: "boolean", default: "false", note: "Holds the boxes, the disclosure and the first column still while the rest scrolls sideways, with a soft edge once it does." },
         { name: "actions", type: "(picked: string[], clear: () => void) => ReactNode", note: "Buttons for the picked rows. While any are picked they ride an ink bar that springs up over the table's foot, with the count and a button to clear them." },
+        { name: "onRowClick", type: "(row: T) => void", note: "Opens a row on a click anywhere in it that isn't one of its own controls (its box, its menu, a link): into a panel beside the table, or its page." },
+        { name: "active", type: "string | null", note: "The key of the row that's open, so it stays lit while it is." },
         { name: "className", type: "string", note: "Goes on the white sheet the table sits on." },
       ],
     },

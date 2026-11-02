@@ -300,6 +300,7 @@ export function Toaster({
   return createPortal(
     <section
       aria-label={label}
+      data-bd-toaster=""
       className={cx("fixed z-[110] w-[360px] max-sm:w-auto", PLACES[position])}
       onPointerEnter={() => setHover(true)}
       onPointerLeave={() => setHover(false)}

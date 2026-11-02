@@ -850,7 +850,8 @@ export default function DeploymentsScreen() {
         </AnimatePresence>
       }
     >
-      <div className="mx-auto grid w-full max-w-[1180px] gap-8 px-4 pb-16 pt-8 @2xl:px-8">
+      {/* One column, never wider than the window: what's long inside truncates or wraps rather than pushing it out. */}
+      <div className="mx-auto grid w-full max-w-[1180px] grid-cols-[minmax(0,1fr)] gap-8 px-4 pb-16 pt-8 @2xl:px-8">
         <div>
           <h1 className="text-[22px] font-semibold tracking-[-0.02em]">Deployments</h1>
           <p className="mt-1 text-[13.5px] text-[var(--bd-muted)]">Pushes to main go to production. Every other branch gets a preview of its own.</p>
@@ -858,14 +859,14 @@ export default function DeploymentsScreen() {
 
         <Lead d={lead} stages={stagesFor(lead)} plan={leadLive ? roll!.plan : undefined} elapsed={elapsed} live={leadLive} current={lead.id === live} previous={previous} acts={acts} />
 
-        <div className="grid gap-4">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-4">
           <FilterBar noun="deployments" fields={FIELDS} value={filters} onValueChange={setFilters}>
             <span className="font-mono text-[12px] tabular-nums text-[var(--bd-muted)]">
               {shown.length} of {deploys.length}
             </span>
           </FilterBar>
           {/* Every deployment, newest first, by day. */}
-          <div className="@container/list grid gap-5">
+          <div className="@container/list grid grid-cols-[minmax(0,1fr)] gap-5">
             {/* What each column is, once, over them all. */}
             <div aria-hidden className="-mb-2 hidden grid-cols-[100px_150px_minmax(0,1fr)_64px_72px_32px] gap-4 px-3 text-[12px] text-[var(--bd-subtle)] @4xl/list:grid">
               <span>Status</span>
@@ -881,7 +882,7 @@ export default function DeploymentsScreen() {
                   {day}
                   <span className="h-px flex-1 bg-[var(--bd-line-subtle)]" />
                 </h2>
-                <ul className="grid">
+                <ul className="grid grid-cols-[minmax(0,1fr)]">
                   {shown
                     .filter((x) => x.day === day)
                     .map((x) => (

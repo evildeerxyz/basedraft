@@ -57,12 +57,15 @@ const SIZE = {
   lg: "h-12 gap-2.5 px-6",
 };
 
-/** The button, wherever it shows: Claude's mark, and what it does. */
+/**
+ * The button, wherever it shows: clay, Claude's terracotta as a material (btn-clay in globals.css),
+ * with Claude's mark in white, which turns a little when pointed at, and what it does.
+ */
 export function TipButton({ size = "md", className }: { size?: keyof typeof SIZE; className?: string }) {
   const mark = size === "mark";
   return (
-    <button type="button" onClick={openTip} aria-label={mark ? "Buy me a Claude plan" : undefined} title={mark ? "Buy me a Claude plan" : undefined} className={cn("inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full text-ui font-medium text-fg shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--bd-fg)_14%,transparent)] transition-[background-color,scale] duration-200 hover:bg-surface-2 active:scale-[0.98]", SIZE[size], className)}>
-      <ClaudeMark size={size === "lg" ? 17 : 15} />
+    <button type="button" onClick={openTip} aria-label={mark ? "Buy me a Claude plan" : undefined} title={mark ? "Buy me a Claude plan" : undefined} className={cn("btn-clay group/tip inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full text-ui font-medium", SIZE[size], className)}>
+      <ClaudeMark mono size={size === "lg" ? 17 : 15} className="transition-transform duration-500 ease-[var(--bd-ease)] group-hover/tip:rotate-[60deg] motion-reduce:transition-none" />
       {!mark && "Buy me a Claude plan"}
     </button>
   );

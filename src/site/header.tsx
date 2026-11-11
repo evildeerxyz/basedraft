@@ -16,15 +16,17 @@ import { openCommand } from "./command";
 import { Keys } from "./keys";
 import { SECTIONS, TEMPLATES, templateLogo } from "./live";
 import { BaseDraftLogo } from "./logo";
+import { GitHubStars } from "./github-stars";
 import { Menu, type MenuItem } from "./menu";
 import { TipButton } from "./tip";
 
 /*
- * The top of every page: the logo on the left, the site's places in the middle (Templates and
- * Components each open a menu of what's under them), and search, light and dark, and your account
- * on the right. At the top of the page it's a plain
- * bar, as wide as the page; once you scroll it gathers into a frosted capsule floating over the
- * content. On a phone, the same with a menu button, the logo, and the mode.
+ * The top of every page: the logo and the site's places on the left (Templates and Components each
+ * open a menu of what's under them), and on the right three groups: the tools (search, light and
+ * dark), the project's own two (its stars on GitHub, and a Claude plan for whoever builds it, in
+ * clay so it's seen), and your account with Open Studio. At the top of the page it's a plain bar,
+ * as wide as the page; once you scroll it gathers into a frosted capsule floating over the
+ * content. On a phone: the menu button, the logo, and a Claude plan and the mode.
  */
 
 /** Whether the page has scrolled past its top: the header turns into a capsule then. */
@@ -293,14 +295,7 @@ function NavTabs() {
             </Link>
           );
         })}
-        {/* basedraft is open source: its code, on GitHub, in a tab of its own. */}
-        <a href={REPO} target="_blank" rel="noreferrer" onPointerEnter={() => (setHover(REPO), later(close, 160))} onFocus={() => setHover(REPO)} onBlur={() => setHover(null)} className={cn(item, "text-muted hover:text-fg")}>
-          {glow(REPO)}
-          <span className="relative inline-flex items-center gap-1">
-            GitHub <ArrowUpRightIcon weight="regular" size={12} className="opacity-60" />
-          </span>
-        </a>
-        {/* The open menu, centered under the places, on a bridge of its own height so the pointer can cross the gap. */}
+        {/* The open menu, under the places from their left edge, on a bridge of its own height so the pointer can cross the gap. */}
         <AnimatePresence>
           {Panel && (
             <motion.div
@@ -310,7 +305,7 @@ function NavTabs() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -4, scale: 0.99, transition: { duration: 0.12 } }}
               transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute left-1/2 top-full z-50 -translate-x-1/2 pt-3"
+              className="absolute left-0 top-full z-50 pt-3"
             >
               <div className="origin-top overflow-hidden rounded-[22px] bg-surface p-2 shadow-[var(--bd-shadow-float),0_0_0_1px_var(--bd-line)]">
                 <AnimatePresence mode="popLayout" initial={false}>
@@ -544,32 +539,39 @@ export function SiteHeader() {
     <>
       <Announcement />
       <header className={cn("sticky top-0 z-40 px-3 transition-[padding] duration-500 ease-[var(--bd-ease)] sm:px-4", capsule ? "pt-3" : "pt-1")}>
-        {/* Desktop: three columns, so the tabs sit in the true middle however wide either side is. */}
+        {/* Desktop: the logo and the places on the left, the three groups on the right. */}
         {/* On the home page the capsule is narrower than the card, so it can sit in a pocket cut into the card's top edge (home-card.tsx measures it). */}
-        <div data-capsule={path === "/" ? "" : undefined} className={cn(bar, "hidden grid-cols-[minmax(max-content,1fr)_auto_minmax(max-content,1fr)] gap-4 px-2 lg:grid", capsule ? "h-14" : "h-16")} style={path === "/" ? { maxWidth: "min(1100px, calc(100vw - 200px))" } : width}>
-          <Link href="/" aria-label="basedraft home" className="ml-3 justify-self-start rounded-full">
+        <div data-capsule={path === "/" ? "" : undefined} className={cn(bar, "hidden items-center px-2 lg:flex", capsule ? "h-14" : "h-16")} style={path === "/" ? { maxWidth: "min(1180px, calc(100vw - 96px))" } : width}>
+          <Link href="/" aria-label="basedraft home" className="ml-3 mr-5 shrink-0 rounded-full">
             <BaseDraftLogo />
           </Link>
           <NavTabs />
-          <div className="flex items-center gap-1 justify-self-end">
-            {/* On the home page the search floats at the foot of the screen instead (home-search.tsx). */}
+          <div className="ml-auto flex items-center gap-1.5 pl-4">
+            {/* The tools. On the home page the search floats at the foot of the screen instead (home-search.tsx). */}
             {path !== "/" && <SearchButton />}
-            {/* Buying basedraft's maker a Claude plan, open to everyone: in words where there's room, the mark where there isn't. */}
-            <TipButton className="mr-1 max-xl:hidden" />
-            <TipButton size="mark" className="xl:hidden" />
             <ThemeMenu />
+            <span aria-hidden className="mx-1.5 h-5 w-px bg-line" />
+            {/* The project's own: its stars, and a Claude plan for whoever builds it, each in words where there's room. */}
+            <GitHubStars className="max-xl:hidden" />
+            <GitHubStars compact className="xl:hidden" />
+            <TipButton className="max-xl:hidden" />
+            <TipButton size="mark" className="xl:hidden" />
+            <span aria-hidden className="mx-1.5 h-5 w-px bg-line" />
             <Account />
           </div>
         </div>
-        {/* Phone: the menu, the logo in the middle, the theme. */}
-        <div className={cn(bar, "grid grid-cols-[40px_1fr_40px] px-1.5 lg:hidden", capsule ? "h-[52px]" : "h-14")} style={width}>
+        {/* Phone: the menu, the logo in the middle, then a Claude plan and the mode. */}
+        <div className={cn(bar, "grid grid-cols-[84px_1fr_84px] items-center px-1.5 lg:hidden", capsule ? "h-[52px]" : "h-14")} style={width}>
           <button type="button" onClick={() => setOpen((o) => !o)} aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open} aria-controls="phone-menu" className="grid size-10 place-items-center rounded-full hover:bg-surface-2">
             {open ? <XIcon weight="regular" size={20} /> : <ListIcon weight="duotone" size={20} />}
           </button>
           <Link href="/" aria-label="basedraft home" className="justify-self-center">
             <BaseDraftLogo />
           </Link>
-          <ThemeMenu />
+          <div className="flex items-center gap-1 justify-self-end">
+            <TipButton size="mark" />
+            <ThemeMenu />
+          </div>
         </div>
       </header>
       <AnimatePresence>{open && <PhoneMenu onClose={() => setOpen(false)} />}</AnimatePresence>

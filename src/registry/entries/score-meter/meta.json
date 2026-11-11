@@ -4,6 +4,5 @@
   "group": "Data",
   "description": "A score out of a hundred as a row of capsules: as many lit as it reaches, the last filled only as far as it does, in the tone of its band. They light one after another the first time it's seen, for a column of fit or health scores that reads at a glance.",
   "order": 93,
-  "added": "2026-11-02",
-  "pro": true
+  "added": "2026-11-02"
 }

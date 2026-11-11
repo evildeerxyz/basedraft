@@ -2,7 +2,7 @@
 
 import { BookOpenTextIcon, CalendarBlankIcon, CompassIcon, GithubLogoIcon, HouseIcon, ImageIcon, MusicNotesIcon, NotePencilIcon, TrashIcon, TrayIcon } from "@phosphor-icons/react";
 import { useState, type ComponentType } from "react";
-import { Dock, DockDivider, DockItem } from "../../pro-ui/dock";
+import { Dock, DockDivider, DockItem } from "../../ui/dock";
 import { hint } from "../_shared/kit";
 
 const APPS = [

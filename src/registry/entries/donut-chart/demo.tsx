@@ -2,7 +2,7 @@
 
 import { CheckerboardIcon, DotsNineIcon, LineSegmentsIcon, SquareIcon } from "@phosphor-icons/react";
 import { useState, type ComponentType } from "react";
-import { DonutChart, type DonutPattern } from "../../pro-ui/donut-chart";
+import { DonutChart, type DonutPattern } from "../../ui/donut-chart";
 import { Select } from "../../ui/select";
 
 /* October's sales by product: the plans bring in most of it, the templates the rest. */

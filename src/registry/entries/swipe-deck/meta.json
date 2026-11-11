@@ -4,6 +4,5 @@
   "group": "Display",
   "description": "A stack of cards to decide on one at a time: the top one tilts with your hand as it leans, flies off past the line or on a flick, and comes back with Undo.",
   "order": 64,
-  "added": "2026-10-30",
-  "pro": true
+  "added": "2026-10-30"
 }

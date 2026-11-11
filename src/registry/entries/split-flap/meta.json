@@ -4,6 +4,5 @@
   "group": "Display",
   "description": "Letters on hinged flaps, the way a departures board turns over: each one flips forward through the alphabet to its letter, the top half falling and shading as it goes, rippling along the word.",
   "order": 66,
-  "added": "2026-10-30",
-  "pro": true
+  "added": "2026-10-30"
 }

@@ -3,6 +3,5 @@
   "title": "Kanban board",
   "group": "Patterns",
   "description": "Columns of cards you carry by hand or by keyboard: the lifted card tilts and casts a deeper shadow, the others make room, and every move is announced.",
-  "order": 10,
-  "pro": true
+  "order": 10
 }

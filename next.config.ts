@@ -27,9 +27,13 @@ const nextConfig: NextConfig = {
     ];
   },
   // The template sections moved from /components to /blocks when /components became the copy-and-paste library; old links follow them.
+  // And basedraft went open source, so the pages for buying it lead home: everything is free now.
   async redirects() {
     const kinds = ["nav", "hero", "logos", "story", "features", "steps", "interactive", "stats", "testimonials", "security", "pricing", "faq", "changelog", "cta", "divider", "footer"];
-    return kinds.map((k) => ({ source: `/components/${k}`, destination: `/blocks/${k}`, permanent: true }));
+    return [
+      ...kinds.map((k) => ({ source: `/components/${k}`, destination: `/blocks/${k}`, permanent: true })),
+      ...["/pro", "/purchases", "/team", "/checkout", "/invite/:token*"].map((source) => ({ source, destination: "/", permanent: false })),
+    ];
   },
   // PostHog's API paths end in a slash; redirecting them would drop the events.
   skipTrailingSlashRedirect: true,

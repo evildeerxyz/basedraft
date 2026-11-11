@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ComponentType } from "react";
-import { SplitFlap } from "../../pro-ui/split-flap";
+import { SplitFlap } from "../../ui/split-flap";
 
 const FLIGHTS: Array<[time: string, to: string, gate: string]> = [
   ["14:20", "LISBON", "A12"],

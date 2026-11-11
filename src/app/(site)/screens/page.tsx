@@ -1,4 +1,4 @@
-import { AppWindowIcon, DiamondIcon, LayoutIcon, StackIcon, SquaresFourIcon } from "@phosphor-icons/react/ssr";
+import { AppWindowIcon, LayoutIcon, StackIcon, SquaresFourIcon } from "@phosphor-icons/react/ssr";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { COMPONENTS } from "@/registry";
@@ -14,8 +14,8 @@ export const metadata: Metadata = withCard("screens", { title: "Screens", descri
 
 /* The screens: a light card that says what they are, then each of them live, shrunk into its tile. */
 export default function ScreensPage() {
-  const free = SCREENS.filter((s) => !s.pro).length;
-  const pro = SCREENS.length - free;
+  // Every component the screens are made of, counted once.
+  const parts = new Set(SCREENS.flatMap((s) => s.uses)).size;
   return (
     <main id="main">
       <LibraryHero
@@ -23,8 +23,7 @@ export default function ScreensPage() {
           <HeroFacts
             items={[
               { icon: <AppWindowIcon weight="duotone" size={14} />, value: SCREENS.length, label: SCREENS.length === 1 ? "screen" : "screens" },
-              ...(free ? [{ icon: <SquaresFourIcon weight="duotone" size={14} />, value: free, label: "free" }] : []),
-              ...(pro ? [{ icon: <DiamondIcon weight="duotone" size={14} />, value: pro, label: "with Pro" }] : []),
+              { icon: <SquaresFourIcon weight="duotone" size={14} />, value: parts, label: "components in them" },
             ]}
           />
         }

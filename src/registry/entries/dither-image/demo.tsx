@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ComponentType } from "react";
-import { DitherImage } from "../../pro-ui/dither-image";
+import { DitherImage } from "../../ui/dither-image";
 import { Segmented } from "../../ui/segmented";
 import { hint } from "../_shared/kit";
 

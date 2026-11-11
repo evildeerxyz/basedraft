@@ -4,6 +4,5 @@
   "group": "Forms",
   "description": "Filters that read as a sentence you edit in place: Showing deploys where status is not failed and region is Frankfurt or Tokyo. Every dashed word answers a click, and the keys drive it all.",
   "order": 40,
-  "added": "2026-10-30",
-  "pro": true
+  "added": "2026-10-30"
 }

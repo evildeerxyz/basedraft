@@ -1,7 +1,7 @@
 "use client";
 
 import type { ComponentType } from "react";
-import { OnboardingChecklist, type OnboardingStep } from "../../pro-ui/onboarding";
+import { OnboardingChecklist, type OnboardingStep } from "../../ui/onboarding";
 
 /* A new basedraft studio's first five things. */
 const STEPS: OnboardingStep[] = [

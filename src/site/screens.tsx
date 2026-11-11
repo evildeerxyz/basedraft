@@ -1,6 +1,6 @@
 "use client";
 
-import { IconContext, AppWindowIcon, ArrowsInSimpleIcon, ArrowsOutSimpleIcon, CheckIcon, CodeIcon, CopyIcon, DeviceMobileIcon, DeviceTabletIcon, DiamondIcon, DownloadSimpleIcon, EyeIcon, FileTsxIcon, LockSimpleIcon, MonitorIcon, MoonIcon, SquaresFourIcon, StackIcon, SunIcon, ArrowCounterClockwiseIcon, type Icon } from "@phosphor-icons/react";
+import { IconContext, AppWindowIcon, ArrowsInSimpleIcon, ArrowsOutSimpleIcon, CheckIcon, CodeIcon, CopyIcon, DeviceMobileIcon, DeviceTabletIcon, DownloadSimpleIcon, EyeIcon, FileTsxIcon, LockSimpleIcon, MonitorIcon, MoonIcon, StackIcon, SunIcon, ArrowCounterClockwiseIcon, type Icon } from "@phosphor-icons/react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type MouseEvent, type ReactNode, type Ref } from "react";
@@ -14,11 +14,9 @@ import { SCREEN_RENDERS } from "@/screens/renders";
 import { CodeBlock } from "./code";
 import { useColorMode, type ColorMode } from "./color-mode";
 import { DesignCopyMenu } from "./design-copy";
-import { Dock, DockPill, PieceMenu, TILE, TileArrow } from "./library";
+import { PieceMenu, TILE, TileArrow } from "./library";
 import { GLASS, LIB_WRAP } from "./library-css";
-import { previewHeaders, usePlan } from "./plan";
-import { openPro } from "./pro-modal";
-import { btn, NewBadge, ProBadge } from "./sheet";
+import { btn, NewBadge } from "./sheet";
 import { ClaudeCodeButton, COMPONENT_ICON, CopyLine, IconSwitch } from "./ui-library";
 
 /*
@@ -70,13 +68,8 @@ function Miniature({ slug, className }: { slug: string; className?: string }) {
   );
 }
 
-/** "Free", quiet beside a name, where Pro would be. */
-function FreeTag() {
-  return <span className="inline-flex h-[18px] shrink-0 items-center rounded-full bg-fg/[0.06] px-[7px] text-[11px] font-medium leading-none text-muted">Free</span>;
-}
-
 /**
- * A screen as a tile: the screen itself, shrunk, then its name, whether it's free, and what it's
+ * A screen as a tile: the screen itself, shrunk, then its name and what it's
  * made of. The name is the link, stretched over the whole tile, since the screen has links of its own.
  */
 export function ScreenTile({ s }: { s: ScreenMeta }) {
@@ -94,7 +87,6 @@ export function ScreenTile({ s }: { s: ScreenMeta }) {
                 {s.title}
               </Link>
               {isNew(s) && <NewBadge />}
-              {s.pro ? <ProBadge /> : <FreeTag />}
             </div>
             <p className="mt-1.5 truncate text-[14px] text-muted">
               {s.kind}, made of {s.uses.length} components
@@ -107,25 +99,11 @@ export function ScreenTile({ s }: { s: ScreenMeta }) {
   );
 }
 
-/** The gallery: a dock to show the free ones or the Pro ones, and the screens two to a row. */
+/** The gallery: the screens, two to a row. */
 export function ScreensGallery() {
-  const [show, setShow] = useState<"all" | "free" | "pro">("all");
-  const list = SCREENS.filter((s) => show === "all" || (show === "pro") === !!s.pro);
-  // The dock only when there's a choice: free and Pro screens both.
-  const both = SCREENS.some((s) => s.pro) && SCREENS.some((s) => !s.pro);
+  const list = SCREENS;
   return (
     <>
-      {both && <Dock label="Filter screens">
-        <DockPill on={show === "all"} onClick={() => setShow("all")} icon={SquaresFourIcon} count={SCREENS.length}>
-          All
-        </DockPill>
-        <DockPill on={show === "free"} onClick={() => setShow("free")} icon={AppWindowIcon} count={SCREENS.filter((s) => !s.pro).length}>
-          Free
-        </DockPill>
-        <DockPill on={show === "pro"} onClick={() => setShow("pro")} icon={DiamondIcon} count={SCREENS.filter((s) => s.pro).length}>
-          Pro
-        </DockPill>
-      </Dock>}
       <div className={cn(LIB_WRAP, "pt-10")}>
         <ul data-reveal-stagger="inner" className="grid gap-3 sm:gap-4 md:grid-cols-2">
           <AnimatePresence mode="popLayout" initial={false}>
@@ -154,7 +132,7 @@ export function MoreScreens({ slugs }: { slugs: string[] }) {
 /** Every screen, as the menu by a screen's name. */
 export function ScreenMenu({ slug }: { slug: string }) {
   const s = SCREENS.find((x) => x.slug === slug)!;
-  return <PieceMenu label="Screens" current={s.title} icon={AppWindowIcon} items={SCREENS.map((x) => ({ label: x.title, href: `/screens/${x.slug}`, icon: AppWindowIcon, hint: x.pro ? "Pro" : "Free" }))} />;
+  return <PieceMenu label="Screens" current={s.title} icon={AppWindowIcon} items={SCREENS.map((x) => ({ label: x.title, href: `/screens/${x.slug}`, icon: AppWindowIcon, hint: x.kind }))} />;
 }
 
 /* ---------- the stage ---------- */
@@ -182,57 +160,12 @@ const stayHere = (e: MouseEvent) => {
   if (a && !a.getAttribute("href")?.startsWith("http")) e.preventDefault();
 };
 
-/** A Pro screen's file, from the gated route, for a Pro account. */
-function useScreenSource(slug: string, want: boolean) {
-  const [got, setGot] = useState<{ slug: string; source: string | null } | null>(null);
-  useEffect(() => {
-    if (!want) return;
-    let gone = false;
-    fetch(`/api/screens/${slug}`, { headers: previewHeaders() })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d: { source?: string } | null) => !gone && setGot({ slug, source: d?.source ?? null }))
-      .catch(() => !gone && setGot({ slug, source: null }));
-    return () => {
-      gone = true;
-    };
-  }, [slug, want]);
-  const mine = got?.slug === slug ? got : null;
-  return { loading: want && !mine, source: mine?.source ?? null };
-}
-
-/** What a Pro screen's code looks like before Pro: what it is, and the way to it. */
-function ScreenLocked({ title, compact }: { title: string; compact?: boolean }) {
-  return (
-    <div className={cn("grid place-items-center text-center", compact ? "px-4 py-8" : "px-6 py-12")}>
-      <span className="grid size-12 place-items-center rounded-full bg-[var(--bd-ui-track)] text-fg">
-        <DiamondIcon size={20} weight="duotone" />
-      </span>
-      <p className="mt-4 text-[17px] font-medium">{title}&apos;s code comes with Pro</p>
-      <p className="mt-1.5 max-w-[440px] text-ui text-muted">Try it here as much as you like. Pro brings this screen&apos;s file and every Pro component in it, with every template and section, for one payment.</p>
-      <div className="mt-5 flex flex-wrap justify-center gap-2">
-        <button type="button" onClick={() => openPro("components")} className={btn.ink}>
-          Get Pro
-        </button>
-        <Link href="/pro" className={btn.outline}>
-          What&apos;s in Pro
-        </Link>
-      </div>
-    </div>
-  );
-}
-
 function ScreenCode({ s, source }: { s: ScreenMeta; source: string | null }) {
-  const [plan] = usePlan();
-  const fetched = useScreenSource(s.slug, !!s.pro && plan === "pro");
-  const code = s.pro ? fetched.source : source;
-  const frame = "mx-auto max-w-[960px] rounded-[var(--bd-r-sheet)] bg-surface shadow-[0_0_0_1px_var(--bd-line)]";
-  if (s.pro && plan !== "pro") return <div className={frame}><ScreenLocked title={s.title} /></div>;
-  if (fetched.loading) return <div className={cn(frame, "h-[320px] animate-pulse")} />;
-  if (!code) return <p className="py-16 text-center text-ui text-muted">The code didn&apos;t come through. Reload the page and try again.</p>;
-  return <CodeBlock code={code} file={`components/screens/${s.slug}.tsx`} maxHeight={620} className="mx-auto max-w-[960px]" />;
+  if (!source) return <p className="py-16 text-center text-ui text-muted">The code didn&apos;t come through. Reload the page and try again.</p>;
+  return <CodeBlock code={source} file={`components/screens/${s.slug}.tsx`} maxHeight={620} className="mx-auto max-w-[960px]" />;
 }
 
-/** The prompt that hands a free screen to Claude Code. */
+/** The prompt that hands a screen to Claude Code. */
 const screenPrompt = (s: ScreenMeta) =>
   `Add basedraft's ${s.title} screen to this project. If the project doesn't have ${PACKAGE} yet, run \`${installCommand()}\` and add \`${stylesImport}\` once to the root layout${s.uses.includes("toast") ? `, with <Toaster /> from ${PACKAGE} beside the page's children` : ""}. Save ${SITE}${screenFile(s.slug)} as components/screens/${s.slug}.tsx, then render <${s.name} /> on the page where it belongs, and change its words and data to this project's. It's made of ${s.uses.map((u) => componentOf(u)?.title ?? u).join(", ")}; each one's props are at ${SITE}/components/<name>.`;
 
@@ -626,17 +559,12 @@ export function ScreenStage({ s, source }: { s: ScreenMeta; source: string | nul
         <div className="absolute inset-x-0 bottom-4 flex justify-center px-3">
           <div className={cn("flex max-w-full items-center gap-1 rounded-full p-1", GLASS)}>
             <IconSwitch label="Show" value={view} options={VIEWS} onChange={setView} />
-            {/* A Pro screen's file comes only with Pro, in its card below: no download or prompt here. */}
-            {!s.pro && (
-              <>
-                <span aria-hidden className="mx-1 h-5 w-px shrink-0 bg-line max-sm:hidden" />
-                <a href={screenFile(s.slug)} download className="flex h-9 shrink-0 items-center gap-2 rounded-full px-3 font-mono text-[12px] text-muted transition-colors hover:bg-fg/[0.06] hover:text-fg max-sm:hidden">
-                  <DownloadSimpleIcon size={14} weight="duotone" />
-                  {s.slug}.tsx
-                </a>
-                <ClaudeCodeButton prompt={screenPrompt(s)} label="Claude Code" small />
-              </>
-            )}
+            <span aria-hidden className="mx-1 h-5 w-px shrink-0 bg-line max-sm:hidden" />
+            <a href={screenFile(s.slug)} download className="flex h-9 shrink-0 items-center gap-2 rounded-full px-3 font-mono text-[12px] text-muted transition-colors hover:bg-fg/[0.06] hover:text-fg max-sm:hidden">
+              <DownloadSimpleIcon size={14} weight="duotone" />
+              {s.slug}.tsx
+            </a>
+            <ClaudeCodeButton prompt={screenPrompt(s)} label="Claude Code" small />
           </div>
         </div>
       </div>
@@ -685,7 +613,6 @@ function UsedCard({ c }: { c: ComponentMeta }) {
             <span className="flex items-center gap-2">
               <span className="truncate text-[15px] font-medium text-fg">{c.title}</span>
               {isNew(c) && <NewBadge />}
-              {c.pro && <ProBadge />}
             </span>
             <span className="block truncate text-[12.5px] text-subtle">{c.group}</span>
           </span>
@@ -733,24 +660,17 @@ function Step({ n, title, children }: { n: number; title: string; children: Reac
   );
 }
 
-/**
- * How a screen gets into a project: the package, the file, and the line that shows it. A Pro
- * screen also needs its Pro components' files; before Pro, the card says what Pro brings.
- */
+/** How a screen gets into a project: the package, the file, and the line that shows it. */
 export function TakeScreen({ s, source }: { s: ScreenMeta; source: string | null }) {
-  const [plan] = usePlan();
-  const locked = !!s.pro && plan !== "pro";
-  const fetched = useScreenSource(s.slug, !!s.pro && plan === "pro");
-  const code = s.pro ? fetched.source : source;
+  const code = source;
   const [copied, copy] = useCopied();
-  const pros = s.uses.map((u) => componentOf(u)).filter((c): c is ComponentMeta => !!c?.pro);
   return (
     <section id="take" aria-labelledby="take-title" className="scroll-mt-[calc(var(--bd-header-h,80px)+80px)] pt-16">
       <div data-scroll="settle" className="bd-light bd-paper glow-c relative isolate overflow-hidden rounded-[32px] p-2 sm:p-3">
         <div className="grid gap-2 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
           <div className="flex flex-col p-4 sm:p-6">
             <h2 id="take-title" className="flex flex-wrap items-center gap-2.5 text-balance font-display text-[30px] font-medium leading-[1.08] tracking-[-0.032em]">
-              Take it home {s.pro && <ProBadge />}
+              Take it home
             </h2>
             <p className="mt-3 text-ui text-paper-muted">One file, made of basedraft UI. It goes into your project as it is, and every word and number in it is yours to change.</p>
             <ul className="mt-6 grid gap-2.5 text-[13px] text-paper-muted max-sm:hidden [&_svg]:shrink-0 [&_svg]:text-paper-ink/60">
@@ -765,9 +685,6 @@ export function TakeScreen({ s, source }: { s: ScreenMeta; source: string | null
             </ul>
           </div>
           <div className="min-w-0 rounded-[24px] bg-surface p-2 shadow-[var(--bd-shadow-raised),inset_0_0_0_1px_var(--bd-line-subtle)]">
-            {locked ? (
-              <ScreenLocked title={s.title} compact />
-            ) : (
               <ol className="grid gap-6 p-2 pt-3 sm:p-3 sm:pt-4">
                 <Step n={1} title="Install basedraft UI, and its styles once">
                   <div className="grid gap-2">
@@ -775,45 +692,24 @@ export function TakeScreen({ s, source }: { s: ScreenMeta; source: string | null
                     <CopyLine command={stylesImport} code />
                   </div>
                 </Step>
-                {pros.length > 0 && (
-                  <Step n={2} title="Add the Pro components it uses">
-                    <p className="text-meta text-muted">Each one is a file on its page, for components/basedraft/.</p>
-                    <div className="mt-3 flex flex-wrap gap-1.5">
-                      {pros.map((c) => (
-                        <Link key={c.name} href={`/components/${c.name}#take`} className="inline-flex h-8 items-center gap-1.5 rounded-full bg-fg/[0.05] px-3 font-mono text-[12px] text-fg transition-colors hover:bg-fg/[0.09]">
-                          {c.name}.tsx
-                        </Link>
-                      ))}
-                    </div>
-                  </Step>
-                )}
-                <Step n={pros.length ? 3 : 2} title={`Save the screen as components/screens/${s.slug}.tsx`}>
+                <Step n={2} title={`Save the screen as components/screens/${s.slug}.tsx`}>
                   <div className="flex flex-wrap gap-2">
                     <button type="button" disabled={!code} onClick={() => code && copy(code)} className={cn(btn.ink, "disabled:opacity-50")}>
                       {copied ? <CheckIcon size={15} weight="regular" /> : <CopyIcon size={15} weight="duotone" />}
                       {copied ? "Copied" : "Copy the file"}
                     </button>
-                    {s.pro ? (
-                      <a href={`/api/screens/${s.slug}?download=1`} className={btn.outline}>
-                        <DownloadSimpleIcon size={15} weight="duotone" /> Download
-                      </a>
-                    ) : (
-                      <>
-                        <a href={screenFile(s.slug)} download className={btn.outline}>
-                          <DownloadSimpleIcon size={15} weight="duotone" /> Download
-                        </a>
-                        <ClaudeCodeButton prompt={screenPrompt(s)} small />
-                      </>
-                    )}
+                    <a href={screenFile(s.slug)} download className={btn.outline}>
+                      <DownloadSimpleIcon size={15} weight="duotone" /> Download
+                    </a>
+                    <ClaudeCodeButton prompt={screenPrompt(s)} small />
                   </div>
                 </Step>
-                <Step n={pros.length ? 4 : 3} title="Show it on a page">
+                <Step n={3} title="Show it on a page">
                   <CopyLine command={`import ${s.name} from "@/components/screens/${s.slug}";`} code />
                   <p className="mt-2 text-meta text-muted">It fills the box it&apos;s in and scrolls inside, like an app, so give that box a height: {"<div className=\"h-dvh\">"}.</p>
                   {s.uses.includes("toast") && <p className="mt-2 text-meta text-muted">Its toasts need {"<Toaster />"} from {PACKAGE}, once, in the root layout.</p>}
                 </Step>
               </ol>
-            )}
           </div>
         </div>
       </div>
@@ -836,7 +732,6 @@ export function ScreenLinks({ slugs }: { slugs: string[] }) {
               <span className="min-w-0 flex-1">
                 <span className="flex items-center gap-2">
                   <span className="truncate text-[15px] font-medium text-fg">{x.title}</span>
-                  {x.pro ? <ProBadge /> : <FreeTag />}
                 </span>
                 <span className="block truncate text-[12.5px] text-subtle">
                   {x.kind}, with {x.uses.length - 1} other components

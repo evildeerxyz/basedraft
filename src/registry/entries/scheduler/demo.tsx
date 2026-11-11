@@ -1,7 +1,7 @@
 "use client";
 
 import type { ComponentType } from "react";
-import { Scheduler } from "../../pro-ui/scheduler";
+import { Scheduler } from "../../ui/scheduler";
 
 /* The demos' today: fixed, so every visitor sees the same month. */
 const TODAY = "2026-11-02";

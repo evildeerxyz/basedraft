@@ -2,7 +2,7 @@
 
 import { CheckerboardIcon, DotsNineIcon, GradientIcon, LineSegmentsIcon, SquareIcon } from "@phosphor-icons/react";
 import { useState, type ComponentType } from "react";
-import { BarChart, type ChartPattern } from "../../pro-ui/bar-chart";
+import { BarChart, type ChartPattern } from "../../ui/bar-chart";
 import { Select } from "../../ui/select";
 
 /* Templates sold each month over a year: a slow climb, a dip in the summer, and the Zuno launch in October. */

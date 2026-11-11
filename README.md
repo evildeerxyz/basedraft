@@ -1,14 +1,16 @@
 # basedraft
 
-Finished websites you make your own. basedraft.site sells three complete Next.js sites (Zuno, Noma, Auren), shows every one of their sections on its own, and has Studio, where you rearrange a site's pages and rewrite its words, then paste it into Figma, download the code or send it to GitHub.
+Finished websites you make your own. basedraft.site has three complete Next.js sites (Zuno, Noma, Auren), every one of their sections on its own, 111 React components, whole app screens made of them, and Studio, where you rearrange a site's pages and rewrite its words, then paste it into Figma, download the code or send it to GitHub.
+
+**basedraft is free and open source, under the MIT license.** Every template, component, screen and block is free, with nothing behind a paywall. If it saves you time, the site's "Buy me a Claude plan" button puts any amount toward the Claude plan that builds it.
 
 | | What it is | Where |
 | --- | --- | --- |
 | **Templates** | The three sites, live, with every page | `/templates`, `/templates/[slug]` |
-| **Components** | basedraft UI, our own free React components, as the npm package `@basedraft/ui` (also each one file at `/ui/<name>.tsx`) | `/components`, `/components/[name]`, `/components/get-started` |
+| **Components** | basedraft UI, our own React components, all 111 in the npm package `@basedraft/ui` (also each one file at `/ui/<name>.tsx`) | `/components`, `/components/[name]`, `/components/get-started` |
+| **Screens** | Whole app pages made of basedraft UI, each one file (`/ui/screens/<slug>.tsx`) | `/screens`, `/screens/[slug]` |
 | **Blocks** | Every section from the templates, live at any width, with code and a copy for Figma (moved from `/components`, which redirects) | `/blocks`, `/blocks/[kind]` |
 | **Studio** | A Framer style canvas over the real site | `/studio` |
-| **Pro** | One payment: every template, every export, every update | `/pro` |
 
 ```bash
 npm install
@@ -23,21 +25,21 @@ Each template is its own Next.js app in `templates/<slug>`, kept exactly as writ
 
 basedraft's own wiring lives beside each template's code, never inside it:
 
-- `bd/manifest.json`: the template's sections, pages, price and where its pages live (`pagesDir`).
+- `bd/manifest.json`: the template's sections, pages and where its pages live (`pagesDir`).
 - `bd/sections.tsx`, `bd/compose.tsx`, `app/bd/section/[id]` and `app/bd/compose`: a section on its own, and a page made of sections in any order, for Studio and the previews.
 
 ```
 src/
-  app/(site)/        the site: home, templates, components, pro
+  app/(site)/        the site: home, templates, components, screens, blocks
   app/studio/        Studio
-  app/api/           auth/* (sign-in callback, code emails, welcome), whop/webhook, team/invite, export (the site as a zip), github/* (connect, repos, push)
-  server/            site.ts builds a project's whole site, github.ts sends it, guard.ts gates both; supabase.ts, whop.ts, mail.ts and emails/
+  app/api/           auth/* (sign-in callback, code emails, welcome), export (the site as a zip), github/* (connect, repos, push), tip (a Whop checkout)
+  server/            site.ts builds a project's whole site, github.ts sends it, guard.ts checks writes come from the site; supabase.ts, whop.ts, mail.ts and emails/
   site/              chrome, page blocks, live.ts (the catalog), and the Figma and Paper exporters
   studio/            Studio: canvas, panels, the drafts dialog and export
   lib/               zip, rewrite-text (writing text edits into source), supabase.ts (the browser's client), api.ts (the database's functions, typed)
 supabase/            migrations/: the tables, the functions that are the API, live channels and image storage
 templates/           zuno, noma, auren
-scripts/             run.mjs (all apps), zones.mjs (ports), template-source.mjs (what a buyer gets), shots.mjs, convex-to-supabase.mjs (the move)
+scripts/             run.mjs (all apps), zones.mjs (ports), template-source.mjs (what a download carries), shots.mjs, convex-to-supabase.mjs (the move)
 ```
 
 ### Studio
@@ -56,8 +58,6 @@ Studio is kept small on purpose: pick a template, arrange its pages and sections
 
 Signed out, a project is kept in the browser. Signed in, it lives in Supabase (`projects_*` in `supabase/migrations`) and its address is `/studio?p=<id>`. Studio saves the whole project a moment after each change, if the account still has the version the change was made on; when another tab saved first, the project's live channel says so, that save arrives, is merged with yours page by page and edit by edit (`merge3` in `src/studio/state.ts`), and yours saves after it (`src/studio/cloud.ts`). Your drafts open from the account menu, or `/studio#library`.
 
-- **Teams** (`/team`, `teams_*`): the Team plan's ten seats. The owner invites by email (`/invite/<token>`, a link that works once, for that address), resends, cancels and removes; anyone can leave. Everyone on a team whose owner has Team has Pro while they're on it.
-
 ### Exports
 
 - **Copy for Figma** needs no plugin. The page is read from a hidden frame at each width and written in Figma's own clipboard format (`src/site/figma-*.ts`): auto layout, components, named layers, vectors, gradients, effects and real text layout. Large pastes are encoded before the click, since Chrome only allows a copy for a moment after one.
@@ -65,8 +65,8 @@ Signed out, a project is kept in the browser. Signed in, it lives in Supabase (`
 
 ### The site
 
-- **Template view** (`/view/<slug>`): a template full window, every page clickable, with a card bottom right: its price, Buy, and Open in Studio. The site's "Open full screen" links go here.
-- **Analytics** (`src/instrumentation-client.ts`, `src/site/analytics.tsx`): PostHog, through `/ingest` on the site's own address, and Google Analytics, in production only. Signed-in people are identified by their account; a handful of named events mark the moments that matter (copies, downloads, GitHub sends, sign-ups, team invites).
+- **Template view** (`/view/<slug>`): a template full window, every page clickable, with a card bottom right: Open in Studio, and its code on GitHub. The site's "Open full screen" links go here.
+- **Analytics** (`src/instrumentation-client.ts`, `src/site/analytics.tsx`): PostHog, through `/ingest` on the site's own address, and Google Analytics, in production only. Signed-in people are identified by their account; a handful of named events mark the moments that matter (copies, downloads, GitHub sends, sign-ups).
 
 ## Astro versions
 
@@ -89,21 +89,18 @@ See `.env.example`. In `.env.local`:
 | Variable | For |
 | --- | --- |
 | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | The Supabase project (`rgrnoosyaistemnmmiwl`): its address and publishable key |
-| `SUPABASE_SECRET_KEY` | Server only: Whop's webhook records purchases with it |
 | `SEND_EMAIL_HOOK_SECRET` | The Send Email hook's secret, which signs each sign-in code Supabase asks the site to send |
 | `RESEND_API_KEY`, `EMAIL_FROM`, `EMAIL_REPLY_TO` | basedraft's emails, sent through Resend from `hello@basedraft.site` |
-| `WHOP_API_KEY`, `WHOP_WEBHOOK_SECRET` | Whop checkout, and its webhook at `<site>/api/whop/webhook` |
-| `WHOP_PLAN_ZUNO`, `WHOP_PLAN_NOMA`, `WHOP_PLAN_AUREN`, `WHOP_PLAN_PRO`, `WHOP_PLAN_TEAM` | Each product's Whop plan id |
+| `WHOP_API_KEY`, `WHOP_COMPANY_ID`, `WHOP_TIP_PRODUCT` | "Buy me a Claude plan": a key that may make checkouts, plans and products, the company (`biz_...`) the payments go to, and optionally the product (`prod_...`) they sit under |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Continue with Google: an OAuth client whose redirect is `<site>/api/auth/callback/google` (development needs `http://localhost:3400/api/auth/callback/google` on it too) |
 | `NEXT_PUBLIC_SITE_URL` | This site's address |
 | `ZUNO_URL`, `NOMA_URL`, `AUREN_URL` | Where each template zone is deployed |
 | `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | Send to GitHub. An OAuth app whose callback is `<site>/api/github/callback` |
 | `BD_SESSION_SECRET` | Seals the GitHub token in its httpOnly cookie. Required in production |
-| `BD_EXPORT_OPEN` | Lets a production deployment hand out template code before purchases are connected. Leave it off in public |
 | `NEXT_PUBLIC_POSTHOG_KEY`, `NEXT_PUBLIC_GA_ID` | Analytics, production only. Public ids |
 | `CONVEX_DEPLOYMENT` | Only until the move is done: `scripts/convex-to-supabase.mjs` reads Convex with it |
 
-Development and the live site share the one Supabase project. To preview the Team plan without buying it ("Preview Pro" on `/team`), a separate development project needs `insert into settings values ('preview_allowed', '1')`; never on the live one.
+Development and the live site share the one Supabase project.
 
 ## Deploying
 
@@ -114,12 +111,12 @@ basedraft runs on Cloudflare Workers, on the free plan, at https://basedraft.sit
 
 1. **The app**, built for Workers by [OpenNext](https://opennext.js.org/cloudflare) with the public settings in `.env.cloudflare`. Pages prerendered at build are served from the asset store (`open-next.config.ts`); images are served as they are. `src/proxy.ts` is left out of this build: on Cloudflare `cloudflare/worker.ts` wraps OpenNext's worker and guards the previews.
 2. **The templates**, built as plain static files (`BD_STATIC=1`, see each template's `next.config.ts`) and served from the asset store under `/live/<slug>` (`scripts/cf-templates.mjs`). Only their preview pages pass through the worker, for the guard; their scripts and styles don't.
-3. **The templates' code**, as their buyers get it, in the private KV namespace `TEMPLATES`, which `src/server/site.ts` reads on Cloudflare (`BD_SOURCE=kv`).
+3. **The templates' code**, as Download project packs it, in the KV namespace `TEMPLATES`, which `src/server/site.ts` reads on Cloudflare (`BD_SOURCE=kv`).
 4. **Wrangler** deploys it all (`wrangler.jsonc`). The templates are then rebuilt for local `next start`.
 
 Two workarounds in the script, until OpenNext catches up with Next 16.4: it adds `preview-props.json` to the manifests OpenNext inlines, and makes the instrumentation hook load (basedraft has none) resolve to nothing.
 
-Settings: public ones are in `wrangler.jsonc` `vars` (and built in from `.env.cloudflare`); secrets go in with `npx wrangler secret put`: `BD_SESSION_SECRET`, `SUPABASE_SECRET_KEY`, `SEND_EMAIL_HOOK_SECRET`, `RESEND_API_KEY`, `WHOP_API_KEY`, `WHOP_WEBHOOK_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` once Send to GitHub's OAuth app exists, with its callback at `<site>/api/github/callback`. The plain ones (`EMAIL_FROM`, `WHOP_PLAN_*`) are in `vars`. A change to the database is a new file in `supabase/migrations`, applied with `supabase db push`.
+Settings: public ones are in `wrangler.jsonc` `vars` (and built in from `.env.cloudflare`); secrets go in with `npx wrangler secret put`: `BD_SESSION_SECRET`, `SEND_EMAIL_HOOK_SECRET`, `RESEND_API_KEY`, `WHOP_API_KEY`, `WHOP_COMPANY_ID`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` once Send to GitHub's OAuth app exists, with its callback at `<site>/api/github/callback`. The plain ones (`EMAIL_FROM`) are in `vars`. A change to the database is a new file in `supabase/migrations`, applied with `supabase db push`.
 
 Locally, each template is its own Next app (`next start` on 4101 to 4103) and `next.config.ts` rewrites `/live/<slug>` to it.
 
@@ -144,13 +141,13 @@ The components ship as the npm package `@basedraft/ui` (`packages/ui`), and thei
 - **One source.** Each component is one self-contained file in `src/registry/ui/<name>.tsx` (react, motion and Phosphor only, colors from the `--bd-*` tokens and `src/registry/extras.css`). The site, the package and the single-file downloads all read these files.
 - **One folder of docs per component.** `src/registry/entries/<name>/` holds `meta.json` (name, title, group, line, order), `doc.ts` (usage, when to use it, parts and props, examples, keyboard, accessibility) and `demo.tsx` (the live demo and one per example). A component appears on the site once its `meta.json` exists.
 - **`node scripts/registry.mjs`** after any change: it gathers the folders into `src/registry/catalog.ts` and `catalog-demos.tsx`, writes the sources and export names the pages show, `public/ui` (each file, `basedraft.css`, `index.json`) and `public/llms.txt`.
-- **`npm run ui:build`** builds the package into `packages/ui/dist`: an ES module per component with its `"use client"`, types, `styles.css` (theme, materials and the compiled styles, no Tailwind needed) and `theme.css` (for Tailwind v4 projects). Publishing is `npm publish --access public` from `packages/ui`, once logged in to npm.
+- **`npm run ui:build`** builds the package into `packages/ui/dist`, every component in it: an ES module per component with its `"use client"`, types, `styles.css` (theme, materials and the compiled styles, no Tailwind needed) and `theme.css` (for Tailwind v4 projects). Publishing is `npm publish --access public` from `packages/ui`, once logged in to npm.
 
 ## Accounts and data (Supabase)
 
 Supabase holds the accounts (Supabase Auth), the data (Postgres), the live channel each project saves through (Realtime) and the images older drafts put in templates (Storage). It's all in one migration, `supabase/migrations/20261020000000_basedraft.sql`:
 
-- **The functions are the API.** Every table has row level security on and no policies, so the browser can't read or write one; it calls the functions in the `public` schema (`supabase.rpc()`), which decide who may do what, as whoever is signed in. `src/lib/api.ts` types each one. In the browser, `src/site/db.ts` runs them: `useRpc` shows one's result, shared by every component asking, and fetched again after a change, on sign in and out, when the tab comes back, and when a live channel says so; `change` makes a change and says what it changes. The server calls them as the signed-in person from the session cookie (`src/server/supabase.ts`), and as basedraft itself, with the secret key, only for Whop's webhook.
+- **The functions are the API.** Every table has row level security on and no policies, so the browser can't read or write one; it calls the functions in the `public` schema (`supabase.rpc()`), which decide who may do what, as whoever is signed in. `src/lib/api.ts` types each one. In the browser, `src/site/db.ts` runs them: `useRpc` shows one's result, shared by every component asking, and fetched again after a change, on sign in and out, when the tab comes back, and when a live channel says so; `change` makes a change and says what it changes. The server calls them as the signed-in person from the session cookie (`src/server/supabase.ts`).
 - **Live channels.** Each project has a private channel, `project:<id>`, that only people who may view it can join (a policy on `realtime.messages`). Triggers announce each save there (its rev and the tab that made it), and Studio fetches what changed.
 - **Images** are in the public `images` bucket, each account in a folder of its own id. Studio no longer uploads them; drafts that swapped an image before still show and export it.
 - **Left from the bigger Studio:** sharing (`projects_people`, `projects_invite` and the rest), versions (`versions_*`, and the one `projects_save` keeps every ten minutes), comments (`comments_*`) and saved sections (`saved_*`) are still in the database, unused by the site.
@@ -170,31 +167,22 @@ Settings in the Supabase dashboard (Authentication):
 
 Everything moved: the code, the settings (the Worker's secrets and vars), and the data, copied by `scripts/convex-to-supabase.mjs --prod` (4 accounts, 3 purchases, 8 projects with their versions, comments and share, and an image). Accounts kept their emails, already confirmed, so people sign in with a code as before; they're signed out once, since Better Auth's sessions don't carry over. Projects kept their Convex ids, so old links still open them.
 
-One thing still runs on Convex: Whop's webhook points at `https://charming-giraffe-71.convex.site/whop/webhook`, and Convex's production deployment now passes each delivery, untouched, to `https://basedraft.site/api/whop/webhook` (the last Convex code, `735d8e7`, with `convex/whop.ts` forwarding). Whop's API key can't change webhooks, so this is left to do by hand: in Whop's dashboard (Developer, Webhooks), point the webhook at `https://basedraft.site/api/whop/webhook`, keeping its secret. Then the Convex project can be deleted; its free plan is over its limits, so do it soon.
+Nothing runs on Convex any more. Whop's old webhook (which Convex forwarded to `/api/whop/webhook`) went with the paywall: delete it in Whop's dashboard (Developer, Webhooks), and the Convex project with it.
 
-## Selling and delivery (Whop)
+## Buy me a Claude plan (Whop)
 
-Payments run on Whop; what someone owns lives in Supabase (`purchases`), tied to their basedraft account.
+basedraft sells nothing. The one payment is optional: "Buy me a Claude plan", in the header, the phone menu and the footer, opens a dialog (`src/site/tip.tsx`) where anyone types any amount from $1 to $2,000, with Claude's plans ($20 Pro, $100 Max 5x, $200 Max 20x) as presets. No sign in.
 
-1. **Buy:** every Buy and Get Pro button goes to `/checkout?product=<zuno|auren|pro|team>`. Signed out, that's sign up first and straight back. Then the route opens a Whop checkout (`src/server/whop.ts`) for the product's plan, with the buyer's basedraft id and email as metadata, and sends them to it.
-2. **Paid:** Whop's `payment.succeeded` webhook lands at `<site>/api/whop/webhook`, signed per Standard Webhooks (`src/server/webhooks.ts`). It records the purchase (each event once, however often Whop delivers it), and `refund.created` or an ended membership takes it away again.
-3. **Delivered:** the order email goes out once the webhook has its answer (`src/server/mail.ts`): download the site as a zip, or send it to GitHub. Both links go to `/purchases`, which lists everything the buyer owns, keeps asking after a checkout until the payment lands, and runs the download or GitHub flow from the email's link. Purchases match by account and by email, so buying before signing up works.
-4. **Gated:** see below.
+1. **Pay:** the dialog posts the amount to `/api/tip`, which makes a Whop checkout for exactly that amount (`src/server/whop.ts`): a one-time plan made on the spot, hidden from the store, under one product (`WHOP_TIP_PRODUCT`, or one Whop finds or makes by the identifier `basedraft-claude-plan`). The dialog sends the person on to Whop's checkout page.
+2. **Back:** Whop sends them to `/?tip=thanks`, where the site says thank you (`src/site/shell.tsx`).
+3. **Not connected:** without `WHOP_API_KEY` and `WHOP_COMPANY_ID`, `GET /api/tip` says so and the dialog shows "Payments are being connected" instead of a working button.
 
-### What's gated
-
-- **Pro only (signed in, with Pro or Team):** Copy for Figma (in Studio and on the component pages), Copy for Paper and Download SVG (on the component pages), and section code on the component pages.
-- **Pro, or owning the template:** code export in Studio, Download project and Send to GitHub. `/api/export` and `/api/github/push` check it on the server (`purchases_mine`, in `src/server/guard.ts`), in development too.
-- **Free for everyone:** Studio itself, with every template and section to try, and drafts saved to your account. Every template is paid: $79 each, or all of them with Pro.
-- **Signed out is always Free.** Pro comes only from a purchase in Supabase (`src/site/plan.ts`).
-- **Previewing Pro, development only:** the switch on the Pro page (or in the Pro card) turns Pro on for a signed-in account without buying it, shows "Pro preview" in the top bar and Studio, and sends an `x-bd-preview` header the server honors only outside production. `BD_EXPORT_OPEN=1` opens code export on a deployment, for a private preview.
-
-To connect Whop: make a product and plan for each of Zuno, Noma, Auren, Pro and Team, set their plan ids, `WHOP_API_KEY` and the webhook's `WHOP_WEBHOOK_SECRET` in the site's settings, and subscribe the webhook at `<site>/api/whop/webhook` to `payment.succeeded`, `refund.created` and the membership events.
+The key needs Whop's `checkout_configuration:create`, `plan:create`, `access_pass:create` and `access_pass:update` permissions.
 
 ## Email (Resend)
 
-Templates are in `src/server/emails/templates.ts`: the sign-in code, the welcome email (once per account, after its first sign in), the order email for a template or for Pro, and a team invite. They're tables and inline styles with a dark mode, and their two images (the mark and the dithered band) are served from `public/email` at content-hashed addresses on the live site, written by `node scripts/email-assets.mjs`. See them all at `/dev/email` in development.
+Templates are in `src/server/emails/templates.ts`: the sign-in code and the welcome email (once per account, after its first sign in). They're tables and inline styles with a dark mode, and their two images (the mark and the dithered band) are served from `public/email` at content-hashed addresses on the live site, written by `node scripts/email-assets.mjs`. See them all at `/dev/email` in development.
 
 ## License
 
-Pro covers the buyer's own products. Team adds client work and seats. No license allows reselling the templates.
+MIT, for all of it: the site, Studio, the templates and basedraft UI. See `LICENSE`.

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ComponentType } from "react";
-import { TopUp, type TopUpMethod } from "../../pro-ui/top-up";
+import { TopUp, type TopUpMethod } from "../../ui/top-up";
 
 const METHODS: TopUpMethod[] = [
   { id: "visa", brand: "Visa", last4: "4242", expires: "08/28" },

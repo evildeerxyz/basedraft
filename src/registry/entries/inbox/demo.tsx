@@ -2,7 +2,7 @@
 
 import { ArrowsClockwiseIcon, ReceiptIcon } from "@phosphor-icons/react";
 import type { ComponentType } from "react";
-import { Inbox, InboxPanel, type InboxItem } from "../../pro-ui/inbox";
+import { Inbox, InboxPanel, type InboxItem } from "../../ui/inbox";
 
 /* A basedraft account's day: a sale, an invite, a mention and an update. */
 const ITEMS: InboxItem[] = [

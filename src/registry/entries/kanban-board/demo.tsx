@@ -1,7 +1,7 @@
 "use client";
 
 import type { ComponentType } from "react";
-import { KanbanBoard, type KanbanColumn } from "../../pro-ui/kanban-board";
+import { KanbanBoard, type KanbanColumn } from "../../ui/kanban-board";
 
 /* A template's launch, from the first idea to what's live. */
 const LAUNCH: KanbanColumn[] = [

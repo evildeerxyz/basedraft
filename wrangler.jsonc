@@ -20,13 +20,14 @@
     "run_worker_first": ["/live/*", "!/live/*/_next/*"]
   },
   "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "basedraft" }],
-  // The templates' code as their buyers get it (Download project, Send to GitHub): private, not in
-  // the asset store. scripts/cf-deploy.mjs puts it there; src/server/site.ts reads it.
+  // The templates' code as Studio packs it (Download project, Send to GitHub), kept out of the asset
+  // store. scripts/cf-deploy.mjs puts it there; src/server/site.ts reads it.
   "kv_namespaces": [{ "binding": "TEMPLATES", "id": "d2f853c2bbc44b4d90b3d55439c1b5bb" }],
   // Plain settings. NEXT_PUBLIC_* are built into the code from .env.cloudflare; they're here too so
   // the Worker's settings show everything. Secrets are set with `wrangler secret put`, never in
   // this file: BD_SESSION_SECRET, GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, SUPABASE_SECRET_KEY,
-  // SEND_EMAIL_HOOK_SECRET, RESEND_API_KEY, WHOP_API_KEY and WHOP_WEBHOOK_SECRET.
+  // SEND_EMAIL_HOOK_SECRET, RESEND_API_KEY, and for "Buy me a Claude plan" (src/server/whop.ts)
+  // WHOP_API_KEY, WHOP_COMPANY_ID and, if the payments should sit under one product, WHOP_TIP_PRODUCT.
   "vars": {
     "BD_SOURCE": "kv",
     // Where every other address of the Worker (www, workers.dev) sends people, once it's set.
@@ -36,13 +37,8 @@
     "NEXT_PUBLIC_SITE_URL": "https://basedraft.site",
     "NEXT_PUBLIC_POSTHOG_KEY": "phc_o8pZvAYLQqjMovrkWqoV9fMpHYjUQU2ZrWPhsir6NSV7",
     "NEXT_PUBLIC_GA_ID": "G-79T3MK4DMN",
-    // Who basedraft's emails come from (a sender Resend has verified), and each product's Whop plan.
-    "EMAIL_FROM": "basedraft <hello@basedraft.site>",
-    "WHOP_PLAN_ZUNO": "plan_IV5MNXrv93bMj",
-    "WHOP_PLAN_NOMA": "plan_jXQ0yr11rQitt",
-    "WHOP_PLAN_AUREN": "plan_QJv5UL9HMIr3a",
-    "WHOP_PLAN_PRO": "plan_JWE18pOMa6Mpt",
-    "WHOP_PLAN_TEAM": "plan_zgPwEWUjDNgwE"
+    // Who basedraft's emails come from (a sender Resend has verified).
+    "EMAIL_FROM": "basedraft <hello@basedraft.site>"
   },
   "observability": { "enabled": true }
 }

@@ -6,11 +6,11 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { cn } from "@/lib/utils";
 import { BACK, BACK_ARROW } from "@/site/library-css";
-import { isFree, kindOf, sectionOf, sectionShot, TEMPLATES, templateOf, viewUrl, type TemplateSlug } from "@/site/live";
-import { btnLg, ProBadge, Tick, wrap } from "@/site/sheet";
+import { kindOf, sectionOf, sectionShot, TEMPLATES, templateOf, viewUrl, type TemplateSlug } from "@/site/live";
+import { btnLg, Tick, wrap } from "@/site/sheet";
 import { TextLink } from "@/site/showcase";
 import { Caption, onStage, Stage } from "@/site/stage";
-import { TemplateBuy, TemplatePrice } from "@/site/template-buy";
+import { TemplateGet } from "@/site/template-get";
 import { TemplateLogo } from "@/site/template-parts";
 import { TakeHome, TemplateLive } from "@/site/template-preview";
 import { COLORS, SLOT_LABEL, SLOTS } from "@/site/theme";
@@ -87,19 +87,14 @@ async function Template({ params }: { params: PageProps<"/templates/[slug]">["pa
       {/* What it is, on the left; its numbers on a frosted card in the hero's light on the right. */}
       <section aria-labelledby="template-title" className="bd-reveal grid grid-cols-1 items-end gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,520px)]">
         <div>
-          <div className="flex items-center gap-3">
-            <TemplateLogo slug={slug} size={52} />
-            <ProBadge className="h-[22px] px-[9px] text-meta">
-              <TemplatePrice slug={slug} />
-            </ProBadge>
-          </div>
+          <TemplateLogo slug={slug} size={52} />
           <h1 id="template-title" className="mt-6 text-display">
             {t.name}
           </h1>
           <p className="mt-2 text-lead text-muted">{t.category}</p>
           <p className="mt-5 max-w-[560px] text-pretty text-body text-muted">{t.description}</p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <TemplateBuy slug={slug} className={btnLg.ink} />
+            <TemplateGet slug={slug} className={btnLg.ink} />
             <Link href={`/studio?template=${t.slug}`} className={btnLg.outline}>
               <PenNibIcon weight="duotone" size={16} /> Open in Studio
             </Link>
@@ -134,7 +129,7 @@ async function Template({ params }: { params: PageProps<"/templates/[slug]">["pa
                     </span>
                   </Stage>
                 </Link>
-                <Caption title={s.name} badge={!isFree(s) ? <ProBadge /> : undefined} note={kindOf(s.kind).label} href={href} />
+                <Caption title={s.name} note={kindOf(s.kind).label} href={href} />
               </li>
             );
           })}
@@ -192,27 +187,20 @@ async function Template({ params }: { params: PageProps<"/templates/[slug]">["pa
         </div>
       </section>
 
-      {/* The ways to take it home, as tabs, beside the price and the one thing to do. */}
+      {/* The ways to take it home, as tabs, beside what it costs, which is nothing, and the one thing to do. */}
       <section aria-labelledby="take-title" data-scroll="settle" className="bd-light bd-paper glow-d grid grid-cols-1 items-start gap-8 rounded-[var(--bd-r-stage)] p-6 sm:p-10 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)] lg:gap-12 lg:p-12">
         <div>
           <TemplateLogo slug={slug} size={44} />
           <h2 id="take-title" className="mt-5 text-headline">
             Take {t.name} home
           </h2>
-          <p className="mt-4 text-pretty text-ui leading-[1.65] text-paper-muted">The whole site, every page, in Next.js or Astro, with every update after today.</p>
+          <p className="mt-4 text-pretty text-ui leading-[1.65] text-paper-muted">The whole site, every page, in Next.js or Astro. Its code is on GitHub, free and open source.</p>
           <p className="mt-7 flex items-baseline gap-2">
-            <TemplatePrice slug={slug} className="font-display text-[44px] leading-none text-paper-ink" />
-            <span className="text-ui text-paper-muted">{t.price === "free" ? "" : "once"}</span>
-          </p>
-          <p className="mt-2 text-meta text-paper-muted">
-            Or every template with{" "}
-            <Link href="/pro" className="font-medium text-paper-ink underline decoration-paper-ink/25 underline-offset-4 hover:decoration-paper-ink">
-              Pro
-            </Link>
-            , $149 once.
+            <span className="font-display text-[44px] leading-none text-paper-ink">Free</span>
+            <span className="text-ui text-paper-muted">MIT license</span>
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
-            <TemplateBuy slug={slug} className={btnLg.ink} />
+            <TemplateGet slug={slug} className={btnLg.ink} />
             <Link href={`/studio?template=${t.slug}`} className={btnLg.onPaperOutline}>
               Make it yours first
             </Link>

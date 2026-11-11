@@ -2,7 +2,7 @@
 
 import { ChartLineIcon, FilesIcon, GearSixIcon, HouseIcon, ListIcon, SignOutIcon, SquaresFourIcon, TrayIcon, UserIcon, UsersThreeIcon } from "@phosphor-icons/react";
 import { useState, type ComponentType } from "react";
-import { AppSidebar, type SidebarSection } from "../../pro-ui/app-sidebar";
+import { AppSidebar, type SidebarSection } from "../../ui/app-sidebar";
 
 const SECTIONS: SidebarSection[] = [
   {

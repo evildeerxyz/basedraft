@@ -4,6 +4,5 @@
   "group": "Forms",
   "description": "A field of saturation and brightness, hue and alpha sliders, an eyedropper, a value typed as hex, rgb or hsl, swatches, and the contrast white and black text would have on the color.",
   "order": 65,
-  "added": "2026-10-29",
-  "pro": true
+  "added": "2026-10-29"
 }

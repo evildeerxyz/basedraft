@@ -4,6 +4,5 @@
   "group": "Display",
   "description": "A word made of ink pixels, lit from above through an ordered dither, that scatter from your pointer and settle back, and sweep from one word into the next.",
   "order": 65,
-  "added": "2026-10-30",
-  "pro": true
+  "added": "2026-10-30"
 }

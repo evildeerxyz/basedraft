@@ -1,11 +1,11 @@
-import { AppWindowIcon, ArrowRightIcon, LayoutIcon, StackIcon } from "@phosphor-icons/react/ssr";
+import { AppWindowIcon, ArrowRightIcon, ArrowUpRightIcon, GithubLogoIcon, LayoutIcon, StackIcon } from "@phosphor-icons/react/ssr";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { COMPONENTS } from "@/registry";
+import { COMPONENTS, REPO } from "@/registry";
 import { SCREENS } from "@/screens";
 import { HomeCard } from "@/site/home-card";
 import { TEMPLATES } from "@/site/live";
-import { btnLg, ProBadge } from "@/site/sheet";
+import { btnLg } from "@/site/sheet";
 
 /*
  * The home page is its hero and nothing else: one light card, as tall as the screen allows, that
@@ -25,7 +25,7 @@ export default function Overview() {
       {/* Edge to edge, a small margin all round, and room at the foot for the search's lower half. */}
       <div className="flex flex-1 flex-col px-3 pb-[42px] pt-3 sm:px-4 lg:pt-10">
         <HomeCard>
-          {/* What's here, in one frosted pill, each a way in: the sites, the dashboards, the components, and Pro. */}
+          {/* What's here, in one frosted pill, each a way in: the sites, the dashboards, the components, and the code. */}
           <nav aria-label="What's in basedraft" className="bd-reveal mb-8 flex h-9 items-center rounded-full bg-paper/70 p-1 text-meta text-paper-muted shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--bd-paper-ink)_10%,transparent),var(--bd-shadow-resting)] backdrop-blur">
             <Link href="/templates" className={PILL_LINK}>
               <LayoutIcon size={14} weight="duotone" /> <span className="font-medium text-paper-ink">{TEMPLATES.length}</span> sites
@@ -39,10 +39,10 @@ export default function Overview() {
               <StackIcon size={14} weight="duotone" /> <span className="font-medium text-paper-ink">{COMPONENTS.length}</span> components
             </Link>
             <span aria-hidden className="h-4 w-px bg-paper-ink/10 max-md:hidden" />
-            <Link href="/pro" className={cn(PILL_LINK, "group max-md:hidden")}>
-              <ProBadge /> $149 once
-              <ArrowRightIcon weight="regular" size={11} className="transition-transform duration-300 group-hover:translate-x-0.5" />
-            </Link>
+            <a href={REPO} target="_blank" rel="noreferrer" className={cn(PILL_LINK, "group max-md:hidden")}>
+              <GithubLogoIcon size={14} weight="duotone" /> Open source
+              <ArrowUpRightIcon weight="regular" size={11} className="transition-transform duration-300 group-hover:-translate-y-px group-hover:translate-x-px" />
+            </a>
           </nav>
           {/* The promise: the finished design under a light blue highlighter stroke, the blank page set back in gray. */}
           <h1 id="hero-title" className="bd-reveal max-w-[1040px] text-balance text-display">

@@ -1,11 +1,10 @@
 "use client";
 
-import { ArrowRightIcon, CaretDownIcon, CodeIcon, FigmaLogoIcon, GithubLogoIcon } from "@phosphor-icons/react";
+import { CaretDownIcon, CodeIcon, FigmaLogoIcon, GithubLogoIcon } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { EASE_OUT } from "@/lib/utils";
 import { copyToDesign, prepareCopy, type CopyTarget } from "@/site/design-copy";
-import { openPro } from "@/site/pro-modal";
 import { btnSm } from "@/site/sheet";
 import { Segments } from "./ui";
 
@@ -13,7 +12,7 @@ import { Segments } from "./ui";
  * Everything that leaves Studio, in one place: Figma first, then the code. When a section is
  * selected you choose whether to take just it or the whole page to Figma.
  */
-export function ExportMenu({ page, section, pro, code, onCode }: { page: CopyTarget; section: CopyTarget | null; pro: boolean; code: boolean; onCode: (view: "files" | "github") => void }) {
+export function ExportMenu({ page, section, onCode }: { page: CopyTarget; section: CopyTarget | null; onCode: (view: "files" | "github") => void }) {
   const [open, setOpen] = useState(false);
   const [scope, setScope] = useState<"section" | "page">("page");
   const root = useRef<HTMLDivElement>(null);
@@ -26,7 +25,6 @@ export function ExportMenu({ page, section, pro, code, onCode }: { page: CopyTar
   }, [open]);
 
   const target = scope === "section" && section ? section : page;
-  const proTag = <span className="rounded-[6px] bg-fg/[0.07] px-1.5 py-px text-[11px] font-semibold text-muted">Pro</span>;
 
   const onKey = (e: KeyboardEvent) => {
     const list = [...(root.current?.querySelectorAll<HTMLElement>("[role=menuitem]") ?? [])];
@@ -53,7 +51,7 @@ export function ExportMenu({ page, section, pro, code, onCode }: { page: CopyTar
           setScope(section ? "section" : "page");
           setOpen((o) => !o);
           // The layers take a moment to make at every width; start now, so they're ready when you pick.
-          if (pro && !open) prepareCopy(section ?? page);
+          if (!open) prepareCopy(section ?? page);
         }}
         aria-haspopup="menu"
         aria-expanded={open}
@@ -88,15 +86,13 @@ export function ExportMenu({ page, section, pro, code, onCode }: { page: CopyTar
               </div>
             )}
             <div className="truncate px-2.5 pb-1 pt-1 text-[12px] text-subtle">{target.name}</div>
-            {/* Free: the same action, one click from seeing what Pro adds. */}
             <button
               role="menuitem"
               type="button"
               className={row}
               onClick={() => {
                 setOpen(false);
-                if (pro) void copyToDesign("figma", target);
-                else openPro("figma");
+                void copyToDesign("figma", target);
               }}
             >
               <FigmaLogoIcon size={16} weight="duotone" className="mt-0.5 shrink-0 self-start text-accent" />
@@ -104,7 +100,6 @@ export function ExportMenu({ page, section, pro, code, onCode }: { page: CopyTar
                 <span className="block">Copy for Figma</span>
                 <span className="block text-[12px] text-muted">Desktop, tablet and phone, as variants</span>
               </span>
-              {!pro && proTag}
             </button>
             <div className="my-1 h-px bg-line" />
             <button
@@ -113,13 +108,11 @@ export function ExportMenu({ page, section, pro, code, onCode }: { page: CopyTar
               className={row}
               onClick={() => {
                 setOpen(false);
-                if (code) onCode("files");
-                else openPro("react");
+                onCode("files");
               }}
             >
               <CodeIcon size={16} weight="duotone" className="text-muted" />
               <span className="flex-1">Download the code</span>
-              {!code && proTag}
             </button>
             <button
               role="menuitem"
@@ -127,27 +120,12 @@ export function ExportMenu({ page, section, pro, code, onCode }: { page: CopyTar
               className={row}
               onClick={() => {
                 setOpen(false);
-                if (code) onCode("github");
-                else openPro("react");
+                onCode("github");
               }}
             >
               <GithubLogoIcon size={16} weight="fill" className="text-muted" />
               <span className="flex-1">Send to GitHub</span>
-              {!code && proTag}
             </button>
-            {!pro && (
-              <button
-                type="button"
-                onClick={() => {
-                  setOpen(false);
-                  openPro("plan");
-                }}
-                className="mt-1 flex w-full items-center justify-between gap-2 rounded-[10px] bg-fg/[0.04] px-2.5 py-2 text-[13px] font-medium transition-colors hover:bg-fg/[0.07]"
-              >
-                <span>See Pro, $149 once</span>
-                <ArrowRightIcon size={13} weight="bold" className="text-muted" />
-              </button>
-            )}
           </motion.div>
         )}
       </AnimatePresence>

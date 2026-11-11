@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { zipBytes } from "@/lib/zip";
-import { mayExport, NEEDS_PRO, sameOrigin } from "@/server/guard";
+import { sameOrigin } from "@/server/guard";
 import { frameworkOf, pageFiles, siteFiles } from "@/server/site";
 import { checkedProject } from "@/studio/state";
 
@@ -13,7 +13,6 @@ export async function POST(req: NextRequest) {
   if (!sameOrigin(req)) return Response.json({ error: "Not from this site" }, { status: 403 });
   const project = checkedProject(await req.json().catch(() => null));
   if (!project) return Response.json({ error: "That project didn't come through whole. Reload Studio and try again." }, { status: 400 });
-  if (!(await mayExport(project.template, req))) return Response.json({ error: NEEDS_PRO }, { status: 402 });
   const q = req.nextUrl.searchParams;
   const framework = frameworkOf(q.get("framework"));
   const { files } = await siteFiles(project, framework);

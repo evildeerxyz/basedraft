@@ -3,7 +3,6 @@
 import {
   ArrowCounterClockwiseIcon,
   ShareNetworkIcon,
-  DiamondIcon,
   SparkleIcon,
   StepsIcon,
   RocketLaunchIcon,
@@ -127,9 +126,7 @@ import { ADD, COMPONENTS, componentOf, GROUPS, importLine, installCommand, isNew
 import { DEMOS, EXAMPLES } from "@/registry/demos";
 import type { Example, Part } from "@/registry/types";
 import { ClaudeMark, CLAUDE_COLOR } from "./claude-mark";
-import { previewHeaders, usePlan } from "./plan";
-import { openPro } from "./pro-modal";
-import { btn, NewBadge, ProBadge } from "./sheet";
+import { NewBadge } from "./sheet";
 import { CodeBlock, highlight, usesWord } from "./code";
 import { useColorMode, type ColorMode } from "./color-mode";
 import { Dock, DockMore, DockPill, FloatingDock, PieceMenu, SearchField, TILE, TileArrow, useBackToTop, useWide } from "./library";
@@ -445,7 +442,6 @@ function BentoTile({ spot: { c, col, wide, top, height }, track, moves }: { spot
             </span>
             <span className="truncate font-medium text-fg">{c.title}</span>
             {isNew(c) && <NewBadge />}
-            {c.pro && <ProBadge />}
           </Link>
           <Link href={`/components/${c.name}`} aria-label={`Open ${c.title}`} className="ml-auto">
             <TileArrow />
@@ -477,12 +473,11 @@ function ComponentTile({ c, span }: { c: ComponentMeta; span: number }) {
             </span>
             <span className="truncate font-medium text-fg">{c.title}</span>
             {isNew(c) && <NewBadge />}
-            {c.pro && <ProBadge />}
             {/* The group, only where there is room for it beside the whole name. */}
             <span className="truncate text-subtle max-sm:hidden @max-[440px]:hidden">{c.group}</span>
           </Link>
           <span className="ml-auto flex shrink-0 items-center gap-1.5">
-            {!c.pro && <CopyCircle text={importLine(c.name)} label={`Copy the import for ${c.title}`} />}
+            <CopyCircle text={importLine(c.name)} label={`Copy the import for ${c.title}`} />
             <Link href={`/components/${c.name}`} aria-label={`Open ${c.title}`}>
               <TileArrow />
             </Link>
@@ -512,9 +507,8 @@ export function ComponentsBrowser() {
   const words = q.trim().toLowerCase().split(/\s+/).filter(Boolean);
   const matched = COMPONENTS.filter((c) => words.every((w) => `${c.title} ${c.group} ${c.description}`.toLowerCase().includes(w)));
   // A section per group, in order: every group when All is on, or just the one picked.
-  // Pro picks the Pro components out of every group; any other pill is one group.
-  const sections = GROUPS.filter((g) => group === "All" || group === "Pro" || group === "New" || g === group)
-    .map((g) => ({ g, list: matched.filter((c) => c.group === g && (group !== "Pro" || c.pro) && (group !== "New" || isNew(c))) }))
+  const sections = GROUPS.filter((g) => group === "All" || group === "New" || g === group)
+    .map((g) => ({ g, list: matched.filter((c) => c.group === g && (group !== "New" || isNew(c))) }))
     .filter((x) => x.list.length);
   return (
     <>
@@ -532,11 +526,6 @@ export function ComponentsBrowser() {
         {matched.some(isNew) && (
           <DockPill on={group === "New"} onClick={() => setGroup("New")} icon={SparkleIcon} count={matched.filter(isNew).length}>
             New
-          </DockPill>
-        )}
-        {matched.some((c) => c.pro) && (
-          <DockPill on={group === "Pro"} onClick={() => setGroup("Pro")} icon={DiamondIcon} count={matched.filter((c) => c.pro).length}>
-            Pro
           </DockPill>
         )}
         {GROUPS.slice(0, inRow).map((g) => (
@@ -659,118 +648,12 @@ export function ClaudeCodeButton({ prompt, label = "Copy for Claude Code", small
   );
 }
 
-/* ---------- Pro components ---------- */
-
-/**
- * A Pro component's source, fetched from the gated route for a Pro account: nothing is asked for
- * otherwise, and the server checks again. Ready holds the source; locked means the account isn't Pro.
- */
-function useProSource(name: string, pro: boolean) {
-  const [plan] = usePlan();
-  const [got, setGot] = useState<{ name: string; source: string | null } | null>(null);
-  const want = pro && plan === "pro";
-  useEffect(() => {
-    if (!want) return;
-    let gone = false;
-    fetch(`/api/ui/${name}`, { headers: previewHeaders() })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d: { source?: string } | null) => !gone && setGot({ name, source: d?.source ?? null }))
-      .catch(() => !gone && setGot({ name, source: null }));
-    return () => {
-      gone = true;
-    };
-  }, [name, want]);
-  const mine = got?.name === name ? got : null;
-  return { locked: !want, loading: want && !mine, source: mine?.source ?? null, failed: want && !!mine && !mine.source };
-}
-
-/** What a Pro component's code looks like before Pro: what it is, and the way to it. */
-function ProLocked({ title, compact }: { title: string; compact?: boolean }) {
-  return (
-    <div className={cn("grid place-items-center text-center", compact ? "px-4 py-8" : "px-6 py-12")}>
-      <span className="grid size-12 place-items-center rounded-full bg-[var(--bd-ui-track)] text-fg">
-        <DiamondIcon size={20} weight="duotone" />
-      </span>
-      <p className="mt-4 text-[17px] font-medium">{title}&apos;s code comes with Pro</p>
-      <p className="mt-1.5 max-w-[440px] text-ui text-muted">Try it here as much as you like. Pro brings its code, and every other Pro component&apos;s, with every template and section, for one payment.</p>
-      <div className="mt-5 flex flex-wrap justify-center gap-2">
-        <button type="button" onClick={() => openPro("components")} className={btn.ink}>
-          Get Pro
-        </button>
-        <Link href="/pro" className={btn.outline}>
-          What&apos;s in Pro
-        </Link>
-      </div>
-    </div>
-  );
-}
-
-/** A Pro component's code, for the stage's Code view: the file once it's here, or what Pro brings. */
-function ProCode({ name, title }: { name: string; title: string }) {
-  const { locked, loading, source, failed } = useProSource(name, true);
-  if (locked) return <div className="mx-auto max-w-[900px] rounded-[var(--bd-r-sheet)] bg-surface shadow-[0_0_0_1px_var(--bd-line)]"><ProLocked title={title} /></div>;
-  if (loading) return <div className="mx-auto h-[300px] max-w-[900px] animate-pulse rounded-[var(--bd-r-sheet)] bg-surface shadow-[0_0_0_1px_var(--bd-line)]" />;
-  if (failed || !source) return <p className="py-16 text-center text-ui text-muted">The code didn&apos;t come through. Reload the page and try again.</p>;
-  return <CodeBlock code={source} file={`components/basedraft/${name}.tsx`} maxHeight={440} className="mx-auto max-w-[900px]" />;
-}
-
-/**
- * How a Pro component gets into a project: its file, copied in and yours to change, on Tailwind
- * CSS 4 with basedraft's theme. Before Pro, the same card says what Pro brings.
- */
-function ProTake({ name, title, deps }: { name: string; title: string; deps: string[] }) {
-  const [plan] = usePlan();
-  const { source } = useProSource(name, plan === "pro");
-  return (
-    <section id="take" aria-labelledby="take-title" className="scroll-mt-[calc(var(--bd-header-h,80px)+80px)] pt-16">
-      <div data-scroll="settle" className="bd-light bd-paper glow-c relative isolate overflow-hidden rounded-[32px] p-2 sm:p-3">
-        <div className="grid gap-2 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
-          <div className="flex flex-col p-4 sm:p-6">
-            <h2 id="take-title" className="flex flex-wrap items-center gap-2.5 text-balance font-display text-[30px] font-medium leading-[1.08] tracking-[-0.032em]">
-              Take {title} home <ProBadge />
-            </h2>
-            <p className="mt-3 text-ui text-paper-muted">A Pro component: its file goes into your project and it&apos;s yours to change. It reads basedraft&apos;s theme, on Tailwind CSS 4.</p>
-            <ul className="mt-6 grid gap-2.5 text-[13px] text-paper-muted max-sm:hidden [&_svg]:shrink-0 [&_svg]:text-paper-ink/60">
-              <li className="flex items-center gap-2.5">
-                <FileTsxIcon size={16} weight="duotone" />
-                <span className="truncate font-mono text-[12px]">components/basedraft/{name}.tsx</span>
-              </li>
-              <li className="flex items-center gap-2.5">
-                <StackIcon size={16} weight="duotone" />
-                {deps.length ? `Leans on ${deps.join(" and ")}` : "Nothing beyond React"}
-              </li>
-            </ul>
-          </div>
-          <div className="min-w-0 rounded-[24px] bg-surface p-2 shadow-[var(--bd-shadow-raised),inset_0_0_0_1px_var(--bd-line-subtle)]">
-            {plan !== "pro" ? (
-              <ProLocked title={title} compact />
-            ) : (
-              <ol className="grid gap-5 p-2 pt-3 sm:p-3 sm:pt-4">
-                <Step n={1} title={`Copy its file to components/basedraft/${name}.tsx`}>
-                  {source ? <CodeBlock code={source} file={`${name}.tsx`} maxHeight={380} /> : <div className="h-[200px] animate-pulse rounded-[var(--bd-r-sheet)] bg-[var(--bd-ui-track)]" />}
-                </Step>
-                <Step n={2} title="Add basedraft's theme once, in your global CSS">
-                  <CopyLine command={`@import "${PACKAGE}/theme.css";`} code />
-                  <p className="mt-2 text-meta text-muted">With the package installed: <code className="font-mono text-[12px]">{installCommand()}</code></p>
-                </Step>
-                <Step n={3} title={`Use ${title}`}>
-                  <CopyLine command={importLine(name)} code />
-                </Step>
-              </ol>
-            )}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 /**
  * A component's stage: the component live and large on a quiet light gray, which you can switch to
  * light or dark whatever the site is in, start over, or turn to its code. Floating at its foot,
  * the switch between preview and code, its file to download, and the prompt for Claude Code.
  */
-export function Workbench({ name, title, source, prompt, pro }: { name: string; title: string; source: string | null; prompt: string; pro?: boolean }) {
+export function Workbench({ name, source, prompt }: { name: string; source: string | null; prompt: string }) {
   const site = useColorMode();
   const [picked, setPicked] = useState<ColorMode | null>(null);
   const mode = picked ?? site;
@@ -800,24 +683,19 @@ export function Workbench({ name, title, source, prompt, pro }: { name: string; 
             {view === "preview" ? (
               <div data-bd-stage="" className="grid min-h-[360px] place-items-center pb-[76px] pt-6 sm:min-h-[400px]">{Demo ? <Demo key={run} /> : null}</div>
             ) : (
-              pro || !source ? <ProCode name={name} title={title} /> : <CodeBlock code={source} file={`components/basedraft/${name}.tsx`} maxHeight={440} className="mx-auto max-w-[900px]" />
+              !source ? <p className="py-16 text-center text-ui text-muted">The code didn&apos;t come through. Reload the page and try again.</p> : <CodeBlock code={source} file={`components/basedraft/${name}.tsx`} maxHeight={440} className="mx-auto max-w-[900px]" />
             )}
           </motion.div>
         </AnimatePresence>
         <div className="absolute inset-x-0 bottom-4 flex justify-center px-3">
           <div className={cn("flex max-w-full items-center gap-1 rounded-full p-1", GLASS)}>
             <IconSwitch label="Show" value={view} options={[...VIEWS]} onChange={setView} />
-            {/* A Pro component's file comes only with Pro, in its card below: no download or prompt here. */}
-            {!pro && (
-              <>
-                <span aria-hidden className="mx-1 h-5 w-px shrink-0 bg-line max-sm:hidden" />
-                <a href={`/ui/${name}.tsx`} download className="flex h-9 shrink-0 items-center gap-2 rounded-full px-3 font-mono text-[12px] text-muted transition-colors hover:bg-fg/[0.06] hover:text-fg max-sm:hidden">
-                  <DownloadSimpleIcon size={14} weight="duotone" />
-                  {name}.tsx
-                </a>
-                <ClaudeCodeButton prompt={prompt} label="Claude Code" small />
-              </>
-            )}
+            <span aria-hidden className="mx-1 h-5 w-px shrink-0 bg-line max-sm:hidden" />
+            <a href={`/ui/${name}.tsx`} download className="flex h-9 shrink-0 items-center gap-2 rounded-full px-3 font-mono text-[12px] text-muted transition-colors hover:bg-fg/[0.06] hover:text-fg max-sm:hidden">
+              <DownloadSimpleIcon size={14} weight="duotone" />
+              {name}.tsx
+            </a>
+            <ClaudeCodeButton prompt={prompt} label="Claude Code" small />
           </div>
         </div>
       </div>
@@ -894,8 +772,8 @@ type Take = (typeof TAKE)[number]["id"];
  * shows taking it home: what it is on the left; on the right, three ways in. Install the package
  * (once for every component), hand Claude Code a prompt, or copy this one file and own it.
  */
-export function TakeComponent({ name, title, deps, source, prompt, pro }: { name: string; title: string; deps: string[]; source: string | null; prompt: string; pro?: boolean }) {
-  if (pro || !source) return <ProTake name={name} title={title} deps={deps} />;
+export function TakeComponent({ name, title, deps, source, prompt }: { name: string; title: string; deps: string[]; source: string | null; prompt: string }) {
+  if (!source) return null;
   return <FreeTake name={name} title={title} deps={deps} source={source} prompt={prompt} />;
 }
 

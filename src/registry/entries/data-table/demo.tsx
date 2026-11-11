@@ -2,8 +2,8 @@
 
 import { ArrowCounterClockwiseIcon, DownloadSimpleIcon, MagnifyingGlassIcon, ReceiptIcon } from "@phosphor-icons/react";
 import { useState, type ComponentType } from "react";
-import { DataTable, type DataTableColumn } from "../../pro-ui/data-table";
-import { FilterBar, type Filter, type FilterField } from "../../pro-ui/filter-bar";
+import { DataTable, type DataTableColumn } from "../../ui/data-table";
+import { FilterBar, type Filter, type FilterField } from "../../ui/filter-bar";
 import { Avatar } from "../../ui/avatar";
 import { Input } from "../../ui/input";
 

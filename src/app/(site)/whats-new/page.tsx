@@ -1,7 +1,8 @@
-import { ArrowRightIcon, EnvelopeSimpleIcon } from "@phosphor-icons/react/ssr";
+import { ArrowRightIcon, EnvelopeSimpleIcon, GithubLogoIcon } from "@phosphor-icons/react/ssr";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { REPO } from "@/registry";
 import { CHANGELOG, dayLabel, type ChangeTag } from "@/site/changelog";
 import { wrap } from "@/site/sheet";
 import { withCard } from "@/site/og";
@@ -25,7 +26,7 @@ export default function WhatsNewPage() {
     <main id="main" className={cn(wrap, "pb-24")}>
       <header className="bd-reveal mx-auto flex max-w-[680px] flex-col items-center pb-16 pt-20 text-center sm:pt-24">
         <h1 className="text-display">What&apos;s new</h1>
-        <p className="mt-5 max-w-[520px] text-pretty text-lead text-muted">New templates, components, blocks and changes to Studio, newest first. Every one of them comes with Pro.</p>
+        <p className="mt-5 max-w-[520px] text-pretty text-lead text-muted">New templates, components, blocks and changes to Studio, newest first. Every one of them is free and open source.</p>
       </header>
 
       <ol className="mx-auto max-w-[960px]">
@@ -65,15 +66,15 @@ export default function WhatsNewPage() {
           <h2 id="updates-title" className="font-display text-[24px] leading-[1.15]">
             Get updates
           </h2>
-          <p className="mt-2 text-ui leading-[1.6] text-paper-muted">New templates and changes land here first. Write to us to hear about them, or get Pro and they come to your Purchases page as they ship.</p>
+          <p className="mt-2 text-ui leading-[1.6] text-paper-muted">New templates and changes land here first. Watch the repository on GitHub to hear about every release, or write to us.</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <a href="mailto:hello@basedraft.site?subject=basedraft%20updates" className="inline-flex h-11 items-center gap-2 rounded-full bg-paper/70 px-5 text-ui font-medium text-paper-ink shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--bd-paper-ink)_14%,transparent)] backdrop-blur transition-colors hover:bg-paper">
             <EnvelopeSimpleIcon weight="duotone" size={16} /> hello@basedraft.site
           </a>
-          <Link href="/pro" className="btn-metal inline-flex h-11 items-center gap-2 rounded-full px-5 text-ui font-medium">
-            See Pro <ArrowRightIcon weight="regular" size={14} />
-          </Link>
+          <a href={REPO} target="_blank" rel="noreferrer" className="btn-metal inline-flex h-11 items-center gap-2 rounded-full px-5 text-ui font-medium">
+            <GithubLogoIcon weight="duotone" size={16} /> Watch on GitHub
+          </a>
         </div>
       </section>
     </main>

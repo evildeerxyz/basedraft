@@ -1,7 +1,7 @@
-import { ArrowRightIcon, LayoutIcon, PenNibIcon, SquaresFourIcon, StackIcon } from "@phosphor-icons/react/ssr";
+import { ArrowRightIcon, GithubLogoIcon, LayoutIcon, PenNibIcon, SquaresFourIcon, StackIcon } from "@phosphor-icons/react/ssr";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { COMPONENTS } from "@/registry";
+import { COMPONENTS, REPO } from "@/registry";
 import { BlocksBrowser, HeroFacts, LibraryHero, NextUp } from "@/site/library";
 import { LIB_WRAP } from "@/site/library-css";
 import { SECTIONS, TEMPLATES, USED_KINDS } from "@/site/live";
@@ -31,9 +31,9 @@ export default function BlocksPage() {
             <Link href="/studio" className={btnLg.onPaper}>
               Try them in Studio <ArrowRightIcon weight="regular" size={15} />
             </Link>
-            <Link href="/pro" className={btnLg.onPaperOutline}>
-              Get them all with Pro
-            </Link>
+            <a href={REPO} target="_blank" rel="noreferrer" className={btnLg.onPaperOutline}>
+              <GithubLogoIcon weight="duotone" size={15} /> The code
+            </a>
           </>
         }
       />

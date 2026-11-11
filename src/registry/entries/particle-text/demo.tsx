@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ComponentType } from "react";
-import { ParticleText } from "../../pro-ui/particle-text";
+import { ParticleText } from "../../ui/particle-text";
 import { Segmented } from "../../ui/segmented";
 import { hint } from "../_shared/kit";
 

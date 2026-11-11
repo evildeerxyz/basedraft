@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ComponentType } from "react";
-import { Roadmap, type RoadmapItem } from "../../pro-ui/roadmap";
+import { Roadmap, type RoadmapItem } from "../../ui/roadmap";
 import { hint } from "../_shared/kit";
 
 const WORK: RoadmapItem[] = [

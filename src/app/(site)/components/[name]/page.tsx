@@ -47,8 +47,8 @@ const link = (c?: (typeof COMPONENTS)[number]) => c && { href: `/components/${c.
 async function Component({ params }: { params: PageProps<"/components/[name]">["params"] }) {
   const c = componentOf((await params).name);
   // A Pro component's source never comes here: the page gets it from the gated route, for Pro.
-  const source = c && !c.pro ? SOURCES[c.name] : null;
-  if (!c || (!source && !c.pro)) notFound();
+  const source = c ? SOURCES[c.name] : null;
+  if (!c || !source) notFound();
   const doc = DOCS[c.name];
   const deps = DEPS[c.name] ?? [];
   const i = COMPONENTS.indexOf(c);
@@ -71,7 +71,7 @@ async function Component({ params }: { params: PageProps<"/components/[name]">["
   // What it is and what it needs: under its name on a phone, at the end of the dock's row on a desk.
   const facts = (
     <>
-      <FactPill icon={<PackageIcon weight="duotone" size={14} />}>{c.pro ? "Pro" : PACKAGE}</FactPill>
+      <FactPill icon={<PackageIcon weight="duotone" size={14} />}>{PACKAGE}</FactPill>
       <FactPill icon={<StackIcon weight="duotone" size={14} />}>{deps.length ? deps.join(", ") : "No dependencies"}</FactPill>
     </>
   );
@@ -92,9 +92,9 @@ async function Component({ params }: { params: PageProps<"/components/[name]">["
       />
       <SectionDock label="This page" items={sections} end={facts} />
       <div className="pt-6">
-        <Workbench name={c.name} title={c.title} source={source} prompt={c.pro ? "" : claudePrompt(c)} pro={c.pro} />
+        <Workbench name={c.name} source={source} prompt={claudePrompt(c)} />
       </div>
-      <TakeComponent name={c.name} title={c.title} deps={deps} source={source} prompt={c.pro ? "" : claudePrompt(c)} pro={c.pro} />
+      <TakeComponent name={c.name} title={c.title} deps={deps} source={source} prompt={claudePrompt(c)} />
       {guide && (
         <PiecePart id="when" title="Where it fits">
           <GuideCard use={doc?.use} avoid={doc?.avoid} />

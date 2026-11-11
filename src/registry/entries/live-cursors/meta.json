@@ -4,6 +4,5 @@
   "group": "Patterns",
   "description": "Everyone else's pointer, gliding on a spring with their name, the box they've selected and what they're saying in a bubble; press / to say something at your own, and follow anyone from the faces above.",
   "order": 86,
-  "added": "2026-10-30",
-  "pro": true
+  "added": "2026-10-30"
 }

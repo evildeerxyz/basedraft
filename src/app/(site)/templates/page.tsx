@@ -4,10 +4,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { SECTIONS, TEMPLATES, templateShot, viewUrl } from "@/site/live";
-import { ProBadge, wrap } from "@/site/sheet";
+import { wrap } from "@/site/sheet";
 import { TextLink } from "@/site/showcase";
 import { GLOW, glowAt } from "@/site/stage";
-import { TemplatePrice } from "@/site/template-buy";
 import { TemplateLogo } from "@/site/template-parts";
 import { withCard } from "@/site/og";
 
@@ -57,9 +56,6 @@ export default function TemplatesPage() {
                     <Link href={`/templates/${t.slug}`} className="after:absolute after:inset-0 after:z-0 after:rounded-[inherit] focus-visible:outline-none">
                       {t.name}
                     </Link>
-                    <ProBadge>
-                      <TemplatePrice slug={t.slug} />
-                    </ProBadge>
                   </h2>
                   <p className="mt-1.5 text-pretty text-ui text-paper-muted">{t.tagline}</p>
                 </div>

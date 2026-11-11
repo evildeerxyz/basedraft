@@ -34,7 +34,7 @@ if (typeof window !== "undefined")
     for (const [e, p] of waiting.splice(0)) ph?.capture(e, p);
   });
 
-/** One of the moments worth counting: an export, a checkout, a comment, an invite. */
+/** One of the moments worth counting: an export, a sign up, a copy. */
 export function track(event: string, props?: Props) {
   if (!ON) return;
   try {

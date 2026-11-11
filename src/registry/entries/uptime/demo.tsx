@@ -1,7 +1,7 @@
 "use client";
 
 import type { ComponentType } from "react";
-import { Uptime, type UptimeDay, type UptimeIncident } from "../../pro-ui/uptime";
+import { Uptime, type UptimeDay, type UptimeIncident } from "../../ui/uptime";
 
 /* The demos' last day: fixed, so the page is the same for everyone and builds without a clock. */
 const END = Date.parse("2026-10-17T00:00:00Z");

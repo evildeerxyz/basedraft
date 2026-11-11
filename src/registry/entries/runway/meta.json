@@ -4,6 +4,5 @@
   "group": "Data",
   "description": "A balance's past and where it's heading on one line: what it was day by day in ink up to a hairline for today, then a ghost at the pace it's spent, down to the day it runs out. A top-up that runs by itself turns the ghost into a saw that never reaches zero.",
   "order": 95,
-  "added": "2026-11-02",
-  "pro": true
+  "added": "2026-11-02"
 }

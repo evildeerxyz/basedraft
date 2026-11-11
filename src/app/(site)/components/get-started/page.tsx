@@ -228,7 +228,6 @@ export default function GetStarted() {
                   <li key={c.name}>
                     <Link href={`/components/${c.name}`} className="group flex items-baseline justify-between gap-4 rounded-[10px] py-1.5 text-ui text-fg">
                       <span className="underline-offset-4 group-hover:underline">{c.title}</span>
-                      {c.pro && <span className="text-meta text-subtle">Pro</span>}
                     </Link>
                   </li>
                 ))}

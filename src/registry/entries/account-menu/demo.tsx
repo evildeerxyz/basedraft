@@ -1,7 +1,7 @@
 "use client";
 
 import type { ComponentType } from "react";
-import { AccountMenu } from "../../pro-ui/account-menu";
+import { AccountMenu } from "../../ui/account-menu";
 import { hint } from "../_shared/kit";
 
 const ME = { name: "Emily Carter", email: "emily@acme.com" };

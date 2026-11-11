@@ -20,7 +20,7 @@ import { BaseDraftMark } from "@/site/logo";
 
 const cx = (...c: Array<string | false | null | undefined>) => c.filter(Boolean).join(" ");
 
-type Scene = { id: string; theme: "dark" | "light"; names?: string; code?: string; pro?: boolean; body: ReactNode };
+type Scene = { id: string; theme: "dark" | "light"; names?: string; code?: string; body: ReactNode };
 
 /** A component's own demo, in a box the recorder can find by name. */
 function Spot({ name, zoom = 1, className, children }: { name: string; zoom?: number; className?: string; children?: ReactNode }) {
@@ -66,9 +66,6 @@ function InkGround() {
     </>
   );
 }
-
-/* A Pro mark, for the caption. */
-const Pro = () => <span className="ml-3 inline-flex h-6 items-center rounded-full px-2.5 align-middle font-sans text-[12px] font-medium text-[var(--bd-ui-ink-text)] [background:var(--bd-ui-ink)]">Pro</span>;
 
 /* The wall: every component, live, on a tilted plane that drifts past. */
 function Wall() {
@@ -202,7 +199,6 @@ const SCENES: Scene[] = [
     id: "inbox",
     theme: "dark",
     names: "Inbox",
-    pro: true,
     code: `import { Inbox } from "@/components/basedraft/inbox";`,
     body: (
       <div className="flex h-full justify-center pt-10">
@@ -214,7 +210,6 @@ const SCENES: Scene[] = [
     id: "kanban",
     theme: "dark",
     names: "Kanban board",
-    pro: true,
     code: `import { KanbanBoard } from "@/components/basedraft/kanban-board";`,
     body: (
       <div className="grid h-full place-items-center">
@@ -226,7 +221,6 @@ const SCENES: Scene[] = [
     id: "chat",
     theme: "dark",
     names: "AI chat",
-    pro: true,
     code: `import { AiChat } from "@/components/basedraft/ai-chat";`,
     body: (
       <div className="grid h-full place-items-center">
@@ -238,7 +232,6 @@ const SCENES: Scene[] = [
     id: "charts",
     theme: "dark",
     names: "Bar chart, Area chart",
-    pro: true,
     code: `import { BarChart } from "@/components/basedraft/bar-chart";\nimport { AreaChart } from "@/components/basedraft/area-chart";`,
     body: (
       <div className="grid h-full grid-cols-2 items-center gap-12 px-16">
@@ -251,7 +244,6 @@ const SCENES: Scene[] = [
     id: "donut-stat",
     theme: "dark",
     names: "Donut chart, Stat",
-    pro: true,
     code: `import { DonutChart } from "@/components/basedraft/donut-chart";\nimport { Stat } from "@basedraft/ui";`,
     body: (
       <div className="grid h-full grid-cols-[1.1fr_1fr] items-center gap-14 px-16">
@@ -264,7 +256,6 @@ const SCENES: Scene[] = [
     id: "pricing",
     theme: "light",
     names: "Pricing table",
-    pro: true,
     code: `import { PricingTable } from "@/components/basedraft/pricing-table";`,
     body: (
       <div className="grid h-full place-items-center px-16">
@@ -436,7 +427,6 @@ export function Film() {
           <div className="absolute bottom-10 left-10 right-10">
             <motion.p initial={{ y: 16, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ type: "spring", stiffness: 260, damping: 26, delay: 0.15 }} className="font-display text-[40px] font-medium leading-none tracking-[-0.04em]">
               {scene.names}
-              {scene.pro && <Pro />}
             </motion.p>
             {scene.code && (
               <motion.code

@@ -37,7 +37,7 @@ export interface User {
 }
 
 export type AuthMode = "sign-in" | "sign-up";
-export type AuthReason = "library" | "save" | "team";
+export type AuthReason = "library" | "save";
 
 /* ---------- the signed-in user ---------- */
 
@@ -97,7 +97,7 @@ export function Avatar({ name, size = 28, tone = "ink", className }: { name: str
 }
 
 /** The top of an account menu: who's signed in, and on which plan. */
-export function AccountHeader({ user, plan }: { user: User; plan: "free" | "pro" }) {
+export function AccountHeader({ user }: { user: User }) {
   return (
     <div className="flex items-center gap-2.5">
       <Avatar name={displayName(user)} size={36} />
@@ -105,7 +105,6 @@ export function AccountHeader({ user, plan }: { user: User; plan: "free" | "pro"
         <div className="truncate text-[13.5px] font-semibold">{displayName(user)}</div>
         <div className="truncate text-[12px] text-muted">{user.email}</div>
       </div>
-      <span className="shrink-0 rounded-[5px] bg-fg/[0.06] px-1.5 py-0.5 text-[11.5px] font-semibold">{plan === "pro" ? "Pro" : "Free"}</span>
     </div>
   );
 }
@@ -169,7 +168,6 @@ export function AuthModal() {
 const WHY: Record<AuthReason, string> = {
   library: "Create a free account to keep all your drafts in one place.",
   save: "Create a free account so your drafts are there on every device.",
-  team: "Create a free account with the email your invite went to, then join the team.",
 };
 
 type Problem = { field: "name" | "email" | "code" | "social"; text: string; fix?: AuthMode };
@@ -256,7 +254,7 @@ function CodeInput({ value, onChange, onComplete, invalid }: { value: string; on
 
 /**
  * Sign up and sign in in one card: Google or GitHub in a click, or an email and a 6-digit code.
- * Signing up also asks for a name, so your team knows who is who.
+ * Signing up also asks for a name, for your account and the drafts you share.
  */
 export function AuthCard({ initialMode, reason, onDone, onModeChange, page }: { initialMode: AuthMode; reason?: AuthReason; onDone: (u: User, fresh: boolean) => void; onModeChange?: (m: AuthMode) => void; page?: boolean }) {
   const [mode, setMode] = useState(initialMode);
@@ -376,7 +374,7 @@ export function AuthCard({ initialMode, reason, onDone, onModeChange, page }: { 
             What should we call you?
           </H>
           <p id="auth-body" className="mt-2 text-body text-muted">
-            Your name shows on your account and to your team. You can change it any time.
+            Your name shows on your account and the drafts you share. You can change it any time.
           </p>
         </div>
         <div className="px-6">
@@ -566,10 +564,7 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
               onDone={(u, fresh) => {
                 setDone(true);
                 welcome(u, fresh);
-                const next = nextPath();
-                // Checkout is a route that sends you on to Whop, not a page: go there for real.
-                if (next.startsWith("/checkout")) window.location.assign(next);
-                else router.push(next);
+                router.push(nextPath());
               }}
             />
           )}
@@ -587,7 +582,7 @@ const onProfile = (cb: () => void) => {
   profileListeners.add(cb);
   return () => profileListeners.delete(cb);
 };
-/** Opens the profile card: the display name your team sees. */
+/** Opens the profile card: the display name on your account. */
 export function openProfile() {
   profileOpen = true;
   profileListeners.forEach((l) => l());
@@ -630,7 +625,7 @@ function ProfileForm({ user }: { user: User }) {
           Your profile
         </h2>
         <p id="profile-body" className="mt-2 text-body text-muted">
-          Signed in as {user.email}. Your display name shows to your team.
+          Signed in as {user.email}. Your display name shows on the drafts you share.
         </p>
       </div>
       <div className="px-6">

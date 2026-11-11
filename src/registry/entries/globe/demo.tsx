@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ComponentType } from "react";
-import { Globe, type GlobeArc, type GlobeMarker } from "../../pro-ui/globe";
+import { Globe, type GlobeArc, type GlobeMarker } from "../../ui/globe";
 
 /* Where requests are served from, and how far each is from a visitor in London. */
 type Region = GlobeMarker & { code: string; ms: number };

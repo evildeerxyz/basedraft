@@ -15,11 +15,6 @@ export type ComponentMeta = {
   order?: number;
   /** The day it was added, YYYY-MM-DD: it wears a New tag for 30 days after the newest component's day. */
   added?: string;
-  /**
-   * A Pro component: anyone can see and try it, but its source is only for Pro. It lives in
-   * src/registry/pro-ui rather than ui, so the npm package and the public files never carry it.
-   */
-  pro?: boolean;
 };
 
 export type Prop = { name: string; type: string; default?: string; note: string; required?: boolean };

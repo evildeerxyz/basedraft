@@ -2,7 +2,7 @@
 
 import { LightningIcon, ArrowRightIcon } from "@phosphor-icons/react";
 import type { ComponentType } from "react";
-import { Allowance } from "../../pro-ui/allowance";
+import { Allowance } from "../../ui/allowance";
 
 export function Demo() {
   return (

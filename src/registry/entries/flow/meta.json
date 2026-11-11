@@ -4,6 +4,5 @@
   "group": "Patterns",
   "description": "A node editor on a dotted board that pans and zooms: steps that snap to the grid, curves you draw from an output to the input they snap to, data visibly flowing into the step that's running, a minimap, and undo.",
   "order": 85,
-  "added": "2026-10-30",
-  "pro": true
+  "added": "2026-10-30"
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ComponentType } from "react";
-import { SwipeDeck, type SwipeDirection } from "../../pro-ui/swipe-deck";
+import { SwipeDeck, type SwipeDirection } from "../../ui/swipe-deck";
 import { Placeholder, type Layout } from "../_shared/placeholder";
 
 /* What customers asked for this month, most wanted first. */

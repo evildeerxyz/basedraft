@@ -2,7 +2,7 @@
 
 import { ArrowCounterClockwiseIcon } from "@phosphor-icons/react";
 import { useEffect, useState, type ComponentType } from "react";
-import { formatDuration, Pipeline, type PipelineStage, type PipelineStatus } from "../../pro-ui/pipeline";
+import { formatDuration, Pipeline, type PipelineStage, type PipelineStatus } from "../../ui/pipeline";
 
 /* A build of the storefront, from the push to its preview: each stage's length, and what it says as it goes. */
 const PLAN = [

@@ -126,8 +126,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Account menu",
     "group": "Navigation",
     "description": "You, and what's yours: your dithered face that opens a menu with your name, email and plan, your pages with their shortcuts, light, dark or system, and Sign out set apart in red.",
-    "added": "2026-10-30",
-    "pro": true
+    "added": "2026-10-30"
   },
   {
     "order": 61,
@@ -141,8 +140,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "name": "ai-chat",
     "title": "AI chat",
     "group": "Patterns",
-    "description": "An assistant thread: replies that stream in word by word, tool calls that open to show their work, and a composer that sends, attaches and stops.",
-    "pro": true
+    "description": "An assistant thread: replies that stream in word by word, tool calls that open to show their work, and a composer that sends, attaches and stops."
   },
   {
     "order": 1,
@@ -158,24 +156,21 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Allowance",
     "group": "Data",
     "description": "How much of an allowance is used: the share, a bar that turns amber near the limit and red past it, and where the month is heading at this pace, hatched ahead. Folds to a ring for a sidebar's rail.",
-    "added": "2026-10-30",
-    "pro": true
+    "added": "2026-10-30"
   },
   {
     "order": 50,
     "name": "app-sidebar",
     "title": "App sidebar",
     "group": "Patterns",
-    "description": "An app's navigation down the left: the workspace with search and the fold beside it, views like Home and Activity on a sliding thumb, pages whose ends carry a count, a New tag, an unread dot or a spinner, a fill that slides to the page you're on, a rail of icons, and a drawer that swipes away on a phone.",
-    "pro": true
+    "description": "An app's navigation down the left: the workspace with search and the fold beside it, views like Home and Activity on a sliding thumb, pages whose ends carry a count, a New tag, an unread dot or a spinner, a fill that slides to the page you're on, a rail of icons, and a drawer that swipes away on a phone."
   },
   {
     "order": 30,
     "name": "area-chart",
     "title": "Area chart",
     "group": "Data",
-    "description": "Smooth lines over a soft wash that draw in from the left, with a crosshair that snaps to the nearest point, stacking, and a legend that re-scales on a spring.",
-    "pro": true
+    "description": "Smooth lines over a soft wash that draw in from the left, with a crosshair that snaps to the nearest point, stacking, and a legend that re-scales on a spring."
   },
   {
     "order": 2,
@@ -204,8 +199,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "name": "bar-chart",
     "title": "Bar chart",
     "group": "Data",
-    "description": "Grouped or stacked bars, standing up or lying down, that grow in one after another, with a band that follows the pointer, values below zero and labels on the bars.",
-    "pro": true
+    "description": "Grouped or stacked bars, standing up or lying down, that grow in one after another, with a band that follows the pointer, values below zero and labels on the bars."
   },
   {
     "order": 22,
@@ -273,8 +267,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Code diff",
     "group": "Display",
     "description": "Two versions of a file, unified or side by side: the words that changed marked inside each line, the code still in color, quiet stretches folded to a row that opens, and a count whose cells mix through a dither.",
-    "added": "2026-10-29",
-    "pro": true
+    "added": "2026-10-29"
   },
   {
     "order": 53,
@@ -289,8 +282,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Color picker",
     "group": "Forms",
     "description": "A field of saturation and brightness, hue and alpha sliders, an eyedropper, a value typed as hex, rgb or hsl, swatches, and the contrast white and black text would have on the color.",
-    "added": "2026-10-29",
-    "pro": true
+    "added": "2026-10-29"
   },
   {
     "order": 60,
@@ -319,8 +311,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Commit",
     "group": "Display",
     "description": "A commit the way people read one: the message first, then who made it with their face, the branch and a short hash that copies the whole one. On one line for a list, or stacked for a page about it.",
-    "added": "2026-10-31",
-    "pro": true
+    "added": "2026-10-31"
   },
   {
     "order": 56,
@@ -366,8 +357,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "name": "data-table",
     "title": "Data table",
     "group": "Data",
-    "description": "Rows on a white sheet that sort with a turning arrow and glide into place, pick in ranges with Shift, open for detail, and keep their header and first column in view.",
-    "pro": true
+    "description": "Rows on a white sheet that sort with a turning arrow and glide into place, pick in ranges with Shift, open for detail, and keep their header and first column in view."
   },
   {
     "order": 63,
@@ -389,8 +379,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Dither image",
     "group": "Display",
     "description": "Any picture printed as an ordered dither, in ink, as round halftone dots or in its own colors stepped down, that develops into view and shows the photo through a dissolve.",
-    "added": "2026-10-23",
-    "pro": true
+    "added": "2026-10-23"
   },
   {
     "order": 8,
@@ -398,16 +387,14 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Dock",
     "group": "Navigation",
     "description": "A frosted dock of brushed-metal keys that swell on their own springs as the pointer nears, with a name rising over the one you're on, dots under the open ones, a hop when pressed, and the arrow keys to walk it.",
-    "added": "2026-10-30",
-    "pro": true
+    "added": "2026-10-30"
   },
   {
     "order": 32,
     "name": "donut-chart",
     "title": "Donut chart",
     "group": "Data",
-    "description": "Parts of a whole that sweep around a ring, slide out to show their share in the middle, and a total that rolls up as it fills.",
-    "pro": true
+    "description": "Parts of a whole that sweep around a ring, slide out to show their share in the middle, and a total that rolls up as it fills."
   },
   {
     "order": 53,
@@ -436,8 +423,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Filter bar",
     "group": "Forms",
     "description": "Filters that read as a sentence you edit in place: Showing deploys where status is not failed and region is Frankfurt or Tokyo. Every dashed word answers a click, and the keys drive it all.",
-    "added": "2026-10-30",
-    "pro": true
+    "added": "2026-10-30"
   },
   {
     "order": 85,
@@ -445,8 +431,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Flow",
     "group": "Patterns",
     "description": "A node editor on a dotted board that pans and zooms: steps that snap to the grid, curves you draw from an output to the input they snap to, data visibly flowing into the step that's running, a minimap, and undo.",
-    "added": "2026-10-30",
-    "pro": true
+    "added": "2026-10-30"
   },
   {
     "order": 35,
@@ -454,8 +439,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Funnel",
     "group": "Data",
     "description": "How many make it from step to step: bars that rise in turn, the ones lost dissolving above each through a dither or held as a faint wash, a band carrying the flow, and what each step kept.",
-    "added": "2026-10-23",
-    "pro": true
+    "added": "2026-10-23"
   },
   {
     "order": 21,
@@ -471,8 +455,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Globe",
     "group": "Data",
     "description": "The Earth in dots, lit and shaded by an ordered dither, that spins when dragged and coasts to a stop, with markers that pulse, arcs that rise between them carrying a light, and a turn to face whatever you choose.",
-    "added": "2026-10-30",
-    "pro": true
+    "added": "2026-10-30"
   },
   {
     "order": 33,
@@ -480,8 +463,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Heatmap",
     "group": "Data",
     "description": "A year of activity a day at a time, each day's cell shaded by an ordered dither instead of a fade, fitting as many weeks as it has room for, with a card for any day by pointer or keys.",
-    "added": "2026-10-23",
-    "pro": true
+    "added": "2026-10-23"
   },
   {
     "order": 1,
@@ -502,8 +484,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "name": "inbox",
     "title": "Inbox",
     "group": "Patterns",
-    "description": "A notification center behind a bell: an unread count that rolls, tabs on a sliding pill, items grouped by day that you mark read with a click or a swipe.",
-    "pro": true
+    "description": "A notification center behind a bell: an unread count that rolls, tabs on a sliding pill, items grouped by day that you mark read with a click or a swipe."
   },
   {
     "order": 60,
@@ -524,8 +505,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "name": "kanban-board",
     "title": "Kanban board",
     "group": "Patterns",
-    "description": "Columns of cards you carry by hand or by keyboard: the lifted card tilts and casts a deeper shadow, the others make room, and every move is announced.",
-    "pro": true
+    "description": "Columns of cards you carry by hand or by keyboard: the lifted card tilts and casts a deeper shadow, the others make room, and every move is announced."
   },
   {
     "order": 3,
@@ -540,8 +520,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Lanes",
     "group": "Data",
     "description": "Rows that share one time axis, each with what happened to it along its own lane: ink ticks for what shipped, gray for what was tried, red for what failed and a breathing ring for what's running, with a hairline for now and weekends shaded.",
-    "added": "2026-11-02",
-    "pro": true
+    "added": "2026-11-02"
   },
   {
     "order": 42,
@@ -557,8 +536,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Live cursors",
     "group": "Patterns",
     "description": "Everyone else's pointer, gliding on a spring with their name, the box they've selected and what they're saying in a bubble; press / to say something at your own, and follow anyone from the faces above.",
-    "added": "2026-10-30",
-    "pro": true
+    "added": "2026-10-30"
   },
   {
     "order": 36,
@@ -566,8 +544,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Log viewer",
     "group": "Data",
     "description": "Log lines as they stream in: errors and warnings marked down the edge, chips that filter by level with counts, a search that narrows and marks, lines that open to their fields, and a pill back to the newest.",
-    "added": "2026-10-29",
-    "pro": true
+    "added": "2026-10-29"
   },
   {
     "order": 51,
@@ -596,8 +573,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Metric tabs",
     "group": "Data",
     "description": "The figures that matter as tabs across a card, each with how far it moved and whether that's good news, and under them the chart for the one you pick, an ink rule sliding between them.",
-    "added": "2026-10-30",
-    "pro": true
+    "added": "2026-10-30"
   },
   {
     "order": 6,
@@ -605,8 +581,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Navigation menu",
     "group": "Navigation",
     "description": "A site's top navigation with one panel that travels between its menus, gliding across and resizing to each one's content as it slides in the way you went, with a caret that follows.",
-    "added": "2026-10-23",
-    "pro": true
+    "added": "2026-10-23"
   },
   {
     "order": 50,
@@ -627,8 +602,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "name": "onboarding",
     "title": "First steps",
     "group": "Patterns",
-    "description": "A new account's first steps in a card that keeps count: a ring that fills, ticks that draw in, the next step opening on its own, a pill to fold it into, and a finish that blooms.",
-    "pro": true
+    "description": "A new account's first steps in a card that keeps count: a ring that fills, ticks that draw in, the next step opening on its own, a pill to fold it into, and a finish that blooms."
   },
   {
     "order": 96,
@@ -636,8 +610,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Pace",
     "group": "Data",
     "description": "Where each allowance stands now and where it lands by the period's end, on one scale with the plan's line running down through them all. A dot for now, a ring for the end at this pace, and past the plan the ghost turns amber.",
-    "added": "2026-11-02",
-    "pro": true
+    "added": "2026-11-02"
   },
   {
     "order": 3,
@@ -653,8 +626,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Particle text",
     "group": "Display",
     "description": "A word made of ink pixels, lit from above through an ordered dither, that scatter from your pointer and settle back, and sweep from one word into the next.",
-    "added": "2026-10-30",
-    "pro": true
+    "added": "2026-10-30"
   },
   {
     "order": 55,
@@ -670,8 +642,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Pipeline",
     "group": "Data",
     "description": "A job's stages as a waterfall, the way a trace reads: a row each, and on one time axis a bar from where it started for as long as it took. Ghosts for what's to come, the running one growing in ink with a hairline for now, red where it failed. Pick a stage and its output opens under its row.",
-    "added": "2026-10-31",
-    "pro": true
+    "added": "2026-10-31"
   },
   {
     "order": 3,
@@ -685,8 +656,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "name": "pricing-table",
     "title": "Pricing table",
     "group": "Patterns",
-    "description": "A whole pricing section: a monthly and yearly switch whose prices roll, Yearly tagged with what it saves, the plan you'd pick lit by the hero's light, seats with a rolling total, and a comparison that keeps the plan names in view.",
-    "pro": true
+    "description": "A whole pricing section: a monthly and yearly switch whose prices roll, Yearly tagged with what it saves, the plan you'd pick lit by the hero's light, seats with a rolling total, and a comparison that keeps the plan names in view."
   },
   {
     "order": 51,
@@ -708,8 +678,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Roadmap",
     "group": "Data",
     "description": "Work laid out over the weeks it takes, in groups, with today ruled in ink: drag a bar to move it or an end to stretch it, snapping to days, and see at a glance what's planned, under way, at risk or done.",
-    "added": "2026-10-30",
-    "pro": true
+    "added": "2026-10-30"
   },
   {
     "order": 95,
@@ -717,8 +686,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Runway",
     "group": "Data",
     "description": "A balance's past and where it's heading on one line: what it was day by day in ink up to a hairline for today, then a ghost at the pace it's spent, down to the day it runs out. A top-up that runs by itself turns the ghost into a saw that never reaches zero.",
-    "added": "2026-11-02",
-    "pro": true
+    "added": "2026-11-02"
   },
   {
     "order": 80,
@@ -726,8 +694,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Scheduler",
     "group": "Patterns",
     "description": "Booking a time: who and what, a month whose open days are lit with a pill that glides to the one you pick, the day's times splitting into a Confirm, and a confirmation with a check that draws and an .ics.",
-    "added": "2026-10-29",
-    "pro": true
+    "added": "2026-10-29"
   },
   {
     "order": 93,
@@ -735,8 +702,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Score meter",
     "group": "Data",
     "description": "A score out of a hundred as a row of capsules: as many lit as it reaches, the last filled only as far as it does, in the tone of its band. They light one after another the first time it's seen, for a column of fit or health scores that reads at a glance.",
-    "added": "2026-11-02",
-    "pro": true
+    "added": "2026-11-02"
   },
   {
     "order": 58,
@@ -766,8 +732,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Share",
     "group": "Overlays",
     "description": "Share, link first: who can open it and the link to copy lead, the faces of those invited open into their access, and new people are invited by email at the foot.",
-    "added": "2026-10-30",
-    "pro": true
+    "added": "2026-10-30"
   },
   {
     "order": 2,
@@ -782,8 +747,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Sign-in",
     "group": "Patterns",
     "description": "Signing in, in two short steps: a provider in one click with the last one used tagged, or an email then a password or a six-digit code that fills from a paste, and a split layout beside art in a dither.",
-    "added": "2026-10-29",
-    "pro": true
+    "added": "2026-10-29"
   },
   {
     "order": 51,
@@ -804,8 +768,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "name": "sortable-list",
     "title": "Sortable list",
     "group": "Display",
-    "description": "Rows you lift and carry with a spring while the rest make room, scrolling at the edges, and reorder from the keyboard just the same.",
-    "pro": true
+    "description": "Rows you lift and carry with a spring while the rest make room, scrolling at the edges, and reorder from the keyboard just the same."
   },
   {
     "order": 23,
@@ -836,8 +799,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Split-flap",
     "group": "Display",
     "description": "Letters on hinged flaps, the way a departures board turns over: each one flips forward through the alphabet to its letter, the top half falling and shading as it goes, rippling along the word.",
-    "added": "2026-10-30",
-    "pro": true
+    "added": "2026-10-30"
   },
   {
     "order": 20,
@@ -859,8 +821,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Swipe deck",
     "group": "Display",
     "description": "A stack of cards to decide on one at a time: the top one tilts with your hand as it leans, flies off past the line or on a flick, and comes back with Undo.",
-    "added": "2026-10-30",
-    "pro": true
+    "added": "2026-10-30"
   },
   {
     "order": 2,
@@ -948,8 +909,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Top up",
     "group": "Patterns",
     "description": "Adding money to a balance, said in what it buys: the amount big in the middle, typed or run along a tape, and how long it lasts with it. What's charged reads as one sentence with the card a picker in it, paying is a hold, and once it's paid the column turns over to the balance and its runway, before and after.",
-    "added": "2026-11-02",
-    "pro": true
+    "added": "2026-11-02"
   },
   {
     "order": 61,
@@ -957,8 +917,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Tour",
     "group": "Overlays",
     "description": "A walk through a screen one thing at a time: the page dims, a window opens over the thing and glides to the next taking its shape, with a card that goes to the side with room.",
-    "added": "2026-10-23",
-    "pro": true
+    "added": "2026-10-23"
   },
   {
     "order": 4,
@@ -966,8 +925,7 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Tree",
     "group": "Navigation",
     "description": "Folders that spring open beside a guide line, darker along the branch to the chosen row, which rides a pill that glides; run by the keyboard like a file tree.",
-    "added": "2026-10-23",
-    "pro": true
+    "added": "2026-10-23"
   },
   {
     "order": 34,
@@ -975,16 +933,14 @@ export const ENTRY_META: ComponentMeta[] = [
     "title": "Uptime",
     "group": "Data",
     "description": "A service's days as slim bars, a bad day mixed amber or red through an ordered dither in proportion to how much went wrong, with its incidents a point away.",
-    "added": "2026-10-23",
-    "pro": true
+    "added": "2026-10-23"
   },
   {
     "order": 70,
     "name": "wizard",
     "title": "Wizard",
     "group": "Patterns",
-    "description": "A form in steps: a rail that fills, each step sliding in from the side you're heading, checks that land the cursor on what's wrong, a review to read it all back, and a finish.",
-    "pro": true
+    "description": "A form in steps: a rail that fills, each step sliding in from the side you're heading, checks that land the cursor on what's wrong, a review to read it all back, and a finish."
   }
 ];
 

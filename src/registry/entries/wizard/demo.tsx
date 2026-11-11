@@ -2,7 +2,7 @@
 
 import { GlobeIcon, ShoppingBagIcon, UserCircleIcon } from "@phosphor-icons/react";
 import type { ComponentType } from "react";
-import { Wizard, type WizardStep } from "../../pro-ui/wizard";
+import { Wizard, type WizardStep } from "../../ui/wizard";
 import { Field } from "../../ui/field";
 import { Input } from "../../ui/input";
 import { RadioGroup, RadioGroupItem } from "../../ui/radio-group";

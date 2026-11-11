@@ -2,7 +2,7 @@
 
 import { DesktopIcon, DeviceMobileIcon, DeviceTabletIcon, EyeIcon, MapTrifoldIcon } from "@phosphor-icons/react";
 import { useRef, useState, type ComponentType } from "react";
-import { Tour } from "../../pro-ui/tour";
+import { Tour } from "../../ui/tour";
 import { Button } from "../../ui/button";
 
 /** A small Studio: the sections down the side, a device switch, Preview and Publish. The tour points at each. */

@@ -8,8 +8,6 @@ export type ScreenMeta = {
   description: string;
   /** The address it would have in the app, shown over its preview. */
   path: string;
-  /** A Pro screen: anyone can try it live, but its file is only for Pro. Free screens use free components only. */
-  pro?: boolean;
   /** The day it was added, YYYY-MM-DD, for the New tag. */
   added?: string;
   order: number;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ComponentType } from "react";
-import { ColorField, ColorPicker, inkOn, parseColor, toHex } from "../../pro-ui/color-picker";
+import { ColorField, ColorPicker, inkOn, parseColor, toHex } from "../../ui/color-picker";
 
 /* A considered palette, not a rainbow: ink, graphite, clay, ochre, moss, pine, ocean, plum. */
 const PALETTE = ["#1f1f1f", "#5c5c5c", "#b4553a", "#c4962f", "#4e6b47", "#2f5d50", "#2c5a7c", "#6a4560"];

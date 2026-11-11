@@ -75,7 +75,7 @@ export function SiteNav() {
   <NavigationMenuItem label="Product" className="grid w-[500px] grid-cols-2">…</NavigationMenuItem>
   <NavigationMenuItem label="Templates" className="grid w-[420px]">…</NavigationMenuItem>
   <NavigationMenuItem label="Learn" className="grid w-[300px]">…</NavigationMenuItem>
-  <NavigationMenuLink href="/pro">Pricing</NavigationMenuLink>
+  <NavigationMenuLink href="/pricing">Pricing</NavigationMenuLink>
 </NavigationMenu>`,
     },
   ],

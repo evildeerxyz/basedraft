@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ComponentType } from "react";
-import { Funnel } from "../../pro-ui/funnel";
+import { Funnel } from "../../ui/funnel";
 import { Segmented } from "../../ui/segmented";
 
 const MONTH = [

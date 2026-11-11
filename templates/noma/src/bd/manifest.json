@@ -2,7 +2,6 @@
   "slug": "noma",
   "name": "Noma",
   "category": "AI and data",
-  "price": 79,
   "accent": "#ff9e00",
   "tagline": "An AI layer for Postgres, drawn like a printed engraving.",
   "description": "Warm paper, ink line work and one orange. Built for AI, data and developer tools, with light and dark themes.",

@@ -1,10 +1,10 @@
 "use client";
 
-import { ArrowCounterClockwiseIcon, ArrowUpRightIcon, CheckIcon, LockSimpleIcon, SwapIcon } from "@phosphor-icons/react";
+import { ArrowCounterClockwiseIcon, ArrowUpRightIcon, CheckIcon, SwapIcon } from "@phosphor-icons/react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { ICON, SectionGlyph } from "@/site/icons";
-import { isFree, kindOf, liveUrl, sectionShot, templateOf, type LiveSection } from "@/site/live";
+import { kindOf, liveUrl, sectionShot, templateOf, type LiveSection } from "@/site/live";
 import { btnSm } from "@/site/sheet";
 import { Group } from "./ui";
 
@@ -15,16 +15,11 @@ import { Group } from "./ui";
  */
 
 /** Another section of the same kind from the same template, ready to take this one's place. */
-function SwapTile({ s, on, locked, onPick }: { s: LiveSection; on: boolean; locked: boolean; onPick: () => void }) {
+function SwapTile({ s, on, onPick }: { s: LiveSection; on: boolean; onPick: () => void }) {
   return (
     <button type="button" role="radio" aria-checked={on} onClick={onPick} className="group text-left">
       <span className={cn("relative block aspect-[16/10] overflow-hidden rounded-[8px] bg-surface transition-shadow", on ? "shadow-[0_0_0_2px_var(--bd-fg)]" : "shadow-[0_0_0_1px_rgb(var(--bd-ink)/0.1)] group-hover:shadow-[0_0_0_1px_rgb(var(--bd-ink)/0.3)]")}>
         <Image src={sectionShot(s)} alt="" fill sizes="140px" className="object-cover" />
-        {locked && (
-          <span className="absolute right-1 top-1 grid size-4 place-items-center rounded-[5px] bg-fg/85 text-canvas">
-            <LockSimpleIcon size={9} weight="bold" />
-          </span>
-        )}
       </span>
       <span className={cn("mt-1 flex items-center gap-1 truncate px-0.5 text-[12px]", on ? "font-medium text-fg" : "text-muted")}>
         {on && <CheckIcon size={11} weight="bold" />}
@@ -34,7 +29,7 @@ function SwapTile({ s, on, locked, onPick }: { s: LiveSection; on: boolean; lock
   );
 }
 
-export function SectionPanel({ section, pro, onSwap }: { section: LiveSection; pro: boolean; onSwap: (id: string) => void }) {
+export function SectionPanel({ section, onSwap }: { section: LiveSection; onSwap: (id: string) => void }) {
   const t = templateOf(section.template)!;
   const kind = kindOf(section.kind);
   const kin = t.sections.filter((s) => s.kind === section.kind);
@@ -54,7 +49,7 @@ export function SectionPanel({ section, pro, onSwap }: { section: LiveSection; p
         <Group title="Swap for" icon={SwapIcon}>
           <div role="radiogroup" aria-label={`${kind.label} sections`} className="grid grid-cols-2 gap-2">
             {kin.map((s) => (
-              <SwapTile key={s.id} s={s} on={s.id === section.id} locked={!pro && !isFree(s)} onPick={() => onSwap(s.id)} />
+              <SwapTile key={s.id} s={s} on={s.id === section.id} onPick={() => onSwap(s.id)} />
             ))}
           </div>
           <p className="text-[12px] leading-snug text-muted">The other {kind.label.toLowerCase()} sections in {t.name}, each as its template draws it.</p>

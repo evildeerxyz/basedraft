@@ -10,9 +10,8 @@ import { cn } from "@/lib/utils";
 import { DitherLight } from "./dither-light";
 import { SECTION_ICON, type IconType } from "./icons";
 import { BACK, BACK_ARROW, GLASS, LIB_WRAP } from "./library-css";
-import { isFree, KINDS, SECTIONS, sectionShot, TEMPLATES, templateLogo, templateOf, USED_KINDS, type LiveSection, type SectionKind } from "./live";
+import { KINDS, SECTIONS, sectionShot, TEMPLATES, templateLogo, templateOf, USED_KINDS, type LiveSection, type SectionKind } from "./live";
 import { Menu } from "./menu";
-import { ProBadge } from "./sheet";
 import { GLOW, glowAt } from "./stage";
 
 /*
@@ -374,7 +373,6 @@ function BlockTile({ s, i }: { s: LiveSection; i: number }) {
             <span className="block truncate text-ui font-medium text-fg">{t.name}</span>
             <span className="block truncate text-meta text-subtle">{s.name}</span>
           </span>
-          {!isFree(s) && <ProBadge />}
           <TileArrow />
         </span>
         <span className="relative mx-4 flex-1 sm:mx-5">

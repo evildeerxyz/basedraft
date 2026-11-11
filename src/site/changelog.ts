@@ -1,6 +1,5 @@
 /*
- * What's changed in basedraft, newest first: the What's new page draws it, and the Pro page shows
- * the latest few. Each day holds its changes; each change has a title, a line or two on it, a tag
+ * What's changed in basedraft, newest first, as the What's new page draws it. Each day holds its changes; each change has a title, a line or two on it, a tag
  * for what kind of change it is, and where to see it. US English, plain words, no dashes.
  */
 
@@ -22,6 +21,30 @@ export interface ChangeDay {
 }
 
 export const CHANGELOG: ChangeDay[] = [
+  {
+    date: "2026-11-11",
+    changes: [
+      {
+        tag: "New",
+        title: "basedraft is free and open source",
+        body: "Every template, component, screen and block is free now, with all of basedraft's code on GitHub under the MIT license. Pro is gone: Copy for Figma, Download project and Send to GitHub are open to everyone, and every component's file and every screen's code is a click away.",
+        href: "https://github.com/evildeerxyz/basedraft",
+        link: "See the code",
+      },
+      {
+        tag: "New",
+        title: "All 111 components on npm",
+        body: "@basedraft/ui 0.4.0 carries every component, the ones that were Pro included: Data table, Globe, Flow, Pipeline, Runway and the rest, from one install.",
+        href: "/components/get-started",
+        link: "Get started",
+      },
+      {
+        tag: "New",
+        title: "Buy me a Claude plan",
+        body: "basedraft is built with Claude Code. If it saves you time, the button in the header puts any amount you like toward the Claude plan that builds it. It's never needed for anything.",
+      },
+    ],
+  },
   {
     date: "2026-11-02",
     changes: [

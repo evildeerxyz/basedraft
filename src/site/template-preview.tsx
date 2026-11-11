@@ -5,6 +5,7 @@ import { LayoutGroup, motion } from "motion/react";
 import Link from "next/link";
 import { useEffect, useId, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { REPO } from "@/registry";
 import { DeviceFrame } from "./frames";
 import { composeUrl, liveUrl, templateOf, viewUrl } from "./live";
 import { ShellLine } from "./shell-line";
@@ -113,11 +114,11 @@ export function TakeHome({ slug }: { slug: string }) {
   const id = useId();
   const [way, setWay] = useState<Way>("download");
   const [astro, setAstro] = useState(false);
-  // The zip is named for the template (and -astro for Astro); a new repository just for the template.
+  // The zip is named for the template (and -astro for Astro); in the repository it's a folder of templates/.
   const base = t.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
   const folder = `${base}${astro ? "-astro" : ""}`;
   const pages = astro ? "src/pages" : t.pagesDir;
-  const prompt = `I bought the basedraft ${t.name} template and downloaded ${folder}.zip. Unzip it into this folder, run npm install and npm run dev, then walk me through ${pages} so I can start changing the copy. basedraft's notes for agents are at https://basedraft.site/llms.txt.`;
+  const prompt = `Clone ${REPO} and set up its ${t.name} template, in templates/${slug}, as a project of its own: take out the basePath in its next.config.ts so it runs at the root, run npm install and npm run dev, then walk me through ${t.pagesDir} so I can start changing the copy. basedraft's notes for agents are at https://basedraft.site/llms.txt.`;
   return (
     <div className="rounded-[24px] bg-paper/65 p-2 shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--bd-paper-ink)_8%,transparent),var(--bd-shadow-resting)] backdrop-blur-md">
       <LayoutGroup id={id}>
@@ -150,18 +151,14 @@ export function TakeHome({ slug }: { slug: string }) {
             <Steps
               items={[
                 <>
-                  Buy {t.name}, or get{" "}
-                  <Link href="/pro" className={linkCls}>
-                    Pro
-                  </Link>{" "}
-                  for every template.
+                  Open {t.name} in{" "}
+                  <Link href={`/studio?template=${slug}`} className={linkCls}>
+                    Studio
+                  </Link>
+                  , and make it yours if you like.
                 </>,
                 <>
-                  On your{" "}
-                  <Link href="/purchases" className={linkCls}>
-                    Purchases page
-                  </Link>
-                  , download it in {astro ? "Astro" : "Next.js"}. It comes as {folder}.zip.
+                  Under Export, download it in {astro ? "Astro" : "Next.js"}. It comes as {folder}.zip, with {pages} ready to edit.
                 </>,
                 "Unzip it, install, and it runs as it is:",
               ]}
@@ -173,28 +170,24 @@ export function TakeHome({ slug }: { slug: string }) {
         )}
         {way === "github" && (
           <>
-            <p className="mb-5 text-heading">A repository made for you</p>
+            <p className="mb-5 text-heading">Straight from the source</p>
             <Steps
               items={[
                 <>
-                  Buy {t.name}, or get{" "}
-                  <Link href="/pro" className={linkCls}>
-                    Pro
-                  </Link>
-                  .
+                  {t.name} is in{" "}
+                  <a href={`${REPO}/tree/main/templates/${slug}`} target="_blank" rel="noreferrer" className={linkCls}>
+                    basedraft&apos;s repository
+                  </a>
+                  , free and open source under the MIT license.
                 </>,
+                <>Or from Studio, send your version to a new repository of your own, or as a pull request on one you have.</>,
                 <>
-                  On your{" "}
-                  <Link href="/purchases" className={linkCls}>
-                    Purchases page
-                  </Link>
-                  , connect GitHub once, then send it to a new repository, or as a pull request on one you have.
+                  Clone it and run it. It opens at localhost:3000/live/{slug}, the path basedraft serves it under (its <code className="font-mono text-[0.92em]">basePath</code>):
                 </>,
-                "Clone it and run it:",
               ]}
             />
             <div className="mt-3 sm:pl-[34px]">
-              <CopyCommand command={`git clone https://github.com/you/${base}.git && cd ${base} && npm install && npm run dev`} />
+              <CopyCommand command={`git clone --depth 1 ${REPO}.git && cd basedraft/templates/${slug} && npm install && npm run dev`} />
             </div>
           </>
         )}
@@ -203,14 +196,8 @@ export function TakeHome({ slug }: { slug: string }) {
             <p className="mb-5 text-heading">Set it up with Claude Code</p>
             <Steps
               items={[
-                <>
-                  Download {t.name} from your{" "}
-                  <Link href="/purchases" className={linkCls}>
-                    Purchases page
-                  </Link>
-                  .
-                </>,
-                "In the folder you saved it to, start Claude Code with this prompt:",
+                "Open a terminal in an empty folder.",
+                "Start Claude Code with this prompt:",
               ]}
             />
             <div className="mt-3 flex items-start gap-2 rounded-[14px] bg-surface-2 py-3 pl-4 pr-1.5 sm:ml-[34px]">

@@ -1,7 +1,7 @@
 "use client";
 
 import type { ComponentType } from "react";
-import { Share, type SharePerson } from "../../pro-ui/share";
+import { Share, type SharePerson } from "../../ui/share";
 import { hint } from "../_shared/kit";
 
 const TEAM: SharePerson[] = [

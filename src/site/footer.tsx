@@ -1,9 +1,11 @@
-import { AppWindowIcon, ArrowRightIcon, EnvelopeSimpleIcon, LayoutIcon, PackageIcon, PenNibIcon, QuestionIcon, ReceiptIcon, ScrollIcon, SparkleIcon, SquaresFourIcon, StackIcon, TagIcon } from "@phosphor-icons/react/ssr";
+import { AppWindowIcon, ArrowRightIcon, ArrowUpRightIcon, BugIcon, EnvelopeSimpleIcon, GithubLogoIcon, LayoutIcon, PenNibIcon, ScrollIcon, SparkleIcon, SquaresFourIcon, StackIcon } from "@phosphor-icons/react/ssr";
 import type { Icon } from "@phosphor-icons/react";
 import Link from "next/link";
+import { REPO } from "@/registry";
 import { TEMPLATES, templateLogo } from "./live";
 import { BaseDraftLogo } from "./logo";
 import { btnLg } from "./sheet";
+import { TipButton } from "./tip";
 import { Wordmark } from "./wordmark";
 
 /*
@@ -22,7 +24,6 @@ const COLUMNS: Array<{ title: string; links: FooterLink[] }> = [
       { label: "Screens", href: "/screens", icon: AppWindowIcon },
       { label: "Blocks", href: "/blocks", icon: SquaresFourIcon },
       { label: "Studio", href: "/studio", icon: PenNibIcon },
-      { label: "Pricing", href: "/pro", icon: TagIcon },
       { label: "What's new", href: "/whats-new", icon: SparkleIcon },
     ],
   },
@@ -30,10 +31,9 @@ const COLUMNS: Array<{ title: string; links: FooterLink[] }> = [
   {
     title: "Help",
     links: [
-      { label: "How you get a template", href: "/pro#delivery", icon: PackageIcon },
-      { label: "Licenses", href: "/pro#license", icon: ScrollIcon },
-      { label: "Questions", href: "/pro#faq", icon: QuestionIcon },
-      { label: "Your purchases", href: "/purchases", icon: ReceiptIcon },
+      { label: "Source on GitHub", href: REPO, icon: GithubLogoIcon },
+      { label: "MIT license", href: `${REPO}/blob/main/LICENSE`, icon: ScrollIcon },
+      { label: "Report a bug", href: `${REPO}/issues`, icon: BugIcon },
       { label: "Write to us", href: "mailto:hello@basedraft.site", icon: EnvelopeSimpleIcon },
     ],
   },
@@ -52,15 +52,15 @@ export function SiteFooter() {
                 <PenNibIcon size={22} weight="duotone" />
               </span>
               <h2 className="max-w-[720px] text-balance text-headline">Your next site is already drafted</h2>
-              <p className="mt-4 max-w-[460px] text-pretty text-body text-paper-muted">Open any template in Studio for free. Pay when you take it home.</p>
+              <p className="mt-4 max-w-[460px] text-pretty text-body text-paper-muted">Every template, component and screen is free and open source. Open one in Studio and make it yours.</p>
             </div>
             <div className="flex flex-wrap gap-3">
               <Link href="/studio" className={btnLg.onPaper}>
                 Open Studio, free <ArrowRightIcon weight="regular" size={15} />
               </Link>
-              <Link href="/pro" className={btnLg.onPaperOutline}>
-                See Pro
-              </Link>
+              <a href={REPO} target="_blank" rel="noreferrer" className={btnLg.onPaperOutline}>
+                <GithubLogoIcon size={16} weight="duotone" /> GitHub
+              </a>
             </div>
           </div>
           <div className="grid gap-12 py-14 lg:grid-cols-[minmax(0,1fr)_auto]">
@@ -69,6 +69,7 @@ export function SiteFooter() {
                 <BaseDraftLogo />
               </Link>
               <p className="mt-4 text-ui text-paper-muted max-sm:hidden">Finished websites in Next.js and Astro, and every section in them, to make your own in Studio and take to Figma or GitHub.</p>
+              <TipButton className="mt-6 bg-paper/60 backdrop-blur" />
             </div>
             <nav aria-label="Footer" className="grid grid-cols-2 gap-x-14 gap-y-10 sm:grid-cols-3">
               {COLUMNS.map((c) => (
@@ -77,7 +78,7 @@ export function SiteFooter() {
                   <ul className="space-y-3">
                     {c.links.map((l) => (
                       <li key={l.label}>
-                        <Link href={l.href} className="group flex items-center gap-2.5 text-ui text-paper-muted transition-colors hover:text-paper-ink">
+                        <Link href={l.href} {...(l.href.startsWith("http") && { target: "_blank", rel: "noreferrer" })} className="group flex items-center gap-2.5 text-ui text-paper-muted transition-colors hover:text-paper-ink">
                           {l.logo ? (
                             // A template's own app icon.
                             // eslint-disable-next-line @next/next/no-img-element
@@ -86,6 +87,7 @@ export function SiteFooter() {
                             l.icon && <l.icon size={16} weight="duotone" className="shrink-0 text-paper-muted/80 transition-colors group-hover:text-paper-ink" />
                           )}
                           {l.label}
+                          {l.href.startsWith("http") && <ArrowUpRightIcon size={12} weight="regular" className="text-paper-muted/60" />}
                         </Link>
                       </li>
                     ))}
@@ -97,12 +99,9 @@ export function SiteFooter() {
           <div className="flex flex-wrap items-center justify-between gap-4 border-t border-paper-ink/10 py-6 text-meta text-paper-muted">
             <span>© 2026 basedraft</span>
             <span className="flex flex-wrap gap-5">
-              <Link href="/pro#license" className="transition-colors hover:text-paper-ink">
-                License
-              </Link>
-              <Link href="/pro#faq" className="transition-colors hover:text-paper-ink">
-                Questions
-              </Link>
+              <a href={`${REPO}/blob/main/LICENSE`} target="_blank" rel="noreferrer" className="transition-colors hover:text-paper-ink">
+                MIT license
+              </a>
               <a href="mailto:hello@basedraft.site" className="transition-colors hover:text-paper-ink">
                 hello@basedraft.site
               </a>

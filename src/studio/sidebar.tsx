@@ -1,13 +1,13 @@
 "use client";
 
-import { CopyIcon, DotsSixVerticalIcon, FileIcon, HouseIcon, LockSimpleIcon, PlusIcon, SquareIcon, TrashIcon } from "@phosphor-icons/react";
+import { CopyIcon, DotsSixVerticalIcon, FileIcon, HouseIcon, PlusIcon, SquareIcon, TrashIcon } from "@phosphor-icons/react";
 import { motion, Reorder, useDragControls } from "motion/react";
 import Image from "next/image";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { SectionGlyph } from "@/site/icons";
 import { Tip } from "@/site/keys";
-import { isFree, KINDS, sectionOf, sectionShot, TEMPLATES, templateOf, templateShot, type LiveSection, type TemplateSlug } from "@/site/live";
+import { KINDS, sectionOf, sectionShot, TEMPLATES, templateOf, templateShot, type LiveSection, type TemplateSlug } from "@/site/live";
 import { Menu } from "@/site/menu";
 import type { Block } from "./canvas";
 import { idOf, type Project, type View } from "./state";
@@ -79,7 +79,7 @@ export function Layers({ template, keys, selected, onSelect, onRemove, onDuplica
 const tile = "rounded-[8px] shadow-[0_0_0_1px_rgb(var(--bd-ink)/0.1)] transition-shadow group-hover:shadow-[0_0_0_2px_var(--bd-fg)]";
 
 /** Every section in the template, grouped by kind, as the real thing in miniature. */
-export function InsertGrid({ template, pro, onInsert, cols = 3 }: { template: TemplateSlug; pro: boolean; onInsert: (id: string) => void; cols?: 2 | 3 }) {
+export function InsertGrid({ template, onInsert, cols = 3 }: { template: TemplateSlug; onInsert: (id: string) => void; cols?: 2 | 3 }) {
   const t = templateOf(template)!;
   const kinds = KINDS.filter((k) => t.sections.some((s) => s.kind === k.id));
   return (
@@ -93,22 +93,14 @@ export function InsertGrid({ template, pro, onInsert, cols = 3 }: { template: Te
           <div className={cn("grid gap-2", cols === 3 ? "grid-cols-3" : "grid-cols-2")}>
             {t.sections
               .filter((s) => s.kind === k.id)
-              .map((s) => {
-                const locked = !pro && !isFree(s);
-                return (
-                  <button key={s.id} type="button" onClick={() => onInsert(s.id)} className="group text-left">
-                    <span className={cn("relative block aspect-[16/10] overflow-hidden bg-surface", tile)}>
-                      <Image src={sectionShot(s)} alt="" fill sizes="180px" className="object-cover" />
-                      {locked && (
-                        <span className="absolute right-1 top-1 flex items-center gap-0.5 rounded-[6px] bg-fg/85 px-1 py-px text-[10px] font-medium text-canvas">
-                          <LockSimpleIcon size={9} weight="bold" /> Pro
-                        </span>
-                      )}
-                    </span>
-                    <span className="mt-1 block truncate px-0.5 text-[12px]">{s.name}</span>
-                  </button>
-                );
-              })}
+              .map((s) => (
+                <button key={s.id} type="button" onClick={() => onInsert(s.id)} className="group text-left">
+                  <span className={cn("relative block aspect-[16/10] overflow-hidden bg-surface", tile)}>
+                    <Image src={sectionShot(s)} alt="" fill sizes="180px" className="object-cover" />
+                  </span>
+                  <span className="mt-1 block truncate px-0.5 text-[12px]">{s.name}</span>
+                </button>
+              ))}
           </div>
         </div>
       ))}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ComponentType } from "react";
-import { AiChat, ChatComposer, ChatThread, type ChatMessage, type ChatPart } from "../../pro-ui/ai-chat";
+import { AiChat, ChatComposer, ChatThread, type ChatMessage, type ChatPart } from "../../ui/ai-chat";
 
 /* What the assistant says back, word by word, after rewriting a section. */
 const REPLY =

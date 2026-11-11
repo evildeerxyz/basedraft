@@ -2,7 +2,7 @@
 
 import { ArticleIcon, BuildingsIcon, CalendarCheckIcon, ChatCircleTextIcon, EnvelopeSimpleIcon, FunctionIcon, GitBranchIcon, PlayIcon, UserPlusIcon } from "@phosphor-icons/react";
 import { useEffect, useRef, useState, type ComponentType } from "react";
-import { Flow, type FlowEdge, type FlowNode, type FlowStatus } from "../../pro-ui/flow";
+import { Flow, type FlowEdge, type FlowNode, type FlowStatus } from "../../ui/flow";
 
 /* A lead's way from signing up to the right next step. */
 const NODES: FlowNode[] = [

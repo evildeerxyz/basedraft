@@ -4,6 +4,5 @@
   "group": "Patterns",
   "description": "Booking a time: who and what, a month whose open days are lit with a pill that glides to the one you pick, the day's times splitting into a Confirm, and a confirmation with a check that draws and an .ics.",
   "order": 80,
-  "added": "2026-10-29",
-  "pro": true
+  "added": "2026-10-29"
 }

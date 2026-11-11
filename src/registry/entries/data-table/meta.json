@@ -3,6 +3,5 @@
   "title": "Data table",
   "group": "Data",
   "description": "Rows on a white sheet that sort with a turning arrow and glide into place, pick in ranges with Shift, open for detail, and keep their header and first column in view.",
-  "order": 10,
-  "pro": true
+  "order": 10
 }

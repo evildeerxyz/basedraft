@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ComponentType } from "react";
-import { Heatmap, type HeatmapDay } from "../../pro-ui/heatmap";
+import { Heatmap, type HeatmapDay } from "../../ui/heatmap";
 import { hint } from "../_shared/kit";
 
 /* The demos' last day: fixed, so the page is the same for everyone and builds without a clock. */

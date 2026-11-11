@@ -1,7 +1,7 @@
 "use client";
 
 import type { ComponentType } from "react";
-import { Commit } from "../../pro-ui/commit";
+import { Commit } from "../../ui/commit";
 
 /* The storefront's last few commits, one to a line, as they'd sit in a list of deploys or a branch's history. */
 const COMMITS = [

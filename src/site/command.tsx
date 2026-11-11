@@ -11,7 +11,7 @@ import { SCREENS } from "@/screens";
 import { DIALOG_CARD } from "./dialog";
 import { ICON, SECTION_ICON, type IconType } from "./icons";
 import { Keys } from "./keys";
-import { isFree, kindOf, KINDS, SECTIONS, sectionShot, sectionsOfKind, TEMPLATES, templateLogo, templateOf, templateShot } from "./live";
+import { kindOf, KINDS, SECTIONS, sectionShot, sectionsOfKind, TEMPLATES, templateLogo, templateOf, templateShot } from "./live";
 import { Glow } from "./plan-parts";
 import { ShellLine } from "./shell-line";
 
@@ -48,16 +48,13 @@ interface Entry {
 }
 
 const PAGES: Array<Pick<Entry, "label" | "href" | "icon" | "blurb">> = [
-  { label: "Overview", href: "/", icon: ICON.overview, blurb: "Every template running, and what Studio and Pro do." },
-  { label: "Templates", href: "/templates", icon: ICON.templates, blurb: "Every template, live, with its pages and price." },
+  { label: "Overview", href: "/", icon: ICON.overview, blurb: "Every template running, and what Studio does." },
+  { label: "Templates", href: "/templates", icon: ICON.templates, blurb: "Every template, live, with its pages and code." },
   { label: "Components", href: "/components", icon: ICON.components, blurb: "basedraft's own React components, free, one file each." },
   { label: "Screens", href: "/screens", icon: ICON.layout, blurb: "Whole app screens, dashboards and settings, made of basedraft UI." },
   { label: "Blocks", href: "/blocks", icon: ICON.layout, blurb: "Every section from the templates, sorted by what it does." },
   { label: "What's new", href: "/whats-new", icon: ICON.preview, blurb: "What changed lately, newest first." },
   { label: "Studio", href: "/studio", icon: ICON.studio, blurb: "Open a template and make it yours, right on the page." },
-  { label: "Pro and pricing", href: "/pro", icon: ICON.pro, blurb: "One payment for every template, section and update." },
-  { label: "Purchases", href: "/purchases", icon: ICON.templates, blurb: "What you've bought, with its downloads and updates." },
-  { label: "Team", href: "/team", icon: ICON.pro, blurb: "Your team's seats, and who has them." },
 ];
 
 const ENTRIES: Entry[] = [
@@ -72,14 +69,14 @@ const ENTRIES: Entry[] = [
       logo: templateLogo(t.slug),
       shot: templateShot(t.slug),
       blurb: t.tagline,
-      facts: [`${t.pages.length} pages`, `${t.sections.length} sections`, t.price === "free" ? "Free" : `$${t.price}`],
+      facts: [`${t.pages.length} pages`, `${t.sections.length} sections`, "Free"],
       words: `${t.name} ${t.category} ${t.tagline}`.toLowerCase(),
     }),
   ),
   ...COMPONENTS.map(
-    (c): Entry => ({ scope: "components", group: "Components", label: c.title, hint: c.pro ? `${c.group}, Pro` : c.group, href: `/components/${c.name}`, icon: ICON.components, blurb: c.description, facts: [c.group, c.pro ? "Pro" : "Free"], command: c.pro ? undefined : installCommand(), words: `${c.title} ${c.group} ${c.description}`.toLowerCase() }),
+    (c): Entry => ({ scope: "components", group: "Components", label: c.title, hint: c.group, href: `/components/${c.name}`, icon: ICON.components, blurb: c.description, facts: [c.group, "Free"], command: installCommand(), words: `${c.title} ${c.group} ${c.description}`.toLowerCase() }),
   ),
-  ...SCREENS.map((sc): Entry => ({ scope: "components", group: "Screens", label: sc.title, hint: sc.pro ? `${sc.kind}, Pro` : sc.kind, href: `/screens/${sc.slug}`, icon: ICON.layout, blurb: sc.description, facts: [sc.kind, `${sc.uses.length} components`, sc.pro ? "Pro" : "Free"], words: `${sc.title} ${sc.kind} screen dashboard ${sc.description}`.toLowerCase() })),
+  ...SCREENS.map((sc): Entry => ({ scope: "components", group: "Screens", label: sc.title, hint: sc.kind, href: `/screens/${sc.slug}`, icon: ICON.layout, blurb: sc.description, facts: [sc.kind, `${sc.uses.length} components`, "Free"], words: `${sc.title} ${sc.kind} screen dashboard ${sc.description}`.toLowerCase() })),
   ...KINDS.filter((k) => sectionsOfKind(k.id).length).map((k): Entry => {
     const list = sectionsOfKind(k.id);
     return { scope: "blocks", group: "Kinds of section", label: k.label, hint: `${list.length}`, href: `/blocks/${k.id}`, icon: SECTION_ICON[k.id], shot: sectionShot(list[0]), blurb: k.blurb, facts: [`${list.length} ${list.length === 1 ? "section" : "sections"}`], words: `${k.label} ${k.blurb}`.toLowerCase() };
@@ -87,7 +84,7 @@ const ENTRIES: Entry[] = [
   ...SECTIONS.map((s): Entry => {
     const t = templateOf(s.template)!;
     const k = kindOf(s.kind);
-    return { scope: "blocks", group: "Sections", label: `${t.name} ${s.name.toLowerCase()}`, hint: k.label, href: `/blocks/${s.kind}#${s.template}-${s.id}`, logo: templateLogo(t.slug), shot: sectionShot(s), blurb: k.blurb, facts: [t.name, k.label, isFree(s) ? "Free" : "Pro"], words: `${t.name} ${s.name} ${s.kind} ${k.label}`.toLowerCase() };
+    return { scope: "blocks", group: "Sections", label: `${t.name} ${s.name.toLowerCase()}`, hint: k.label, href: `/blocks/${s.kind}#${s.template}-${s.id}`, logo: templateLogo(t.slug), shot: sectionShot(s), blurb: k.blurb, facts: [t.name, k.label, "Free"], words: `${t.name} ${s.name} ${s.kind} ${k.label}`.toLowerCase() };
   }),
 ];
 

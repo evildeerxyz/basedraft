@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ComponentType } from "react";
-import { LiveCursors, Viewers, type Person, type Presence } from "../../pro-ui/live-cursors";
+import { LiveCursors, Viewers, type Person, type Presence } from "../../ui/live-cursors";
 
 const MAYA: Person = { id: "maya", name: "Emily Carter", color: "oklch(0.64 0.15 38)" };
 const JONAH: Person = { id: "jonah", name: "Jake Morrison", color: "oklch(0.6 0.1 178)" };

@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { purchaseReady, signInCode, teamInvite, welcome } from "@/server/emails/templates";
+import { signInCode, welcome } from "@/server/emails/templates";
 
 /*
  * basedraft's emails, as they render, in light and dark: a page for working on them. They're sent
@@ -10,10 +10,7 @@ export default function EmailPreview() {
   const brand = { assets: "", site: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3400" };
   const emails = [
     { name: "Sign-in code", email: signInCode(brand, { code: "482916" }) },
-    { name: "Welcome", email: welcome(brand, { name: "Riley Parker" }) },
-    { name: "Template bought", email: purchaseReady(brand, { product: "zuno", name: "Zuno", template: true, order: "pay_EXAMPLE", amount: 79, currency: "usd" }) },
-    { name: "Pro bought", email: purchaseReady(brand, { product: "pro", name: "basedraft Pro", template: false, order: "pay_EXAMPLE", amount: 149, currency: "usd" }) },
-    { name: "Team invite", email: teamInvite(brand, { team: "Parker Studio", inviter: "Riley Parker", inviterEmail: "riley@example.com", token: "example" }) },
+    { name: "Welcome", email: welcome(brand, { name: "Emily Carter" }) },
   ];
   return (
     <main className="min-h-dvh bg-surface-2 p-8">

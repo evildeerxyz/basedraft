@@ -1,15 +1,12 @@
 "use client";
 
-import { CaretDownIcon, DownloadSimpleIcon, FigmaLogoIcon, FileHtmlIcon, LockSimpleIcon, type Icon } from "@phosphor-icons/react";
+import { CaretDownIcon, DownloadSimpleIcon, FigmaLogoIcon, FileHtmlIcon, type Icon } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useId, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 import { createPortal } from "react-dom";
 import { cn, EASE_OUT } from "@/lib/utils";
 import { designCopyDrawn, downloadFile, EXPORT_GUTTER, EXPORT_WIDTH, figmaCopyFor, figmaSvgFor, paperCopyFor, writeClipboard } from "./design-export";
 import { prepareLive, type LiveCopy } from "./live-export";
-import { usePlan } from "./plan";
-import { openPro } from "./pro-modal";
-import { btnSm } from "./sheet";
 import { toast } from "./toast";
 import { track } from "./analytics";
 
@@ -108,12 +105,10 @@ async function copyLive(kind: CopyKind, t: CopyTarget, live: LiveCopy) {
 
 /**
  * "Copy to design" menu: Figma gets its own native layers (auto layout, components),
- * Paper gets HTML with inline styles and named layers. A Pro feature; Free users see what it does.
+ * Paper gets HTML with inline styles and named layers.
  */
 export function DesignCopyMenu({ targets, size = "sm", align = "right" }: { targets: CopyTarget[]; size?: "sm" | "md"; align?: "left" | "right" }) {
   const [open, setOpen] = useState(false);
-  const [plan] = usePlan();
-  const pro = plan === "pro";
   const root = useRef<HTMLDivElement>(null);
   const menu = useRef<HTMLDivElement>(null);
   const items = useRef<Array<HTMLElement | null>>([]);
@@ -126,11 +121,11 @@ export function DesignCopyMenu({ targets, size = "sm", align = "right" }: { targ
     const r = root.current!.getBoundingClientRect();
     const w = Math.min(268, window.innerWidth - 16);
     const left = Math.max(8, Math.min(align === "right" ? r.right - w : r.left, window.innerWidth - w - 8));
-    const tall = pro ? targets.length * 172 : 176;
+    const tall = targets.length * 172;
     const up = r.bottom + tall + 14 > window.innerHeight && r.top > tall + 14;
     setPos(up ? { left, width: w, bottom: window.innerHeight - r.top + 6 } : { left, width: w, top: r.bottom + 6 });
     setOpen(true);
-    if (pro) targets.forEach(prepareCopy);
+    targets.forEach(prepareCopy);
   };
 
   useEffect(() => {
@@ -188,7 +183,6 @@ export function DesignCopyMenu({ targets, size = "sm", align = "right" }: { targ
       >
         <FigmaLogoIcon size={size === "sm" ? 13 : 15} weight="duotone" className="text-muted" />
         Copy to design
-        {!pro && <LockSimpleIcon size={11} weight="duotone" className="text-subtle" />}
         <CaretDownIcon size={10} weight="regular" className="text-subtle" />
       </button>
       {pos &&
@@ -207,8 +201,7 @@ export function DesignCopyMenu({ targets, size = "sm", align = "right" }: { targ
                 style={pos}
                 className={cn("fixed z-[120] rounded-[var(--bd-r-sheet)] border border-line bg-surface/95 p-1.5 shadow-[var(--bd-shadow-float)] backdrop-blur-xl", pos.top !== undefined ? "origin-top" : "origin-bottom")}
               >
-                {pro ? (
-                  targets.map((t, ti) => (
+                {targets.map((t, ti) => (
                     <div key={t.name} className={cn(ti > 0 && "mt-1 border-t border-line pt-1")}>
                       {targets.length > 1 && <div className="px-2.5 pb-1 pt-1.5 text-[12px] font-medium text-subtle">{t.name}</div>}
                       {options.map((o, oi) => {
@@ -234,30 +227,7 @@ export function DesignCopyMenu({ targets, size = "sm", align = "right" }: { targ
                         );
                       })}
                     </div>
-                  ))
-                ) : null}
-                {pro ? null : (
-                  <div className="p-3">
-                    <div className="flex items-center gap-2 text-ui font-medium">
-                      <LockSimpleIcon size={15} weight="duotone" className="text-muted" /> A Pro feature
-                    </div>
-                    <p className="mt-1 text-meta text-muted">Copy any section or page into Figma with auto layout and components, or into Paper as named HTML layers.</p>
-                    <button
-                      ref={(el) => {
-                        items.current[0] = el;
-                      }}
-                      type="button"
-                      role="menuitem"
-                      onClick={() => {
-                        setOpen(false);
-                        openPro("figma");
-                      }}
-                      className={cn(btnSm.ink, "mt-3 w-full")}
-                    >
-                      See Pro
-                    </button>
-                  </div>
-                )}
+                  ))}
               </motion.div>
             )}
           </AnimatePresence>,

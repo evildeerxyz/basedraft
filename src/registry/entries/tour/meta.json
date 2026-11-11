@@ -4,6 +4,5 @@
   "group": "Overlays",
   "description": "A walk through a screen one thing at a time: the page dims, a window opens over the thing and glides to the next taking its shape, with a card that goes to the side with room.",
   "order": 61,
-  "added": "2026-10-23",
-  "pro": true
+  "added": "2026-10-23"
 }

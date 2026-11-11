@@ -2,7 +2,7 @@
 
 import { BrowserIcon, ChartBarIcon, EyeIcon, EyeSlashIcon, QuestionIcon, SealCheckIcon, SquareHalfBottomIcon, SquaresFourIcon, TagIcon, TextHOneIcon, type Icon } from "@phosphor-icons/react";
 import { useState, type ComponentType } from "react";
-import { SortableList } from "../../pro-ui/sortable-list";
+import { SortableList } from "../../ui/sortable-list";
 
 /* A template's home page, a section a row, the way Studio's outline lists them. */
 type Section = { id: string; name: string; note: string; icon: Icon };

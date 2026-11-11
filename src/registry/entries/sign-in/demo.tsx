@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ComponentType } from "react";
-import { SignIn } from "../../pro-ui/sign-in";
+import { SignIn } from "../../ui/sign-in";
 import { Segmented } from "../../ui/segmented";
 import { BaseDraftMark } from "@/site/logo";
 import { hint } from "../_shared/kit";

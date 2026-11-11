@@ -3,7 +3,6 @@
   "kind": "Developer tools",
   "description": "A workspace's projects on one shared axis of the last two weeks, a lane each: what shipped, what was tried, what failed and what's building now, under a sentence that names what needs you. Pick one and its page opens beside the list: what's live, its traffic, its last releases and who ships it.",
   "path": "relay.app/acme/projects",
-  "pro": true,
   "added": "2026-11-02",
   "order": 0
 }

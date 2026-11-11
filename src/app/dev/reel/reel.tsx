@@ -114,7 +114,6 @@ export function Reel() {
     return () => removeEventListener("resize", size);
   }, []);
 
-  const free = COMPONENTS.filter((c) => !c.pro).length;
   return (
     <div data-theme="light" data-bd-stage="" className="bd-light bd-paper fixed inset-0 overflow-hidden text-[var(--bd-fg)]" style={{ cursor: "none" }}>
       {/* The demos' hints are for their docs page; here the frame speaks for itself. */}
@@ -139,7 +138,7 @@ export function Reel() {
             <div className="grid justify-items-center">
               <p className="font-display text-[104px] font-medium leading-none tracking-[-0.055em]">{COMPONENTS.length} components</p>
               <p className="mt-5 text-[22px] text-[var(--bd-muted)]">
-                {free} free on npm, {COMPONENTS.length - free} Pro. Every one of them moves.
+                Free and open source, all on npm. Every one of them moves.
               </p>
               <span className="mt-9 flex items-center gap-3 rounded-full bg-[#18181b] px-6 py-3 font-mono text-[19px] text-[#e6edf3] shadow-[0_0_0_1px_rgb(255_255_255/0.08),0_20px_50px_-20px_rgb(0_0_0/0.6)]">
                 <span className="text-[#8b949e]">$</span> npm i <span className="text-[#a5d6ff]">@basedraft/ui</span>
@@ -150,7 +149,6 @@ export function Reel() {
         ) : (
           <div data-reel-caption="" className="absolute bottom-7 left-8 flex h-9 items-center gap-3">
             <span className="font-display text-[34px] font-medium leading-none tracking-[-0.04em]">{meta?.title}</span>
-            {meta?.pro && <span className="inline-flex h-6 items-center rounded-full px-2.5 text-[12px] font-medium leading-none text-[var(--bd-ui-ink-text)] [background:var(--bd-ui-ink)]">Pro</span>}
             <span className="text-[16px] leading-none text-[var(--bd-subtle)]">{meta?.group}</span>
           </div>
         )}

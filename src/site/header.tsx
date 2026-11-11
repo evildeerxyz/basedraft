@@ -1,12 +1,12 @@
 "use client";
 
-import { AppWindowIcon, ArrowRightIcon, ArrowUpRightIcon, BookOpenTextIcon, CaretDownIcon, DiamondIcon, ListIcon, MagnifyingGlassIcon, PackageIcon, PenNibIcon, ReceiptIcon, SignOutIcon, SquaresFourIcon, StackIcon, UserCircleIcon, UsersThreeIcon, XIcon, type Icon } from "@phosphor-icons/react";
+import { AppWindowIcon, ArrowRightIcon, ArrowUpRightIcon, BookOpenTextIcon, CaretDownIcon, ListIcon, MagnifyingGlassIcon, PackageIcon, PenNibIcon, SignOutIcon, SquaresFourIcon, StackIcon, UserCircleIcon, XIcon, type Icon } from "@phosphor-icons/react";
 import { AnimatePresence, LayoutGroup, motion } from "motion/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useId, useRef, useState, useSyncExternalStore, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from "react";
 import { cn, EASE_OUT } from "@/lib/utils";
-import { COMPONENTS, isNew } from "@/registry";
+import { COMPONENTS, isNew, REPO } from "@/registry";
 import { SCREENS } from "@/screens";
 import { ANNOUNCE_KEY } from "./announce-script";
 import { AccountHeader, Avatar, displayName, openAuth, openProfile, signOut, useAuth } from "./auth";
@@ -17,9 +17,7 @@ import { Keys } from "./keys";
 import { SECTIONS, TEMPLATES, templateLogo } from "./live";
 import { BaseDraftLogo } from "./logo";
 import { Menu, type MenuItem } from "./menu";
-import { usePlan } from "./plan";
-import { openPro } from "./pro-modal";
-import { btnSm, ProBadge } from "./sheet";
+import { TipButton } from "./tip";
 
 /*
  * The top of every page: the logo on the left, the site's places in the middle (Templates and
@@ -52,10 +50,7 @@ const GROUPS: Group[] = [
   { id: "templates", label: "Templates", href: "/templates", under: ["/templates", "/blocks"] },
   { id: "components", label: "Components", href: "/components", under: ["/components", "/screens"] },
 ];
-const LINKS = [
-  { href: "/studio", label: "Studio" },
-  { href: "/pro", label: "Pricing" },
-];
+const LINKS = [{ href: "/studio", label: "Studio" }];
 
 const BUILD: Place[] = [
   { href: "/blocks", label: "Blocks", line: `All ${SECTIONS.length} sections from the sites, live at any width.`, icon: SquaresFourIcon },
@@ -76,19 +71,16 @@ const JUST_ADDED = COMPONENTS.filter(isNew)
 const PHONE: Array<{ label: string; links: Array<{ href: string; label: string }> }> = [
   { label: "Templates", links: [{ href: "/templates", label: "All templates" }, ...BUILD] },
   { label: "Components", links: LIBRARY.slice(0, 3) },
-  { label: "", links: [{ href: "/pro", label: "Pricing" }] },
+  { label: "", links: [{ href: REPO, label: "GitHub" }] },
 ];
 
 /** The libraries: components, screens and blocks. */
 export const isLibrary = (path: string) => /^\/(components|screens|blocks)(\/|$)/.test(path);
 
-export const accountItems = (plan: "free" | "pro"): MenuItem[] => [
+export const accountItems = (): MenuItem[] => [
   { label: "Profile", icon: UserCircleIcon, onSelect: openProfile },
-  { label: "Team", icon: UsersThreeIcon, href: "/team" },
-  { label: "Purchases", icon: ReceiptIcon, href: "/purchases" },
   { label: "Open Studio", icon: PenNibIcon, href: "/studio" },
   { label: "Your drafts", icon: PackageIcon, href: "/studio#library" },
-  plan === "pro" ? { label: "Pro is on", icon: DiamondIcon, href: "/purchases" } : { label: "Get Pro", icon: DiamondIcon, hint: "$149 once", onSelect: () => openPro("plan") },
   "divider",
   { label: "Sign out", icon: SignOutIcon, onSelect: signOut },
 ];
@@ -144,7 +136,6 @@ function TemplatesMenu({ onGo }: { onGo: () => void }) {
                 <span className="flex items-center gap-2">
                   <span className="text-ui font-medium text-fg">{t.name}</span>
                   <span className="text-meta text-subtle">{t.category}</span>
-                  <span className="ml-auto text-meta tabular-nums text-muted">{t.price === "free" ? "Free" : `$${t.price}`}</span>
                 </span>
                 <span className="mt-0.5 block text-meta leading-snug text-muted">{t.tagline}</span>
               </span>
@@ -180,7 +171,7 @@ function ComponentsMenu({ onGo }: { onGo: () => void }) {
             <Link key={c.name} href={`/components/${c.name}`} onClick={onGo} className="flex h-10 items-center gap-2.5 rounded-[12px] px-2.5 text-ui outline-none transition-colors hover:bg-fg/[0.045] focus-visible:bg-fg/[0.045]">
               <span aria-hidden className="size-1.5 shrink-0 rounded-full bg-fg/30" />
               <span className="min-w-0 flex-1 truncate text-fg">{c.title}</span>
-              <span className="text-meta text-subtle">{c.pro ? "Pro" : "Free"}</span>
+              <span className="text-meta text-subtle">{c.group}</span>
             </Link>
           ))}
         </div>
@@ -302,6 +293,13 @@ function NavTabs() {
             </Link>
           );
         })}
+        {/* basedraft is open source: its code, on GitHub, in a tab of its own. */}
+        <a href={REPO} target="_blank" rel="noreferrer" onPointerEnter={() => (setHover(REPO), later(close, 160))} onFocus={() => setHover(REPO)} onBlur={() => setHover(null)} className={cn(item, "text-muted hover:text-fg")}>
+          {glow(REPO)}
+          <span className="relative inline-flex items-center gap-1">
+            GitHub <ArrowUpRightIcon weight="regular" size={12} className="opacity-60" />
+          </span>
+        </a>
         {/* The open menu, centered under the places, on a bridge of its own height so the pointer can cross the gap. */}
         <AnimatePresence>
           {Panel && (
@@ -343,26 +341,20 @@ function SearchButton() {
 /** Your account, or the ways in, and the one thing to do next: open Studio. */
 function Account() {
   const { user, loading } = useAuth();
-  const [plan, { preview }] = usePlan();
   const path = usePathname();
   if (loading) return <span className="h-9 w-[200px]" />;
   return (
     <div className="flex items-center gap-2">
       {user ? (
         <>
-          {preview && (
-            <Link href="/pro#buy" title="Development only: Pro without a purchase" className="rounded-full bg-[#9747ff]/12 px-2.5 py-1 text-meta font-medium text-[#7c3aed] dark:text-[#c4a5ff]">
-              Pro preview
-            </Link>
-          )}
           <Menu
             key={`a${path}`}
             label="Account"
             align="right"
             buttonClassName="grid size-9 place-items-center rounded-full transition-shadow hover:shadow-[0_0_0_3px_rgb(var(--bd-ink)/0.08)] aria-expanded:shadow-[0_0_0_3px_rgb(var(--bd-ink)/0.12)]"
             button={<Avatar name={displayName(user)} size={30} />}
-            header={<AccountHeader user={user} plan={plan} />}
-            items={accountItems(plan)}
+            header={<AccountHeader user={user} />}
+            items={accountItems()}
           />
         </>
       ) : (
@@ -382,7 +374,6 @@ function Account() {
 function PhoneMenu({ onClose }: { onClose: () => void }) {
   const path = usePathname();
   const { user } = useAuth();
-  const [plan] = usePlan();
   const go = "flex h-14 items-center justify-between border-b border-line text-[22px] tracking-[-0.02em]";
   return (
     <motion.div
@@ -429,9 +420,10 @@ function PhoneMenu({ onClose }: { onClose: () => void }) {
           </li>
         ))}
       </ul>
-      <div className="mt-8 grid gap-2">
+      <TipButton size="lg" className="mt-8 w-full" />
+      <div className="mt-6 grid gap-2">
         {user ? (
-          accountItems(plan)
+          accountItems()
             .filter((i): i is Exclude<MenuItem, "divider"> => i !== "divider")
             .map((i) =>
               i.href ? (
@@ -480,7 +472,11 @@ function PhoneMenu({ onClose }: { onClose: () => void }) {
         )}
       </div>
       <p className="mt-8 text-meta text-subtle">
-        {TEMPLATES.length} templates, {SECTIONS.length} sections. <Link href="/pro" onClick={onClose} className="text-fg underline-offset-2 hover:underline">Pro is $149 once.</Link>
+        {TEMPLATES.length} templates, {SECTIONS.length} sections, free and{" "}
+        <a href={REPO} target="_blank" rel="noreferrer" className="text-fg underline-offset-2 hover:underline">
+          open source
+        </a>
+        .
       </p>
     </motion.div>
   );
@@ -502,7 +498,7 @@ function Announcement() {
     <div className="bd-announce bd-light bd-strip relative max-sm:hidden">
       <Link href="/whats-new" className="group mx-auto flex h-10 max-w-full items-center justify-center gap-2.5 px-12 text-meta">
         <span className="shrink-0 rounded-full bg-brand-soft px-2 py-0.5 text-[11px] font-medium leading-none text-brand-ink">New</span>
-        <span className="truncate">basedraft UI: our own components, free, one file each.</span>
+        <span className="truncate">basedraft is now free and open source: every template, component and screen.</span>
         <span className="inline-flex shrink-0 items-center gap-1 font-medium max-sm:hidden">
           What&apos;s new <ArrowRightIcon weight="regular" size={12} className="transition-transform duration-300 group-hover:translate-x-0.5" />
         </span>
@@ -558,6 +554,9 @@ export function SiteHeader() {
           <div className="flex items-center gap-1 justify-self-end">
             {/* On the home page the search floats at the foot of the screen instead (home-search.tsx). */}
             {path !== "/" && <SearchButton />}
+            {/* Buying basedraft's maker a Claude plan, open to everyone: in words where there's room, the mark where there isn't. */}
+            <TipButton className="mr-1 max-xl:hidden" />
+            <TipButton size="mark" className="xl:hidden" />
             <ThemeMenu />
             <Account />
           </div>
@@ -575,14 +574,5 @@ export function SiteHeader() {
       </header>
       <AnimatePresence>{open && <PhoneMenu onClose={() => setOpen(false)} />}</AnimatePresence>
     </>
-  );
-}
-
-/** For the library's sidebar on phones, and anywhere a compact "Pro" chip fits. */
-export function ProChip() {
-  return (
-    <button type="button" onClick={() => openPro("plan")} className={cn(btnSm.outline, "gap-2")}>
-      <DiamondIcon size={14} weight="duotone" /> Get Pro <ProBadge>$149</ProBadge>
-    </button>
   );
 }

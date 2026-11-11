@@ -2,7 +2,7 @@
 
 import { CloudArrowUpIcon, FunctionIcon, ImageSquareIcon, TimerIcon } from "@phosphor-icons/react";
 import type { ComponentType } from "react";
-import { Pace, type PaceItem } from "../../pro-ui/pace";
+import { Pace, type PaceItem } from "../../ui/pace";
 
 /* Day 12 of a 30-day period: each allowance's pace carried to the end. */
 const ITEMS: PaceItem[] = [

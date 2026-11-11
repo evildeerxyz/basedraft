@@ -1,10 +1,9 @@
-import { AppWindowIcon, DiamondIcon, PenNibIcon, SparkleIcon, SquaresFourIcon, StackIcon } from "@phosphor-icons/react/ssr";
+import { AppWindowIcon, PenNibIcon, SparkleIcon, SquaresFourIcon, StackIcon } from "@phosphor-icons/react/ssr";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { COMPONENTS } from "@/registry";
 import { SCREENS } from "@/screens";
-import { PLANS } from "@/site/content";
 import { SECTION_ICON } from "@/site/icons";
 import { KINDS, RELEASED_TEMPLATES, templateLogo } from "@/site/live";
 import { BaseDraftMark } from "@/site/logo";
@@ -45,7 +44,6 @@ const Logo = ({ slug }: { slug: string }) => (
 export default function ShareCards() {
   if (process.env.NODE_ENV === "production") notFound();
   // Read here rather than when the module loads, so the data modules have all settled first.
-  const PRO = PLANS.find((p) => p.featured)!;
   const SECTIONS = RELEASED_TEMPLATES.flatMap((t) => t.sections);
   const used = KINDS.filter((k) => SECTIONS.some((s) => s.kind === k.id));
   return (
@@ -68,7 +66,6 @@ export default function ShareCards() {
         const I = SECTION_ICON[k.id];
         return <Card key={k.id} k={`blocks-${k.id}`} glow={glowAt(i + 2)} tile={<I size={44} weight="duotone" />} title={k.label} lead={k.blurb} path={`/blocks/${k.id}`} />;
       })}
-      <Card k="pro" glow="b" tile={<DiamondIcon size={44} weight="duotone" />} title="Everything, paid for once" lead={`Every template, section and update, ${PRO.price} once.`} path="/pro" />
       <Card k="whats-new" glow="c" tile={<SparkleIcon size={44} weight="duotone" />} title="What's new" lead="New templates, components and blocks, newest first." path="/whats-new" />
       <Card k="studio" glow="d" tile={<PenNibIcon size={44} weight="duotone" />} title="Make it yours, right on the page" lead="Rearrange and rewrite a template on the live site, then take it home." path="/studio" />
     </main>

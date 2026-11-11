@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowClockwiseIcon, ArrowCounterClockwiseIcon, ArrowDownIcon, ArrowUpIcon, ArrowUpRightIcon, CaretDownIcon, CaretRightIcon, CloudArrowUpIcon, CloudCheckIcon, CloudSlashIcon, CopyIcon, DesktopIcon, DeviceMobileIcon, DeviceTabletIcon, DiamondIcon, EyeIcon, FigmaLogoIcon, FileIcon, FilesIcon, HouseIcon, LockSimpleIcon, MagnifyingGlassPlusIcon, PlayIcon, PlusIcon, SidebarSimpleIcon, SignOutIcon, SquaresFourIcon, SwapIcon, TrashIcon, XIcon } from "@phosphor-icons/react";
+import { ArrowClockwiseIcon, ArrowCounterClockwiseIcon, ArrowDownIcon, ArrowUpIcon, ArrowUpRightIcon, CaretDownIcon, CaretRightIcon, CloudArrowUpIcon, CloudCheckIcon, CloudSlashIcon, CopyIcon, DesktopIcon, DeviceMobileIcon, DeviceTabletIcon, EyeIcon, FigmaLogoIcon, FileIcon, FilesIcon, HouseIcon, LockSimpleIcon, MagnifyingGlassPlusIcon, PlayIcon, PlusIcon, SidebarSimpleIcon, SignOutIcon, SquaresFourIcon, SwapIcon, TrashIcon, XIcon } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -11,12 +11,10 @@ import { copyToDesign, prepareCopy, type CopyTarget } from "@/site/design-copy";
 import { SectionGlyph } from "@/site/icons";
 import { swapsOf } from "@/site/images";
 import { Tip, WithKeys } from "@/site/keys";
-import { composeUrl, isFree, liveUrl, sectionOf, sectionShot, sectionUrl, templateOf, type LiveSection, type TemplateSlug } from "@/site/live";
+import { composeUrl, liveUrl, sectionOf, sectionShot, sectionUrl, templateOf, type LiveSection, type TemplateSlug } from "@/site/live";
 import { BaseDraftMark } from "@/site/logo";
 import { Menu } from "@/site/menu";
 import { Note } from "@/site/plan-parts";
-import { useOwnsCode, usePlan } from "@/site/plan";
-import { openPro } from "@/site/pro-modal";
 import { btn, btnSm } from "@/site/sheet";
 import { withEdit, type TextEdit } from "@/site/text-edits";
 import { keepMode, modeIn, themeCss, type Mode, type Theme } from "@/site/theme";
@@ -123,13 +121,12 @@ const BAR_TOOL = "grid size-[30px] place-items-center rounded-[10px] text-fg/75 
 const BAR_WIDE = "flex h-[30px] shrink-0 items-center gap-1.5 whitespace-nowrap rounded-[10px] px-2 text-[12.5px] font-medium text-fg/75 transition-colors hover:bg-fg/[0.07] hover:text-fg";
 const CHIP = "flex h-[26px] min-w-0 items-center gap-1.5 rounded-[9px] bg-select px-2 text-[12px] font-medium text-white shadow-[0_2px_8px_rgba(151,71,255,0.35)]";
 
-/** Copy for Figma, or for a free account, the same button with a word on Pro. */
-function CopyButton({ pro, tight, onCopy, onPrepare }: { pro: boolean; tight: boolean; onCopy: () => void; onPrepare: () => void }) {
+/** Copy for Figma. */
+function CopyButton({ tight, onCopy, onPrepare }: { tight: boolean; onCopy: () => void; onPrepare: () => void }) {
   return (
-    <Tip label={pro ? "Copy for Figma" : "Copy for Figma is in Pro"}>
-      <button type="button" className={BAR_WIDE} onPointerEnter={onPrepare} onFocus={onPrepare} onClick={() => (pro ? onCopy() : openPro("figma"))} aria-label={pro ? "Copy for Figma" : "Copy for Figma, a Pro feature"}>
+    <Tip label="Copy for Figma">
+      <button type="button" className={BAR_WIDE} onPointerEnter={onPrepare} onFocus={onPrepare} onClick={onCopy} aria-label="Copy for Figma">
         <FigmaLogoIcon size={14} /> {!tight && "Copy"}
-        {!pro && <span className="rounded-[6px] bg-fg/[0.07] px-1 py-px text-[10.5px] font-semibold text-muted">Pro</span>}
       </button>
     </Tip>
   );
@@ -139,7 +136,7 @@ function CopyButton({ pro, tight, onCopy, onPrepare }: { pro: boolean; tight: bo
  * Sits just above the selected section, outside it, so it never covers what you're looking at:
  * the name in selection purple, then swapping, arranging, and taking the section to Figma.
  */
-function SelectionBar({ section, index, count, pro, width, kin, onSwap, onMove, onDuplicate, onRemove, onCopy, onPrepare }: { section: LiveSection; index: number; count: number; pro: boolean; width: number; kin: LiveSection[]; onSwap: (id: string) => void; onMove: (d: 1 | -1) => void; onDuplicate: () => void; onRemove: () => void; onCopy: () => void; onPrepare: () => void }) {
+function SelectionBar({ section, index, count, width, kin, onSwap, onMove, onDuplicate, onRemove, onCopy, onPrepare }: { section: LiveSection; index: number; count: number; width: number; kin: LiveSection[]; onSwap: (id: string) => void; onMove: (d: 1 | -1) => void; onDuplicate: () => void; onRemove: () => void; onCopy: () => void; onPrepare: () => void }) {
   const [swap, setSwap] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -186,7 +183,7 @@ function SelectionBar({ section, index, count, pro, width, kin, onSwap, onMove, 
           </button>
         </Tip>
         <span aria-hidden className="mx-0.5 h-4 w-px bg-line" />
-        <CopyButton pro={pro} tight={width < 480} onCopy={onCopy} onPrepare={onPrepare} />
+        <CopyButton tight={width < 480} onCopy={onCopy} onPrepare={onPrepare} />
 
         <AnimatePresence>
           {swap && (
@@ -204,11 +201,6 @@ function SelectionBar({ section, index, count, pro, width, kin, onSwap, onMove, 
                   >
                     <span className={cn("relative block aspect-[16/10] overflow-hidden rounded-[8px] bg-surface-2 transition-shadow", s.id === section.id ? "shadow-[0_0_0_2px_var(--bd-fg)]" : "shadow-[0_0_0_1px_rgb(var(--bd-ink)/0.1)] group-hover:shadow-[0_0_0_1px_rgb(var(--bd-ink)/0.3)]")}>
                       <Image src={sectionShot(s)} alt="" fill sizes="170px" className="object-cover" />
-                      {!pro && !isFree(s) && (
-                        <span className="absolute right-1 top-1 grid size-4 place-items-center rounded-[5px] bg-fg/85 text-canvas">
-                          <LockSimpleIcon size={9} weight="bold" />
-                        </span>
-                      )}
                     </span>
                     <span className="mt-1 block truncate px-0.5 text-[12px]">{s.name}</span>
                   </button>
@@ -253,7 +245,7 @@ function SaveState({ status, access, owner }: { status: string; access: string |
  * The same toolbar for a block of one of the template's own pages. Those pages are the template's
  * code as written, so their blocks keep their order; what you can do is take one to Figma.
  */
-function BlockBar({ name, pro, width, onCopy, onPrepare }: { name: string; pro: boolean; width: number; onCopy: () => void; onPrepare: () => void }) {
+function BlockBar({ name, width, onCopy, onPrepare }: { name: string; width: number; onCopy: () => void; onPrepare: () => void }) {
   return (
     <>
       <span className={CHIP}>
@@ -266,7 +258,7 @@ function BlockBar({ name, pro, width, onCopy, onPrepare }: { name: string; pro: 
           </span>
         </Tip>
         <span aria-hidden className="mx-0.5 h-4 w-px bg-line" />
-        <CopyButton pro={pro} tight={width < 360} onCopy={onCopy} onPrepare={onPrepare} />
+        <CopyButton tight={width < 360} onCopy={onCopy} onPrepare={onPrepare} />
       </div>
     </>
   );
@@ -292,10 +284,6 @@ export default function Studio() {
   const [panels, setPanels] = useState({ left: true, right: true });
   // Back from connecting GitHub, the export dialog opens where you left it.
   const [exporting, setExporting] = useState<"files" | "github" | null>(() => (new URLSearchParams(window.location.search).get("export") === "github" ? "github" : null));
-  const [plan, { preview }] = usePlan();
-  const pro = plan === "pro";
-  // Code (download, GitHub) is Pro's, or comes with buying this template.
-  const code = useOwnsCode(project.template);
   const { user, loading } = useAuth();
   // Arriving from a template's page starts a new draft with it.
   const [fresh] = useState(() => new URLSearchParams(window.location.search).has("template"));
@@ -409,7 +397,7 @@ export default function Studio() {
     setPage({ ...page, keys });
     select(key);
     setPop(null);
-    toast(`Added ${s.name}`, { detail: isFree(s) || pro ? undefined : "It previews free; exporting it needs Pro or the template." });
+    toast(`Added ${s.name}`);
   };
   const remove = (key: string) => {
     if (!page) return;
@@ -589,10 +577,9 @@ export default function Studio() {
       align="left"
       buttonClassName="grid size-8 shrink-0 place-items-center rounded-full transition-shadow hover:shadow-[0_0_0_3px_rgb(var(--bd-ink)/0.08)] aria-expanded:shadow-[0_0_0_3px_rgb(var(--bd-ink)/0.12)]"
       button={<Avatar name={displayName(user)} size={26} />}
-      header={<AccountHeader user={user} plan={plan} />}
+      header={<AccountHeader user={user} />}
       items={[
         { label: "Your drafts", icon: FilesIcon, onSelect: () => setDrafts(true) },
-        pro ? { label: "Pro is on", icon: DiamondIcon, onSelect: () => openPro("plan") } : { label: "Get Pro", icon: DiamondIcon, hint: "$149 once", onSelect: () => openPro("plan") },
         { label: "Back to basedraft.site", icon: ArrowUpRightIcon, href: "/" },
         "divider",
         { label: "Sign out", icon: SignOutIcon, onSelect: signOut },
@@ -659,7 +646,7 @@ export default function Studio() {
                 const b = blocks.find((x) => x.key === key);
                 if (!b) return null;
                 const target = blockTarget(key, b.name);
-                return <BlockBar name={b.name} pro={pro} width={width} onCopy={() => void copyToDesign("figma", target)} onPrepare={() => pro && prepareCopy(target)} />;
+                return <BlockBar name={b.name} width={width} onCopy={() => void copyToDesign("figma", target)} onPrepare={() => prepareCopy(target)} />;
               }
               const s = sectionOf(project.template, idOf(key));
               if (!s) return null;
@@ -668,7 +655,6 @@ export default function Studio() {
                   section={s}
                   index={page.keys.indexOf(key)}
                   count={page.keys.length}
-                  pro={pro}
                   width={width}
                   kin={t.sections.filter((x) => x.kind === s.kind)}
                   onSwap={(id) => swap(key, id)}
@@ -677,7 +663,7 @@ export default function Studio() {
                   onRemove={() => remove(key)}
                   onCopy={() => void copyToDesign("figma", sectionTarget(key))}
                   // The copy is read as the pointer reaches Copy, so it's usually ready by the click.
-                  onPrepare={() => pro && prepareCopy(sectionTarget(key))}
+                  onPrepare={() => prepareCopy(sectionTarget(key))}
                 />
               );
             }}
@@ -697,11 +683,6 @@ export default function Studio() {
               className="h-8 min-w-0 flex-1 rounded-[8px] bg-transparent px-1.5 text-[13px] font-semibold outline-none transition-colors hover:bg-fg/[0.04] focus:bg-fg/[0.05] focus:ring-2 focus:ring-fg/15"
             />
             <SaveState status={cloud.status} access={cloud.access} owner={cloud.owner} />
-            <Tip label={pro ? "Pro is on" : "See what Pro adds"} side="bottom">
-              <button type="button" onClick={() => openPro("plan")} className={cn("shrink-0 rounded-[7px] px-1.5 py-0.5 text-[12px] font-medium transition-colors", pro ? "bg-fg/[0.07] text-fg" : "text-muted hover:bg-fg/[0.05] hover:text-fg")}>
-                {preview ? "Pro preview" : pro ? "Pro" : "Free"}
-              </button>
-            </Tip>
             <Tip label={panels.left ? "Hide panel" : "Show panel"} keys="Cmd \\" side="bottom">
               <button type="button" onClick={() => setPanels((p) => ({ ...p, left: !p.left }))} aria-label={panels.left ? "Hide panel" : "Show panel"} aria-expanded={panels.left} className={ICON_BTN}>
                 <SidebarSimpleIcon size={16} />
@@ -740,7 +721,7 @@ export default function Studio() {
                     {page ? (
                       <>
                         <p className="mb-3 text-[12px] leading-snug text-muted">{section ? `Click one to add it below ${section.name}.` : `Click one to add it to ${page.name}.`}</p>
-                        <InsertGrid template={project.template} pro={pro} onInsert={insert} cols={2} />
+                        <InsertGrid template={project.template} onInsert={insert} cols={2} />
                       </>
                     ) : (
                       <Note icon={FileIcon} className="text-[12px] text-muted">
@@ -763,7 +744,7 @@ export default function Studio() {
               </motion.button>
             </Tip>
             <span className="flex-1" />
-            <ExportMenu pro={pro} code={code} page={pageTarget} section={selected && page ? sectionTarget(selected) : null} onCode={setExporting} />
+            <ExportMenu page={pageTarget} section={selected && page ? sectionTarget(selected) : null} onCode={setExporting} />
           </div>
           <AnimatePresence initial={false}>
             {panels.right && (
@@ -798,7 +779,7 @@ export default function Studio() {
                     <AnimatePresence mode="wait" initial={false}>
                       <motion.div key={`${view.kind === "page" ? view.id : view.path}|${selected ?? "page"}`} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} transition={{ duration: 0.14, ease: EASE_OUT }}>
                         {section && selected ? (
-                          <SectionPanel section={section} pro={pro} onSwap={(id) => swap(selected, id)} />
+                          <SectionPanel section={section} onSwap={(id) => swap(selected, id)} />
                         ) : block ? (
                           <BlockPanel name={block.name} />
                         ) : (
@@ -846,7 +827,7 @@ export default function Studio() {
             <ToolPop id="insert" open={pop} setOpen={setPop} label={insertTitle} width={600} button={<PlusIcon size={17} weight="bold" />}>
               <div className="flex h-11 shrink-0 items-center border-b border-line px-4 text-[13px] font-semibold">{insertTitle}</div>
               <div className="min-h-0 overflow-y-auto p-4">
-                <InsertGrid template={project.template} pro={pro} onInsert={insert} cols={3} />
+                <InsertGrid template={project.template} onInsert={insert} cols={3} />
               </div>
             </ToolPop>
           )}
@@ -979,7 +960,7 @@ export default function Studio() {
             </div>
           </div>
         )}
-        <ExportDialog key={exporting ?? "closed"} open={exporting !== null} initialView={exporting === "github" ? "github" : "files"} onClose={() => setExporting(null)} project={project} pro={code} />
+        <ExportDialog key={exporting ?? "closed"} open={exporting !== null} initialView={exporting === "github" ? "github" : "files"} onClose={() => setExporting(null)} project={project} />
       </div>
     </>
   );

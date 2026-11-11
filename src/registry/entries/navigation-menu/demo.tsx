@@ -2,7 +2,7 @@
 
 import { BookOpenTextIcon, CodeBlockIcon, CursorClickIcon, MegaphoneSimpleIcon, SquaresFourIcon, StackIcon, TerminalWindowIcon } from "@phosphor-icons/react";
 import type { ComponentProps, ComponentType } from "react";
-import { NavigationMenu, NavigationMenuCard, NavigationMenuItem, NavigationMenuLink } from "../../pro-ui/navigation-menu";
+import { NavigationMenu, NavigationMenuCard, NavigationMenuItem, NavigationMenuLink } from "../../ui/navigation-menu";
 import { hint } from "../_shared/kit";
 import { Placeholder, type Layout } from "../_shared/placeholder";
 
@@ -38,7 +38,7 @@ function Header() {
           <NavigationMenuItem label="Product" className="grid w-[min(500px,calc(100cqw-24px))] @[520px]:grid-cols-2">
             <NavigationMenuCard link={Stay} href="/studio" icon={<CursorClickIcon weight="duotone" />} title="Studio" description="Rearrange and rewrite a template on the real site." />
             <NavigationMenuCard link={Stay} href="/blocks" icon={<SquaresFourIcon weight="duotone" />} title="Blocks" description="Every section of every template, live at any width." />
-            <NavigationMenuCard link={Stay} href="/components" icon={<StackIcon weight="duotone" />} title="Components" description="basedraft UI, free on npm, and Pro pieces." />
+            <NavigationMenuCard link={Stay} href="/components" icon={<StackIcon weight="duotone" />} title="Components" description="basedraft UI, all of it free on npm." />
             <NavigationMenuCard link={Stay} href="/templates" icon={<CodeBlockIcon weight="duotone" />} title="Templates" description="Whole sites in Next.js and Astro." />
           </NavigationMenuItem>
           <NavigationMenuItem label="Templates" className="grid w-[min(420px,calc(100cqw-24px))] gap-1">
@@ -57,7 +57,7 @@ function Header() {
             <NavigationMenuCard link={Stay} href="/llms.txt" icon={<TerminalWindowIcon weight="duotone" />} title="For Claude Code" />
             <NavigationMenuCard link={Stay} href="/whats-new" icon={<MegaphoneSimpleIcon weight="duotone" />} title="What's new" />
           </NavigationMenuItem>
-          <NavigationMenuLink href="/pro">Pricing</NavigationMenuLink>
+          <NavigationMenuLink href="/pricing">Pricing</NavigationMenuLink>
         </NavigationMenu>
       </div>
     </div>

@@ -3,7 +3,6 @@
   "kind": "Billing",
   "description": "A workspace's usage and billing: credits leading with what's left, how long it lasts at this pace and thirty days of spend you read day by day, topped up over the page in a few presses. Beside it the plan and its seats; under them what the period has used, spend by project, every invoice and what's on file.",
   "path": "relay.app/acme/billing",
-  "pro": true,
   "added": "2026-11-02",
   "order": 2
 }

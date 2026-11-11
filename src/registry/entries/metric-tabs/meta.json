@@ -4,6 +4,5 @@
   "group": "Data",
   "description": "The figures that matter as tabs across a card, each with how far it moved and whether that's good news, and under them the chart for the one you pick, an ink rule sliding between them.",
   "order": 20,
-  "added": "2026-10-30",
-  "pro": true
+  "added": "2026-10-30"
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import type { ComponentType } from "react";
-import { CodeDiff } from "../../pro-ui/code-diff";
+import { CodeDiff } from "../../ui/code-diff";
 
 const PRICE_BEFORE = `import { formatMoney } from "./money";
 

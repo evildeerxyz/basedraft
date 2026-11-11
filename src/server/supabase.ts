@@ -1,13 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
-import { createClient, type SupabaseClient, type User } from "@supabase/supabase-js";
+import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import type { Args, Fn, Result } from "@/lib/api";
 
 /*
  * Supabase on the server, for route handlers. `asUser()` is whoever is signed in, from this
  * site's cookies (refreshing their session on the way when it's due), so the database's functions
- * decide what they may do just as they do for the browser. `asBasedraft()` is basedraft itself,
- * with SUPABASE_SECRET_KEY: only for Whop's webhook, which nobody is signed in to.
+ * decide what they may do just as they do for the browser.
  */
 
 export const SUPABASE_ON = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY);
@@ -26,12 +25,6 @@ export async function asUser() {
       },
     },
   });
-}
-
-export function asBasedraft() {
-  const key = process.env.SUPABASE_SECRET_KEY;
-  if (!key) throw new Error("SUPABASE_SECRET_KEY isn't set.");
-  return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, key, { auth: { persistSession: false, autoRefreshToken: false } });
 }
 
 /** Runs a database function. If it fails, the error is in the function's own words. */

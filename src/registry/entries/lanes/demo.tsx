@@ -2,7 +2,7 @@
 
 import { BookOpenTextIcon, LightningIcon, StorefrontIcon } from "@phosphor-icons/react";
 import { useState, type ComponentType, type ReactNode } from "react";
-import { Lanes, type LaneEvent, type LaneRow } from "../../pro-ui/lanes";
+import { Lanes, type LaneEvent, type LaneRow } from "../../ui/lanes";
 
 const DAY = 86_400_000;
 const NOW = Date.UTC(2026, 10, 12, 15, 0);

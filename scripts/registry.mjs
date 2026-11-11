@@ -16,6 +16,8 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync
 import { RELEASED } from "./zones.mjs";
 
 const SITE = "https://basedraft.site";
+/* Where the code lives, open source. */
+const REPO = "https://github.com/evildeerxyz/basedraft";
 /* The npm package the components ship in (packages/ui). */
 const PACKAGE = "@basedraft/ui";
 /*
@@ -105,11 +107,9 @@ const sources = {};
 rmSync("public/r", { recursive: true, force: true });
 rmSync("public/ui", { recursive: true, force: true });
 mkdirSync("public/ui", { recursive: true });
-/* A Pro component's source stays on the server: it's read here into pro-sources.ts, which only the gated route imports. */
-const proSources = {};
-const sourceOf = (m) => readFileSync(m.pro ? `src/registry/pro-ui/${m.name}.tsx` : `src/registry/ui/${m.name}.tsx`, "utf8");
-for (const m of META.filter((x) => x.pro)) proSources[m.name] = sourceOf(m);
-const items = META.filter((m) => !m.pro).map((m) => {
+/* Every component is free and open source: each one's file is public, at /ui/<name>.tsx. */
+const sourceOf = (m) => readFileSync(`src/registry/ui/${m.name}.tsx`, "utf8");
+const items = META.map((m) => {
   const content = sourceOf(m);
   sources[m.name] = content;
   writeFileSync(`public/ui/${m.name}.tsx`, content);
@@ -117,31 +117,20 @@ const items = META.filter((m) => !m.pro).map((m) => {
   return { name: m.name, title: m.title, group: m.group, description: m.description, file: fileUrl(m.name), path: `components/basedraft/${m.name}.tsx`, dependencies, docs: `${SITE}/components/${m.name}` };
 });
 writeFileSync("public/ui/basedraft.css", theme);
-const proItems = META.filter((m) => m.pro).map((m) => ({ name: m.name, title: m.title, group: m.group, description: m.description, pro: true, docs: `${SITE}/components/${m.name}` }));
-writeFileSync("public/ui/index.json", `${JSON.stringify({ name: "basedraft-ui", homepage: `${SITE}/components`, theme: `${SITE}/ui/basedraft.css`, requires: ["react@19", "tailwindcss@4"], components: items, pro: proItems }, null, 2)}\n`);
+writeFileSync("public/ui/index.json", `${JSON.stringify({ name: "basedraft-ui", homepage: `${SITE}/components`, theme: `${SITE}/ui/basedraft.css`, requires: ["react@19", "tailwindcss@4"], components: items }, null, 2)}\n`);
 
 /* What each component exports by name (its parts, and calls like toast), for the import line its page shows. */
 const exportsOf = (src) => [...src.matchAll(/^export (?:async )?function (\w+)|^export const (\w+)\s*[=:]/gm)].map((m) => m[1] ?? m[2]).filter((n) => /^[A-Z]/.test(n) || /^[a-z]+$/.test(n));
-const exportsByName = Object.fromEntries(Object.entries({ ...sources, ...proSources }).map(([n, src]) => [n, exportsOf(src)]));
-writeFileSync(
-  "src/registry/pro-sources.ts",
-  `/*
- * Written by scripts/registry.mjs from src/registry/pro-ui: each Pro component's source. Only the
- * gated route (src/app/api/ui/[name]) may import this, so it stays on the server and goes only to
- * Pro accounts. Never import it into a page or a client component. Don't edit by hand.
- */
-export const PRO_SOURCES: Record<string, string> = ${JSON.stringify(proSources, null, 2)};
-`,
-);
+const exportsByName = Object.fromEntries(Object.entries(sources).map(([n, src]) => [n, exportsOf(src)]));
 writeFileSync(
   "src/registry/sources.ts",
   `/* Written by scripts/registry.mjs from src/registry/ui: each component's source, for its page's Code view. Don't edit by hand. */\nexport const SOURCES: Record<string, string> = ${JSON.stringify(sources, null, 2)};\n`,
 );
-/* What each component's file imports beyond React, as npm names, Pro ones too, so no page needs a Pro source to say it. */
-const depsByName = Object.fromEntries(Object.entries({ ...sources, ...proSources }).map(([n, src]) => [n, PACKAGES.filter((p) => new RegExp(`from "${p.replace("/", "\\/")}(/[^"]*)?"`).test(src))]));
+/* What each component's file imports beyond React, as npm names. */
+const depsByName = Object.fromEntries(Object.entries(sources).map(([n, src]) => [n, PACKAGES.filter((p) => new RegExp(`from "${p.replace("/", "\\/")}(/[^"]*)?"`).test(src))]));
 writeFileSync(
   "src/registry/exports.ts",
-  `/* Written by scripts/registry.mjs from src/registry/ui and pro-ui: what each component exports by name, for its import line, and the packages it uses. Small, so the browser can have it. Don't edit by hand. */\nexport const EXPORTS: Record<string, string[]> = ${JSON.stringify(exportsByName)};\n\nexport const DEPS: Record<string, string[]> = ${JSON.stringify(depsByName)};\n`,
+  `/* Written by scripts/registry.mjs from src/registry/ui: what each component exports by name, for its import line, and the packages it uses. Small, so the browser can have it. Don't edit by hand. */\nexport const EXPORTS: Record<string, string[]> = ${JSON.stringify(exportsByName)};\n\nexport const DEPS: Record<string, string[]> = ${JSON.stringify(depsByName)};\n`,
 );
 
 /* The templates for llms.txt, from their manifests: only the released ones. */
@@ -152,16 +141,13 @@ const templates = Object.entries(MANIFESTS)
   .map(([, path]) => JSON.parse(readFileSync(path, "utf8")));
 
 const groups = [...new Set(META.map((m) => m.group))];
-/* The prices come from the manifests too, so llms.txt never quotes an old one. */
-const prices = [...new Set(templates.map((t) => t.price))];
-const pro = readFileSync("src/site/content.ts", "utf8").match(/name: "Pro",[\s\S]*?price: "(\$\d+)"/)?.[1] ?? "one price";
 const llms = `# basedraft
 
-> basedraft sells finished websites (templates) in Next.js and Astro, shows every section in them as a block, lets you rearrange and rewrite a template in Studio, and gives away basedraft UI, its own library of React components, as the npm package @basedraft/ui.
+> basedraft is free and open source (MIT): basedraft UI, its own library of React components on npm as @basedraft/ui; whole app screens made of it; finished websites (templates) in Next.js and Astro, with every section in them as a block; and Studio, to rearrange and rewrite a template. The code is on GitHub: ${REPO}
 
 Everything here is React 19 and Tailwind CSS 4, typed with TypeScript.
 
-## basedraft UI (free)
+## basedraft UI
 
 basedraft UI is an npm package of React components, each one designed in basedraft's own style:
 
@@ -182,37 +168,35 @@ ${items
   )
   .join("\n\n")}
 
-${proItems.length ? `## basedraft Pro components
-
-Composed, dashboard-grade pieces that come with basedraft Pro. Anyone can try them live on their pages; their source is for Pro accounts, copied or downloaded from the page once signed in, and they read the same theme as the package.
-
-${proItems.map((m) => `- [${m.title}](${m.docs}) (Pro): ${m.description}`).join("\n")}
-
-` : ""}## For AI coding agents
+## For AI coding agents
 
 To add a basedraft component: install ${PACKAGE} if the project doesn't have it, import its styles once in the root layout, then import the component by name from "${PACKAGE}". Each component's page lists its parts, every prop, examples, its keyboard behavior and accessibility notes. Prefer these over writing the same component by hand. To own the code instead, each component is also one self-contained file at ${SITE}/ui/<name>.tsx, reading the theme at ${SITE}/ui/basedraft.css.
 
-## Templates (paid)
+## Templates
 
-Whole sites, every page included, in Next.js 16 or Astro 7. ${prices.length === 1 ? `$${prices[0]} each` : "Priced each"}, or all of them with Pro (${pro} once). Bought templates download as a zip from ${SITE}/purchases or go straight to a new GitHub repository; unzip, then \`npm install && npm run dev\`.
+Whole sites, every page included, in Next.js 16 or Astro 7, free. Download one as a zip from its page or send it straight to a new GitHub repository; unzip, then \`npm install && npm run dev\`.
 
-${templates.map((t) => `- [${t.name}](${SITE}/templates/${t.slug}): ${t.category}. ${t.tagline} ${t.pages.length} pages, $${t.price}.`).join("\n")}
+${templates.map((t) => `- [${t.name}](${SITE}/templates/${t.slug}): ${t.category}. ${t.tagline} ${t.pages.length} pages.`).join("\n")}
+
+## Screens
+
+Whole app pages made of basedraft UI, each one file: ${SITE}/screens
 
 ## Blocks
 
-Every section of every template, live at any width, with its code (Pro): ${SITE}/blocks
+Every section of every template, live at any width, with its code: ${SITE}/blocks
 
 ## Studio
 
 Open a template in Studio (${SITE}/studio), free, to rearrange its sections and rewrite its words on the real site, then copy it into Figma or take the code: ${SITE}/studio
 
-## Pro
+## Open source
 
-Every template, block and export, and every future update, for one payment: ${SITE}/pro
+All of it is MIT licensed, on GitHub: ${REPO}
 `;
 writeFileSync("public/llms.txt", llms);
 
-console.log(`${META.length} components (${proItems.length} Pro): public/ui, public/llms.txt, src/registry/sources.ts, pro-sources.ts`);
+console.log(`${META.length} components: public/ui, public/llms.txt, src/registry/sources.ts, exports.ts`);
 
 /* The screens read the same components, so they're written with them. */
 await import("./screens.mjs");

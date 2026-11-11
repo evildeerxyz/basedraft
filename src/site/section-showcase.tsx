@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpRightIcon, CodeIcon, CornersOutIcon, EyeIcon, LockSimpleIcon } from "@phosphor-icons/react";
+import { ArrowUpRightIcon, CodeIcon, CornersOutIcon, EyeIcon } from "@phosphor-icons/react";
 import { LayoutGroup, motion } from "motion/react";
 import Link from "next/link";
 import { useId, useState } from "react";
@@ -8,10 +8,7 @@ import { cn, EASE_OUT } from "@/lib/utils";
 import { CodeBlock } from "./code";
 import { DesignCopyMenu } from "./design-copy";
 import { DevicePicker, LiveSectionFrame, type Device, useNarrow } from "./frames";
-import { isFree, sectionOf, sectionUrl, templateLogo, templateOf } from "./live";
-import { usePlan } from "./plan";
-import { openPro } from "./pro-modal";
-import { btnSm, ProBadge } from "./sheet";
+import { sectionOf, sectionUrl, templateLogo, templateOf } from "./live";
 import { GLOW, type Glow } from "./stage";
 
 const TABS = [
@@ -33,8 +30,6 @@ export function LiveSectionShowcase({ template, id, glow = "a" }: { template: st
   const [picked, setDevice] = useState<Device | null>(null);
   const device = picked ?? (narrow ? "phone" : "desktop");
   const [tab, setTab] = useState<"preview" | "code">("preview");
-  const [plan] = usePlan();
-  const locked = plan !== "pro";
   const name = `${t.name} ${s.name.toLowerCase()}`;
   const tabs = useId();
   return (
@@ -46,7 +41,6 @@ export function LiveSectionShowcase({ template, id, glow = "a" }: { template: st
           <div className="min-w-0">
             <h2 id={`${template}-${id}-title`} className="flex items-center gap-2 font-display text-[20px] font-medium leading-[1.2] tracking-[-0.022em]">
               {name}
-              {!isFree(s) && <ProBadge />}
             </h2>
             <Link href={`/templates/${t.slug}`} className="group inline-flex items-center gap-1 text-meta text-subtle transition-colors hover:text-fg">
               From {t.name}, {t.category.toLowerCase()}
@@ -87,21 +81,7 @@ export function LiveSectionShowcase({ template, id, glow = "a" }: { template: st
             </div>
           ) : (
             <div className="relative">
-              <CodeBlock code={`${s.import}\n\n${s.tag}`} file={`${t.name.toLowerCase()} / page.tsx`} className={cn(locked && "pointer-events-none select-none [&_pre]:blur-[5px]")} />
-              {locked && (
-                <div className="absolute inset-0 top-12 grid place-items-center p-4">
-                  <div className="max-w-[360px] rounded-[var(--bd-r-sheet)] bg-white/70 p-6 text-center shadow-[var(--bd-shadow-float),inset_0_0_0_1px_rgb(255_255_255/0.8)] backdrop-blur-xl dark:bg-white/[0.06] dark:shadow-[var(--bd-shadow-float),inset_0_0_0_1px_rgb(255_255_255/0.1)]">
-                    <span className="mx-auto grid size-10 place-items-center rounded-full bg-surface-2 text-fg">
-                      <LockSimpleIcon size={18} weight="duotone" />
-                    </span>
-                    <p className="mt-3 text-[15px] font-medium">{t.name}&apos;s code comes with Pro</p>
-                    <p className="mt-1 text-[13px] leading-[1.55] text-muted">Preview it free at any width. Pro, or the {t.name} template on its own, brings the source.</p>
-                    <button type="button" onClick={() => openPro("layout")} className={cn(btnSm.ink, "mt-4")}>
-                      See Pro
-                    </button>
-                  </div>
-                </div>
-              )}
+              <CodeBlock code={`${s.import}\n\n${s.tag}`} file={`${t.name.toLowerCase()} / page.tsx`} />
             </div>
           )}
         </motion.div>

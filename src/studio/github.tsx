@@ -6,7 +6,6 @@ import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { cn } from "@/lib/utils";
 import { templateOf } from "@/site/live";
 import { btnSm } from "@/site/sheet";
-import { previewHeaders } from "@/site/plan";
 import { Input } from "@/ui/field";
 import { save, type Project } from "./state";
 import { Segments } from "./ui";
@@ -86,7 +85,7 @@ export function GitHubPanel({ project, onBack, back = "Files", returnTo = GITHUB
     setStatus({ kind: "sending" });
     try {
       const target = where === "new" ? { kind: "new", name, private: priv } : { kind: "existing", repo, direct: how === "commit" };
-      const sent = await json<Sent>(await fetch("/api/github/push", { method: "POST", headers: { "Content-Type": "application/json", ...previewHeaders() }, body: JSON.stringify({ project, target, framework }) }));
+      const sent = await json<Sent>(await fetch("/api/github/push", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ project, target, framework }) }));
       track("sent_to_github", { template: project.template, kind: target.kind });
       setStatus({ kind: "sent", sent });
     } catch (e) {

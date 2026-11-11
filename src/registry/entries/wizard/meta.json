@@ -3,6 +3,5 @@
   "title": "Wizard",
   "group": "Patterns",
   "description": "A form in steps: a rail that fills, each step sliding in from the side you're heading, checks that land the cursor on what's wrong, a review to read it all back, and a finish.",
-  "order": 70,
-  "pro": true
+  "order": 70
 }

@@ -11,7 +11,7 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       { userAgent: AI_BOTS, disallow: "/" },
-      { userAgent: "*", allow: "/", disallow: ["/live/", "/view/", "/studio", "/api/", "/invite/", "/dev/", "/checkout", "/purchases", "/team"] },
+      { userAgent: "*", allow: "/", disallow: ["/live/", "/view/", "/studio", "/api/", "/dev/"] },
     ],
   };
 }

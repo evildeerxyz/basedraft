@@ -2,11 +2,11 @@
 
 import { ArrowUpRightIcon, CalendarDotsIcon, ChartLineIcon, ChatCircleIcon, CloudArrowUpIcon, CoinsIcon, CreditCardIcon, DownloadSimpleIcon, FolderIcon, FoldersIcon, FunctionIcon, GearSixIcon, HouseIcon, ImageSquareIcon, ListIcon, RocketLaunchIcon, TimerIcon, UserPlusIcon, UsersThreeIcon, WarningCircleIcon } from "@phosphor-icons/react";
 import { useState, type ReactNode } from "react";
-import { AccountMenu } from "@/registry/pro-ui/account-menu";
-import { AppSidebar, type SidebarSection, type SidebarView } from "@/registry/pro-ui/app-sidebar";
-import { Pace } from "@/registry/pro-ui/pace";
-import { Runway } from "@/registry/pro-ui/runway";
-import { TopUp, type TopUpMethod } from "@/registry/pro-ui/top-up";
+import { AccountMenu } from "@/registry/ui/account-menu";
+import { AppSidebar, type SidebarSection, type SidebarView } from "@/registry/ui/app-sidebar";
+import { Pace } from "@/registry/ui/pace";
+import { Runway } from "@/registry/ui/runway";
+import { TopUp, type TopUpMethod } from "@/registry/ui/top-up";
 import { AvatarGroup } from "@/registry/ui/avatar";
 import { Breadcrumb } from "@/registry/ui/breadcrumb";
 import { Button } from "@/registry/ui/button";

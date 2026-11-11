@@ -13,14 +13,13 @@ import { toast } from "./toast";
 /* basedraft's icons are Phosphor's duotone: here by default, as well as where each one says so. */
 const DUOTONE = { weight: "duotone" } as const;
 
-/** Back from a checkout that couldn't open (Whop isn't connected yet): say so, once. */
-function CheckoutNotice() {
+/** Back from Whop after buying a Claude plan: say thank you, once. */
+function TipNotice() {
   useEffect(() => {
     const q = new URLSearchParams(window.location.search);
-    if (q.get("checkout") !== "unavailable") return;
-    toast("Checkout isn't open yet", { tone: "error", detail: q.get("why") || "Payments are being connected. Try again soon, or write to hello@basedraft.site." });
-    q.delete("checkout");
-    q.delete("why");
+    if (q.get("tip") !== "thanks") return;
+    toast("Thank you", { detail: "That goes straight into the Claude plan that builds basedraft." });
+    q.delete("tip");
     window.history.replaceState(null, "", `${window.location.pathname}${q.size ? `?${q}` : ""}${window.location.hash}`);
   }, []);
   return null;
@@ -60,7 +59,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
         <ScrollBlur />
         <ScrollMotion />
         <CommandMenu />
-        <CheckoutNotice />
+        <TipNotice />
         <SignInNotice />
       </div>
     </IconContext.Provider>

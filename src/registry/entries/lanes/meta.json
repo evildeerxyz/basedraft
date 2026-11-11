@@ -4,6 +4,5 @@
   "group": "Data",
   "description": "Rows that share one time axis, each with what happened to it along its own lane: ink ticks for what shipped, gray for what was tried, red for what failed and a breathing ring for what's running, with a hairline for now and weekends shaded.",
   "order": 97,
-  "added": "2026-11-02",
-  "pro": true
+  "added": "2026-11-02"
 }

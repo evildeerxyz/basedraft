@@ -3,6 +3,5 @@
   "title": "Donut chart",
   "group": "Data",
   "description": "Parts of a whole that sweep around a ring, slide out to show their share in the middle, and a total that rolls up as it fills.",
-  "order": 32,
-  "pro": true
+  "order": 32
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ComponentType } from "react";
-import { LogViewer, type LogLevel, type LogLine } from "../../pro-ui/log-viewer";
+import { LogViewer, type LogLevel, type LogLine } from "../../ui/log-viewer";
 import { hint } from "../_shared/kit";
 
 /* A deploy, from clone to live, at fixed times so every visitor sees the same lines. */

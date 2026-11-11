@@ -4,6 +4,5 @@
   "group": "Patterns",
   "description": "Signing in, in two short steps: a provider in one click with the last one used tagged, or an email then a password or a six-digit code that fills from a paste, and a split layout beside art in a dither.",
   "order": 90,
-  "added": "2026-10-29",
-  "pro": true
+  "added": "2026-10-29"
 }

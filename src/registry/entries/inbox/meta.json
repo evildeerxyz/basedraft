@@ -3,6 +3,5 @@
   "title": "Inbox",
   "group": "Patterns",
   "description": "A notification center behind a bell: an unread count that rolls, tabs on a sliding pill, items grouped by day that you mark read with a click or a swipe.",
-  "order": 30,
-  "pro": true
+  "order": 30
 }

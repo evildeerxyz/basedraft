@@ -55,16 +55,47 @@ mkdirSync(SRC, { recursive: true });
 mkdirSync(DIST, { recursive: true });
 for (const f of files) writeFileSync(path.join(SRC, f), mark(readFileSync(path.join(UI, f), "utf8")));
 
-// The index re-exports each one. Two components exporting the same name would hide both, so that stops the build.
+/*
+ * The index re-exports each one. Two components exporting the same name would hide both, so that
+ * stops the build, unless it's the same type in both (the charts share a few, each file standing
+ * alone): then the index names it once, from the first file, which settles which one it means.
+ */
+/** A type's definition from where it starts, comments and spacing aside, to compare two of them. */
+const definition = (src, at) => {
+  let depth = 0;
+  let i = at;
+  for (; i < src.length; i++) {
+    const c = src[i];
+    if ("{([".includes(c)) depth++;
+    else if ("})]".includes(c) && --depth === 0 && /^\s*\n/.test(src.slice(i + 1)) && src.slice(at, i).includes("interface")) break;
+    else if (c === ";" && depth === 0) break;
+  }
+  return src
+    .slice(at, i + 1)
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/\/\/.*$/gm, "")
+    .replace(/\s+/g, " ")
+    .trim();
+};
 const seen = new Map();
+const shared = new Map();
 for (const n of names) {
   const src = readFileSync(path.join(UI, `${n}.tsx`), "utf8");
-  for (const [, name] of src.matchAll(/export (?:function|const|type|interface|class) ([A-Za-z0-9_]+)/g)) {
-    if (seen.has(name)) throw new Error(`${name} is exported by both ${seen.get(name)} and ${n}: rename one so the index can carry both.`);
-    seen.set(name, n);
+  for (const m of src.matchAll(/export (function|const|type|interface|class) ([A-Za-z0-9_]+)/g)) {
+    const [, kind, name] = m;
+    const type = kind === "type" || kind === "interface";
+    const def = type ? definition(src, m.index) : null;
+    const first = seen.get(name);
+    if (first) {
+      if (!type || !first.type || def !== first.def) throw new Error(`${name} is exported by both ${first.file} and ${n}: rename one so the index can carry both.`);
+      shared.set(name, first.file);
+    } else seen.set(name, { file: n, type, def });
   }
 }
-writeFileSync(path.join(SRC, "index.ts"), `${names.map((n) => `export * from "./${n}.js";`).join("\n")}\n`);
+writeFileSync(
+  path.join(SRC, "index.ts"),
+  `${[...names.map((n) => `export * from "./${n}.js";`), ...[...shared].map(([name, file]) => `export type { ${name} } from "./${file}.js";`)].join("\n")}\n`,
+);
 
 // One module per component, the libraries it uses left as imports. The index isn't a client boundary of its own (Next.js refuses export * in one); each component is.
 await esbuild.build({

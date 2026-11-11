@@ -4,6 +4,5 @@
   "group": "Data",
   "description": "How much of an allowance is used: the share, a bar that turns amber near the limit and red past it, and where the month is heading at this pace, hatched ahead. Folds to a ring for a sidebar's rail.",
   "order": 22,
-  "added": "2026-10-30",
-  "pro": true
+  "added": "2026-10-30"
 }

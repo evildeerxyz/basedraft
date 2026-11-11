@@ -2,7 +2,7 @@
 
 import { CheckCircleIcon, CircleDashedIcon, GitBranchIcon, GlobeHemisphereWestIcon, PulseIcon, WarningCircleIcon } from "@phosphor-icons/react";
 import { useState, type ComponentType } from "react";
-import { FilterBar, type Filter, type FilterField } from "../../pro-ui/filter-bar";
+import { FilterBar, type Filter, type FilterField } from "../../ui/filter-bar";
 import { hint } from "../_shared/kit";
 
 const FIELDS: FilterField[] = [

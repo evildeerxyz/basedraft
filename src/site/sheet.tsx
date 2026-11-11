@@ -82,11 +82,6 @@ export const btnSm = {
   paper: `${PLAIN} ${SM} ${PAPER}`,
 };
 
-/** "Pro", as a small light blue pill beside a name. */
-export function ProBadge({ className, children = "Pro" }: { className?: string; children?: ReactNode }) {
-  return <span className={cn("inline-flex h-[18px] shrink-0 items-center rounded-full bg-brand-soft px-[7px] text-[11px] font-medium leading-none tracking-normal text-brand-ink", className)}>{children}</span>;
-}
-
 /**
  * New, on a component added lately: a solid green pill that's hard to miss, with a dot that
  * pulses and a band of light crossing it every few seconds. Still, with reduced motion.

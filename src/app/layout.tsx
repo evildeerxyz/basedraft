@@ -5,10 +5,10 @@ import { ANNOUNCE_SCRIPT } from "@/site/announce-script";
 import { AuthModal, ProfileModal } from "@/site/auth";
 import { COLOR_MODE_SCRIPT } from "@/site/color-mode-script";
 import { MotionConfig } from "@/site/motion";
-import { ProModal } from "@/site/pro-modal";
 import { Toaster } from "@/site/toast";
 import "./globals.css";
 import { shareCard } from "@/site/og";
+import { TipModal } from "@/site/tip";
 
 /* basedraft's own faces, the ones the first paint needs: Instrument Sans for the big type, Inter for text. Templates bring theirs. */
 const instrument = Instrument_Sans({ variable: "--font-instrument", subsets: ["latin"] });
@@ -44,9 +44,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <MotionConfig>
           {children}
           <Toaster />
-          <ProModal />
           <AuthModal />
           <ProfileModal />
+          <TipModal />
           <Analytics />
         </MotionConfig>
       </body>

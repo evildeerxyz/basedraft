@@ -2,7 +2,7 @@
 
 import { useState, type ComponentType } from "react";
 import { Button } from "../../ui/button";
-import { Tree, type TreeNode } from "../../pro-ui/tree";
+import { Tree, type TreeNode } from "../../ui/tree";
 import { hint } from "../_shared/kit";
 
 /* A git status letter: modified in amber, new in green. */

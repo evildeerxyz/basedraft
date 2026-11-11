@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ComponentType } from "react";
-import { Runway } from "../../pro-ui/runway";
+import { Runway } from "../../ui/runway";
 
 /* Thirty days of credits for a storefront: a $100 top-up on the ninth, then a launch that spent faster. */
 const SPEND = [7.2, 8.1, 9.4, 6.3, 4.1, 3.8, 8.8, 9.9, 10.6, 9.2, 7.7, 4.6, 4.2, 9.6, 15.8, 17.9, 13.1, 11.4, 6.2, 5.1, 10.2, 11.6, 12.4, 10.9, 9.8, 5.4, 4.9, 10.8, 12.1, 10.6];

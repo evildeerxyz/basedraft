@@ -1,8 +1,8 @@
 "use client";
 
 import type { ComponentType } from "react";
-import { AreaChart } from "../../pro-ui/area-chart";
-import { MetricTabs, type Metric } from "../../pro-ui/metric-tabs";
+import { AreaChart } from "../../ui/area-chart";
+import { MetricTabs, type Metric } from "../../ui/metric-tabs";
 
 const METRICS: Metric[] = [
   { id: "visitors", label: "Visitors", value: 182_400, format: "compact", delta: 0.142, note: "Last 30 days" },

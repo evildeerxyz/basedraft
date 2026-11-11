@@ -4,7 +4,7 @@ import zuno from "../../templates/zuno/src/bd/manifest.json";
 import { ZONES } from "../../scripts/zones.mjs";
 
 /*
- * The templates basedraft sells: four real Next.js sites, each its own app in templates/ and served
+ * basedraft's templates: real Next.js and Astro sites, each its own app in templates/ and served
  * here under /live/<slug>. Their sections are the components on each home page, listed in the
  * template's bd/manifest.json and drawn by its own code, so what you see is exactly what you get.
  */
@@ -45,7 +45,6 @@ export interface LiveTemplate {
   slug: TemplateSlug;
   name: string;
   category: string;
-  price: number | "free";
   accent: string;
   tagline: string;
   description: string;
@@ -102,12 +101,9 @@ export const sectionsOfKind = (kind: SectionKind) => SECTIONS.filter((s) => s.ki
 /** The kinds that have sections, in the order a page runs. */
 export const USED_KINDS = KINDS.filter((k) => SECTIONS.some((s) => s.kind === k.id));
 
-/** A free template's sections are free to take; every template is paid today, so these come with Pro or their template. */
-export const isFree = (s: Pick<LiveSection, "template">) => templateOf(s.template)?.price === "free";
-
 /* Where each piece lives, through basedraft's address. */
 export const liveUrl = (slug: string, path = "/") => `/live/${slug}${path === "/" ? "" : path}`;
-/** A template full window on basedraft, with its price and a way to buy it or open it in Studio. */
+/** A template full window on basedraft, with a way to get its code or open it in Studio. */
 export const viewUrl = (slug: string, path = "/") => `/view/${slug}${path === "/" ? "" : `?path=${encodeURIComponent(path)}`}`;
 export const sectionUrl = (s: Pick<LiveSection, "template" | "id">) => `/live/${s.template}/bd/section/${s.id}`;
 export const composeUrl = (slug: string, keys: string[]) => `/live/${slug}/bd/compose?s=${keys.map(encodeURIComponent).join(",")}`;

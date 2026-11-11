@@ -1,4 +1,4 @@
-import { AppWindowIcon, DiamondIcon, StackIcon } from "@phosphor-icons/react/ssr";
+import { AppWindowIcon, StackIcon } from "@phosphor-icons/react/ssr";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -41,14 +41,13 @@ const link = (s?: (typeof SCREENS)[number]) => s && { href: `/screens/${s.slug}`
 async function Screen({ params }: { params: PageProps<"/screens/[slug]">["params"] }) {
   const s = screenOf((await params).slug);
   if (!s) notFound();
-  // A Pro screen's file never comes here: the page gets it from the gated route, for Pro.
-  const source = s.pro ? null : (SCREEN_SOURCES[s.slug] ?? null);
+  const source = SCREEN_SOURCES[s.slug] ?? null;
   const i = SCREENS.indexOf(s);
   const others = [...SCREENS.slice(i + 1), ...SCREENS.slice(0, i)].slice(0, 2);
-  // Its plan and what it's made of: under its name on a phone, at the end of the dock's row on a desk.
+  // What it is and what it's made of: under its name on a phone, at the end of the dock's row on a desk.
   const facts = (
     <>
-      <FactPill icon={<DiamondIcon weight="duotone" size={14} />}>{s.pro ? "Pro" : "Free"}</FactPill>
+      <FactPill icon={<AppWindowIcon weight="duotone" size={14} />}>{s.kind}</FactPill>
       <FactPill icon={<StackIcon weight="duotone" size={14} />}>{s.uses.length} components</FactPill>
     </>
   );

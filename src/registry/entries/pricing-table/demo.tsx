@@ -1,7 +1,7 @@
 "use client";
 
 import type { ComponentType } from "react";
-import { PricingTable, type PricingCompareGroup, type PricingPlan } from "../../pro-ui/pricing-table";
+import { PricingTable, type PricingCompareGroup, type PricingPlan } from "../../ui/pricing-table";
 
 /* A design tool's three plans: free, per seat, and one you talk about. */
 const PLANS: PricingPlan[] = [

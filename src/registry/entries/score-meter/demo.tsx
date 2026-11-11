@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ComponentType } from "react";
-import { ScoreMeter } from "../../pro-ui/score-meter";
+import { ScoreMeter } from "../../ui/score-meter";
 
 /* Four accounts by how well they fit, as a sales team would scan them. */
 const ACCOUNTS = [

@@ -30,6 +30,8 @@ const newest = Math.max(0, ...COMPONENTS.map((c) => (c.added ? day(c.added) : 0)
 export const isNew = (c: { added?: string }) => !!c.added && newest - day(c.added) <= NEW_DAYS * 86_400_000;
 
 export const SITE = "https://basedraft.site";
+/** Where basedraft's code lives: open source, MIT. */
+export const REPO = "https://github.com/evildeerxyz/basedraft";
 /** The npm package the components ship in (packages/ui). */
 export const PACKAGE = "@basedraft/ui";
 /** What the package leans on, which a project may already have. */
@@ -41,10 +43,10 @@ export type Runner = keyof typeof ADD;
 export const installCommand = (runner: Runner = "npm") => `${ADD[runner]} ${PACKAGE} ${PEERS.join(" ")}`;
 /** The stylesheet, imported once in the root layout. */
 export const stylesImport = `import "${PACKAGE}/styles.css";`;
-/** A component's import line, from what its file exports: from the package, or for a Pro component from its file in the project. */
+/** A component's import line, from what its file exports. */
 export const importLine = (name: string) => {
   const names = (EXPORTS[name] ?? [name.replace(/(^|-)(\w)/g, (_, __, c: string) => c.toUpperCase())]).join(", ");
-  return componentOf(name)?.pro ? `import { ${names} } from "@/components/basedraft/${name}";` : `import { ${names} } from "${PACKAGE}";`;
+  return `import { ${names} } from "${PACKAGE}";`;
 };
 
 /** Where a component's one file is, for anyone who'd rather own the code than install the package. */
@@ -54,9 +56,7 @@ export const THEME_URL = `${SITE}/ui/basedraft.css`;
 
 /** The prompt Claude Code needs to add a component: the package, its styles once, and the import. */
 export const claudePrompt = (c: ComponentMeta) =>
-  c.pro
-    ? `Add basedraft's ${c.title}, a Pro component. I'm pasting its file: save it as components/basedraft/${c.name}.tsx. If the project doesn't have basedraft's theme yet, run \`${installCommand()}\` and add \`@import "${PACKAGE}/theme.css";\` to the global stylesheet after Tailwind (Tailwind CSS 4 is needed for this file). Then use it where it's needed: \`${importLine(c.name)}\`. Its parts, props, examples and keyboard behavior are at ${SITE}/components/${c.name}.`
-    : `Add basedraft's ${c.title} component to this project. If the project doesn't have the ${PACKAGE} package yet, run \`${installCommand()}\` and add \`${stylesImport}\` once to the root layout. Then use it where it's needed: \`${importLine(c.name)}\`. Its parts, props, examples and keyboard behavior are at ${SITE}/components/${c.name}.`;
+  `Add basedraft's ${c.title} component to this project. If the project doesn't have the ${PACKAGE} package yet, run \`${installCommand()}\` and add \`${stylesImport}\` once to the root layout. Then use it where it's needed: \`${importLine(c.name)}\`. Its parts, props, examples and keyboard behavior are at ${SITE}/components/${c.name}.`;
 
 /** The same for the whole set, pointing Claude Code at llms.txt so it can choose for itself. */
 export const claudePromptAll = `Read ${SITE}/llms.txt. It describes basedraft UI, the ${PACKAGE} npm package of React components. When this project needs one of them (a button, dialog, select, toast, tabs and the rest), install ${PACKAGE} with its peers if it isn't there, import "${PACKAGE}/styles.css" once in the root layout, and use the components instead of writing them by hand.`;

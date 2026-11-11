@@ -3,11 +3,11 @@
 import { ArchiveIcon, ArrowClockwiseIcon, ArrowUpRightIcon, BookOpenTextIcon, CalendarDotsIcon, ChartLineIcon, ChatCircleIcon, CheckIcon, CoinsIcon, CopyIcon, CreditCardIcon, CubeIcon, DeviceMobileIcon, DotsThreeIcon, EnvelopeSimpleIcon, FolderIcon, FoldersIcon, GearSixIcon, GiftIcon, GitBranchIcon, GlobeHemisphereWestIcon, GlobeSimpleIcon, HouseIcon, LightningIcon, ListIcon, LockKeyIcon, MagnifyingGlassIcon, MegaphoneIcon, NewspaperIcon, PaletteIcon, PlusIcon, PulseIcon, PushPinIcon, RocketLaunchIcon, ShieldCheckIcon, SidebarSimpleIcon, StorefrontIcon, UserPlusIcon, UsersThreeIcon, WarningCircleIcon, XIcon, type Icon } from "@phosphor-icons/react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { AccountMenu } from "@/registry/pro-ui/account-menu";
-import { Allowance } from "@/registry/pro-ui/allowance";
-import { AppSidebar, type SidebarSection, type SidebarView } from "@/registry/pro-ui/app-sidebar";
-import { Commit } from "@/registry/pro-ui/commit";
-import { DataTable, type DataTableColumn } from "@/registry/pro-ui/data-table";
+import { AccountMenu } from "@/registry/ui/account-menu";
+import { Allowance } from "@/registry/ui/allowance";
+import { AppSidebar, type SidebarSection, type SidebarView } from "@/registry/ui/app-sidebar";
+import { Commit } from "@/registry/ui/commit";
+import { DataTable, type DataTableColumn } from "@/registry/ui/data-table";
 import { AvatarGroup } from "@/registry/ui/avatar";
 import { Breadcrumb } from "@/registry/ui/breadcrumb";
 import { Button } from "@/registry/ui/button";

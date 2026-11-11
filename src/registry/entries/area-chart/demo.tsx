@@ -2,7 +2,7 @@
 
 import { CheckerboardIcon, DotsNineIcon, GradientIcon, LineSegmentsIcon, ProhibitIcon } from "@phosphor-icons/react";
 import { useState, type ComponentType } from "react";
-import { AreaChart, type ChartPattern } from "../../pro-ui/area-chart";
+import { AreaChart, type ChartPattern } from "../../ui/area-chart";
 import { RollingNumber } from "../../ui/number";
 import { Segmented } from "../../ui/segmented";
 import { Select } from "../../ui/select";
